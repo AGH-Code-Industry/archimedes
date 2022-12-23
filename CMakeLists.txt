@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
 project(
-  Archimedes
+  archimedes
   VERSION 0.1.0
   LANGUAGES CXX C
 )
@@ -12,13 +12,13 @@ set(DEPENDENCIES extern)
 
 add_library(glad)
 target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
-target_include_directories(glad PUBLIC ${DEPENDENCIES}/glad/include)
+target_include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
 
 add_library(${PROJECT_NAME})
 file(GLOB ARCHIMEDES_SOURCE src/**.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -29,6 +29,8 @@ FetchContent_Declare(
 #set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 #^ according to docs it might be helpful on Windows. Gonna leave it commented
 #for now
+#TODO: Compiling unit tests should be optional. I have not implemented it for now
+#      because why bother?
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 set(TESTS_NAME test_${PROJECT_NAME})
