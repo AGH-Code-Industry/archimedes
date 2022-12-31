@@ -21,7 +21,7 @@ TEST(TransformTest, RotationQuaternions) {
     EXPECT_FLOAT_EQ(quaternions.second.w, 0.5f);
 }
 
-TEST(TransformTest, RotatatedPoint) {
+TEST(TransformTest, RotatedPoint) {
     glm::vec3 rotationAxis = glm::vec3(1, 1, 1);
     float rotationAngle = 120.0f;
     auto quaternions = Transform::rotate(rotationAngle, rotationAxis);
@@ -42,4 +42,16 @@ TEST(TransformTest, RotatatedPoint) {
     EXPECT_FLOAT_EQ(pPrim.x, 3);
     EXPECT_FLOAT_EQ(pPrim.y, 1);
     EXPECT_FLOAT_EQ(pPrim.z, 2);
+}
+
+TEST(TransformTest, TranslationTest) {
+    glm::vec3 point(0, 0, 0);
+    glm::vec3 translationVector(1, 2, 3);
+    glm::mat4 translationMatrix = Transform::translate(translationVector);
+
+    glm::vec4 newPoint = translationMatrix*glm::vec4(point, 1);
+
+    EXPECT_FLOAT_EQ(newPoint.x, point.x+translationVector.x);
+    EXPECT_FLOAT_EQ(newPoint.y, point.y+translationVector.y);
+    EXPECT_FLOAT_EQ(newPoint.z, point.z+translationVector.z);
 }
