@@ -41,3 +41,21 @@ glm::mat4 Transform::translate(float x, float y, float z) {
 
     return translate(translationVector);
 }
+
+glm::mat4 Transform::scale(glm::vec3 scalingVector) {
+    glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), scalingVector);
+
+    return scalingMatrix;
+}
+
+glm::mat4 Transform::scale(float x, float y, float z) {
+    glm::vec3 scalingVector = glm::vec3(x, y, z);
+
+    return scale(scalingVector);
+}
+
+glm::mat4 Transform::scale(float a) {
+    auto scalingVector = glm::vec3(a);
+
+    return scale(scalingVector);
+}

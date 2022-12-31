@@ -55,3 +55,27 @@ TEST(TransformTest, TranslationTest) {
     EXPECT_FLOAT_EQ(newPoint.y, point.y+translationVector.y);
     EXPECT_FLOAT_EQ(newPoint.z, point.z+translationVector.z);
 }
+
+TEST(TransformTest, ScalingTestWithVector) {
+    glm::vec3 point(1, 2, 3);
+    glm::vec3 scalingVector(1, 2, 3);
+    glm::mat4 scalingMatrix = Transform::scale(scalingVector);
+
+    glm::vec4 newPoint = scalingMatrix*glm::vec4(point, 1);
+
+    EXPECT_FLOAT_EQ(newPoint.x, point.x*scalingVector.x);
+    EXPECT_FLOAT_EQ(newPoint.y, point.y*scalingVector.y);
+    EXPECT_FLOAT_EQ(newPoint.z, point.z*scalingVector.z);
+}
+
+TEST(TransformTest, ScalingTestWithScalar) {
+    glm::vec3 point(1, 2, 3);
+    float scalar = 3;
+    glm::mat4 scalingMatrix = Transform::scale(scalar);
+
+    glm::vec4 newPoint = scalingMatrix*glm::vec4(point, 1);
+
+    EXPECT_FLOAT_EQ(newPoint.x, point.x*scalar);
+    EXPECT_FLOAT_EQ(newPoint.y, point.y*scalar);
+    EXPECT_FLOAT_EQ(newPoint.z, point.z*scalar);
+}

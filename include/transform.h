@@ -50,18 +50,25 @@ public:
     static glm::mat4 translate(float x, float y, float z);
 
     /**
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @return
+     * Creates matrix ideal for scaling objects by given values
+     * @param scalingVector Vector with scaling factors.
+     * @return glm::mat4 matrix needed for scaling object by given values for each direction
+     */
+    static glm::mat4 scale(glm::vec3 scalingVector);
+
+    /**
+     * Creates matrix ideal for scaling objects by given values
+     * @param x x factor
+     * @param y y factor
+     * @param z z factor
+     * @return glm::mat4 matrix needed for scaling object by given values for each direction
      */
     static glm::mat4 scale(float x, float y, float z);
 
     /**
-     *
-     * @param a
-     * @return
+     * Creates matrix ideal for scaling objects in x,y,z directions by given value
+     * @param a scaling factor
+     * @return glm::mat4 matrix needed for scaling object by given value for each direction
      */
     static glm::mat4 scale(float a);
 };
