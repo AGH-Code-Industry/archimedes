@@ -13,6 +13,8 @@ std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y,
 
     //fix angle
     angle /= 2;
+    const double pi = std::acos(-1);
+    angle *= static_cast<float>(pi/180.0);
 
     //create rotation quaternions
     float a = x * std::sin(angle);
@@ -20,7 +22,7 @@ std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y,
     float c = z * std::sin(angle);
     glm::vec3 imaginaryPart = glm::vec3(a,b,c);
     glm::vec4 q = glm::vec4(imaginaryPart, std::cos(angle));
-    glm::vec4 q1 = glm::vec4(-imaginaryPart, q.w);
+    glm::vec4 q1 = glm::vec4(-imaginaryPart, std::cos(angle));
 
     return std::make_pair(q, q1);
 }
