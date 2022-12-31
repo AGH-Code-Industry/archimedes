@@ -30,3 +30,14 @@ std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y,
 std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, glm::vec3 rotationAxis) {
     return rotate(angle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
 }
+
+glm::mat4 Transform::translate(glm::vec3 translationVector) {
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationVector);
+    return translationMatrix;
+}
+
+glm::mat4 Transform::translate(float x, float y, float z) {
+    glm::vec3 translationVector = glm::vec3(x, y, z);
+
+    return translate(translationVector);
+}
