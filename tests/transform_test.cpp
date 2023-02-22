@@ -8,7 +8,7 @@
 TEST(TransformTest, RotationQuaternions) {
     glm::vec3 rotationAxis = glm::vec3(1, 1, 1);
     float rotationAngle = 120.0f;
-    auto quaternions = Transform::rotate(rotationAngle, rotationAxis);
+    auto quaternions = arch::Transform::rotate(rotationAngle, rotationAxis);
 
     EXPECT_FLOAT_EQ(quaternions.first.x, 0.5f);
     EXPECT_FLOAT_EQ(quaternions.first.y, 0.5f);
@@ -24,7 +24,7 @@ TEST(TransformTest, RotationQuaternions) {
 TEST(TransformTest, RotatedPoint) {
     glm::vec3 rotationAxis = glm::vec3(1, 1, 1);
     float rotationAngle = 120.0f;
-    auto quaternions = Transform::rotate(rotationAngle, rotationAxis);
+    auto quaternions = arch::Transform::rotate(rotationAngle, rotationAxis);
     glm::vec4 point = glm::vec4(1, 2, 3, 0);
 
     auto multiplyQuaternions = [](glm::vec4 q1, glm::vec4 q2){
@@ -47,7 +47,7 @@ TEST(TransformTest, RotatedPoint) {
 TEST(TransformTest, TranslationTest) {
     glm::vec3 point(0, 0, 0);
     glm::vec3 translationVector(1, 2, 3);
-    glm::mat4 translationMatrix = Transform::translate(translationVector);
+    glm::mat4 translationMatrix = arch::Transform::translate(translationVector);
 
     glm::vec4 newPoint = translationMatrix*glm::vec4(point, 1);
 
@@ -59,7 +59,7 @@ TEST(TransformTest, TranslationTest) {
 TEST(TransformTest, ScalingTestWithVector) {
     glm::vec3 point(1, 2, 3);
     glm::vec3 scalingVector(1, 2, 3);
-    glm::mat4 scalingMatrix = Transform::scale(scalingVector);
+    glm::mat4 scalingMatrix = arch::Transform::scale(scalingVector);
 
     glm::vec4 newPoint = scalingMatrix*glm::vec4(point, 1);
 
@@ -71,7 +71,7 @@ TEST(TransformTest, ScalingTestWithVector) {
 TEST(TransformTest, ScalingTestWithScalar) {
     glm::vec3 point(1, 2, 3);
     float scalar = 3;
-    glm::mat4 scalingMatrix = Transform::scale(scalar);
+    glm::mat4 scalingMatrix = arch::Transform::scale(scalar);
 
     glm::vec4 newPoint = scalingMatrix*glm::vec4(point, 1);
 

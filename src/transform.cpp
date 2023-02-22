@@ -4,6 +4,8 @@
 
 #include "transform.h"
 
+using namespace arch;
+
 std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y, float z) {
     //normalize x,y,z
     auto norm =  static_cast<float>(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));

@@ -1,0 +1,30 @@
+//
+// Created by tosiek on 22.02.23.
+//
+
+#ifndef ARCHIMEDES_ENGINE_H
+#define ARCHIMEDES_ENGINE_H
+
+#include <window.h>
+#include <exceptions/init_exception.h>
+
+namespace arch {
+    /**
+     * Main class of Archimedes project.
+     */
+    class Engine {
+    public:
+        /**
+         * Only function visible for user.
+         */
+        void start();
+
+    private:
+        /**
+         * Responsible for drawing game on the screen.
+         */
+        void main_loop();
+    };
+}
+
+#endif //ARCHIMEDES_ENGINE_H
