@@ -9,7 +9,13 @@
 
 namespace arch {
     class InitException : public std::exception {
+    public:
+        InitException(const std::string message = "");
 
+        const char* what();
+
+    private:
+        const std::string _message;
     };
 }
 

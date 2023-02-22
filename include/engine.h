@@ -6,7 +6,6 @@
 #define ARCHIMEDES_ENGINE_H
 
 #include <window.h>
-#include <exceptions/init_exception.h>
 
 namespace arch {
     /**
@@ -20,10 +19,17 @@ namespace arch {
         void start();
 
     private:
+        Window _window;
+
         /**
          * Responsible for drawing game on the screen.
          */
         void main_loop();
+
+        /**
+         * Initialize glfw in engine and creates window.
+         */
+        void initialize();
     };
 }
 

@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 
+#include <exceptions/init_exception.h>
+
 #ifndef ARCHIMEDES_WINDOW_H
 #define ARCHIMEDES_WINDOW_H
 
@@ -37,8 +39,11 @@ namespace arch {
         GLFWwindow* get();
 
     private:
-        GLFWwindow* _window;
+        GLFWwindow* _window{};
 
+        void initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow *window);
+
+        static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     };
 }
 
