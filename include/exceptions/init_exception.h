@@ -10,7 +10,7 @@
 namespace arch {
     class InitException : public std::exception {
     public:
-        InitException(const std::string message = "");
+        explicit InitException(const std::string&& message = "") : _message(message){};
 
         const char* what();
 

@@ -34,3 +34,22 @@ GLFWwindow *Window::get() {
 void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+
+void Window::swap_buffers(){
+    glfwSwapBuffers(_window);
+}
+
+bool Window::should_close() {
+    return glfwWindowShouldClose(_window);
+}
+
+void Window::clear(glm::vec4 color) {
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void Window::clear(float r, float g, float b, float a) {
+    glm::vec4 color(r,g,b,a);
+    clear(color);
+}

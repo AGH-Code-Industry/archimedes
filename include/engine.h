@@ -18,8 +18,11 @@ namespace arch {
          */
         void start();
 
+        Engine(): _background_color(0.0f, 0.0f, 0.0f, 1.0f){}
+
     private:
         Window _window;
+        glm::vec4 _background_color;
 
         /**
          * Responsible for drawing game on the screen.
@@ -30,6 +33,16 @@ namespace arch {
          * Initialize glfw in engine and creates window.
          */
         void initialize();
+
+        /**
+         * Clearing all previously allocated GLFW and Engine resources.
+         */
+        void terminate();
+
+        /**
+         * Process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+         */
+        void process_input();
     };
 }
 

@@ -8,6 +8,7 @@
 #include <string>
 
 #include <exceptions/init_exception.h>
+#include "glm/vec4.hpp"
 
 #ifndef ARCHIMEDES_WINDOW_H
 #define ARCHIMEDES_WINDOW_H
@@ -15,6 +16,7 @@
 namespace arch {
     class Window {
     public:
+        Window()=default;
         /**
          * Constructor.
          * @param width Window's width.
@@ -38,9 +40,23 @@ namespace arch {
          */
         GLFWwindow* get();
 
+        void clear(glm::vec4 color);
+        void clear(float r, float g, float b, float a);
+        void swap_buffers();
+
+        bool should_close();
+
     private:
         GLFWwindow* _window{};
 
+        /**
+         * Initializes window
+         * @param width Window's width.
+         * @param height Window's height.
+         * @param name Window's name.
+         * @param monitor The monitor to use for fullscreen mode.
+         * @param window The window whose context to share resources with, or NULL to not share resources.
+         */
         void initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow *window);
 
         static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
