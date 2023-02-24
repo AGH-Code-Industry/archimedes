@@ -26,5 +26,7 @@ namespace arch {
 
         EXPECT_EQ(width, 1920);
         EXPECT_EQ(height, 1080);
+        EXPECT_EQ(engine._engineConfig.windowTitle, "My game");
+        EXPECT_EQ(engine._engineConfig.backgroundColor, glm::vec4(0.0, 0.0, 0.0, 1.0));
     }
 }
