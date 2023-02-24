@@ -6,6 +6,11 @@
 #define ARCHIMEDES_ENGINE_H
 
 #include <window.h>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <string>
+#include <exceptions/config_exception.h>
+#include <gtest/gtest_prod.h>
 
 namespace arch {
     /**
@@ -13,16 +18,23 @@ namespace arch {
      */
     class Engine {
     public:
+        struct EngineConfig {
+            int width;
+            int height;
+            std::string windowTitle;
+            glm::vec4 backgroundColor;
+        };
+
         /**
          * Only function visible for user.
          */
         void start();
 
-        Engine(): _background_color(0.0f, 0.0f, 0.0f, 1.0f){}
-
     private:
         Window _window;
-        glm::vec4 _background_color;
+        EngineConfig _engineConfig;
+
+        FRIEND_TEST(EngineTest, ConfigWindowTest);
 
         /**
          * Responsible for drawing game on the screen.
@@ -43,6 +55,11 @@ namespace arch {
          * Process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
          */
         void process_input();
+
+        /**
+         * Loads configuration files for engine.
+         */
+        void load_configuration();
     };
 }
 

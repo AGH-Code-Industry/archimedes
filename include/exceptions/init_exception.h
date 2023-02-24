@@ -3,6 +3,7 @@
 //
 
 #include <exception>
+#include <string>
 
 #ifndef ARCHIMEDES_INIT_EXCEPTION_H
 #define ARCHIMEDES_INIT_EXCEPTION_H
@@ -10,12 +11,12 @@
 namespace arch {
     class InitException : public std::exception {
     public:
-        explicit InitException(const std::string&& message = "") : _message(message){};
+        explicit InitException(const std::string& message = "");
 
-        const char* what();
+        [[nodiscard]] const char* what() const noexcept override;
 
     private:
-        const std::string _message;
+        std::string _message;
     };
 }
 

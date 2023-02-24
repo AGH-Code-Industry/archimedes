@@ -2,13 +2,14 @@
 // Created by tosiek on 22.02.23.
 //
 
-#include "exceptions/init_exception.h"
+#include <exceptions/init_exception.h>
 
 using namespace arch;
 
-const char* InitException::what() {
-    if (_message == "") {
-        return "Failed while initialization";
-    }
-    return "Failed while initialization: " + _message;
+InitException::InitException(const std::string& message) {
+    _message = "Failed while initialization: " + message;
+}
+
+const char *InitException::what() const noexcept {
+    return _message.c_str();
 }

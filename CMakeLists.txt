@@ -15,9 +15,9 @@ target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
 target_include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
 
 add_library(${PROJECT_NAME})
-file(GLOB ARCHIMEDES_SOURCE src/**.cpp)
+file(GLOB ARCHIMEDES_SOURCE src/*.cpp src/exceptions/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include)
+target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
 
 include(FetchContent)
