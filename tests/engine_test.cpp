@@ -9,4 +9,5 @@ TEST(EngineTest, CreatingEngine){
     arch::Engine engine;
 
     EXPECT_TRUE(&engine);
+    engine.start();
 }

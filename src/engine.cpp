@@ -27,8 +27,7 @@ void Engine::main_loop() {
 }
 
 void Engine::initialize() {
-    if (!glfwInit())
-        throw InitException();
+    glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -39,6 +38,10 @@ void Engine::initialize() {
 #endif
 
     _window = Window(1920, 1080, "MyGame", nullptr);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        throw InitException("Cannot initialize GLAD");
+    }
 }
 
 void Engine::terminate() {

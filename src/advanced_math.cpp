@@ -2,6 +2,6 @@
 
 using namespace arch;
 
-int two_plus_two() {
+int arch::two_plus_two() {
     return 2 + 2;
 }
