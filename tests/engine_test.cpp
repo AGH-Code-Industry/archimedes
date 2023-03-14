@@ -22,7 +22,7 @@ namespace arch {
 
         glfwGetWindowSize(engine._window.get(), &width, &height);
 
-        engine.terminate();
+        arch::Engine::terminate();
 
         EXPECT_EQ(width, 1920);
         EXPECT_EQ(height, 1080);

@@ -6,7 +6,7 @@
 
 using namespace arch;
 
-std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y, float z) {
+Quaternions Transform::rotate(float angle, float x, float y, float z) {
     //normalize x,y,z
     auto norm =  static_cast<float>(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));
     x /= norm;
@@ -26,10 +26,10 @@ std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y,
     glm::vec4 q = glm::vec4(imaginaryPart, std::cos(angle));
     glm::vec4 q1 = glm::vec4(-imaginaryPart, std::cos(angle));
 
-    return std::make_pair(q, q1);
+    return {q, q1};
 }
 
-std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, glm::vec3 rotationAxis) {
+Quaternions Transform::rotate(float angle, glm::vec3 rotationAxis) {
     return rotate(angle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
 }
 

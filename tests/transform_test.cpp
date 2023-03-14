@@ -11,15 +11,15 @@ namespace arch {
         float rotationAngle = 120.0f;
         auto quaternions = arch::Transform::rotate(rotationAngle, rotationAxis);
 
-        EXPECT_FLOAT_EQ(quaternions.first.x, 0.5f);
-        EXPECT_FLOAT_EQ(quaternions.first.y, 0.5f);
-        EXPECT_FLOAT_EQ(quaternions.first.z, 0.5f);
-        EXPECT_FLOAT_EQ(quaternions.first.w, 0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q1.x, 0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q1.y, 0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q1.z, 0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q1.w, 0.5f);
 
-        EXPECT_FLOAT_EQ(quaternions.second.x, -0.5f);
-        EXPECT_FLOAT_EQ(quaternions.second.y, -0.5f);
-        EXPECT_FLOAT_EQ(quaternions.second.z, -0.5f);
-        EXPECT_FLOAT_EQ(quaternions.second.w, 0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q2.x, -0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q2.y, -0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q2.z, -0.5f);
+        EXPECT_FLOAT_EQ(quaternions.q2.w, 0.5f);
     }
 
     TEST(TransformTest, RotatedPoint) {
@@ -37,8 +37,8 @@ namespace arch {
             return glm::vec4(i,j,k,a);
         };
 
-        glm::vec4 pPrim = multiplyQuaternions(quaternions.first,point);
-        pPrim = multiplyQuaternions(pPrim, quaternions.second);
+        glm::vec4 pPrim = multiplyQuaternions(quaternions.q1,point);
+        pPrim = multiplyQuaternions(pPrim, quaternions.q2);
 
         EXPECT_FLOAT_EQ(pPrim.x, 3);
         EXPECT_FLOAT_EQ(pPrim.y, 1);
