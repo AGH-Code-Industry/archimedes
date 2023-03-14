@@ -25,6 +25,8 @@ namespace arch {
             glm::vec4 backgroundColor;
         };
 
+        ~Engine();
+
         /**
          * Only function visible for user.
          */
@@ -49,7 +51,7 @@ namespace arch {
         /**
          * Clearing all previously allocated GLFW and Engine resources.
          */
-        void terminate();
+        static void terminate();
 
         /**
          * Process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

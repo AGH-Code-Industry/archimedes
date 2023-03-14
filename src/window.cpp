@@ -7,11 +7,13 @@
 using namespace arch;
 
 Window::Window(int width, int height, const std::string& name, GLFWmonitor *monitor, Window &share) {
-    initialize(width, height, name.c_str(), monitor, share._window);
+    _title = name;
+    initialize(width, height, _title.c_str(), monitor, share._window);
 }
 
 Window::Window(int width, int height, const std::string& name, GLFWmonitor *monitor) {
-    initialize(width, height, name.c_str(), monitor, nullptr);
+    _title = name;
+    initialize(width, height, _title.c_str(), monitor, nullptr);
 }
 
 void Window::initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow *window) {
@@ -53,3 +55,16 @@ void Window::clear(float r, float g, float b, float a) {
     glm::vec4 color(r,g,b,a);
     clear(color);
 }
+
+Window &Window::operator=(const Window &w) {
+    if (this != &w) {
+        _title = w._title;
+        int width, height;
+        glfwGetWindowSize(w._window, &width, &height);
+        _window = glfwCreateWindow(width, height, _title.c_str(), nullptr, nullptr);
+        return *this;
+    } else {
+        return *this;
+    }
+}
+

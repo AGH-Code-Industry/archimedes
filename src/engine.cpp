@@ -7,6 +7,11 @@
 using namespace arch;
 using json = nlohmann::json;
 
+Engine::~Engine() {
+    terminate();
+}
+
+
 void Engine::start() {
     initialize();
 
@@ -39,7 +44,6 @@ void Engine::initialize() {
 #endif
 
     load_configuration();
-
     _window = Window(_engineConfig.width, _engineConfig.height, _engineConfig.windowTitle, nullptr);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {

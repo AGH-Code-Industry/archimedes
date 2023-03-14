@@ -16,13 +16,14 @@
 namespace arch {
     class Window {
     public:
-        Window()=default;
+        Window() = default;
+        Window(const Window &other) = delete;
         /**
          * Constructor.
          * @param width Window's width.
          * @param height Window's height.
          * @param name Window's name.
-         * @param monitor The monitor to use for fullscreen mode.
+         * @param monitor The pointer to the monitor to use for fullscreen mode.
          * @param share The window whose context to share resources with, or NULL to not share resources.
          */
         Window(int width, int height, const std::string& name, GLFWmonitor* monitor, Window &share);
@@ -45,8 +46,10 @@ namespace arch {
         void swap_buffers();
 
         bool should_close();
+        Window& operator=(const Window& w);
 
     private:
+        std::string _title;
         GLFWwindow* _window{};
 
         /**
