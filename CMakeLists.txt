@@ -18,7 +18,8 @@ add_library(${PROJECT_NAME})
 file(GLOB ARCHIMEDES_SOURCE src/**.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/glfw/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE "C:\\repos\\archimedes\\extern\\glfw\\lib-vc2022\\glfw3.lib" glad)
+link_directories(${DEPENDENCIES}/GLFW/lib-vc2022)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw3 glad)
 
 include(FetchContent)
 FetchContent_Declare(
