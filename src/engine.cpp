@@ -26,7 +26,7 @@ void Engine::main_loop() {
     {
         process_input();
 
-        _window.clear(_engineConfig.backgroundColor);
+        _window.clear(_engine_config.background_color);
         _window.swap_buffers();
         glfwPollEvents();
     }
@@ -44,7 +44,7 @@ void Engine::initialize() {
 #endif
 
     load_configuration();
-    _window = Window(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle, nullptr);
+    _window = Window(_engine_config.window_width, _engine_config.window_height, _engine_config.window_title, nullptr);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw InitException();
@@ -66,9 +66,9 @@ void Engine::load_configuration(){
         std::ifstream windowConfigFile("config/engine-config/window.json");
         json windowJsonData = json::parse(windowConfigFile);
 
-        _engineConfig.windowWidth = windowJsonData["width"];
-        _engineConfig.windowHeight = windowJsonData["height"];
-        _engineConfig.windowTitle = windowJsonData["window_title"];
+        _engine_config.window_width = windowJsonData["width"];
+        _engine_config.window_height = windowJsonData["height"];
+        _engine_config.window_title = windowJsonData["window_title"];
 
         auto background_color_list = windowJsonData["background_color"];
 
@@ -77,7 +77,7 @@ void Engine::load_configuration(){
         float b = background_color_list.at(2);
         float a = background_color_list.at(3);
 
-        _engineConfig.backgroundColor = glm::vec4(r, g, b, a);
+        _engine_config.background_color = glm::vec4(r, g, b, a);
     } catch(json::exception &e) {
         throw ConfigException("wrong JSON file for engine config (" + std::string(e.what()) + ")");
     } catch(std::ifstream::failure &e) {

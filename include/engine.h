@@ -19,10 +19,10 @@ namespace arch {
     class Engine {
     public:
         struct EngineConfig {
-            int windowWidth;
-            int windowHeight;
-            std::string windowTitle;
-            glm::vec4 backgroundColor;
+            int window_width;
+            int window_height;
+            std::string window_title;
+            glm::vec4 background_color;
         };
 
         ~Engine();
@@ -34,7 +34,7 @@ namespace arch {
 
     private:
         Window _window;
-        EngineConfig _engineConfig;
+        EngineConfig _engine_config;
 
         FRIEND_TEST(EngineTest, ConfigWindowTest);
 

@@ -30,17 +30,17 @@ namespace arch {
         /**
          * Calculates quaternions needed for rotation relative to given vector components
          * @param angle rotation angle in degrees
-         * @param rotationAxis vector generating rotation axis
+         * @param rotation_axis vector generating rotation axis
          * @return std::pair<glm::vec4, glm::vec4> - (q, q^-1)
          */
-        static std::pair<Quaternion, Quaternion> rotate(float angle, glm::vec3 rotationAxis);
+        static std::pair<Quaternion, Quaternion> rotate(float angle, glm::vec3 rotation_axis);
 
         /**
          * Creates matrix needed to shift point by given vector.
-         * @param translationVector vector used to translate point
+         * @param translation_vector vector used to translate point
          * @return glm::mat4 needed for translating point by given vector
          */
-        static glm::mat4 translate(glm::vec3 translationVector);
+        static glm::mat4 translate(glm::vec3 translation_vector);
 
         /**
          * Creates matrix needed to shift point by given vector.
@@ -53,10 +53,10 @@ namespace arch {
 
         /**
          * Creates matrix ideal for scaling objects by given values
-         * @param scalingVector Vector with scaling factors.
+         * @param scaling_vector Vector with scaling factors.
          * @return glm::mat4 matrix needed for scaling object by given values for each direction
          */
-        static glm::mat4 scale(glm::vec3 scalingVector);
+        static glm::mat4 scale(glm::vec3 scaling_vector);
 
         /**
          * Creates matrix ideal for scaling objects by given values
