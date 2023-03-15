@@ -6,7 +6,7 @@
 
 using namespace arch;
 
-Quaternions Transform::rotate(float angle, float x, float y, float z) {
+std::pair<Quaternion, Quaternion> Transform::rotate(float angle, float x, float y, float z) {
     //normalize x,y,z
     auto norm =  static_cast<float>(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));
     x /= norm;
@@ -29,7 +29,7 @@ Quaternions Transform::rotate(float angle, float x, float y, float z) {
     return {q, q1};
 }
 
-Quaternions Transform::rotate(float angle, glm::vec3 rotationAxis) {
+std::pair<Quaternion, Quaternion> Transform::rotate(float angle, glm::vec3 rotationAxis) {
     return rotate(angle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
 }
 

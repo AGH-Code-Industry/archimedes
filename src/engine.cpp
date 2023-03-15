@@ -44,7 +44,7 @@ void Engine::initialize() {
 #endif
 
     load_configuration();
-    _window = Window(_engineConfig.width, _engineConfig.height, _engineConfig.windowTitle, nullptr);
+    _window = Window(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle, nullptr);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw InitException();
@@ -66,8 +66,8 @@ void Engine::load_configuration(){
         std::ifstream windowConfigFile("config/engine-config/window.json");
         json windowJsonData = json::parse(windowConfigFile);
 
-        _engineConfig.width = windowJsonData["width"];
-        _engineConfig.height = windowJsonData["height"];
+        _engineConfig.windowWidth = windowJsonData["width"];
+        _engineConfig.windowHeight = windowJsonData["height"];
         _engineConfig.windowTitle = windowJsonData["window_title"];
 
         auto background_color_list = windowJsonData["background_color"];

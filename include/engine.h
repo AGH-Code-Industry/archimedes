@@ -19,8 +19,8 @@ namespace arch {
     class Engine {
     public:
         struct EngineConfig {
-            int width;
-            int height;
+            int windowWidth;
+            int windowHeight;
             std::string windowTitle;
             glm::vec4 backgroundColor;
         };

@@ -12,12 +12,7 @@
 #define ARCHIMEDES_TRANSFORM_H
 
 namespace arch {
-    struct Quaternions {
-        glm::vec4 q1;
-        glm::vec4 q2;
-
-        Quaternions(glm::vec4 q, glm::vec4 q_1) : q1(q), q2(q_1){};
-    };
+    using Quaternion = glm::vec4;
 
     class Transform {
 
@@ -30,7 +25,7 @@ namespace arch {
          * @param z z component of the vector generating rotation axis
          * @return Quaternions structure with (q, q^-1)
          */
-        static Quaternions rotate(float angle, float x, float y, float z);
+        static std::pair<Quaternion, Quaternion> rotate(float angle, float x, float y, float z);
 
         /**
          * Calculates quaternions needed for rotation relative to given vector components
@@ -38,7 +33,7 @@ namespace arch {
          * @param rotationAxis vector generating rotation axis
          * @return std::pair<glm::vec4, glm::vec4> - (q, q^-1)
          */
-        static Quaternions rotate(float angle, glm::vec3 rotationAxis);
+        static std::pair<Quaternion, Quaternion> rotate(float angle, glm::vec3 rotationAxis);
 
         /**
          * Creates matrix needed to shift point by given vector.
