@@ -5,10 +5,7 @@
 #include "graphics/texture.h"
 
 #include <string>
-#include <exception>
 #include <vector>
-
-#include <assimp/Importer.hpp>
 
 namespace arch {
 

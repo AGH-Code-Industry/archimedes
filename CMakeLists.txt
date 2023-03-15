@@ -13,7 +13,7 @@ set(DEPENDENCIES extern)
 
 add_library(glad)
 target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
-target_include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
+include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
 
 add_subdirectory(extern/assimp)
 
