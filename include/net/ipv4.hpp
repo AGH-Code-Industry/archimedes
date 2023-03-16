@@ -27,6 +27,8 @@ namespace net
 
 		data_type data;
 
+		static IPv4 localhost;
+
 		/// @brief Default constructor.
 		///
 		IPv4();
