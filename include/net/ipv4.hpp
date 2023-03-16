@@ -25,8 +25,12 @@ namespace net
 			binary_type binary;
 		};
 
+		/// @brief Address data.
+		///
 		data_type data;
 
+		/// @brief Example loopback address.
+		///
 		static IPv4 localhost;
 
 		/// @brief Default constructor.
@@ -46,7 +50,7 @@ namespace net
 		IPv4(octet_type octet_0, octet_type octet_1, octet_type octet_2, octet_type octet_3);
 		/// @brief Binary value constructor
 		/// @param binary - binary value of address.
-		IPv4(binary_type binary);
+		explicit IPv4(binary_type binary);
 		/// @brief in_addr constructor.
 		/// @param addr - in_addr structure to convert from.
 		IPv4(in_addr addr);
@@ -60,6 +64,14 @@ namespace net
 		/// @brief Converts to in_addr.
 		///
 		operator in_addr() const;
+		
+		/// @brief Equality operator
+		/// @param second - IPv4 to compare with.
+		/// @return True if equal, false otherwise.
+		bool operator==(IPv4 second) const;
+		/// @brief Three-way comparision operator.
+		/// @param second - IPv4 to compare with.
+		std::strong_ordering operator<=>(IPv4 second) const;
 	};
 
 	/// @brief ostream insertion operator.

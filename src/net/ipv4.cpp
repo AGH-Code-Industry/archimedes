@@ -64,6 +64,27 @@ namespace net
 		return *reinterpret_cast<const in_addr*>( &data.binary );
 	}
 
+	bool IPv4::operator==(IPv4 second) const
+	{
+		return data.binary == second.data.binary;
+	}
+	std::strong_ordering IPv4::operator<=>(IPv4 second) const
+	{
+		for ( size_t i = 0; i < 4; ++i )
+		{
+			if ( data.octets[ i ] < second.data.octets[ i ] )
+			{
+				return std::strong_ordering::less;
+			}
+			else if ( data.octets[ i ] > second.data.octets[ i ] )
+			{
+				return std::strong_ordering::greater;
+			}
+		}
+
+		return std::strong_ordering::equal;
+	}
+
 	std::ostream& operator<<(std::ostream& os, const IPv4& ip)
 	{
 		return os << ip.str();
