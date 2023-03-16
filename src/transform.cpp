@@ -4,7 +4,9 @@
 
 #include "transform.h"
 
-std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y, float z) {
+using namespace arch;
+
+std::pair<Quaternion, Quaternion> Transform::rotate(float angle, float x, float y, float z) {
     //normalize x,y,z
     auto norm =  static_cast<float>(sqrt(pow(x,2) + pow(y,2) + pow(z,2)));
     x /= norm;
@@ -24,15 +26,15 @@ std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, float x, float y,
     glm::vec4 q = glm::vec4(imaginaryPart, std::cos(angle));
     glm::vec4 q1 = glm::vec4(-imaginaryPart, std::cos(angle));
 
-    return std::make_pair(q, q1);
+    return {q, q1};
 }
 
-std::pair<glm::vec4, glm::vec4> Transform::rotate(float angle, glm::vec3 rotationAxis) {
-    return rotate(angle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
+std::pair<Quaternion, Quaternion> Transform::rotate(float angle, glm::vec3 rotation_axis) {
+    return rotate(angle, rotation_axis.x, rotation_axis.y, rotation_axis.z);
 }
 
-glm::mat4 Transform::translate(glm::vec3 translationVector) {
-    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationVector);
+glm::mat4 Transform::translate(glm::vec3 translation_vector) {
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translation_vector);
     return translationMatrix;
 }
 
@@ -42,8 +44,8 @@ glm::mat4 Transform::translate(float x, float y, float z) {
     return translate(translationVector);
 }
 
-glm::mat4 Transform::scale(glm::vec3 scalingVector) {
-    glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), scalingVector);
+glm::mat4 Transform::scale(glm::vec3 scaling_vector) {
+    glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), scaling_vector);
 
     return scalingMatrix;
 }
