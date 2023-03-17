@@ -30,14 +30,13 @@ public:
      */
     Shader(const std::string  &vertexPath, const std::string  &fragmentPath);
 
-
-    Shader(const Shader& shader);
+    Shader(const Shader& shader) = delete;
 
     Shader(const Shader&& shader) noexcept;
 
     Shader & operator=(const Shader& shader) = delete;
 
-    Shader & operator=(const Shader&& shader) noexcept = delete;
+    Shader & operator=(const Shader&& shader) noexcept;
 
     ~Shader();
     /**
@@ -45,25 +44,25 @@ public:
     * @param name
     * @param matrix
     */
-    void set_uniform_matrix_4_fv(const std::string &name, glm::mat4 matrix) const;
+    void set_uniform_matrix4fv(const std::string &name, glm::mat4 matrix) const;
     /**
      * @brief Sets uniform float
      * @param name
      * @param value
      */
-    void set_uniform_1_f(const std::string &name, GLfloat value) const;
+    void set_uniform1f(const std::string &name, GLfloat value) const;
     /**
      * @brief Sets uniform integer
      * @param name
      * @param value
      */
-    void set_uniform_1_ui(const std::string &name, GLuint value) const;
+    void set_uniform1ui(const std::string &name, GLuint value) const;
     /**
      * @brief Sets uniform vector
      * @param name
      * @param vector
      */
-    void set_uniform_1_i(const std::string &name, GLint value) const;
+    void set_uniform1i(const std::string &name, GLint value) const;
     /**
      * Getter for the ID of the shader program
      * @return
@@ -89,9 +88,13 @@ private:
     /**
      * @brief Checks if the shader was compiled successfully
      * @param shader ID of the shader
-     * @param type type of the shader
      */
-    static void check_compile_errors(GLuint shader, const std::string& type);
+    static void check_compile_errors(GLuint shader);
+    /**
+    * @brief Checks if the shader was linked successfully
+    * @param program ID of the shader(program)
+    */
+    static void check_link_errors(GLuint program);
     /**
      * @brief Gets the content of the shader file
      * @param path path to the shader file
@@ -113,7 +116,6 @@ class ShaderException : public std::runtime_error {
 public:
     explicit ShaderException(const std::string &msg) : std::runtime_error(msg) {}
     const char * what () const noexcept override;
-    ~ShaderException() override = default;
 };
 class ShaderCompileException : public ShaderException {
 public:
