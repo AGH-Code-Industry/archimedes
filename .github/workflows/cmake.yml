@@ -2,7 +2,9 @@ name: CMake
 
 on:
   push:
-    branches: [ "master" ]
+    branches: 
+    - master
+    - clang-format-ci-cd
   pull_request:
     branches: [ "master" ]
 
