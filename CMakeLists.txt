@@ -20,8 +20,8 @@ add_subdirectory(extern/assimp)
 add_library(${PROJECT_NAME})
 file(GLOB_RECURSE ARCHIMEDES_SOURCE src/**.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
+include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include ${DEPENDENCIES}/assimp/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad assimp)
-include_directories(include extern/glm extern/assimp/include)
 
 include(FetchContent)
 FetchContent_Declare(
