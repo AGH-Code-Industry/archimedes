@@ -6,7 +6,8 @@ on:
     - master
     - clang-format-ci-cd
   pull_request:
-    branches: [ "master" ]
+    branches: 
+    - master
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -23,6 +24,12 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - name: Install GLFW
+      run: |
+          sudo apt update
+          sudo apt install libglfw3 libglfw3-dev
+
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
