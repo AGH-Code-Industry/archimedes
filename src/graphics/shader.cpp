@@ -1,46 +1,31 @@
 
-#include "../../include/graphics/shader.h"
+#include "graphics/shader.h"
 
-Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath, const std::string &geometryPath) : ID(0) {
+Shader::Shader(const std::vector<std::string>& paths) : ID(0) {
     std::string vertexCode;
     std::string fragmentCode;
     std::string geometryCode;
-    vertexCode = get_file_content(vertexPath);
-    fragmentCode = get_file_content(fragmentPath);
-    geometryCode = get_file_content(geometryPath);
+    vertexCode = get_file_content(paths[0]);
+    fragmentCode = get_file_content(paths[1]);
+    if(paths.size() == 3) {
+        geometryCode = get_file_content(paths[2]);
+    }
 
-    const char *vShaderCode = vertexCode.c_str();
-    const char *fShaderCode = fragmentCode.c_str();
-    const char *gShaderCode = geometryCode.c_str();
-
+    const char* vShaderCode = vertexCode.c_str();
+    const char* fShaderCode = fragmentCode.c_str();
+    const char* gShaderCode = geometryCode.c_str();
     GLuint vertex, fragment, geometry;
 
     vertex = compile_shader(vShaderCode, GL_VERTEX_SHADER);
     fragment = compile_shader(fShaderCode, GL_FRAGMENT_SHADER);
-    geometry = compile_shader(gShaderCode, GL_GEOMETRY_SHADER);
-
-    std::vector<GLuint> shaders = {vertex, fragment, geometry};
-
-    link_program(shaders);
-
-}
-Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) : ID(0) {
-    std::string vertexCode;
-    std::string fragmentCode;
-    vertexCode = get_file_content(vertexPath);
-    fragmentCode = get_file_content(fragmentPath);
-
-    const char* vShaderCode = vertexCode.c_str();
-    const char* fShaderCode = fragmentCode.c_str();
-
-    GLuint vertex, fragment;
-
-    vertex = compile_shader(vShaderCode, GL_VERTEX_SHADER);
-    fragment = compile_shader(fShaderCode, GL_FRAGMENT_SHADER);
+    if(paths.size() == 3) {
+        geometry = compile_shader(gShaderCode, GL_GEOMETRY_SHADER);
+    }
 
     std::vector<GLuint> shaders = {vertex, fragment};
 
     link_program(shaders);
+
 }
 
 Shader::Shader(const Shader &&shader) noexcept {

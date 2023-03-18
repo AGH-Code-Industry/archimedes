@@ -18,17 +18,9 @@ class Shader {
 public:
     /**
      * @brief Constructor of the shader class
-     * @param vertexPath path to the vertex shader
-     * @param fragmentPath path to the fragment shader
-     * @param geometryPath path to the geometry shader
+     * @param std::vector<std::string> paths to the shader files
      */
-    Shader(const std::string  &vertexPath, const std::string  &fragmentPath, const std::string  &geometryPath);
-    /**
-     * @brief Constructor of the shader class
-     * @param vertexPath path to the vertex shader
-     * @param fragmentPath path to the fragment shader
-     */
-    Shader(const std::string  &vertexPath, const std::string  &fragmentPath);
+    explicit Shader( const std::vector<std::string>& paths);
 
     Shader(const Shader& shader) = delete;
 
