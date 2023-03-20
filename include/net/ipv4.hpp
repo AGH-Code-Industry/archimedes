@@ -22,10 +22,10 @@ namespace arch::net {
 			binary_type binary;
 		};
 
-		/// @brief Address data.
-		///
-		data_type data;
+	protected:
+		data_type _data;
 
+	public:
 		/// @brief Example loopback address.
 		///
 		static IPv4 localhost;
@@ -61,6 +61,20 @@ namespace arch::net {
 		/// @brief Converts to in_addr.
 		///
 		operator in_addr() const;
+
+		/// @brief Obtains data of address.
+		///
+		data_type data() const;
+		/// @brief Sets data of address.
+		/// @param new_data - new data of address.
+		void data(data_type new_data);
+		/// @brief Sets binary data of address.
+		/// @param new_data - new data of address.
+		void data(binary_type new_data);
+		/// @brief Sets octet data of address.
+		/// @param octet - number of octet to set.
+		/// @param new_octet - new value of octet.
+		void data(size_t octet, octet_type new_octet);
 
 		/// @brief Preincrement operator.
 		/// 
