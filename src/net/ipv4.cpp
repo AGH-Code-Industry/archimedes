@@ -3,81 +3,105 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-namespace net
-{
+namespace arch::net {
 	IPv4 IPv4::localhost(127, 0, 0, 1);
 
 	IPv4::IPv4() :
-		data{}
-	{
+		data{} {
 
 	}
-	IPv4::IPv4(std::string_view decimal)
-	{
+	IPv4::IPv4(std::string_view decimal) {
 		str(decimal);
 	}
-	IPv4::IPv4(octet_type octets[ 4 ])
-	{
-		data.octets[ 0 ] = octets[ 0 ];
-		data.octets[ 1 ] = octets[ 1 ];
-		data.octets[ 2 ] = octets[ 2 ];
-		data.octets[ 3 ] = octets[ 3 ];
+	IPv4::IPv4(octet_type octets[4]) {
+		data.octets[0] = octets[0];
+		data.octets[1] = octets[1];
+		data.octets[2] = octets[2];
+		data.octets[3] = octets[3];
 	}
-	IPv4::IPv4(octet_type octet_0, octet_type octet_1, octet_type octet_2, octet_type octet_3)
-	{
-		data.octets[ 0 ] = octet_0;
-		data.octets[ 1 ] = octet_1;
-		data.octets[ 2 ] = octet_2;
-		data.octets[ 3 ] = octet_3;
+	IPv4::IPv4(octet_type octet_0, octet_type octet_1, octet_type octet_2, octet_type octet_3) {
+		data.octets[0] = octet_0;
+		data.octets[1] = octet_1;
+		data.octets[2] = octet_2;
+		data.octets[3] = octet_3;
 	}
-	IPv4::IPv4(binary_type binary)
-	{
+	IPv4::IPv4(binary_type binary) {
 		data.binary = binary;
 	}
-	IPv4::IPv4(in_addr addr)
-	{
+	IPv4::IPv4(in_addr addr) {
 		// both have size of 32 bits
-		data.binary = *reinterpret_cast<binary_type*>( &addr );
+		data.binary = *reinterpret_cast<binary_type*>(&addr);
 	}
 
-	std::string IPv4::str() const
-	{
+	std::string IPv4::str() const {
 		std::string to_return;
 		to_return.reserve(16);
 
-		to_return += std::to_string(data.octets[ 0 ]);
+		to_return += std::to_string(data.octets[0]);
 		to_return += '.';
-		to_return += std::to_string(data.octets[ 1 ]);
+		to_return += std::to_string(data.octets[1]);
 		to_return += '.';
-		to_return += std::to_string(data.octets[ 2 ]);
+		to_return += std::to_string(data.octets[2]);
 		to_return += '.';
-		to_return += std::to_string(data.octets[ 3 ]);
+		to_return += std::to_string(data.octets[3]);
 
 		return to_return;
 	}
-	void IPv4::str(std::string_view decimal)
-	{
+	void IPv4::str(std::string_view decimal) {
 		data.binary = inet_addr(decimal.data());
 	}
-	IPv4::operator in_addr() const
-	{
-		return *reinterpret_cast<const in_addr*>( &data.binary );
+	IPv4::operator in_addr() const {
+		return *reinterpret_cast<const in_addr*>(&data.binary);
 	}
 
-	bool IPv4::operator==(IPv4 second) const
-	{
+	IPv4& IPv4::operator++() {
+		++data.octets[3];
+		if (data.octets[3] == 0) {
+			++data.octets[2];
+			if (data.octets[2] == 0) {
+				++data.octets[1];
+				if (data.octets[1] == 0) {
+					++data.octets[0];
+				}
+			}
+		}
+
+		return *this;
+	}
+	IPv4 IPv4::operator++(int) {
+		auto temp = *this;
+		++(*this);
+		return temp;
+	}
+	IPv4& IPv4::operator--() {
+		--data.octets[3];
+		if (data.octets[3] == 255) {
+			--data.octets[2];
+			if (data.octets[2] == 255) {
+				--data.octets[1];
+				if (data.octets[1] == 255) {
+					--data.octets[0];
+				}
+			}
+		}
+
+		return *this;
+	}
+	IPv4 IPv4::operator--(int) {
+		auto temp = *this;
+		--(*this);
+		return temp;
+	}
+
+	bool IPv4::operator==(IPv4 second) const {
 		return data.binary == second.data.binary;
 	}
-	std::strong_ordering IPv4::operator<=>(IPv4 second) const
-	{
-		for ( size_t i = 0; i < 4; ++i )
-		{
-			if ( data.octets[ i ] < second.data.octets[ i ] )
-			{
+	std::strong_ordering IPv4::operator<=>(IPv4 second) const {
+		for (size_t i = 0; i < 4; ++i) {
+			if (data.octets[i] < second.data.octets[i]) {
 				return std::strong_ordering::less;
 			}
-			else if ( data.octets[ i ] > second.data.octets[ i ] )
-			{
+			else if (data.octets[i] > second.data.octets[i]) {
 				return std::strong_ordering::greater;
 			}
 		}
@@ -85,8 +109,7 @@ namespace net
 		return std::strong_ordering::equal;
 	}
 
-	std::ostream& operator<<(std::ostream& os, const IPv4& ip)
-	{
+	std::ostream& operator<<(std::ostream& os, const IPv4& ip) {
 		return os << ip.str();
 	}
 }

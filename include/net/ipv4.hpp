@@ -4,12 +4,10 @@
 #include <array>
 #include <WinSock2.h>
 
-namespace net
-{
+namespace arch::net {
 	/// @brief Represents IPv4 address.
 	///
-	class IPv4
-	{
+	class IPv4 {
 	public:
 		/// @brief Type of octet.
 		///
@@ -19,9 +17,8 @@ namespace net
 		using binary_type = uint32_t;
 		/// @brief Union type of data
 		///
-		union data_type
-		{
-			octet_type octets[ 4 ];
+		union data_type {
+			octet_type octets[4];
 			binary_type binary;
 		};
 
@@ -41,7 +38,7 @@ namespace net
 		IPv4(std::string_view decimal);
 		/// @brief Octet array constructor.
 		/// @param octets - array of 4 octets of IPv4 address.
-		IPv4(octet_type octets[ 4 ]);
+		IPv4(octet_type octets[4]);
 		/// @brief Octets constructor.
 		/// @param octet_0 - first octet.
 		/// @param octet_0 - second octet.
@@ -54,7 +51,7 @@ namespace net
 		/// @brief in_addr constructor.
 		/// @param addr - in_addr structure to convert from.
 		IPv4(in_addr addr);
-		
+
 		/// @brief Gets decimal form of address.
 		///
 		std::string str() const;
@@ -64,7 +61,20 @@ namespace net
 		/// @brief Converts to in_addr.
 		///
 		operator in_addr() const;
-		
+
+		/// @brief Preincrement operator.
+		/// 
+		IPv4& operator++();
+		/// @brief Postincrement operator.
+		/// 
+		IPv4 operator++(int);
+		/// @brief Predecrement operator.
+		/// 
+		IPv4& operator--();
+		/// @brief Postdecrement operator.
+		/// 
+		IPv4 operator--(int);
+
 		/// @brief Equality operator
 		/// @param second - IPv4 to compare with.
 		/// @return True if equal, false otherwise.
