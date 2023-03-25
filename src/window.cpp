@@ -1,10 +1,10 @@
-//
-// Created by tosiek on 22.02.23.
-//
-
 #include "window.h"
+#include "graphics/glfw_exception.h"
 
-using namespace arch;
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+
+namespace arch {
 
 Window::Window(int width, int height, const std::string& name, GLFWmonitor *monitor, Window &share) {
     _title = name;
@@ -17,16 +17,27 @@ Window::Window(int width, int height, const std::string& name, GLFWmonitor *moni
 }
 
 void Window::initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow *window) {
+    if (!glfwInit())
+        throw GLFWException();
+        
     _window = glfwCreateWindow(width, height, name, monitor, window);
 
     if (!_window) {
         glfwTerminate();
-        throw InitException("Window cannot be created");
+        throw GLFWException();
     }
 
     glfwMakeContextCurrent(_window);
 
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+}
+
+void Window::resize(int width, int height) {
+    glfwSetWindowSize(_window, width, height);
+}
+
+void Window::set_title(const std::string &title) {
+    glfwSetWindowTitle(_window, title.c_str());
 }
 
 GLFWwindow *Window::get() {
@@ -48,7 +59,6 @@ bool Window::should_close() {
 void Window::clear(glm::vec4 color) {
     glClearColor(color.x, color.y, color.z, color.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::clear(float r, float g, float b, float a) {
@@ -56,15 +66,4 @@ void Window::clear(float r, float g, float b, float a) {
     clear(color);
 }
 
-Window &Window::operator=(const Window &w) {
-    if (this != &w) {
-        _title = w._title;
-        int width, height;
-        glfwGetWindowSize(w._window, &width, &height);
-        _window = glfwCreateWindow(width, height, _title.c_str(), nullptr, nullptr);
-        return *this;
-    } else {
-        return *this;
-    }
 }
-
