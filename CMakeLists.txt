@@ -16,12 +16,13 @@ target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
 include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
 
 add_subdirectory(extern/assimp)
+add_subdirectory(extern/spdlog)
 
 add_library(${PROJECT_NAME})
 file(GLOB_RECURSE ARCHIMEDES_SOURCE src/**.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include ${DEPENDENCIES}/assimp/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad assimp spdlog::spdlog)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -37,10 +38,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 set(TESTS_NAME test_${PROJECT_NAME})
-file(GLOB TEST_ARCHIMEDES_SOURCE tests/**.cpp)
+file(GLOB_RECURSE TEST_ARCHIMEDES_SOURCE tests/**.cpp)
+include_directories(tests)
 add_executable(${TESTS_NAME})
 target_sources(${TESTS_NAME} PRIVATE ${TEST_ARCHIMEDES_SOURCE})
-target_include_directories(${TESTS_NAME} PRIVATE include)
 target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} GTest::gtest_main glfw glad)
 include(GoogleTest)
 gtest_discover_tests(${TESTS_NAME})
+
+set(EXEC_NAME bin_${PROJECT_NAME})
+add_executable(${EXEC_NAME} archimedes_bin/main.cpp)
+target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_NAME} spdlog::spdlog)
