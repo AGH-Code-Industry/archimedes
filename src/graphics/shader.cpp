@@ -1,5 +1,20 @@
-
 #include "graphics/shader.h"
+#include "glm/gtc/type_ptr.hpp"
+
+#include <spdlog/spdlog.h>
+
+Shader::Shader() {
+    spdlog::info("Creating default shader program");
+    GLuint vertex, fragment, geometry;
+
+    vertex = compile_shader(default_vertex_source, GL_VERTEX_SHADER);
+    fragment = compile_shader(default_fragment_source, GL_FRAGMENT_SHADER);
+
+    std::vector<GLuint> shaders = {vertex, fragment};
+
+    link_program(shaders);  
+    spdlog::info("Shader program created successfully");
+}
 
 Shader::Shader(const std::vector<std::string>& paths) : ID(0) {
     std::string vertexCode;
@@ -25,7 +40,6 @@ Shader::Shader(const std::vector<std::string>& paths) : ID(0) {
     std::vector<GLuint> shaders = {vertex, fragment};
 
     link_program(shaders);
-
 }
 
 Shader::Shader(const Shader &&shader) noexcept {

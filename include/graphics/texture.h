@@ -9,7 +9,6 @@ public:
     Texture(Texture &&other) = delete;
     Texture& operator=(Texture &other) = delete;
     Texture& operator=(Texture &&other) = delete;
-    
 private:
     TextureId _id;
 };

@@ -4,7 +4,6 @@
 #include "graphics/primitives.h"
 #include "graphics/texture.h"
 
-#include <string>
 #include <vector>
 
 namespace arch {

@@ -1,13 +1,13 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include"glad/glad.h"
-#include"gtc/type_ptr.hpp"
-#include<string>
-#include<vector>
-#include<fstream>
-#include<sstream>
-#include<stdexcept>
+#include "glad/glad.h"
+#include "glm/glm.hpp"
+
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 /**
  * @brief Class for loading and using shaders
  * @details This class is used for loading and using shaders. It is used in the main class.
@@ -18,14 +18,15 @@ public:
      * @brief Constructor of the shader class
      * @param std::vector<std::string> paths to the shader files
      */
-    explicit Shader( const std::vector<std::string>& paths);
+    Shader(const std::vector<std::string>& paths);
 
+    /**
+     * @brief Create default shader
+     */
+    Shader();
     Shader(const Shader& shader) = delete;
-
     Shader(const Shader&& shader) noexcept;
-
     Shader & operator=(const Shader& shader) = delete;
-
     Shader & operator=(const Shader&& shader) noexcept;
 
     ~Shader();
@@ -98,6 +99,16 @@ private:
      */
     void link_program(const std::vector<GLuint>& shaders);
 
+    const char *default_vertex_source = "#version 330 core\n"
+                                        "layout (location = 0) in vec3 aPos;\n"
+                                        "void main() {\n"
+                                        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                        "}";
+    const char *default_fragment_source = "#version 330 core\n"
+                                          "out vec4 FragColor;\n"
+                                          "void main() {\n"
+                                          "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                          "}";
 
 
 };
