@@ -2,22 +2,25 @@
 
 using namespace arch::ecs;
 
-EntityManager::EntityManager(): _entity_count(0) {}
+EntityManager::EntityManager(): _entity_count(0) {
+	_entities.reserve(initial_entities);
+}
 
 EntityId EntityManager::create_entity() {
-    assert_msg(_entity_count >= max_entities, "Maximum number of entity_ids reached.");
-
     EntityId id = get_new_id();
-	_entities[id] = Entity(id, ComponentMask());
+	_entity_id_to_index[id] = _entity_count;
+	_entities.push_back(Entity(id, ComponentMask()));
 	_entity_count++;
 
     return id;
 }
 
 EntityId EntityManager::destroy_entity(EntityId entity_id) {
-    assert_msg(entity_id >= max_entities, "Entity entity_id is out of range.");
+	assert_msg(_entity_id_to_index.find(entity_id) == _entity_id_to_index.end(), "Entity doesn't exist.");
 
-	_entities[entity_id] = Entity();
+	// TODO: Border case when entity is the last one in the vector
+	_entities[_entity_id_to_index[entity_id]] = _entities[_entity_count - 1];
+	_entity_id_to_index[_entities[_entity_count - 1].id] = _entity_id_to_index[entity_id];
 	_free_ids.push(entity_id);
 	_entity_count--;
 
@@ -34,11 +37,11 @@ EntityId EntityManager::get_new_id() {
 }
 
 ComponentMask EntityManager::get_entity_mask(EntityId entity_id) {
-    return _entities[entity_id].mask;
+    return _entities[_entity_id_to_index[entity_id]].mask;
 }
 
 void EntityManager::set_entity_mask(EntityId entity_id, ComponentMask mask) {
-	_entities[entity_id].mask = mask;
+	_entities[_entity_id_to_index[entity_id]].mask = mask;
 }
 
 

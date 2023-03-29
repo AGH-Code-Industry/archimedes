@@ -1,7 +1,7 @@
 #ifndef ECS_SYSTEM_H
 #define ECS_SYSTEM_H
 
-#include <set>
+#include <unordered_set>
 #include "entity.h"
 #include "common.h"
 
@@ -17,7 +17,7 @@ namespace arch::ecs {
 		GameCoordinator* coordinator;
 		// std::shared_ptr<GameCoordinator> coordinator;
 		ComponentMask mask;
-		std::set<EntityId> entity_ids;
+		std::unordered_set<EntityId> entity_ids;
 	};
 }
 #endif

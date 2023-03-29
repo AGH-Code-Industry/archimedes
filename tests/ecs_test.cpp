@@ -25,6 +25,8 @@ namespace arch::ecs {
 		for (auto i: entity_ids)
 			EXPECT_FLOAT_EQ(coordinator.get_component<Transform>(i).position.x, 1.0f);
 
+
+
 		auto new_entity_id = coordinator.create_entity();
 		coordinator.add_component<Transform>(new_entity_id, Transform{{0, 0, 0}, {0, 0, 0}, {1, 1, 1}});
 		physics_system->update(2.0f);

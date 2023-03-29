@@ -26,7 +26,8 @@ namespace arch::ecs {
 
 	private:
 		std::queue<EntityId> _free_ids;
-		std::array<Entity, max_entities> _entities;
+		std::vector<Entity> _entities;
+		std::unordered_map<EntityId, uint32_t> _entity_id_to_index;
 
 		uint32_t _entity_count;
 	};
@@ -35,9 +36,9 @@ namespace arch::ecs {
 	void EntityManager::on_system_created(T s) {
 		auto system = std::static_pointer_cast<System>(s);
 
-		for (auto const& entity : _entities) {
-			if ((entity.mask & system->mask) == system->mask) {
-				system->entity_ids.insert(entity.id);
+		for (int i = 0; i < _entity_count; i++) {
+			if ((system->mask & _entities[i].mask) == system->mask) {
+				system->entity_ids.insert(_entities[i].id);
 			}
 		}
 	}

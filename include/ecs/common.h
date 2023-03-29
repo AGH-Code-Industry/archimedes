@@ -10,7 +10,7 @@
 
 namespace arch::ecs {
 	constexpr uint8_t max_components = 32;
-	constexpr uint32_t max_entities = 10000;
+	constexpr uint32_t initial_entities = 5000;
 
 	typedef uint32_t EntityId;
 	typedef uint32_t SystemId;
