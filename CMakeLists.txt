@@ -17,15 +17,13 @@ target_include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
 add_library(${PROJECT_NAME})
 file(GLOB ARCHIMEDES_SOURCE src/*.cpp src/exceptions/*.cpp src/ecs/*.cpp src/ecs/components/*.cpp src/ecs/systems/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include ${DEPENDENCIES}/spdlog/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
 
 add_subdirectory(${DEPENDENCIES}/googletest)
 enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-include_directories(extern/GLFW/include)
-link_directories(extern/GLFW/lib-mingw-w64)
 
 set(TESTS_NAME test_${PROJECT_NAME})
 file(GLOB TEST_ARCHIMEDES_SOURCE tests/**.cpp)
