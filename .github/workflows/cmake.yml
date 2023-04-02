@@ -12,6 +12,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  CONAN_USER_HOME: "${{ github.workspace }}/release/"
 
 jobs:
   build:
@@ -27,6 +28,16 @@ jobs:
 
     - name: Conan version
       run: echo "${{ steps.conan.outputs.version }}"
+
+    - name: Using the builtin GitHub Cache Action for .conan
+    id: cache-conan
+    uses: actions/cache@v1
+    env:
+      cache-name: cache-conan-modules
+    with:
+      path: ${{ env.CONAN_USER_HOME }}
+      key: ${{ runner.os }}-builder-${{ env.cache-name }}-${{ hashFiles('conanfile.py') }}
+      restore-keys: ${{ runner.os }}-builder-${{ env.cache-name }}-
 
     - name: Setup Conan Profile
       run: |
@@ -52,17 +63,3 @@ jobs:
       run: ./test_archimedes
 
 
-    # Wylaczone bo repo nie ma opcji "Environments"
-    #- name: Using the builtin GitHub Cache Action for .conan
-    #id: cache-conan
-    #uses: actions/cache@v1
-    #env:
-    #  cache-name: cache-conan-modules
-    #with:
-    #  path: ${{ env.CONAN_USER_HOME }}
-    #  key: ${{ runner.os }}-builder-${{ env.cache-name }}-${{ hashFiles('conanfile.py') }}
-    #  restore-keys: ${{ runner.os }}-builder-${{ env.cache-name }}-
-    #- name: Install GLFW
-    #  run: |
-    #      sudo apt update
-    #      sudo apt install libglfw3 libglfw3-dev
