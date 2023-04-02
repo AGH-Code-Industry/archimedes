@@ -8,21 +8,24 @@ project(
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(DEPENDENCIES extern)
-
-add_library(glad)
-target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
-target_include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
+#set(DEPENDENCIES extern)
 
 add_library(${PROJECT_NAME})
-file(GLOB ARCHIMEDES_SOURCE src/*.cpp src/exceptions/*.cpp)
+file(GLOB_RECURSE ARCHIMEDES_SOURCE src/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-target_include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
 
-add_subdirectory(${DEPENDENCIES}/googletest)
-enable_testing()
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+find_package(glfw3 3.3 REQUIRED)
+find_package(glad REQUIRED)
+find_package(GTest REQUIRED)
+find_package(assimp REQUIRED)
+find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
+target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
+ ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${nlohmann_json_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp)
+
+
+#include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 
 set(TESTS_NAME test_${PROJECT_NAME})
@@ -30,6 +33,6 @@ file(GLOB TEST_ARCHIMEDES_SOURCE tests/**.cpp)
 add_executable(${TESTS_NAME})
 target_sources(${TESTS_NAME} PRIVATE ${TEST_ARCHIMEDES_SOURCE})
 target_include_directories(${TESTS_NAME} PRIVATE include)
-target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} GTest::gtest_main)
-include(GoogleTest)
-gtest_discover_tests(${TESTS_NAME})
+target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} gtest::gtest)
+
+#gtest_discover_tests(${TESTS_NAME})
