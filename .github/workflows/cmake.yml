@@ -27,13 +27,6 @@ jobs:
           - os: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - name: Setup Python For Conan
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        cache: 'pip'
     - name: Install Conan
       id: conan
       uses: turtlebrowser/get-conan@main
