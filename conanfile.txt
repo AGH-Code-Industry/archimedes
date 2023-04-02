@@ -1,7 +1,6 @@
 [requires]
 gtest/1.13.0
 glad/0.1.36
-assimp/5.2.2
 glm/0.9.9.8
 glfw/3.3.8
 nlohmann_json/3.11.2
