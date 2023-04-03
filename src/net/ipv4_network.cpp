@@ -51,13 +51,12 @@ namespace arch::net {
 	}
 
 	IPv4Network::IPv4Network(address_type address, mask_type mask) :
-		_address{address},
+		_address{address.data().binary & mask.data().binary},
 		_mask{mask} {
 
 	}
 	IPv4Network::IPv4Network(address_type address, size_t prefix) :
-		_address{address},
-		_mask{prefix} {
+		IPv4Network(address, IPv4Mask(prefix)) {
 
 	}
 	IPv4Network::IPv4Network(std::string_view address_with_prefix) {
@@ -65,8 +64,7 @@ namespace arch::net {
 		std::string mask{address_with_prefix.substr(divisor + 1)};
 		std::string address{address_with_prefix.substr(0, divisor)};
 
-		_address = IPv4(address);
-		_mask = IPv4Mask(std::stoul(mask));
+		*this = IPv4Network(IPv4(address), IPv4Mask(std::stoul(mask)));
 	}
 
 	IPv4Network::address_type IPv4Network::broadcast() const {
