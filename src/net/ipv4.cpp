@@ -54,7 +54,7 @@ namespace arch::net {
 		return *reinterpret_cast<const in_addr*>(&_data.binary);
 	}
 
-	IPv4::data_type IPv4::data() const {
+	const IPv4::data_type& IPv4::data() const {
 		return _data;
 	}
 	void IPv4::data(data_type new_data) {

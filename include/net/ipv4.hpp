@@ -64,7 +64,7 @@ namespace arch::net {
 
 		/// @brief Obtains data of address.
 		///
-		data_type data() const;
+		const data_type& data() const;
 		/// @brief Sets data of address.
 		/// @param new_data - new data of address.
 		void data(data_type new_data);
