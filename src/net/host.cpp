@@ -10,7 +10,7 @@
 
 namespace arch::net {
 	Host::Host(IPv4 ip, bool get_hostname) {
-		_ip = ip;
+		_ips[0] = ip;
 		if (get_hostname) {
 			update_hostname();
 		}
@@ -30,7 +30,7 @@ namespace arch::net {
 			return;
 		}
 
-		_ip = ((sockaddr_in*)data->ai_addr)->sin_addr;
+		_ips[0] = ((sockaddr_in*)data->ai_addr)->sin_addr;
 		_hostname = hostname;
 
 		for (auto i = data->ai_next; i != nullptr; i = i->ai_next) {
@@ -43,7 +43,7 @@ namespace arch::net {
 		return {IPv4::localhost, true};
 	}
 	const IPv4& Host::ip() const {
-		return _ip;
+		return _ips[0];
 	}
 	const std::vector<IPv4>& Host::ips() const {
 		return _ips;
@@ -54,13 +54,13 @@ namespace arch::net {
 	void Host::update_hostname() {
 		if (not __net_auto.initialized) {
 				// log error or smth
-			const_cast<std::string&>(_hostname) = inet_ntoa(_ip);
+			const_cast<std::string&>(_hostname) = inet_ntoa(_ips[0]);
 			return;
 		}
 
 		sockaddr_in sa;
 		memset(&sa, 0, sizeof(sa));
-		sa.sin_addr = _ip;
+		sa.sin_addr = _ips[0];
 		sa.sin_family = AF_INET;
 		sa.sin_port = htons(0);
 
@@ -70,7 +70,7 @@ namespace arch::net {
 		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, NULL);
 		if (result != 0) {
 			// log error or smth WSAGetLastError()
-			const_cast<std::string&>(_hostname) = inet_ntoa(_ip);
+			const_cast<std::string&>(_hostname) = inet_ntoa(_ips[0]);
 		}
 
 		const_cast<std::string&>(_hostname) = hostname;

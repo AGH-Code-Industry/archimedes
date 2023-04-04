@@ -1,7 +1,11 @@
 #include <net/ipv4.hpp>
 #include <string>
 
+#ifdef _WIN32
 #pragma comment(lib, "ws2_32.lib")
+#elif defined unix
+
+#endif
 
 namespace arch::net {
 	IPv4 IPv4::localhost(127, 0, 0, 1);

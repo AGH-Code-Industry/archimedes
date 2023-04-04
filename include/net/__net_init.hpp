@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 namespace arch::net {
 	class __NetworkAuto final {
 	public:

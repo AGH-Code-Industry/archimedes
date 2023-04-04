@@ -4,7 +4,9 @@
 #include <WinSock2.h>
 #endif
 #ifdef linux
-
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 #endif
 #include <net/ipv4.hpp>
 #include <vector>
@@ -15,7 +17,6 @@ namespace arch::net {
 	class Host {
 	private:
 		std::vector<IPv4> _ips{IPv4()};
-		IPv4& _ip = _ips[0];
 		std::string _hostname;
 
 	public:

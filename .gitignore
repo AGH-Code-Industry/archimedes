@@ -5,3 +5,9 @@ tmp/
 build
 .cache
 .vs/
+_deps
+CMakeFiles/
+Makefile
+*.cmake
+CMakeCache.txt
+model.txt

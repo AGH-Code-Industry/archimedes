@@ -1,8 +1,13 @@
 #pragma once
 
 #include <iostream>
-#include <array>
+#ifdef _WIN32
 #include <WinSock2.h>
+#elif defined unix
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#endif
 
 namespace arch::net {
 	/// @brief Represents IPv4 address.

@@ -14,7 +14,7 @@ TEST(Host, LocalHost) { // ~15ms
     EXPECT_EQ(strcmp(localhost.hostname().c_str(), buffer), 0);
 }
 
-TEST(Host, MyIPs) { // ~2ms
+TEST(Host, MyIPs) { // ~3ms
     std::vector<arch::net::IPv4> expected_ips{
         // insert your IPs here
     };
@@ -29,8 +29,8 @@ TEST(Host, MyIPs) { // ~2ms
 
 TEST(Host, OtherHost) { // ~110ms
     // resolving IP from android phones does not work, idk why
-    std::string_view hostname = "DESKTOP-22S4TN1";
-    arch::net::IPv4 expected_ip{"192.168.0.193"};
+    std::string_view hostname = "chris_laptok";
+    arch::net::IPv4 expected_ip{"192.168.0.2"};
     auto other_host = arch::net::Host(hostname);
 
     if (other_host.hostname().empty()) {
