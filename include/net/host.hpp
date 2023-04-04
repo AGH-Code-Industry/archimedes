@@ -36,6 +36,9 @@ namespace arch::net {
 		/// @brief Gets IPv4 addresses of host.
 		///
 		const std::vector<IPv4>& ips() const;
+		/// @brief Checks if host has given address in its list.
+		/// @param address - address to check
+		bool has_ip(IPv4 address) const;
 		/// @brief Gets hostname of host.
 		///
 		const std::string& hostname() const;

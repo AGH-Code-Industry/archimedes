@@ -1,13 +1,20 @@
 #include <gtest/gtest.h>
+#ifdef _WIN32
 #include <WinSock2.h>
 #include <ws2tcpip.h>
+#elif defined unix
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
 #include <net.hpp>
 #include <iostream>
 
 TEST(Host, LocalHost) { // ~15ms
     auto localhost = arch::net::Host::localhost();
 
-    EXPECT_EQ(localhost.ip(), arch::net::IPv4::localhost);
+    EXPECT_TRUE(localhost.has_ip(arch::net::IPv4::localhost));
 
     char buffer[256]{};
     gethostname(buffer, 256);
@@ -29,8 +36,8 @@ TEST(Host, MyIPs) { // ~3ms
 
 TEST(Host, OtherHost) { // ~110ms
     // resolving IP from android phones does not work, idk why
-    std::string_view hostname = "chris_laptok";
-    arch::net::IPv4 expected_ip{"192.168.0.2"};
+    std::string_view hostname = "DESKTOP-22S4TN1";
+    arch::net::IPv4 expected_ip{"192.168.0.193"};
     auto other_host = arch::net::Host(hostname);
 
     if (other_host.hostname().empty()) {

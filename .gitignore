@@ -11,3 +11,4 @@ Makefile
 *.cmake
 CMakeCache.txt
 model.txt
+linux_build/

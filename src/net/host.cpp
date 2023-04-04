@@ -45,17 +45,19 @@ namespace arch::net {
 		char buffer[256]{};
 		gethostname(buffer, 256);
 		auto to_return = Host(buffer);
-		if (std::find(to_return._ips.begin(), to_return._ips.end(), IPv4::localhost) == to_return._ips.end()) {
+		if (not to_return.has_ip(IPv4::localhost)) {
 			to_return._ips.emplace_back(IPv4::localhost);
 		}
 		return to_return;
-		//return {IPv4::localhost, true};
 	}
 	const IPv4& Host::ip() const {
 		return _ips[0];
 	}
 	const std::vector<IPv4>& Host::ips() const {
 		return _ips;
+	}
+	bool Host::has_ip(IPv4 address) const {
+		return std::find(_ips.begin(), _ips.end(), address) != _ips.end();
 	}
 	const std::string& Host::hostname() const {
 		return _hostname;
