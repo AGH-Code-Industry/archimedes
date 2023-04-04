@@ -27,10 +27,6 @@ namespace arch::net {
 			binary_type binary;
 		};
 
-	protected:
-		data_type _data;
-
-	public:
 		/// @brief Example loopback address.
 		///
 		static IPv4 localhost;
@@ -101,6 +97,9 @@ namespace arch::net {
 		/// @brief Three-way comparision operator.
 		/// @param second - IPv4 to compare with.
 		std::strong_ordering operator<=>(IPv4 second) const;
+
+	protected:
+		data_type _data;
 	};
 
 	/// @brief ostream insertion operator.

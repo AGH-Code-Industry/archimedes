@@ -39,11 +39,6 @@ namespace arch::net {
 		///
 		using mask_type = IPv4Mask;
 
-	private:
-		address_type _address;
-		mask_type _mask;
-
-	public:
 		/// @brief Decimal constructor.
 		/// @param address - network address.
 		/// @param mask - mask.
@@ -74,6 +69,10 @@ namespace arch::net {
 		/// @brief Mask of this network.
 		///
 		mask_type mask() const;
+
+	private:
+		address_type _address;
+		mask_type _mask;
 	};
 
 	constexpr bool __i_use_arch_btw = false;

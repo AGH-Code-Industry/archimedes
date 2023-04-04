@@ -15,10 +15,6 @@ namespace arch::net {
 	/// @brief Represents host in IPv4 network.
 	///
 	class Host {
-	private:
-		std::vector<IPv4> _ips{IPv4()};
-		std::string _hostname;
-
 	public:
 		/// @brief IPv4 constructor.
 		/// @param ip - IPv4 of host.
@@ -45,5 +41,9 @@ namespace arch::net {
 		/// @brief Searches for hostname and updates it.
 		///
 		void update_hostname();
+
+	private:
+		std::vector<IPv4> _ips{IPv4()};
+		std::string _hostname;
 	};
 }
