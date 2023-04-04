@@ -1,12 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <compare>
 #ifdef _WIN32
 #include <WinSock2.h>
 #elif defined unix
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #endif
 
 namespace arch::net {
