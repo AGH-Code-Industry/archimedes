@@ -111,7 +111,7 @@ namespace arch::net {
 	}
 
 	bool IPv4::operator==(IPv4 second) const {
-		return _data.binary == second._data.binary;
+		return _data.binary == second._data.binary or (_data.octets[0] == second._data.octets[0] and _data.octets[0] == 127);
 	}
 	std::strong_ordering IPv4::operator<=>(IPv4 second) const {
 		for (size_t i = 0; i < 4; ++i) {
