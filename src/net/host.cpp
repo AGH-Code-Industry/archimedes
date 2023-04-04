@@ -1,11 +1,13 @@
 #include <net/host.hpp>
 #include <net/__net_init.hpp>
+#include <cstring>
+#include <algorithm>
 
 #ifdef _WIN32
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #elif defined unix
-
+#include <unistd.h>
 #endif
 
 namespace arch::net {
@@ -40,7 +42,14 @@ namespace arch::net {
 		freeaddrinfo(data);
 	}
 	Host Host::localhost() {
-		return {IPv4::localhost, true};
+		char buffer[256]{};
+		gethostname(buffer, 256);
+		auto to_return = Host(buffer);
+		if (std::find(to_return._ips.begin(), to_return._ips.end(), IPv4::localhost) == to_return._ips.end()) {
+			to_return._ips.emplace_back(IPv4::localhost);
+		}
+		return to_return;
+		//return {IPv4::localhost, true};
 	}
 	const IPv4& Host::ip() const {
 		return _ips[0];
@@ -67,7 +76,7 @@ namespace arch::net {
 		char hostname[NI_MAXHOST];
 		char serv_info[NI_MAXSERV];
 
-		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, NULL);
+		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
 		if (result != 0) {
 			// log error or smth WSAGetLastError()
 			const_cast<std::string&>(_hostname) = inet_ntoa(_ips[0]);
