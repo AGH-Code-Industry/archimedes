@@ -1,6 +1,6 @@
 #include "graphics/model.h"
 
-#include "assimp/Importer.hpp"
+#include <assimp/Importer.hpp>
 
 #include <resource/model_loader.h>
 #include <assimp/scene.h>

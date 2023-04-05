@@ -3,9 +3,11 @@
 #include <glad/glad.h>
 
 #include <optional>
-#include <spdlog/spdlog.h>
+#include <cassert>
 
 namespace arch {
+
+using ObjectName = GLuint;
 
 enum BufferTarget {
     Array = GL_ARRAY_BUFFER,
@@ -24,7 +26,7 @@ public:
 
     BufferObject(BufferObject &&other) noexcept {
         _VBO = other._VBO;
-        other._VBO.reset();
+        other._VBO = INVALID;
     }
 
     BufferObject& operator=(BufferObject&) = delete;
@@ -34,7 +36,7 @@ public:
             return *this;
         clear();
         _VBO = other._VBO;
-        other._VBO.reset();
+        other._VBO = INVALID;
     }
 
     ~BufferObject() {
@@ -43,19 +45,31 @@ public:
 
     void fill(const Data *data, std::size_t size) {
         clear();
-        _VBO = 0;
-        glGenBuffers(1, &_VBO.value());
-        glBindBuffer(target, _VBO.value());
+        glGenBuffers(1, &_VBO);
+        bind();
         glBufferData(target, sizeof(Data) * size, data, usage);
+        unbind();
     }
+
+    void bind() {
+        assert(_VBO != INVALID && "Invalid buffer object has been bound to.");
+        glBindBuffer(target, _VBO);
+    }
+
+    void unbind() {
+        glBindBuffer(target, INVALID);
+    }
+
+    static constexpr ObjectName INVALID = 0;
 protected:
-    std::optional<unsigned int> _VBO;
+    ObjectName _VBO {INVALID};
+
 private:
     void clear() {
-        if (!_VBO.has_value())
+        if (_VBO == 0)
             return;
-        glDeleteBuffers(1, &_VBO.value());
-        _VBO.reset();
+        glDeleteBuffers(1, &_VBO);
+        _VBO = INVALID;
     }
 
 };
@@ -77,5 +91,6 @@ public:
 private:
     unsigned int _VAO {0};
 };
+
 
 }
