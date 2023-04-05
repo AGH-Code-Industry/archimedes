@@ -1,7 +1,3 @@
-//
-// Created by tosiek on 22.02.23.
-//
-
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
@@ -10,7 +6,7 @@
 #include <fstream>
 #include <string>
 #include <exceptions/config_exception.h>
-//#include <gtest/gtest_prod.h>
+#include <gtest/gtest_prod.h>
 
 namespace arch {
     /**
@@ -36,7 +32,7 @@ namespace arch {
         Window _window;
         EngineConfig _engine_config;
 
-        //FRIEND_TEST(EngineTest, ConfigWindowTest);
+        FRIEND_TEST(EngineTest, ConfigWindowTest);
 
         /**
          * Responsible for drawing game on the screen.
