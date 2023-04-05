@@ -1,13 +1,14 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include "glad/glad.h"
-#include "glm/glm.hpp"
-
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
+#include<glad/glad.h>
+#include<glm/glm.hpp>
+#include<glm/gtc/type_ptr.hpp>
+#include<string>
+#include<vector>
+#include<fstream>
+#include<sstream>
+#include<stdexcept>
 /**
  * @brief Class for loading and using shaders
  * @details This class is used for loading and using shaders. It is used in the main class.

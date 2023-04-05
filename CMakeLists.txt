@@ -6,46 +6,34 @@ project(
   LANGUAGES CXX C
 )
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_STANDARD 17)
 
-set(DEPENDENCIES extern)
-
-add_library(glad)
-target_sources(glad PRIVATE ${DEPENDENCIES}/glad/src/glad.c)
-include_directories(glad PRIVATE ${DEPENDENCIES}/glad/include)
-
-add_subdirectory(extern/assimp)
-add_subdirectory(extern/spdlog)
+#set(DEPENDENCIES extern)
 
 add_library(${PROJECT_NAME})
-file(GLOB_RECURSE ARCHIMEDES_SOURCE src/**.cpp)
+file(GLOB_RECURSE ARCHIMEDES_SOURCE src/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-include_directories(${PROJECT_NAME} PUBLIC include ${DEPENDENCIES}/glm ${DEPENDENCIES}/glad/include ${DEPENDENCIES}/json/include ${DEPENDENCIES}/assimp/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad assimp spdlog::spdlog)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG 58d77fa8070e8cec2dc1ed015d66b454c8d78850 #1.12.x branch last commit
-)
-#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-#^ according to docs it might be helpful on Windows. Gonna leave it commented
-#for now
-#TODO: Compiling unit tests should be optional. I have not implemented it for now
-#      because why bother?
-FetchContent_MakeAvailable(googletest)
-enable_testing()
+find_package(glfw3 3.3 REQUIRED)
+find_package(glad REQUIRED)
+find_package(GTest REQUIRED)
+find_package(assimp REQUIRED)
+find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(spdlog REQUIRED)
+target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
+ ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${nlohmann_json_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp nlohmann_json::nlohmann_json spdlog::spdlog)
+
+
+#include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+
+
 set(TESTS_NAME test_${PROJECT_NAME})
-file(GLOB_RECURSE TEST_ARCHIMEDES_SOURCE tests/**.cpp)
-include_directories(tests)
+file(GLOB TEST_ARCHIMEDES_SOURCE tests/**.cpp)
 add_executable(${TESTS_NAME})
 target_sources(${TESTS_NAME} PRIVATE ${TEST_ARCHIMEDES_SOURCE})
-target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} GTest::gtest_main glfw glad)
-include(GoogleTest)
-gtest_discover_tests(${TESTS_NAME})
+target_include_directories(${TESTS_NAME} PRIVATE include)
+target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} gtest::gtest)
 
-set(EXEC_NAME bin_${PROJECT_NAME})
-add_executable(${EXEC_NAME} archimedes_bin/main.cpp)
-target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_NAME} spdlog::spdlog)
+#gtest_discover_tests(${TESTS_NAME})

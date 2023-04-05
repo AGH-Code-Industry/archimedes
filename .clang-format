@@ -1,0 +1,31 @@
+Language: Cpp
+BasedOnStyle: Google
+Standard: c++20
+
+# Set Tabs and Indentation
+UseTab: Always
+TabWidth: 4
+IndentWidth: 4
+IndentCaseLabels: true
+ContinuationIndentWidth: 4
+
+# Set public, protected and private access modifiers to the same column as the class
+AccessModifierOffset: -4
+
+# Set bracket style to K&R style
+BraceWrapping:
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     false
+  BeforeElse:      false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+
