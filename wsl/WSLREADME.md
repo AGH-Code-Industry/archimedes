@@ -43,4 +43,40 @@ pip3 install conan
 ```bash
 conan profile detect --force
 ```
-END
+
+# Additional tips
+## Making your terminal look better
+### Installing zsh
+```bash
+sudo apt install zsh -y
+```
+### Installing oh-my-zsh
+```bash
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+### Installing powerlevel10k
+```bash
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+Set ```ZSH_THEME="powerlevel10k/powerlevel10k"``` in ```~/.zshrc```.
+### Installing zshautosuggestions
+```bash
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+Add ```zsh-autosuggestions``` to the plugins array in ```~/.zshrc```.
+
+### Installing zsh-syntax-highlighting
+```bash
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git .zsh-syntax-highlighting
+echo "source ${(q-)PWD}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+```
+You can also do this with oh-my-zsh plugin manager
+```bash
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+Add ```zsh-syntax-highlighting``` to the plugins array in ```~/.zshrc```. IT MUST BE THE LAST PLUGIN IN THE ARRAY.
+
+### More plugins that mey be useful
+- git, git-auto-fetch
+- sudo
+- python 
