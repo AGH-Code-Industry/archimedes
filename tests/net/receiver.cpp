@@ -1,17 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#pragma comment(lib, "ws2_32.lib")
-#include <WinSock2.h>
-#endif
-#ifdef linux
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#endif
+#include <net/includes.hpp>
 
 /*TEST(Receiver, Main) {
 	WSAData data;
