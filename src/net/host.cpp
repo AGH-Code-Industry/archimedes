@@ -11,44 +11,19 @@
 #endif
 
 namespace arch::net {
-	Host::Host(IPv4 ip, bool get_hostname) {
+	Host::Host(IPv4 ip, bool update) {
 		_ips[0] = ip;
-		if (get_hostname) {
-			update_hostname();
+		if (update) {
+			this->update();
 		}
 	}
 	Host::Host(std::string_view hostname) {
-		static addrinfo hints;
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = AF_INET;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_protocol = IPPROTO_TCP;
-
-		addrinfo* data;
-		int result = getaddrinfo(hostname.data(), nullptr, &hints, &data);
-
-		if (result != 0) {
-			// log error or smth gai_strerror(result)
-			return;
-		}
-
-		_ips[0] = ((sockaddr_in*)data->ai_addr)->sin_addr;
 		_hostname = hostname;
 
-		for (auto i = data->ai_next; i != nullptr; i = i->ai_next) {
-			_ips.emplace_back(((sockaddr_in*)i->ai_addr)->sin_addr);
-		}
-
-		freeaddrinfo(data);
+		update();
 	}
-	Host Host::localhost() {
-		char buffer[256]{};
-		gethostname(buffer, 256);
-		auto to_return = Host(buffer);
-		if (not to_return.has_ip(IPv4::localhost)) {
-			to_return._ips.emplace_back(IPv4::localhost);
-		}
-		return to_return;
+	Host Host::localhost(bool update) {
+		return Host(IPv4::localhost, update);
 	}
 	const IPv4& Host::ip() const {
 		return _ips[0];
@@ -62,28 +37,63 @@ namespace arch::net {
 	const std::string& Host::hostname() const {
 		return _hostname;
 	}
-	void Host::update_hostname() {
+	bool Host::update() {
 		if (not __net_auto.initialized) {
-				// log error or smth
-			const_cast<std::string&>(_hostname) = inet_ntoa(_ips[0]);
-			return;
+			// log error or smth
+			return false;
+		}
+		
+		std::string node_name;
+		node_name.reserve(1025);
+		memset(node_name.data(), 0, 1025);
+
+		if (not _hostname.empty()) { // hostname avalible
+			node_name = _hostname;
+		}
+		else { // update hostname
+			sockaddr_in sa;
+			memset(&sa, 0, sizeof(sa));
+			sa.sin_addr = _ips[0];
+			sa.sin_family = AF_INET;
+			sa.sin_port = htons(0);
+
+			char hostname[NI_MAXHOST];
+			char serv_info[NI_MAXSERV];
+
+			int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
+			if (result != 0) {
+				// log error or smth WSAGetLastError()
+			}
+			else {
+				_hostname = hostname;
+			}
+
+			node_name = _ips[0].str();
 		}
 
-		sockaddr_in sa;
-		memset(&sa, 0, sizeof(sa));
-		sa.sin_addr = _ips[0];
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(0);
+		static addrinfo hints;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_protocol = IPPROTO_TCP;
 
-		char hostname[NI_MAXHOST];
-		char serv_info[NI_MAXSERV];
+		addrinfo* data;
 
-		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
+		int result = getaddrinfo(node_name.c_str(), nullptr, &hints, &data);
+
 		if (result != 0) {
-			// log error or smth WSAGetLastError()
-			const_cast<std::string&>(_hostname) = inet_ntoa(_ips[0]);
+			// log error or smth gai_strerror(result)
+			return false;
 		}
 
-		const_cast<std::string&>(_hostname) = hostname;
+		for (auto i = data; i != nullptr; i = i->ai_next) {
+			if (((sockaddr_in*)i->ai_addr)->sin_addr != _ips[0]) {
+				_ips.emplace_back(((sockaddr_in*)i->ai_addr)->sin_addr);
+			}
+		}
+		
+		freeaddrinfo(data);
+
+		return true;
 	}
 }

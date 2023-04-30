@@ -12,12 +12,13 @@
 #include <iostream>
 
 TEST(Host, LocalHost) { // ~15ms
-    auto localhost = arch::net::Host::localhost();
+    auto localhost = arch::net::Host::localhost(true);
 
-    EXPECT_TRUE(localhost.has_ip(arch::net::IPv4::localhost));
+    EXPECT_EQ(localhost.ip(), arch::net::IPv4::localhost);
 
     char buffer[256]{};
     gethostname(buffer, 256);
+
     EXPECT_EQ(strcmp(localhost.hostname().c_str(), buffer), 0);
 }
 
@@ -34,8 +35,8 @@ TEST(Host, MyIPs) { // ~3ms
     }
 }
 
-TEST(Host, OtherHost) { // ~110ms
-    // resolving IP from android phones does not work, idk why
+/*TEST(Host, OtherHost) { // ~110ms
+    // resolving IP from android phones by hostname does not work, idk why
     std::string_view hostname = "DESKTOP-22S4TN1";
     arch::net::IPv4 expected_ip{"192.168.0.193"};
     auto other_host = arch::net::Host(hostname);
@@ -46,6 +47,6 @@ TEST(Host, OtherHost) { // ~110ms
     }
 
     EXPECT_EQ(expected_ip, other_host.ip());
-}
+}*/
 
 // other tests lack any sense, because of difference between writer's and tester's network structure

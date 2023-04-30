@@ -1,14 +1,6 @@
 #pragma once
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#endif
-#ifdef linux
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#endif
+#include <net/includes.hpp>
 #include <net/ipv4.hpp>
 #include <vector>
 
@@ -20,15 +12,16 @@ namespace arch::net {
 		/// @brief IPv4 constructor.
 		/// @param ip - IPv4 of host.
 		/// @param get_hostname - if should search for hostname.
-		Host(IPv4 ip, bool get_hostname = false);
+		Host(IPv4 ip, bool update = false);
 		/// @brief Hostname constructor.
 		/// @details In difference to IP constructor, this searches in network for specified host. hostname() will remain empty if not found.
 		/// @param hostname - Hostname of host.
 		Host(std::string_view hostname);
 
 		/// @brief Returns localhost
+		/// @details Loopback address is guaranteed to be returned by ip().
 		///
-		static Host localhost();
+		static Host localhost(bool update = false);
 
 		/// @brief Gets first IPv4 of host.
 		///
@@ -42,9 +35,9 @@ namespace arch::net {
 		/// @brief Gets hostname of host.
 		///
 		const std::string& hostname() const;
-		/// @brief Searches for hostname and updates it.
-		///
-		void update_hostname();
+		/// @brief Updates host info.
+		/// @return true on success, false otherwise.
+		bool update();
 
 	private:
 		std::vector<IPv4> _ips{IPv4()};
