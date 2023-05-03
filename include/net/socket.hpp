@@ -8,7 +8,7 @@ namespace arch::net {
 	class UDPSocket;
 	class TCPSocket;
 
-	/// @brief Represents general socket. Not meant to be used
+	/// @brief Represents general IPv4 socket. Not meant to be used
 	///
 	class Socket {
 	public:
@@ -19,7 +19,7 @@ namespace arch::net {
 			UDP,
 			TCP
 		};
-		
+
 		/// @brief UDP socket.
 		///
 		using UDP = UDPSocket;
@@ -80,6 +80,7 @@ namespace arch::net {
 		/// @return usable_data structure containting information.
 		usable_data usable() const;
 
+
 		/// @brief Closes socket.
 		///
 		void close();
@@ -92,6 +93,25 @@ namespace arch::net {
 		/// @brief Binds to all interfaces and random port.
 		/// @return Bound port number on success, 0 on failure.
 		port_type bind();
+
+		/// @brief Checks receiving buffer size.
+		/// @retval Size of buffer on success, 0 otherwise.
+		int recv_buf() const;
+		/// @brief Sets receiving buffer size.
+		/// @param new_val - new size of receive buffer.
+		void recv_buf(int new_val);
+		/// @brief Checks sending buffer size.
+		/// @retval Size of buffer on success, 0 otherwise.
+		int send_buf() const;
+		/// @brief Sets sending buffer size.
+		/// @param new_val - new size of sending buffer.
+		void send_buf(int new_val);
+		/// @brief Checks if address and port of socket should be exclusive.
+		/// 
+		bool exclusive() const;
+		/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
+		/// 
+		void exclusive(bool new_val);
 
 	protected:
 		/// @brief Constructor.

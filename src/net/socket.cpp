@@ -44,7 +44,13 @@ namespace arch::net {
 
 	void Socket::close() {
 		if (_socket != NULL) {
-			if (closesocket(_socket) != 0) {
+			if (
+#ifdef _WIN32
+				closesocket(_socket)
+#elif defined unix
+				close(_socket)
+#endif
+				!= 0) {
 				// log error
 			}
 
@@ -183,5 +189,66 @@ namespace arch::net {
 		data.data_avalible = bool(poll_data.revents & POLLRDNORM);
 		data.sendable = bool(poll_data.revents & POLLWRNORM);
 		return data;
+	}
+
+	int Socket::recv_buf() const {
+		int optval;
+		int optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return 0;
+		}
+
+		return optval;
+	}
+	void Socket::recv_buf(int new_val) {
+		int optval = new_val;
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
+	}
+	int Socket::send_buf() const {
+		int optval;
+		int optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return 0;
+		}
+
+		return optval;
+	}
+	void Socket::send_buf(int new_val) {
+		int optval = new_val;
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
+	}
+	bool Socket::exclusive() const {
+		int optval;
+		int optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return 0;
+		}
+
+		return optval;
+	}
+	void Socket::exclusive(bool new_val) {
+		int optval = new_val;
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
 	}
 }
