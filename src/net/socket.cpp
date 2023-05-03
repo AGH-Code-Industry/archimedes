@@ -6,10 +6,10 @@ namespace arch::net {
 
 	Socket::Socket(sock_protocol p) {
 		switch (p) {
-			case UDP:
+			case sock_protocol::UDP:
 				_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 				break;
-			case TCP:
+			case sock_protocol::TCP:
 				_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 				break;
 			default:
@@ -34,7 +34,7 @@ namespace arch::net {
 	}
 	Socket::Socket(sock_protocol p, port_type port) :
 		Socket(p) {
-		if(not bind(port)) {
+		if (not bind(port)) {
 			// log error
 		}
 	}
@@ -44,7 +44,14 @@ namespace arch::net {
 
 	void Socket::close() {
 		if (_socket != NULL) {
-			closesocket(_socket);
+			if (closesocket(_socket) != 0) {
+				// log error
+			}
+
+			_socket = NULL;
+			_address.data(0);
+			_port = 0;
+			_proto = Socket::None;
 		}
 	}
 	bool Socket::bind(IPv4 address, port_type port) {
@@ -59,6 +66,7 @@ namespace arch::net {
 
 		if (result != 0) {
 			// log error
+			close();
 			return 0;
 		}
 
@@ -79,7 +87,7 @@ namespace arch::net {
 
 			return ntohs(data.sin_port);
 		}
-		
+
 		return 0;
 	}
 
@@ -94,5 +102,86 @@ namespace arch::net {
 	}
 	bool Socket::bound() const {
 		return _port != 0;
+	}
+	bool Socket::data_avalible() const {
+		static pollfd poll_data;
+		memset(&poll_data, 0, sizeof(poll_data));
+		poll_data.fd = _socket;
+
+		bool retval = true;
+
+		int result = poll(&poll_data, 1, 0);
+		if (result != 1) {
+			// log error
+			return false;
+		}
+		if (poll_data.revents & POLLERR) {
+			// log error
+			retval = false;
+		}
+		if (poll_data.revents & POLLNVAL) {
+			// log error
+			retval = false;
+		}
+		if (not poll_data.revents & POLLRDNORM) {
+			retval = false;
+		}
+
+		return retval;
+	}
+	bool Socket::sendable() const {
+		static pollfd poll_data;
+		memset(&poll_data, 0, sizeof(poll_data));
+		poll_data.fd = _socket;
+
+		bool retval = true;
+
+		int result = poll(&poll_data, 1, 0);
+		if (result != 1) {
+			// log error
+			return false;
+		}
+		if (poll_data.revents & POLLERR) {
+			// log error
+			retval = false;
+		}
+		if (poll_data.revents & POLLNVAL) {
+			// log error
+			retval = false;
+		}
+		if (not poll_data.revents & POLLWRNORM) {
+			retval = false;
+		}
+
+		return retval;
+	}
+	Socket::usable_data Socket::usable() const {
+		static pollfd poll_data;
+		memset(&poll_data, 0, sizeof(poll_data));
+		poll_data.fd = _socket;
+
+		bool retval = true;
+
+		int result = poll(&poll_data, 1, 0);
+		if (result != 1) {
+			// log error
+			return {false, false};
+		}
+		if (poll_data.revents & POLLERR) {
+			// log error
+			retval = false;
+		}
+		if (poll_data.revents & POLLNVAL) {
+			// log error
+			retval = false;
+		}
+		if (not retval) {
+			return {false, false};
+		}
+
+		static usable_data data;
+		data.data_avalible = bool(poll_data.revents & POLLRDNORM);
+		data.sendable = bool(poll_data.revents & POLLWRNORM);
+		return data;
 	}
 }
