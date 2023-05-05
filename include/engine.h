@@ -1,7 +1,3 @@
-//
-// Created by tosiek on 22.02.23.
-//
-
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
@@ -24,7 +20,7 @@ namespace arch {
             std::string window_title;
             glm::vec4 background_color;
         };
-
+        Engine();
         ~Engine();
 
         /**

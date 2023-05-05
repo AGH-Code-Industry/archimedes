@@ -8,7 +8,7 @@
 #include <string>
 
 #include <exceptions/init_exception.h>
-#include "glm/vec4.hpp"
+#include <glm/vec4.hpp>
 
 #ifndef ARCHIMEDES_WINDOW_H
 #define ARCHIMEDES_WINDOW_H
@@ -16,7 +16,6 @@
 namespace arch {
     class Window {
     public:
-        Window() = default;
         Window(const Window &other) = delete;
         /**
          * Constructor.
@@ -44,13 +43,15 @@ namespace arch {
         void clear(glm::vec4 color);
         void clear(float r, float g, float b, float a);
         void swap_buffers();
+        void resize(int width, int height);
+        void set_title(const std::string &title);
 
         bool should_close();
-        Window& operator=(const Window& w);
+        Window& operator=(const Window& w) = delete;
 
     private:
         std::string _title;
-        GLFWwindow* _window{};
+        GLFWwindow* _window {};
 
         /**
          * Initializes window

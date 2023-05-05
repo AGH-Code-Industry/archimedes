@@ -1,5 +1,31 @@
-
 #include "graphics/shader.h"
+#include "glm/gtc/type_ptr.hpp"
+
+#include <spdlog/spdlog.h>
+
+const char *Shader::default_vertex_source = "#version 330 core\n"
+                                    "layout (location = 0) in vec3 aPos;\n"
+                                    "void main() {\n"
+                                    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                    "}";
+const char *Shader::default_fragment_source = "#version 330 core\n"
+                                      "out vec4 FragColor;\n"
+                                      "void main() {\n"
+                                      "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                      "}";
+
+Shader::Shader() {
+    spdlog::info("Creating default shader program");
+    GLuint vertex, fragment, geometry;
+
+    vertex = compile_shader(default_vertex_source, GL_VERTEX_SHADER);
+    fragment = compile_shader(default_fragment_source, GL_FRAGMENT_SHADER);
+
+    std::vector<GLuint> shaders = {vertex, fragment};
+
+    link_program(shaders);  
+    spdlog::info("Shader program created successfully");
+}
 
 Shader::Shader(const std::vector<std::string>& paths) : ID(0) {
     std::string vertexCode;
@@ -25,7 +51,6 @@ Shader::Shader(const std::vector<std::string>& paths) : ID(0) {
     std::vector<GLuint> shaders = {vertex, fragment};
 
     link_program(shaders);
-
 }
 
 Shader::Shader(const Shader &&shader) noexcept {
