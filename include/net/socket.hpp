@@ -16,8 +16,8 @@ namespace arch::net {
 		///
 		enum sock_protocol : uint16_t {
 			None,
-			UDP,
-			TCP
+			udp,
+			tcp
 		};
 
 		/// @brief UDP socket.
@@ -137,7 +137,7 @@ namespace arch::net {
 		~Socket();
 
 		sock_type _socket = NULL;
-		IPv4 _address = 0;
+		IPv4 _address{(IPv4::binary_type)0};
 		port_type _port = 0;
 		sock_protocol _proto = sock_protocol::None;
 	};

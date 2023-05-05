@@ -6,10 +6,10 @@ namespace arch::net {
 
 	Socket::Socket(sock_protocol p) {
 		switch (p) {
-			case sock_protocol::UDP:
+			case sock_protocol::udp:
 				_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 				break;
-			case sock_protocol::TCP:
+			case sock_protocol::tcp:
 				_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 				break;
 			default:
@@ -91,7 +91,8 @@ namespace arch::net {
 			int len = sizeof(data);
 			getsockname(_socket, (sockaddr*)&data, &len);
 
-			return ntohs(data.sin_port);
+			_port = (data.sin_port);
+			return _port;
 		}
 
 		return 0;
@@ -113,6 +114,7 @@ namespace arch::net {
 		static pollfd poll_data;
 		memset(&poll_data, 0, sizeof(poll_data));
 		poll_data.fd = _socket;
+		poll_data.events = POLLRDNORM;
 
 		bool retval = true;
 
