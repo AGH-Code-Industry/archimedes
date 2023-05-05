@@ -30,7 +30,7 @@ namespace arch::net {
 		_data.octets[3] = octet_3;
 	}
 	IPv4::IPv4(binary_type binary) {
-		_data.binary = htonl(binary);
+		_data.binary = (binary);
 	}
 	IPv4::IPv4(in_addr addr) {
 		// both have size of 32 bits
