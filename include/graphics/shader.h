@@ -19,14 +19,15 @@ public:
      * @brief Constructor of the shader class
      * @param std::vector<std::string> paths to the shader files
      */
-    explicit Shader( const std::vector<std::string>& paths);
+    Shader(const std::vector<std::string>& paths);
 
+    /**
+     * @brief Create default shader
+     */
+    Shader();
     Shader(const Shader& shader) = delete;
-
     Shader(const Shader&& shader) noexcept;
-
     Shader & operator=(const Shader& shader) = delete;
-
     Shader & operator=(const Shader&& shader) noexcept;
 
     ~Shader();
@@ -99,8 +100,8 @@ private:
      */
     void link_program(const std::vector<GLuint>& shaders);
 
-
-
+    static const char *default_vertex_source;
+    static const char *default_fragment_source;
 };
 
 class ShaderException : public std::runtime_error {

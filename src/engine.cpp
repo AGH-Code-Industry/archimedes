@@ -1,11 +1,16 @@
-//
-// Created by tosiek on 22.02.23.
-//
-
 #include "engine.h"
+#include "graphics/model.h"
+#include "graphics/primitives.h"
+#include "graphics/renderer.h"
+#include "graphics/glfw_exception.h"
+#include "graphics/glad_exception.h"
+
+#include <spdlog/spdlog.h>
 
 using namespace arch;
 using json = nlohmann::json;
+
+Engine::Engine() : _window(1, 1, {}) {}
 
 Engine::~Engine() {
     terminate();
@@ -22,18 +27,43 @@ void Engine::start() {
 
 
 void Engine::main_loop() {
+    spdlog::info("Starting engine main loop");
+    std::vector<Vertex> vertices {
+        { glm::vec3(0.5f, 0.5f, 0.5f), {}, {}},
+        { glm::vec3(-0.5f, 0.5f, 0.5f), {}, {}},
+        { glm::vec3(-0.5f, -0.5f, 0.5f), {}, {}},
+        { glm::vec3(0.5f, -0.5f, 0.5f), {}, {}},
+        { glm::vec3(0.5f, 0.5f, -0.5f), {}, {}},
+        { glm::vec3(-0.5f, 0.5f, -0.5f), {}, {}},
+        { glm::vec3(-0.5f, -0.5f, -0.5f), {}, {}},
+        { glm::vec3(0.5f, -0.5f, -0.5f), {}, {}}
+    };
+    std::vector<Index> indices { 
+        0, 1, 2, 0, 3, 2,
+        4, 5, 6, 4, 7, 6,
+        4, 0, 3, 4, 7, 3,
+        5, 1, 2, 5, 6, 2,
+        7, 6, 2, 7, 3, 2,
+        4, 5, 1, 5, 0, 1
+    };
+    Model model { { { vertices, indices, {} } } };
+    Renderer3D renderer {};
+    renderer.submit(model);
     while(!_window.should_close())
     {
         process_input();
-
         _window.clear(_engine_config.background_color);
+
+        renderer.render();
+        
         _window.swap_buffers();
         glfwPollEvents();
     }
 }
 
 void Engine::initialize() {
-    glfwInit();
+    if (!glfwInit())
+        throw GLFWException();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -44,11 +74,14 @@ void Engine::initialize() {
 #endif
 
     load_configuration();
-    _window = Window(_engine_config.window_width, _engine_config.window_height, _engine_config.window_title, nullptr);
+    _window.resize(_engine_config.window_width, _engine_config.window_height);
+    _window.set_title(_engine_config.window_title);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        throw InitException();
+        throw GladException();
     }
+
+    spdlog::info("Engine initialization successful");
 }
 
 void Engine::terminate() {
