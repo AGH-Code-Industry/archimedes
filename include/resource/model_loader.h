@@ -1,4 +1,5 @@
 #include <graphics/model.h>
+#include <string>
 
 namespace arch {
 
