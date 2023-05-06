@@ -17,12 +17,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: cpp-linter/cpp-linter-action@v2
         id: linter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
           tidy-checks: ''
+          files-changed-only: false
 
       - name: Fail fast?!
-        if: steps.linter.outputs.checks-failed > 0
-        run: exit 1
+        if: steps.linter.outputs.checks-failed != 0
+        run: |
+          echo "some linter checks failed. ${{ steps.linter.outputs.checks-failed }}"
+          exit 1
