@@ -67,6 +67,7 @@ jobs:
         style: file
         tidy-checks: ''
         files-changed-only: false
+        ignore: ".github | build"
         
     - name: Check linting status
       if: steps.linter.outputs.checks-failed != 0
