@@ -19,7 +19,7 @@ Unfortunately, this will install Ubuntu 20.04 if you want to install Ubuntu 22.0
 ```powershell
 wsl -l -o
 ```
-If you don't see [Ubuntu 22.04](https://www.microsoft.com/store/productId/9PN20MSR04DW) in the list, you will have install it from the Microsoft Store
+If you don't see [Ubuntu 22.04](https://www.microsoft.com/store/productId/9PN20MSR04DW) in the list, you will have install to it from the Microsoft Store
 ![Ubuntu img](Ub22.png) 
 
 ### Installing Ubuntu-22.04
@@ -76,7 +76,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 ```
 Add ```zsh-syntax-highlighting``` to the plugins array in ```~/.zshrc```. IT MUST BE THE LAST PLUGIN IN THE ARRAY.
 
-### More plugins that mey be useful
+### More plugins that may be useful
 - git, git-auto-fetch
 - sudo
 - python 
