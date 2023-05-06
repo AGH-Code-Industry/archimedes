@@ -4,6 +4,7 @@ on:
   push:
     branches: 
     - master
+    - wsl-tutorial
   pull_request:
     branches: 
     - master
@@ -56,4 +57,21 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./test_archimedes
 
+    - uses: actions/checkout@v3
+    - name: Lint C++
+      uses: cpp-linter/cpp-linter-action@v2
+      id: linter
+      # env:
+      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        database: build
+        style: file
+        tidy-checks: ''
+        files-changed-only: false
+        
+    - name: Check linting status
+      if: steps.linter.outputs.checks-failed != 0
+      run: |
+        echo "some linter checks failed. ${{ steps.linter.outputs.checks-failed }}"
+        exit 1
 
