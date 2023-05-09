@@ -112,6 +112,12 @@ namespace arch::net {
 		/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
 		/// 
 		void exclusive(bool new_val);
+		/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
+		/// 
+		bool reuse() const;
+		/// @brief Sets if socket is permitted to use address and port of another non-exclusive socket.
+		///
+		void reuse(bool new_val);
 
 	protected:
 		/// @brief Constructor.

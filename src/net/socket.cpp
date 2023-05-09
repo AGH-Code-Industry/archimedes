@@ -253,4 +253,24 @@ namespace arch::net {
 			// log error;
 		}
 	}
+	bool Socket::reuse() const {
+		int optval;
+		int optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return 0;
+		}
+
+		return optval;
+	}
+	void Socket::reuse(bool new_val) {
+		int optval = new_val;
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
+	}
 }
