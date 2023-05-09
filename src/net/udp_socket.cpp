@@ -50,4 +50,25 @@ namespace arch::net {
 
 		return Host(IPv4(addr.sin_addr));
 	}
+
+	bool UDPSocket::broadcast_enabled() const {
+		int optval;
+		int optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return 0;
+		}
+
+		return optval;
+	}
+	void UDPSocket::broadcast_enabled(bool new_val) {
+		int optval = new_val;
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
+	}
 }
