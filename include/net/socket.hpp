@@ -106,12 +106,14 @@ namespace arch::net {
 		/// @brief Sets sending buffer size.
 		/// @param new_val - new size of sending buffer.
 		void send_buf(int new_val);
+#ifdef _WIN32 // exclusivity avalible only on Windows
 		/// @brief Checks if address and port of socket should be exclusive.
 		/// 
 		bool exclusive() const;
 		/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
 		/// 
 		void exclusive(bool new_val);
+#endif
 		/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
 		/// 
 		bool reuse() const;

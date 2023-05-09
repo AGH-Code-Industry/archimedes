@@ -233,6 +233,7 @@ namespace arch::net {
 			// log error;
 		}
 	}
+#ifdef _WIN32 // exclusivity avalible only on Windows
 	bool Socket::exclusive() const {
 		int optval;
 		int optlen = sizeof(optval);
@@ -253,6 +254,7 @@ namespace arch::net {
 			// log error;
 		}
 	}
+#endif
 	bool Socket::reuse() const {
 		int optval;
 		int optlen = sizeof(optval);
