@@ -6,6 +6,7 @@
 - Windows Core Izolation must be turned on
 ## Enabling wsl feature
 ```powershell
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 ```
 or you can simply run the following command in powershell that will do the same thing plus install default Ubuntu distro
@@ -33,7 +34,7 @@ sudo apt update && sudo apt upgrade
 ## Installing packages
 ### Installing git \& python
 ```bash
-sudo apt install git python3.10 python-is-python3 python3-pip cmake build-essential -y 
+sudo apt install git python3.10 python-is-python3 python3-pip cmake build-essential pkg-config -y 
 ```
 ### Installing conan
 ```bash
