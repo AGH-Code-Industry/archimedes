@@ -14,10 +14,10 @@ namespace arch::net {
 			// log error or smth
 			return;
 		}
+		initialized = true;
 #elif defined unix
 		// nothing
 #endif
-		initialized = true;
 	}
 	__NetworkAuto::~__NetworkAuto() {
 #ifdef _WIN32
