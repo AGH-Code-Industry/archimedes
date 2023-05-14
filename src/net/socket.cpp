@@ -20,6 +20,9 @@ namespace arch::net {
 		if (_socket == INVALID_SOCKET) {
 			// log error
 		}
+		else if (_socket == NULL) {
+			// log error
+		}
 
 		_proto = p;
 	}
@@ -40,18 +43,18 @@ namespace arch::net {
 	}
 
 	void Socket::close() {
-		if (_socket != INVALID_SOCKET) {
+		if (_socket != NULL) {
 			if (
 #ifdef _WIN32
 				closesocket(_socket)
 #elif defined unix
-				::close(_socket)
+				close(_socket)
 #endif
 				!= 0) {
 				// log error
 			}
 
-			_socket = INVALID_SOCKET;
+			_socket = NULL;
 			_address.data(0);
 			_port = 0;
 			_proto = Socket::None;
@@ -85,7 +88,7 @@ namespace arch::net {
 		if (bind(random_port)) {
 			sockaddr_in data;
 			memset(&data, 0, sizeof(data));
-			socklen_t len = sizeof(data);
+			int len = sizeof(data);
 			getsockname(_socket, (sockaddr*)&data, &len);
 
 			_port = (data.sin_port);
@@ -128,7 +131,7 @@ namespace arch::net {
 			// log error
 			retval = false;
 		}
-		if (not (poll_data.revents & POLLRDNORM)) {
+		if (not poll_data.revents & POLLRDNORM) {
 			retval = false;
 		}
 
@@ -154,7 +157,7 @@ namespace arch::net {
 			// log error
 			retval = false;
 		}
-		if (not (poll_data.revents & POLLWRNORM)) {
+		if (not poll_data.revents & POLLWRNORM) {
 			retval = false;
 		}
 
@@ -192,7 +195,7 @@ namespace arch::net {
 
 	int Socket::recv_buf() const {
 		int optval;
-		socklen_t optlen = sizeof(optval);
+		int optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -212,7 +215,7 @@ namespace arch::net {
 	}
 	int Socket::send_buf() const {
 		int optval;
-		socklen_t optlen = sizeof(optval);
+		int optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -230,10 +233,10 @@ namespace arch::net {
 			// log error;
 		}
 	}
-#ifdef _WIN32 // exclusivity supported only by Windows
+#ifdef _WIN32 // exclusivity avalible only on Windows
 	bool Socket::exclusive() const {
 		int optval;
-		socklen_t optlen = sizeof(optval);
+		int optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -254,7 +257,7 @@ namespace arch::net {
 #endif
 	bool Socket::reuse() const {
 		int optval;
-		socklen_t optlen = sizeof(optval);
+		int optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -271,11 +274,5 @@ namespace arch::net {
 		if (result != 0) {
 			// log error;
 		}
-#ifdef unix
-		result = setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, (char*)&optval, sizeof(optval));
-		if (result != 0) {
-			// log error;
-		}
-#endif
 	}
 }

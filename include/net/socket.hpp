@@ -2,7 +2,7 @@
 
 #include <net/includes.hpp>
 #include <net/ipv4.hpp>
-#include <type_traits>
+#include <functional>
 
 namespace arch::net {
 	class UDPSocket;
@@ -36,7 +36,7 @@ namespace arch::net {
 
 		/// @brief Build-in socket handle type.
 		///
-		using sock_type = std::invoke_result_t<decltype(::socket), int, int, int>; 
+		using sock_type = std::function<decltype(socket)>::result_type;
 		/// @brief Port number type.
 		///
 		using port_type = uint16_t;
@@ -144,7 +144,7 @@ namespace arch::net {
 		///
 		~Socket();
 
-		sock_type _socket = INVALID_SOCKET;
+		sock_type _socket = NULL;
 		IPv4 _address{(IPv4::binary_type)0};
 		port_type _port = 0;
 		sock_protocol _proto = sock_protocol::None;
