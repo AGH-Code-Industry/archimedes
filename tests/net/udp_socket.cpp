@@ -11,8 +11,10 @@ TEST(UDPSocket, SendAndReceive) {
 	auto future = std::async(std::launch::async, [&]() {
 		net::UDPSocket receiver_sock;
 
+#ifdef _WIN32
 		receiver_sock.exclusive(false);
 		EXPECT_FALSE(receiver_sock.exclusive());
+#endif
 		receiver_sock.reuse(true);
 		EXPECT_TRUE(receiver_sock.reuse());
 
@@ -43,8 +45,10 @@ TEST(UDPSocket, SendAndReceive) {
 
 	net::UDPSocket sender_sock;
 
+#ifdef _WIN32
 	sender_sock.exclusive(false);
 	EXPECT_FALSE(sender_sock.exclusive());
+#endif
 	sender_sock.reuse(true);
 	EXPECT_TRUE(sender_sock.reuse());
 
