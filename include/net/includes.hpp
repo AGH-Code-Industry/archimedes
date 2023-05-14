@@ -7,18 +7,8 @@
 inline auto poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout) { return WSAPoll(fdArray, fds, timeout); }
 #endif//__ARCH_NET_WIN32_POLL_ALIAS__
 #elif defined unix
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
-#endif
-#ifndef SOCKET_ERROR
-#define SOCKET_ERROR -1
-#endif
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <poll.h>
-#include <cstring>
-#include <cstdlib>
-#include <unistd.h>
 #endif
