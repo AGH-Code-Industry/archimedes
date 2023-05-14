@@ -75,11 +75,25 @@ namespace arch::net {
 		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 		/// @return true if received data, false otherwise.
 		bool recv(char* buf, int buflen, bool peek = false);
+		/// @brief Receives data.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param length - variable that will contain length of received data in bytes, -1 on error.
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return true if received data, false otherwise.
+		bool recv(char* buf, int buflen, int& length, bool peek = false);
 		/// @brief Receives data and sender.
 		/// @param buf - buffer to save data to.
 		/// @param buflen - length of buffer.
 		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 		/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
 		Host recv_from(char* buf, int buflen, bool peek = false);
+		/// @brief Receives data.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param length - variable that will contain length of received data in bytes, -1 on error.
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return true if received data, false otherwise.
+		Host recv_from(char* buf, int buflen, int& length, bool peek = false);
 	};
 }
