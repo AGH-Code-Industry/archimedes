@@ -50,12 +50,6 @@ namespace arch::net {
 		if (not _hostname.empty()) { // hostname avalible
 			node_name = _hostname;
 		}
-		else if (_ips[0] == IPv4::localhost) {
-			char hostname[NI_MAXHOST];
-			gethostname(hostname, NI_MAXHOST);
-			_hostname = hostname;
-			node_name = _hostname;
-		}
 		else { // update hostname
 			sockaddr_in sa;
 			memset(&sa, 0, sizeof(sa));

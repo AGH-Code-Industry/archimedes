@@ -19,7 +19,7 @@ TEST(Host, LocalHost) { // ~15ms
     char buffer[256]{};
     gethostname(buffer, 256);
 
-    EXPECT_EQ(localhost.hostname(), std::string(buffer));
+    EXPECT_EQ(strcmp(localhost.hostname().c_str(), buffer), 0);
 }
 
 TEST(Host, MyIPs) { // ~3ms
