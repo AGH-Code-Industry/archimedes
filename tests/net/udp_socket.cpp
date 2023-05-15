@@ -7,16 +7,31 @@
 TEST(UDPSocket, SendAndReceive) {
 	namespace net = arch::net;
 	auto&& msg = "przykladowa wiadomosc";
+
+	/*
+	net::UDPSocket socket;
+	socket.bind(30420);
+
+	while (not socket.data_avalible()) {
+		socket.send_to(net::Host::localhost(), 30420, msg, sizeof(msg));
+	}
+	char buf[100]{};
+	socket.recv(buf, 100);
+	std::cout << buf << '\n';
+	*/
+	///*
 	auto timeout = std::chrono::seconds(3);
 	auto future = std::async(std::launch::async, [&]() {
 		net::UDPSocket receiver_sock;
 
+#ifdef _WIN32
 		receiver_sock.exclusive(false);
 		EXPECT_FALSE(receiver_sock.exclusive());
+#endif
 		receiver_sock.reuse(true);
 		EXPECT_TRUE(receiver_sock.reuse());
 
-		receiver_sock.bind(30420);
+		receiver_sock.bind(net::IPv4::localhost, 30420);
 
 		auto timer = std::chrono::system_clock::now() + timeout;
 		for (;;) {
@@ -43,13 +58,19 @@ TEST(UDPSocket, SendAndReceive) {
 
 	net::UDPSocket sender_sock;
 
+#ifdef _WIN32
 	sender_sock.exclusive(false);
 	EXPECT_FALSE(sender_sock.exclusive());
+#endif
 	sender_sock.reuse(true);
 	EXPECT_TRUE(sender_sock.reuse());
 
 	EXPECT_TRUE(sender_sock.bind(30420));
-	EXPECT_TRUE(sender_sock.send_to(net::Host::localhost(), msg, sizeof(msg)));
+
+	EXPECT_TRUE(sender_sock.send_to(net::Host::localhost(), 30420, msg, sizeof(msg)));
+	//while (future.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready) {}
 
 	future.wait();
+
+	//*/
 }
