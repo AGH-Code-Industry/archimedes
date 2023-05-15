@@ -50,6 +50,12 @@ namespace arch::net {
 		if (not _hostname.empty()) { // hostname avalible
 			node_name = _hostname;
 		}
+		else if (_ips[0] == IPv4::localhost) {
+			char hostname[NI_MAXHOST]{};
+			gethostname(hostname, NI_MAXHOST);
+			_hostname = hostname;
+			node_name = _hostname;
+		}
 		else { // update hostname
 			sockaddr_in sa;
 			memset(&sa, 0, sizeof(sa));
@@ -57,7 +63,7 @@ namespace arch::net {
 			sa.sin_family = AF_INET;
 			sa.sin_port = htons(0);
 
-			char hostname[NI_MAXHOST];
+			char hostname[NI_MAXHOST]{};
 			char serv_info[NI_MAXSERV];
 
 			int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
