@@ -20,9 +20,6 @@ namespace arch::net {
 		if (_socket == INVALID_SOCKET) {
 			// log error
 		}
-		else if (_socket == NULL) {
-			// log error
-		}
 
 		_proto = p;
 	}
@@ -43,18 +40,18 @@ namespace arch::net {
 	}
 
 	void Socket::close() {
-		if (_socket != NULL) {
+		if (_socket != INVALID_SOCKET) {
 			if (
 #ifdef _WIN32
 				closesocket(_socket)
 #elif defined unix
-				close(_socket)
+				::close(_socket)
 #endif
 				!= 0) {
 				// log error
 			}
 
-			_socket = NULL;
+			_socket = INVALID_SOCKET;
 			_address.data(0);
 			_port = 0;
 			_proto = Socket::None;
@@ -88,7 +85,7 @@ namespace arch::net {
 		if (bind(random_port)) {
 			sockaddr_in data;
 			memset(&data, 0, sizeof(data));
-			int len = sizeof(data);
+			socklen_t len = sizeof(data);
 			getsockname(_socket, (sockaddr*)&data, &len);
 
 			_port = (data.sin_port);
@@ -111,7 +108,7 @@ namespace arch::net {
 		return _port != 0;
 	}
 	bool Socket::data_avalible() const {
-		static pollfd poll_data;
+		pollfd poll_data;
 		memset(&poll_data, 0, sizeof(poll_data));
 		poll_data.fd = _socket;
 		poll_data.events = POLLRDNORM;
@@ -131,14 +128,14 @@ namespace arch::net {
 			// log error
 			retval = false;
 		}
-		if (not poll_data.revents & POLLRDNORM) {
+		if (not (poll_data.revents & POLLRDNORM)) {
 			retval = false;
 		}
 
 		return retval;
 	}
 	bool Socket::sendable() const {
-		static pollfd poll_data;
+		pollfd poll_data;
 		memset(&poll_data, 0, sizeof(poll_data));
 		poll_data.fd = _socket;
 
@@ -157,14 +154,14 @@ namespace arch::net {
 			// log error
 			retval = false;
 		}
-		if (not poll_data.revents & POLLWRNORM) {
+		if (not (poll_data.revents & POLLWRNORM)) {
 			retval = false;
 		}
 
 		return retval;
 	}
 	Socket::usable_data Socket::usable() const {
-		static pollfd poll_data;
+		pollfd poll_data;
 		memset(&poll_data, 0, sizeof(poll_data));
 		poll_data.fd = _socket;
 
@@ -187,7 +184,7 @@ namespace arch::net {
 			return {false, false};
 		}
 
-		static usable_data data;
+		usable_data data;
 		data.data_avalible = bool(poll_data.revents & POLLRDNORM);
 		data.sendable = bool(poll_data.revents & POLLWRNORM);
 		return data;
@@ -195,7 +192,7 @@ namespace arch::net {
 
 	int Socket::recv_buf() const {
 		int optval;
-		int optlen = sizeof(optval);
+		socklen_t optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -215,7 +212,7 @@ namespace arch::net {
 	}
 	int Socket::send_buf() const {
 		int optval;
-		int optlen = sizeof(optval);
+		socklen_t optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -236,7 +233,7 @@ namespace arch::net {
 #ifdef _WIN32 // exclusivity avalible only on Windows
 	bool Socket::exclusive() const {
 		int optval;
-		int optlen = sizeof(optval);
+		socklen_t optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -257,7 +254,7 @@ namespace arch::net {
 #endif
 	bool Socket::reuse() const {
 		int optval;
-		int optlen = sizeof(optval);
+		socklen_t optlen = sizeof(optval);
 
 		int result = getsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, &optlen);
 		if (result != 0) {
@@ -274,5 +271,12 @@ namespace arch::net {
 		if (result != 0) {
 			// log error;
 		}
+#ifdef unix
+		optval = new_val;
+		int result2 = setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, (char*)&optval, sizeof(optval));
+		if (result2 != 0) {
+			// log error;
+		}
+#endif
 	}
 }
