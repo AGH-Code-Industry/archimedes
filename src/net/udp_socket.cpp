@@ -33,16 +33,21 @@ namespace arch::net {
 		return send_to(host, _port, data);
 	}
 
-	bool UDPSocket::recv(char* buf, int buflen, bool peek) {
+	bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 		int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
 		if (result == SOCKET_ERROR) {
 			// log error
 			return false;
 		}
 
+		length = result;
 		return result;
 	}
-	Host UDPSocket::recv_from(char* buf, int buflen, bool peek) {
+	bool UDPSocket::recv(char* buf, int buflen, bool peek) {
+		int temp;
+		return recv(buf, buflen, temp, peek);
+	}
+	Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
 		sockaddr_in addr;
 		socklen_t addr_len;
 		addr_len = sizeof(addr);
@@ -54,7 +59,12 @@ namespace arch::net {
 			return Host(IPv4((IPv4::binary_type)0));
 		}
 
+		length = result;
 		return Host(IPv4(addr.sin_addr));
+	}
+	Host UDPSocket::recv_from(char* buf, int buflen, bool peek) {
+		int temp;
+		return recv_from(buf, buflen, temp, peek);
 	}
 
 	bool UDPSocket::broadcast_enabled() const {
