@@ -1,4 +1,5 @@
 #include <net/tcp_socket.hpp>
+#include <memory>
 
 namespace arch::net {
 	TCPSocket::TCPSocket() :
@@ -56,6 +57,7 @@ namespace arch::net {
 			return false;
 		}
 		auto response_buffer = std::unique_ptr<char[]>(new char[response_len]);
+		memset(response_buffer.get(), 0, response_len);
 		// receive response
 		result = ::recv(_socket, response_buffer.get(), response_len, 0);
 		if (result == SOCKET_ERROR) {
@@ -135,6 +137,7 @@ namespace arch::net {
 
 		new_sock._status = 0;
 		auto buffer = std::unique_ptr<char[]>(new char[data_len]);
+		memset(buffer.get(), 0, data_len);
 		// receive connection data
 		int result = ::recv(new_sock._socket, buffer.get(), data_len, 0);
 		if (result == SOCKET_ERROR) {
@@ -142,6 +145,7 @@ namespace arch::net {
 			return false;
 		}
 		auto resp_buffer = std::unique_ptr<char[]>(new char[response_len]);
+		memset(resp_buffer.get(), 0, response_len);
 		auto return_result = condition(buffer.get(), data_len, additional_data, resp_buffer.get(), response_len);
 		result = ::send(new_sock._socket, resp_buffer.get(), response_len, 0);
 		if (result == SOCKET_ERROR) {

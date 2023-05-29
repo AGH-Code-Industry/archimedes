@@ -72,7 +72,7 @@ std::map<std::string, std::string> database
 {
 	{
 	{"Mariusz Pudzianowski"s, "Polska gurom!!!1!"s},
-	{"Red Impostor"s, "sus ,:|"s},
+	{"Red Impostor"s, "sus ,:/"s},
 	{"Ben Christie"s, "bigounce"s},
 	{"Chemia UJ"s, "prawnik zalecil abym zaniechal zartu"s},
 	{"Akademik Kapitol"s, "rzadowy program winda+"s}
@@ -84,8 +84,8 @@ auto accept_condition = [](void* data, int data_len, void* additional_data, void
 	auto&& user_database = *(std::map<std::string, std::string>*)additional_data;
 	unsigned char resp = 0;
 
-	auto&& delim_pos = username_password.find('\n');
-	auto&& end_pos = username_password.find('\n', delim_pos + 1);
+	auto&& delim_pos = username_password.find('|');
+	auto&& end_pos = username_password.find('|', delim_pos + 1);
 	if (delim_pos == std::string_view::npos or end_pos == std::string_view::npos) {
 		// bad format
 		resp = 1 << 2;
@@ -173,7 +173,7 @@ TEST(TCPSocket, ConditionalConnectSuccess) {
 		++iter;
 	}
 
-	std::string data = iter->first + '\n' + iter->second + '\n';
+	std::string data = iter->first + '|' + iter->second + '|';
 
 	EXPECT_TRUE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler));
 
@@ -217,7 +217,7 @@ TEST(TCPSocket, ConditionalConnectUserNotFound) {
 		++iter;
 	}
 
-	std::string data = iter->first + 'X' + '\n' + iter->second + '\n';
+	std::string data = iter->first + 'X' + '|' + iter->second + '|';
 
 	std::stringstream sstream;
 
@@ -265,7 +265,7 @@ TEST(TCPSocket, ConditionalConnectWrongPassword) {
 		++iter;
 	}
 
-	std::string data = iter->first + '\n' + iter->second + 'X' + '\n';
+	std::string data = iter->first + '|' + iter->second + 'X' + '|';
 
 	std::stringstream sstream;
 
@@ -313,7 +313,7 @@ TEST(TCPSocket, ConditionalConnectBadFormat) {
 		++iter;
 	}
 
-	std::string data = iter->first + '\n' + iter->second;
+	std::string data = iter->first + '|' + iter->second;
 
 	std::stringstream sstream;
 
