@@ -15,10 +15,15 @@ namespace arch::net {
 		/// @param void* - pointer to acceptance data.
 		/// @param int - length of acceptance data in bytes.
 		/// @param void* - pointer to additional data used by predicate.
-		using accept_condition = bool(*)(void*, int, void*);
-		/// @brief No connection condition placeholder, always returns true.
-		///
-		constexpr static bool no_condition(void* = nullptr, int = 0, void* = nullptr);
+		/// @param void* - pointer to response buffer.
+		/// @param int - response buffer length.
+		/// @retval true if connection accepted, false otherwise.
+		using accept_condition = bool(*)(void*, int, void*, void*, int);
+		/// @brief Predicate to cond_connect().
+		/// @param void* - response data.
+		/// @param int - response length.
+		/// @param void* - additional data.
+		using accept_response_handler = bool(*)(void*, int, void*);
 
 		/// @brief Default constructor.
 		///
@@ -62,8 +67,11 @@ namespace arch::net {
 		/// @param port - port on which connection is requested.
 		/// @param data - acceptance data to be sent.
 		/// @param data_len - length of acceptance data.
+		/// @param response_len - length of response data.
+		/// @param handler - pointer to response handler.
+		/// @param handler_data - additional data for handler.
 		/// @return true on success, false otherwise.
-		bool cond_connect(const Host& host, port_type port, void* data, int data_len) = delete;
+		bool cond_connect(const Host& host, port_type port, void* data, int data_len, int response_len, accept_response_handler handler, void* handler_data = nullptr);
 		/// @brief Checks if socket is connected.
 		///
 		bool connected() const;
@@ -86,9 +94,10 @@ namespace arch::net {
 		/// @brief Conditionally accepts incoming connection.
 		/// @param new_sock - socket object that will hold connection socket.
 		/// @param condition - callback to predicate.
+		/// @param data_len - length of acceptance data.
 		/// @param additional_data - additional data used by predicate.
 		/// @return true on success, false otherwise. 
-		bool cond_accept(TCPSocket& new_sock, accept_condition condition, void* additional_data = nullptr) = delete;
+		bool cond_accept(TCPSocket& new_sock, accept_condition condition, int data_len, int response_len, void* additional_data = nullptr);
 
 		/// @brief Sends data to peer.
 		/// @param data - data to be sent.
@@ -115,7 +124,6 @@ namespace arch::net {
 		bool recv(char* buf, int buflen, bool peek = false);
 
 	protected:
-		//TCPSocket(sock_type s, port_type p, IPv4 addr, IPv4 paddr);
 
 		IPv4 _peer_addr;
 		uint8_t _status = 0;

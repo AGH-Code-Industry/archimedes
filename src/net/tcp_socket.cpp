@@ -1,10 +1,6 @@
 #include <net/tcp_socket.hpp>
 
 namespace arch::net {
-	constexpr bool TCPSocket::no_condition(void*, int, void*) {
-		return true;
-	}
-
 	TCPSocket::TCPSocket() :
 		Socket(Socket::tcp) {}
 	TCPSocket::TCPSocket(port_type port) :
@@ -43,6 +39,40 @@ namespace arch::net {
 		_peer_addr = host.ip();
 		_status = 1;
 		return true;
+	}
+	bool TCPSocket::cond_connect(const Host& host, port_type port, void* data, int data_len, int response_len, accept_response_handler handler, void* handler_data) {
+		if (not connect(host, port)) {
+			// log error
+			_peer_addr = IPv4();
+			return false;
+		}
+
+		_status = 0;
+		// send connection data
+		int result = ::send(_socket, (char*)data, data_len, 0);
+		if (result == SOCKET_ERROR) {
+			// log error
+			_peer_addr = IPv4();
+			return false;
+		}
+		auto response_buffer = std::unique_ptr<char[]>(new char[response_len]);
+		// receive response
+		result = ::recv(_socket, response_buffer.get(), response_len, 0);
+		if (result == SOCKET_ERROR) {
+			// log error
+			_peer_addr = IPv4();
+			return false;
+		}
+		// handle response
+		if (handler(response_buffer.get(), response_len, handler_data)) {
+			_status = 1;
+			return true;
+		}
+		else {
+			// log error
+			_peer_addr = IPv4();
+			return false;
+		}
 	}
 	bool TCPSocket::connected() const {
 		return _status & 1;
@@ -97,8 +127,40 @@ namespace arch::net {
 
 		return true;
 	}
+	bool TCPSocket::cond_accept(TCPSocket& new_sock, accept_condition condition, int data_len, int response_len, void* additional_data) {
+		if (not accept(new_sock)) {
+			// log error
+			return false;
+		}
+
+		new_sock._status = 0;
+		auto buffer = std::unique_ptr<char[]>(new char[data_len]);
+		// receive connection data
+		int result = ::recv(new_sock._socket, buffer.get(), data_len, 0);
+		if (result == SOCKET_ERROR) {
+			// log error
+			return false;
+		}
+		auto resp_buffer = std::unique_ptr<char[]>(new char[response_len]);
+		auto return_result = condition(buffer.get(), data_len, additional_data, resp_buffer.get(), response_len);
+		result = ::send(new_sock._socket, resp_buffer.get(), response_len, 0);
+		if (result == SOCKET_ERROR) {
+			// log error
+			return false;
+		}
+		if(return_result){
+			new_sock._status = 1;
+			return true;
+		}
+
+		return false;
+	}
 	
 	bool TCPSocket::send(const char* data, int len) {
+		if (not connected()) {
+			return false;
+		}
+
 		int result = ::send(_socket, data, len, 0);
 		if (result == SOCKET_ERROR) {
 			// log error
@@ -112,6 +174,10 @@ namespace arch::net {
 	}
 
 	bool TCPSocket::recv(char* buf, int buflen, int& length, bool peek) {
+		if (not connected()) {
+			return false;
+		}
+
 		int result = ::recv(_socket, buf, buflen, 0);
 		if (result == SOCKET_ERROR) {
 			// log error

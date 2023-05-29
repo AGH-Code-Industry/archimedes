@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 #include <net/tcp_socket.hpp>
 #include <future>
+#include <string>
+#include <map>
+#include <sstream>
 
 ///*
 TEST(TCPSocket, SendAndReceive) {
@@ -61,3 +64,262 @@ TEST(TCPSocket, SendAndReceive) {
 	listen_future.wait();
 }
 //*/
+
+namespace net = arch::net;
+using std::string_literals::operator""s;
+
+std::map<std::string, std::string> database
+{
+	{
+	{"Mariusz Pudzianowski"s, "Polska gurom!!!1!"s},
+	{"Red Impostor"s, "sus ,:|"s},
+	{"Ben Christie"s, "bigounce"s},
+	{"Chemia UJ"s, "prawnik zalecil abym zaniechal zartu"s},
+	{"Akademik Kapitol"s, "rzadowy program winda+"s}
+	}
+};
+
+auto accept_condition = [](void* data, int data_len, void* additional_data, void* response_buffer, int response_len) -> bool {
+	std::string username_password{(const char*)data, (size_t)data_len};
+	auto&& user_database = *(std::map<std::string, std::string>*)additional_data;
+	unsigned char resp = 0;
+
+	auto&& delim_pos = username_password.find('\n');
+	auto&& end_pos = username_password.find('\n', delim_pos + 1);
+	if (delim_pos == std::string_view::npos or end_pos == std::string_view::npos) {
+		// bad format
+		resp = 1 << 2;
+	}
+	if (resp == 0) {
+		std::string username = username_password.substr(0, delim_pos);
+		std::string password = username_password.substr(delim_pos + 1, end_pos - delim_pos - 1);
+		auto&& found_user = user_database.find(username);
+		if (found_user == user_database.end()) {
+			// user not found
+			resp = 1;
+		}
+		if (resp == 0) {
+			if (found_user->second != password) {
+				// wrong password
+				resp = 1 << 1;
+			}
+		}
+	}
+	memcpy(response_buffer, &resp, sizeof(resp));
+	return resp == 0;
+};
+auto response_handler = [](void* response, int response_len, void* additional_data) -> bool {
+	unsigned char resp{};
+	memcpy(&resp, response, sizeof(resp));
+	std::ostream& stream = *(std::ostream*)additional_data;
+	if (resp != 0) {
+		std::string message;
+		switch (resp) {
+			case 1:
+				message = "username not found";
+				break;
+			case 1 << 1:
+				message = "wrong password";
+				break;
+			case 1 << 2:
+				message = "bad format";
+				break;
+			default:
+				message = "unknown error";
+				break;
+		}
+		stream << message << '\n';
+		return false;
+	}
+	else {
+		return true;
+	}
+};
+
+TEST(TCPSocket, ConditionalConnectSuccess) {
+	///*
+	auto future = std::async(std::launch::async, [&]() {
+		net::TCPSocket listen_sock;
+#ifdef _WIN32
+		listen_sock.exclusive(false);
+		EXPECT_FALSE(listen_sock.exclusive());
+#endif
+		listen_sock.reuse(true);
+		EXPECT_TRUE(listen_sock.reuse());
+		listen_sock.bind(50420);
+		EXPECT_TRUE(listen_sock.listen());
+
+		net::TCPSocket connsock;
+		EXPECT_TRUE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+
+		return;
+	});
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	//*/
+	net::TCPSocket conn_sock;
+#ifdef _WIN32
+	conn_sock.exclusive(false);
+	EXPECT_FALSE(conn_sock.exclusive());
+#endif
+	conn_sock.reuse(true);
+	EXPECT_TRUE(conn_sock.reuse());
+
+	srand(time(nullptr));
+
+	int userid = rand() % 5;
+	auto iter = database.begin();
+	for (int i = 0; i != userid; ++i) {
+		++iter;
+	}
+
+	std::string data = iter->first + '\n' + iter->second + '\n';
+
+	EXPECT_TRUE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler));
+
+	future.wait();
+}
+
+TEST(TCPSocket, ConditionalConnectUserNotFound) {
+	///*
+	auto future = std::async(std::launch::async, [&]() {
+		net::TCPSocket listen_sock;
+#ifdef _WIN32
+		listen_sock.exclusive(false);
+		EXPECT_FALSE(listen_sock.exclusive());
+#endif
+		listen_sock.reuse(true);
+		EXPECT_TRUE(listen_sock.reuse());
+		listen_sock.bind(50420);
+		EXPECT_TRUE(listen_sock.listen());
+
+		net::TCPSocket connsock;
+		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+
+		return;
+	});
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	//*/
+	net::TCPSocket conn_sock;
+#ifdef _WIN32
+	conn_sock.exclusive(false);
+	EXPECT_FALSE(conn_sock.exclusive());
+#endif
+	conn_sock.reuse(true);
+	EXPECT_TRUE(conn_sock.reuse());
+
+	srand(time(nullptr));
+
+	int userid = rand() % 5;
+	auto iter = database.begin();
+	for (int i = 0; i != userid; ++i) {
+		++iter;
+	}
+
+	std::string data = iter->first + 'X' + '\n' + iter->second + '\n';
+
+	std::stringstream sstream;
+
+	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+
+	EXPECT_EQ(sstream.str(), "username not found\n");
+
+	future.wait();
+}
+
+TEST(TCPSocket, ConditionalConnectWrongPassword) {
+	///*
+	auto future = std::async(std::launch::async, [&]() {
+		net::TCPSocket listen_sock;
+#ifdef _WIN32
+		listen_sock.exclusive(false);
+		EXPECT_FALSE(listen_sock.exclusive());
+#endif
+		listen_sock.reuse(true);
+		EXPECT_TRUE(listen_sock.reuse());
+		listen_sock.bind(50420);
+		EXPECT_TRUE(listen_sock.listen());
+
+		net::TCPSocket connsock;
+		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+
+		return;
+	});
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	//*/
+	net::TCPSocket conn_sock;
+#ifdef _WIN32
+	conn_sock.exclusive(false);
+	EXPECT_FALSE(conn_sock.exclusive());
+#endif
+	conn_sock.reuse(true);
+	EXPECT_TRUE(conn_sock.reuse());
+
+	srand(time(nullptr));
+
+	int userid = rand() % 5;
+	auto iter = database.begin();
+	for (int i = 0; i != userid; ++i) {
+		++iter;
+	}
+
+	std::string data = iter->first + '\n' + iter->second + 'X' + '\n';
+
+	std::stringstream sstream;
+
+	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+
+	EXPECT_EQ(sstream.str(), "wrong password\n");
+
+	future.wait();
+}
+
+TEST(TCPSocket, ConditionalConnectBadFormat) {
+	///*
+	auto future = std::async(std::launch::async, [&]() {
+		net::TCPSocket listen_sock;
+#ifdef _WIN32
+		listen_sock.exclusive(false);
+		EXPECT_FALSE(listen_sock.exclusive());
+#endif
+		listen_sock.reuse(true);
+		EXPECT_TRUE(listen_sock.reuse());
+		listen_sock.bind(50420);
+		EXPECT_TRUE(listen_sock.listen());
+
+		net::TCPSocket connsock;
+		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+
+		return;
+	});
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	//*/
+	net::TCPSocket conn_sock;
+#ifdef _WIN32
+	conn_sock.exclusive(false);
+	EXPECT_FALSE(conn_sock.exclusive());
+#endif
+	conn_sock.reuse(true);
+	EXPECT_TRUE(conn_sock.reuse());
+
+	srand(time(nullptr));
+
+	int userid = rand() % 5;
+	auto iter = database.begin();
+	for (int i = 0; i != userid; ++i) {
+		++iter;
+	}
+
+	std::string data = iter->first + '\n' + iter->second;
+
+	std::stringstream sstream;
+
+	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+
+	EXPECT_EQ(sstream.str(), "bad format\n");
+
+	future.wait();
+}
