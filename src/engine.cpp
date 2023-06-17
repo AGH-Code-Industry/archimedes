@@ -8,9 +8,10 @@
 #include <spdlog/spdlog.h>
 
 using namespace arch;
-using json = nlohmann::json;
 
-Engine::Engine() : _window(1, 1, {}) {}
+Engine::Engine(EngineConfig config) : 
+_window(1, 1, {}),
+_engine_config(config) {}
 
 Engine::~Engine() {
     terminate();
@@ -21,8 +22,6 @@ void Engine::start() {
     initialize();
 
     main_loop();
-
-    terminate();
 }
 
 
@@ -73,7 +72,6 @@ void Engine::initialize() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    load_configuration();
     _window.resize(_engine_config.window_width, _engine_config.window_height);
     _window.set_title(_engine_config.window_title);
 
@@ -91,29 +89,5 @@ void Engine::terminate() {
 void Engine::process_input() {
     if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(_window.get(), true);
-    }
-}
-
-void Engine::load_configuration(){
-    try {
-        std::ifstream windowConfigFile("config/engine-config/window.json");
-        json windowJsonData = json::parse(windowConfigFile);
-
-        _engine_config.window_width = windowJsonData["width"];
-        _engine_config.window_height = windowJsonData["height"];
-        _engine_config.window_title = windowJsonData["window_title"];
-
-        auto background_color_list = windowJsonData["background_color"];
-
-        float r = background_color_list.at(0);
-        float g = background_color_list.at(1);
-        float b = background_color_list.at(2);
-        float a = background_color_list.at(3);
-
-        _engine_config.background_color = glm::vec4(r, g, b, a);
-    } catch(json::exception &e) {
-        throw ConfigException("wrong JSON file for engine config (" + std::string(e.what()) + ")");
-    } catch(std::ifstream::failure &e) {
-        throw ConfigException("cannot open engine config file (" + std::string(e.what()) + ")");
     }
 }
