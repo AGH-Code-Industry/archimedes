@@ -23,14 +23,12 @@ class BufferObject {
 public:
     BufferObject() = default;
     BufferObject(const BufferObject&) = delete;
-
     BufferObject(BufferObject &&other) noexcept {
         _VBO = other._VBO;
         other._VBO = INVALID;
     }
 
     BufferObject& operator=(BufferObject&) = delete;
-
     BufferObject& operator=(BufferObject &&other) noexcept {
         if (this == &other)
             return *this;
@@ -66,7 +64,7 @@ protected:
 
 private:
     void clear() {
-        if (_VBO == 0)
+        if (_VBO == INVALID)
             return;
         glDeleteBuffers(1, &_VBO);
         _VBO = INVALID;
