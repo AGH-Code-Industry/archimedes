@@ -4,3 +4,6 @@
 tmp/
 build
 .cache
+.vscode
+CMakeUserPresets.json
+compile_commands.json
