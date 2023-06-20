@@ -4,7 +4,17 @@
 
 namespace arch {
 
-Renderer3D::Renderer3D() {
+
+Renderer::Renderer() {
+    glEnable(GL_DEBUG_OUTPUT);
+}
+
+void GLAPIENTRY Renderer::_debug_message_callback(GLenum source, GLenum type,
+												  GLuint id, GLenum severity,
+												  GLsizei length,
+												  const GLchar *message,
+												  const void *user_param) {
+   
 }
 
 void Renderer3D::render() {

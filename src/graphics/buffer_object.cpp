@@ -1,7 +1,5 @@
 #include "graphics/buffer_object.h"
 
-#include <spdlog/spdlog.h>
-
 namespace arch {
 
 VertexArray::VertexArray() {
