@@ -2,25 +2,27 @@
 #define ARCHIMEDES_ENGINE_H
 
 #include <window.h>
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <string>
 #include <exceptions/config_exception.h>
 #include <gtest/gtest_prod.h>
 
+
 namespace arch {
+
+    struct EngineConfig {
+        int window_width;
+        int window_height;
+        std::string window_title;
+        glm::vec4 background_color;
+    };
+
     /**
      * Main class of Archimedes project.
      */
     class Engine {
     public:
-        struct EngineConfig {
-            int window_width;
-            int window_height;
-            std::string window_title;
-            glm::vec4 background_color;
-        };
-        Engine();
+        Engine(EngineConfig config);
         ~Engine();
 
         /**
@@ -54,10 +56,6 @@ namespace arch {
          */
         void process_input();
 
-        /**
-         * Loads configuration files for engine.
-         */
-        void load_configuration();
     };
 }
 
