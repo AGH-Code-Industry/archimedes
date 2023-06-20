@@ -2,6 +2,8 @@
 #include "graphics/shader.h"
 #include "graphics/vertex_storage.h"
 
+#include <spdlog/spdlog.h>
+
 #include <vector>
 
 namespace arch {
@@ -16,13 +18,10 @@ private:
     VertexStorage _vertex_storage;
 
 };
-    
-/*
-  * Base class for renderers that contains functionality common to 3D and 2D rendering.
-  */
-class Renderer {
-protected:
-    Renderer();
+
+class OpenGLDebugMessagesHandler {
+public:
+    static void init();
 private:
     static void GLAPIENTRY
     _debug_message_callback(
@@ -34,7 +33,20 @@ private:
         const GLchar *message,
         const void *user_param
     );
-                
+    static spdlog::level::level_enum _determine_log_level(GLenum type, GLenum severity);
+
+    static constexpr std::array<GLenum, 10> _warning_message_types {
+        GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR,  GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR,
+        GL_DEBUG_TYPE_PORTABILITY,  GL_DEBUG_TYPE_PERFORMANCE
+    };
+};
+    
+/*
+  * Base class for renderers that contains functionality common to 3D and 2D rendering.
+  */
+class Renderer {
+protected:
+    Renderer();
 };
 
 class Renderer3D : public Renderer {

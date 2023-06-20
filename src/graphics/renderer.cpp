@@ -1,21 +1,38 @@
 #include "graphics/renderer.h"
 
-#include <spdlog/spdlog.h>
+#include <sstream>
 
 namespace arch {
 
-
-Renderer::Renderer() {
+void arch::OpenGLDebugMessagesHandler::init() {
     glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(_debug_message_callback, nullptr);
 }
 
-void GLAPIENTRY Renderer::_debug_message_callback(GLenum source, GLenum type,
-												  GLuint id, GLenum severity,
-												  GLsizei length,
-												  const GLchar *message,
-												  const void *user_param) {
-   
+void GLAPIENTRY OpenGLDebugMessagesHandler::_debug_message_callback(
+	GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	const GLchar *message, const void *user_param) 
+{
+    std::stringstream ss;
+    ss << "OpenGLMessage (type " << type << ", severity " << severity << "): " 
+       << message;
+    auto level = _determine_log_level(type, severity);
+    spdlog::log(level, ss.str());
 }
+
+spdlog::level::level_enum OpenGLDebugMessagesHandler::_determine_log_level(
+	GLenum type, GLenum severity) 
+{
+    if (type == GL_DEBUG_TYPE_ERROR)
+        return spdlog::level::level_enum::err;
+    for (const auto& warning_type : _warning_message_types) {
+        if (type == warning_type)
+            return spdlog::level::level_enum::warn;
+    }
+    return spdlog::level::debug;
+}
+
+Renderer::Renderer() { OpenGLDebugMessagesHandler::init(); }
 
 void Renderer3D::render() {
     _shader.activate();
