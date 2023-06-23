@@ -32,7 +32,7 @@ Model AssimpModelLoader::extract_model(const aiScene *scene) {
 Mesh AssimpModelLoader::process_mesh(aiMesh *mesh) {
     auto vertices = process_vertices(mesh);
     auto indices = process_indices(mesh);
-    return Mesh { vertices, indices, {} };
+    return Mesh { vertices, indices };
 }
 
 std::vector<Vertex> AssimpModelLoader::process_vertices(aiMesh *mesh) {
@@ -48,8 +48,8 @@ std::vector<Vertex> AssimpModelLoader::process_vertices(aiMesh *mesh) {
     return vertices;
 }
 
-std::vector<Index> AssimpModelLoader::process_indices(aiMesh *mesh) {
-    std::vector<Index> indices{};
+std::vector<uint32_t> AssimpModelLoader::process_indices(aiMesh *mesh) {
+    std::vector<uint32_t> indices{};
     for (int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
         for (int j = 0; j < face.mNumIndices; j++)
