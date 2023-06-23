@@ -5,8 +5,6 @@
 
 namespace arch {
 
-using Index = unsigned int;
-
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
@@ -22,5 +20,7 @@ template <typename Vec2>
 glm::vec2 convert(Vec2 vec) {
     return glm::vec2 { vec.x, vec.y};
 }
+
+static uint32_t INVALID_OBJECT = 0;
 
 }

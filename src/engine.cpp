@@ -4,6 +4,7 @@
 #include "graphics/renderer.h"
 #include "graphics/glfw_exception.h"
 #include "graphics/glad_exception.h"
+#include "resource/assimp_init.h"
 
 #include <spdlog/spdlog.h>
 
@@ -37,7 +38,7 @@ void Engine::main_loop() {
         { glm::vec3(-0.5f, -0.5f, -0.5f), {}, {}},
         { glm::vec3(0.5f, -0.5f, -0.5f), {}, {}}
     };
-    std::vector<Index> indices { 
+    std::vector<uint32_t> indices { 
         0, 1, 2, 0, 3, 2,
         4, 5, 6, 4, 7, 6,
         4, 0, 3, 4, 7, 3,
@@ -45,7 +46,7 @@ void Engine::main_loop() {
         7, 6, 2, 7, 3, 2,
         4, 5, 1, 5, 0, 1
     };
-    Model model { { { vertices, indices, {} } } };
+    Model model { { { vertices, indices } } };
     Renderer3D renderer {};
     renderer.submit(model);
     while(!_window.should_close())
@@ -78,6 +79,8 @@ void Engine::initialize() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw GladException();
     }
+
+    AssimpInitializer::init();
 
     spdlog::info("Engine initialization successful");
 }

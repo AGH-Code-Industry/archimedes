@@ -7,8 +7,6 @@
 
 namespace arch {
 
-using ObjectName = GLuint;
-
 enum BufferTarget {
     Array = GL_ARRAY_BUFFER,
     ElementArray = GL_ELEMENT_ARRAY_BUFFER
@@ -60,9 +58,9 @@ public:
         glBindBuffer(target, INVALID);
     }
 
-    static constexpr ObjectName INVALID = 0;
+    static constexpr uint32_t INVALID = 0;
 protected:
-    ObjectName _VBO {INVALID};
+    uint32_t _VBO {INVALID};
 
 private:
     void clear() {
@@ -75,7 +73,7 @@ private:
 };
 
 using VertexBuffer = BufferObject<Vertex, BufferTarget::Array, BufferUsage::StaticDraw>;
-using ElementBuffer = BufferObject<Index, BufferTarget::ElementArray, BufferUsage::StaticDraw>;
+using ElementBuffer = BufferObject<uint32_t, BufferTarget::ElementArray, BufferUsage::StaticDraw>;
 
 class VertexArray {
 public:
