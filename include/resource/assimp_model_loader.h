@@ -22,7 +22,7 @@ private:
     Model extract_model(const aiScene *scene);
     Mesh process_mesh(aiMesh *mesh);
     std::vector<Vertex> process_vertices(aiMesh *mesh);
-    std::vector<Index> process_indices(aiMesh *mesh);
+    std::vector<uint32_t> process_indices(aiMesh *mesh);
 
     static glm::vec3 to_glm_vec3(aiVector3D vec) {
         return glm::vec3 { vec.x, vec.y, vec.z };
