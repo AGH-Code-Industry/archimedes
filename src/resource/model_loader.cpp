@@ -1,13 +1,30 @@
-#include "resource/assimp_model_loader.h"
+#include "resource/model_loader.h"
 #include "assimp/mesh.h"
 #include "graphics/model.h"
 #include "graphics/primitives.h"
 
 #include <assimp/postprocess.h>
+#include <spdlog/spdlog.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/Logger.hpp>
 
 namespace arch {
 
-Model AssimpModelLoader::load_model(const std::string &path) {
+void SpdlogStream::write(const char *msg) {
+    spdlog::debug("{}", msg);
+}
+
+void AssimpInitializer::init() {
+    init_logger();
+}
+
+void AssimpInitializer::init_logger() {
+    const unsigned int severity = 
+        Assimp::Logger::Debugging | Assimp::Logger::Info |
+        Assimp::Logger::Err | Assimp::Logger::Warn;
+    Assimp::DefaultLogger::get()->attachStream(new SpdlogStream, severity);
+}
+Model AssimpModelLoader::read_file(const std::filesystem::path &path) {
     return {};
 }
 
@@ -16,7 +33,7 @@ const aiScene *AssimpModelLoader::read_scene(const std::string &path) {
     Assimp::Importer importer {};
     const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (scene == nullptr) {
-        throw AssimpModelLoadingException {importer};
+        throw AssimpImportException {importer};
     }
     return scene;
 }

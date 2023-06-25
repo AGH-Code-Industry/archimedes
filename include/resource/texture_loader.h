@@ -1,12 +1,11 @@
+#include "resource/resource_loader.h"
 #include "graphics/texture.h"
-
-#include <filesystem>
 
 namespace arch {
 
-class TextureLoader {
+class TextureLoader : ResourceLoader<Texture> {
 public:
-    virtual Texture read_file(const std::filesystem::path &path) const;
+    Texture read_file(const std::filesystem::path &filepath) override;
 };
 
 }
