@@ -7,8 +7,8 @@ namespace arch {
 */
 class Texture {
 public:
-    Texture();
-    Texture(uint32_t width, uint32_t height, const char* data);
+    Texture() {}
+    Texture(uint32_t width, uint32_t height, const void* data);
     ~Texture();
     Texture(Texture&) = delete;
     Texture(Texture &&other);
