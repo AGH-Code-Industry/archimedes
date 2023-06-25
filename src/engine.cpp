@@ -4,7 +4,7 @@
 #include "graphics/renderer.h"
 #include "graphics/glfw_exception.h"
 #include "graphics/glad_exception.h"
-#include "resource/assimp_common.h"
+#include "resource/model_loader.h"
 
 #include <spdlog/spdlog.h>
 
