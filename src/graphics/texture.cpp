@@ -8,7 +8,7 @@ using namespace arch;
 Texture::Texture(uint32_t width, uint32_t height, const void* data) {
     glGenTextures(1, &_id);
     glBindTexture(GL_TEXTURE_2D, _id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 
@@ -28,4 +28,9 @@ Texture::~Texture() {
     if (_id != INVALID_OBJECT)
         glDeleteTextures(1, &_id);
     _id = INVALID_OBJECT;
+}
+
+void Texture::use() {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _id);
 }

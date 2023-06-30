@@ -3,16 +3,33 @@
 
 #include <spdlog/spdlog.h>
 
-const char *Shader::default_vertex_source = "#version 330 core\n"
+const char *Shader::default_vertex_source = 
+                                    "#version 460 core\n"
                                     "layout (location = 0) in vec3 aPos;\n"
+                                    "layout (location = 1) in vec3 aColor;\n"
+                                    "layout (location = 2) in vec2 aTexCoord;\n"
+
+                                    "out vec3 ourColor;\n"
+                                    "out vec2 TexCoord;\n"
+                
                                     "void main() {\n"
                                     "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                    "    ourColor = aColor;\n"
+                                    "    TexCoord = aTexCoord;\n"
                                     "}";
-const char *Shader::default_fragment_source = "#version 330 core\n"
-                                      "out vec4 FragColor;\n"
-                                      "void main() {\n"
-                                      "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                      "}";
+const char *Shader::default_fragment_source = 
+                                    "#version 460 core\n"
+
+                                    "out vec4 FragColor;\n"
+
+                                    "in vec3 ourColor;\n"
+                                    "in vec2 TexCoord;\n"
+
+                                    "uniform sampler2D texture1;\n"
+                                    
+                                    "void main() {\n"
+                                    "    FragColor = texture(texture1, TexCoord);\n"
+                                    "}";
 
 Shader::Shader() {
     spdlog::info("Creating default shader program");

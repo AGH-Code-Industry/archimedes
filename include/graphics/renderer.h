@@ -40,7 +40,6 @@ private:
         GL_DEBUG_TYPE_PORTABILITY,  GL_DEBUG_TYPE_PERFORMANCE
     };
 };
-    
 /*
   * Base class for renderers that contains functionality common to 3D and 2D rendering.
   */
@@ -53,10 +52,13 @@ class Renderer3D : public Renderer {
 public:
     void render();
     void submit(const Model &model);
+    //TODO: Delet that. Only temporary
+    void set_texture(Texture &&texture) { _texture = std::move(texture); }
 
 private:
     Shader _shader;
     std::vector<RenderObject> _objs;
+    Texture _texture;
 };
 
 
