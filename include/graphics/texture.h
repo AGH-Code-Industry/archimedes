@@ -1,3 +1,5 @@
+#pragma once
+
 #include "graphics/primitives.h"
 
 namespace arch {
@@ -9,11 +11,13 @@ class Texture {
 public:
     Texture() {}
     Texture(uint32_t width, uint32_t height, const void* data);
-    ~Texture();
     Texture(Texture&) = delete;
     Texture(Texture &&other);
     Texture& operator=(Texture&) = delete;
     Texture& operator=(Texture &&other);
+    ~Texture();
+
+    void use();
 private:
     uint32_t _id = INVALID_OBJECT;
 };
