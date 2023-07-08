@@ -12,18 +12,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 #set(DEPENDENCIES extern)
 
 add_library(${PROJECT_NAME})
-file(GLOB_RECURSE ARCHIMEDES_SOURCE src/*.cpp)
+file(GLOB_RECURSE ARCHIMEDES_SOURCE src/*.cpp | src/*.c)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 
 find_package(glfw3 3.3 REQUIRED)
-find_package(glad REQUIRED)
 find_package(GTest REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glm REQUIRED)
 find_package(spdlog REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
  ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw assimp::assimp spdlog::spdlog)
 
 
 #include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
@@ -34,7 +33,7 @@ file(GLOB_RECURSE TEST_ARCHIMEDES_SOURCE tests/**.cpp)
 add_executable(${TESTS_NAME})
 target_sources(${TESTS_NAME} PRIVATE ${TEST_ARCHIMEDES_SOURCE})
 target_include_directories(${TESTS_NAME} PRIVATE include)
-target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} gtest::gtest)
+target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} gtest_main gtest)
 
 #gtest_discover_tests(${TESTS_NAME})
 
