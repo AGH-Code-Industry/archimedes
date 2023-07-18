@@ -1,8 +1,7 @@
 #include "resource/texture_loader.h"
 
-#include <sail-c++/sail-c++.h>
-#include <sail-common/common.h>
-#include <sail-common/error.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <spdlog/spdlog.h>
 
 using namespace arch;
@@ -10,20 +9,16 @@ using namespace arch;
 Texture TextureLoader::read_file(const std::filesystem::path &filepath) {
     if (!std::filesystem::exists(filepath))
         throw TextureLoadingException(filepath, "file does not exists");
-    sail::image image(filepath);
-    if (!image.is_valid()) {
-        throw TextureLoadingException(filepath, "failed to read the file");
+    int width, height, n_channels;
+    stbi_set_flip_vertically_on_load(true);
+    void *data = stbi_load(filepath.c_str(), &width, &height, &n_channels, STBI_rgb_alpha);
+    if (data == nullptr) {
+        throw TextureLoadingException(filepath, stbi_failure_reason());
     }
-    //TODO: check if more formats can be supported
-    //iirc images assimp gives access to are always 32-bit RGBA
-    if (image.pixel_format() != SAIL_PIXEL_FORMAT_BPP32_RGBA) {
-        if (image.can_convert(SAIL_PIXEL_FORMAT_BPP32_RGBA)) {
-            image.convert(SAIL_PIXEL_FORMAT_BPP32_RGBA);
-        } else {
-            throw TextureLoadingException(filepath, "cannot convert image to supported format");
-        }
-    }
-    return Texture(image.width(), image.height(), image.pixels());
+    spdlog::debug("Loaded image {}x{} {} with {} channels", width, height, filepath.string(), n_channels);
+    Texture texture(width, height, data);
+    stbi_image_free(data);
+    return texture;
 }
 
 TextureLoadingException::TextureLoadingException(
@@ -32,7 +27,7 @@ TextureLoadingException::TextureLoadingException(
 ) : Exception("Texture loading") { 
     append_msg("from path ");
     append_msg(filepath);
-    append_msg(" ");
+    append_msg(" - ");
     append_msg(reason);
 }
 
