@@ -10,8 +10,7 @@ class Archimedes(ConanFile):
         self.requires("assimp/5.2.2")
         self.requires("spdlog/1.11.0")
         self.requires("gtest/1.13.0")
-        self.requires("sail/0.9.0-rc2")
-        self.requires("libwebp/1.3.0", override=True)
+        self.requires("stb/cci.20220909")
 
     def configure(self):
         self.options["glad/0.1.36"].gl_profile = "core"

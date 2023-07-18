@@ -23,7 +23,13 @@ Engine::~Engine() {
 void Engine::start() {
     initialize();
 
-    main_loop();
+    try {
+        main_loop();
+    } catch (std::exception &e) {
+        spdlog::error("Crashed with exception: {}", e.what());
+    } catch (...) {
+        spdlog::error("Dupa");
+    }
 }
 
 
@@ -64,8 +70,7 @@ void Engine::main_loop() {
     Renderer3D renderer {};
     renderer.set_texture(texture_loader.read_file("pawelskrzynski.jpg"));
     renderer.submit(model);
-    while(!_window.should_close())
-    {
+    while (!_window.should_close()) {
         process_input();
         _window.clear(_engine_config.background_color);
 

@@ -21,10 +21,10 @@ find_package(GTest REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glm REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(Sail REQUIRED)
+find_package(stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
- ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR} ${sail_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog sail::sail)
+ ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog stb::stb)
 
 
 #include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
