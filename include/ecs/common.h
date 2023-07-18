@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cassert>
 #include <bitset>
+
 #include <spdlog/spdlog.h>
 
 #define assert_msg(exp, msg) if (exp) { spdlog::error(msg); exit(-1); }

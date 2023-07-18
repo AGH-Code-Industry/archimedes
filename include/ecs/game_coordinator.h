@@ -18,7 +18,7 @@ namespace arch::ecs {
 		void destroy_entity(EntityId entity_id) const;
 
 		template<typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool> = true>
-=		void add_component(EntityId entity_id, T component);
+ 		void add_component(EntityId entity_id, T component);
 
 		template<typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool> = true>
 		void remove_component(EntityId entity_id);
