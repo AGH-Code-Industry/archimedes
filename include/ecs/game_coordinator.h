@@ -69,8 +69,6 @@ namespace arch::ecs {
 
 		auto system = std::static_pointer_cast<System>(s);
 		system->init();
-		system->coordinator = this;
-
 		_entityManager->on_system_created(s);
 
 		return s;
