@@ -1,12 +1,21 @@
 #include "graphics/renderer.h"
-
 #include <sstream>
 
 namespace arch {
 
 void arch::OpenGLDebugMessagesHandler::init() {
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(_debug_message_callback, nullptr);
+
+    //check if glad supports debug output
+    if (!glDebugMessageCallback) {
+        spdlog::warn("glDebugMessageCallback not available");
+    }
+    else {
+        spdlog::info("glDebugMessageCallback available");
+        glDebugMessageCallback(_debug_message_callback, nullptr);
+    }
+
+    
 }
 
 void GLAPIENTRY OpenGLDebugMessagesHandler::_debug_message_callback(
