@@ -9,6 +9,7 @@
 #include <net/ipv4.hpp>
 #include <net/ipv4_network.hpp>
 #include <net/host.hpp>
+#include <net/async/host.hpp>
 #include <net/__net_init.hpp>
 
 namespace arch {
