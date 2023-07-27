@@ -12,3 +12,7 @@ Makefile
 CMakeCache.txt
 model.txt
 linux_build/
+*.bat
+*.sln
+*.vcxproj
+*.vcxproj.filters
