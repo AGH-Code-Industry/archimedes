@@ -30,7 +30,7 @@ namespace arch::net {
 		UDPSocket(UDPSocket&&) = default;
 		/// @brief Destructor.
 		///
-		~UDPSocket() = default;
+		~UDPSocket();
 
 		/// @brief Deleted assignment operator.
 		///

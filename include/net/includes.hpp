@@ -21,3 +21,9 @@ inline auto poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout) { return WSAPoll(f
 #include <unistd.h>
 #include <cstring>
 #endif
+#include <chrono>
+namespace arch::net {
+	/// @brief Timeout type, milliseconds.
+	///
+	using timeout_t = std::chrono::milliseconds::rep;
+}

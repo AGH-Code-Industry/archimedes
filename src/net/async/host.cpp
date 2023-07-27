@@ -1,5 +1,6 @@
 #include <net/async/host.hpp>
 #include <net/__net_init.hpp>
+#include <net/host.hpp>
 
 namespace arch::net::async {
 	Host::Host(IPv4 ip) {
@@ -168,5 +169,12 @@ namespace arch::net::async {
 				return _result;
 			}
 		});
+	}
+
+	net::Host Host::sync() const {
+		net::Host host;
+		host._ips = this->_ips;
+		host._hostname = this->_hostname;
+		return host;
 	}
 }

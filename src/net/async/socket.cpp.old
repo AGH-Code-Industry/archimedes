@@ -1,6 +1,6 @@
-#include <net/socket.hpp>
+#include <net/async/socket.hpp>
 
-namespace arch::net {
+namespace arch::net::async {
 	const IPv4 Socket::any_address(INADDR_ANY);
 	const Socket::port_type Socket::random_port = 0;
 
@@ -40,22 +40,20 @@ namespace arch::net {
 	}
 
 	void Socket::close() {
-		if (_socket != INVALID_SOCKET) {
-			if (
+		if (
 #ifdef _WIN32
-				closesocket(_socket)
+			closesocket(_socket)
 #elif defined unix
-				::close(_socket)
+			::close(_socket)
 #endif
-				!= 0) {
-				// log error
-			}
-
-			_socket = INVALID_SOCKET;
-			_address.data(0);
-			_port = 0;
-			_proto = Socket::protocol_t::None;
+			!= 0) {
+			// log error
 		}
+
+		_socket = INVALID_SOCKET;
+		_address.data(0);
+		_port = 0;
+		_proto = Socket::protocol_t::None;
 	}
 	bool Socket::bind(IPv4 address, port_type port) {
 		int result;

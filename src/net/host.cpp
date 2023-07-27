@@ -1,4 +1,5 @@
 #include <net/host.hpp>
+#include <net/async/host.hpp>
 #include <net/__net_init.hpp>
 #include <cstring>
 #include <algorithm>
@@ -101,5 +102,12 @@ namespace arch::net {
 		freeaddrinfo(data);
 
 		return true;
+	}
+
+	async::Host Host::async() const {
+		async::Host host;
+		host._ips = this->_ips;
+		host._hostname = this->_hostname;
+		return host;
 	}
 }

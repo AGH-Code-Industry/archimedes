@@ -3,21 +3,45 @@
 
 namespace arch::net {
 	TCPSocket::TCPSocket() :
-		Socket(Socket::tcp) {}
+		Socket(Socket::protocol_t::TCP) {}
 	TCPSocket::TCPSocket(port_type port) :
-		Socket(Socket::tcp, port) {}
+		Socket(Socket::protocol_t::TCP, port) {}
 	TCPSocket::TCPSocket(IPv4 address, port_type port) :
-		Socket(Socket::tcp, address, port) {}
+		Socket(Socket::protocol_t::TCP, address, port) {}
+	TCPSocket::~TCPSocket() {
+		Socket::~Socket();
+	}
 	/*
 	TCPSocket::TCPSocket(sock_type s, port_type p, IPv4 addr, IPv4 paddr) {
 		this->_address = addr;
 		this->_connected = true;
 		this->_peer_addr = paddr;
-		this->_proto = tcp;
+		this->_proto = TCP;
 		this->_port = p;
 		this->_socket = s;
 	}
 	*/
+
+	TCPSocket::linger_data TCPSocket::linger() const {
+		::linger optval;
+		socklen_t optlen = sizeof(optval);
+
+		int result = getsockopt(_socket, SOL_SOCKET, SO_LINGER, (char*)&optval, &optlen);
+		if (result != 0) {
+			// log error
+			return {0, 0};
+		}
+
+		return {(bool)optval.l_onoff, optval.l_linger};
+	}
+	void TCPSocket::linger(linger_data data) {
+		::linger optval{data.linger, data.seconds};
+
+		int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
+		if (result != 0) {
+			// log error;
+		}
+	}
 
 	bool TCPSocket::connect(const Host& host, port_type port) {
 		if (listening()) {
@@ -79,6 +103,39 @@ namespace arch::net {
 	bool TCPSocket::connected() const {
 		return _status & 1;
 	}
+	bool TCPSocket::connected_force() {
+		if (listening()) {
+			// log error
+			return false;
+		}
+
+		pollfd pfd;
+		pfd.fd = _socket;
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		int result = poll(&pfd, 1, 0);
+		if (result != 1) {
+			// log error
+			_status = 0;
+			return false;
+		}
+		
+		if (pfd.revents & POLLIN) {
+			char buf;
+			result = ::recv(_socket, &buf, 0, MSG_PEEK);
+			if (result == 0) {
+				_status = 0;
+				return false;
+			}
+			else {
+				_status = 1;
+				return true;
+			}
+		}
+		else {
+			return _status & 1;
+		}
+	}
 
 	bool TCPSocket::listen() {
 		return listen(-1);
@@ -123,7 +180,7 @@ namespace arch::net {
 		new_sock._address = _address;
 		new_sock._peer_addr = IPv4(sock.sin_addr);
 		new_sock._port = ntohs(sock.sin_port);
-		new_sock._proto = tcp;
+		new_sock._proto = Socket::protocol_t::TCP;
 		new_sock._socket = result;
 		new_sock._status = 1;
 

@@ -5,15 +5,15 @@
 #include <vector>
 #include <future>
 
+namespace arch::net {
+	class Host;
+}
+
 namespace arch::net::async {
 	/// @brief Represents asynchronous host in IPv4 network.
 	///
 	class Host {
 	public:
-		/// @brief Timeout type, milliseconds.
-		///
-		using timeout_t = std::chrono::milliseconds::rep;
-
 		/// @brief result of update() method
 		///
 		enum class update_result{
@@ -65,10 +65,20 @@ namespace arch::net::async {
 		/// @return future object containing result of operation.
 		std::future<update_result> update(timeout_t timeout = 3000);
 
+		/// @brief Returns synchronous version of this host.
+		/// 
+		net::Host sync() const;
+
 	private:
+		friend class net::Host;
+
 		std::vector<IPv4> _ips{IPv4()};
 		std::string _hostname;
 
 		Host() = default;
 	};
+}
+
+namespace arch::net {
+	using AsyncHost = async::Host;
 }

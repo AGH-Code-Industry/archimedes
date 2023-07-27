@@ -2,11 +2,14 @@
 
 namespace arch::net {
 	UDPSocket::UDPSocket() :
-		Socket(Socket::udp) {}
+		Socket(Socket::protocol_t::UDP) {}
 	UDPSocket::UDPSocket(port_type port) :
-		Socket(Socket::udp, port) {}
+		Socket(Socket::protocol_t::UDP, port) {}
 	UDPSocket::UDPSocket(IPv4 address, port_type port) :
-		Socket(Socket::udp, address, port) {}
+		Socket(Socket::protocol_t::UDP, address, port) {}
+	UDPSocket::~UDPSocket() {
+		Socket::~Socket();
+	}
 
 	bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int len) {
 		sockaddr_in addr;

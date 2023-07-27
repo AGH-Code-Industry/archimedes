@@ -3,12 +3,13 @@
 #include <net/includes.hpp>
 #include <net/ipv4.hpp>
 #include <type_traits>
+#include <future>
 
-namespace arch::net {
+namespace arch::net::async {
 	class UDPSocket;
 	class TCPSocket;
 
-	/// @brief Represents general IPv4 socket. Not meant to be used
+	/// @brief Represents general asynchronous IPv4 socket. Not meant to be used.
 	///
 	class Socket {
 	public:
@@ -54,7 +55,7 @@ namespace arch::net {
 		/// @brief Deleted assignment operator.
 		///
 		Socket& operator=(Socket&) = delete;
-		/// @brief Deleted move assignment operator.
+		/// @brief Deleted move assingment operator.
 		///
 		Socket& operator=(Socket&&) = delete;
 
@@ -79,7 +80,6 @@ namespace arch::net {
 		/// @brief Behaves like data_avalible() and sendable() called at once.
 		/// @return usable_data structure containting information.
 		usable_data usable() const;
-
 
 		/// @brief Closes socket.
 		///
