@@ -16,3 +16,5 @@ linux_build/
 *.sln
 *.vcxproj
 *.vcxproj.filters
+x64/
+Testing/
