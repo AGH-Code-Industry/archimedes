@@ -2,68 +2,34 @@
 
 namespace arch::net::async {
 	UDPSocket::UDPSocket() :
-		_base() {
-#ifdef WIN32
-		u_long arg = 1;
-		ioctlsocket(_socket, FIONBIO, &arg);
-#elif defined unix
-		int arg = 1;
-		ioctl(_socket, FIONBIO, &arg);
-#endif
-	}
+		_base() {}
 	UDPSocket::UDPSocket(port_type port) :
-		_base(port) {
-#ifdef WIN32
-		u_long arg = 1;
-		ioctlsocket(_socket, FIONBIO, &arg);
-#elif defined unix
-		int arg = 1;
-		ioctl(_socket, FIONBIO, &arg);
-#endif
-	}
+		_base(port) {}
 	UDPSocket::UDPSocket(IPv4 address, port_type port) :
-		_base(address, port) {
-#ifdef WIN32
-		u_long arg = 1;
-		ioctlsocket(_socket, FIONBIO, &arg);
-#elif defined unix
-		int arg = 1;
-		ioctl(_socket, FIONBIO, &arg);
-#endif
-	}
+		_base(address, port) {}
 	UDPSocket::~UDPSocket() {
 		_base::~UDPSocket();
 	}
 	
 	std::future<bool> UDPSocket::send_to(const Host& host, port_type port, const char* data, int len) {
-		return std::async(std::launch::async, [this](const net::Host& _host, port_type _port, const char* _data, int _len)->bool {
-			return _base::send_to(_host, _port, _data, _len);
-		}, host.sync(), port, data, len);
+		return std::async(std::launch::async, [this](std::reference_wrapper<const Host> h, port_type p, const char* d, int l)->bool {
+			std::lock_guard lock(_send_mutex);
+			return _base::send_to(h.get().sync(), p, d, l);
+		}, std::cref(host), port, data, len);
 	}
 	std::future<bool> UDPSocket::send_to(const Host& host, const char* data, int len) {
-		return std::async(std::launch::async, [this](const net::Host& _host, const char* _data, int _len)->bool {
-			return _base::send_to(_host, _data, _len);
-		}, host.sync(), data, len);
+		return send_to(host, _port, data, len);
 	}
 	std::future<bool> UDPSocket::send_to(const Host& host, port_type port, std::string_view data) {
-		return std::async(std::launch::async, [this](const net::Host& _host, port_type _port, std::string_view _data)->bool {
-			return _base::send_to(_host, _port, _data);
-		}, host.sync(), port, data);
+		return send_to(host, port, data.data(), data.length());
 	}
 	std::future<bool> UDPSocket::send_to(const Host& host, std::string_view data) {
-		return std::async(std::launch::async, [this](const net::Host& _host, std::string_view _data)->bool {
-			return _base::send_to(_host, _data);
-		}, host.sync(), data);
+		return send_to(host, _port, data);
 	}
 
-	std::future<bool> UDPSocket::recv(char* buf, int buflen, bool peek) {
-		return std::async(std::launch::async, [this](char* _buf, int _buflen, bool _peek)->bool {
-			
-		}, buf, buflen, peek);
-	}
-	std::future<Host> UDPSocket::recv_from(char* buf, int buflen, bool peek) {
-		return std::async(std::launch::async, [this](char* _buf, int _buflen, bool _peek)->Host {
-			return _base::recv_from(_buf, _buflen, _peek).async();
-		}, buf, buflen, peek);
+	std::future<bool> UDPSocket::recv(char* buf, int buflen, int& length, timeout_t timeout, bool peek) {
+		return std::async(std::launch::async, [this](char* b, int bl, std::reference_wrapper<int> l, timeout_t t, bool p)->bool {
+			// time this
+		}, buf, buflen, std::ref(length), timeout, peek);
 	}
 }

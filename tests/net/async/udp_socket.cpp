@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <net/async/udp_socket.hpp>
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 TEST(AsyncUDPSocket, SendAndReceive) {
 	namespace net = arch::net;
-	
+	spdlog::set_level(spdlog::level::debug);
 	auto&& msg = "przykladowa wiadomosc";
 	auto timeout = std::chrono::seconds(3);
 	
@@ -19,7 +21,7 @@ TEST(AsyncUDPSocket, SendAndReceive) {
 	receiver_sock.bind(50420);
 
 	char buf[100]{};
-	auto recv_future = receiver_sock.recv(buf, sizeof(buf));
+	auto recv_future = receiver_sock.recv(buf, sizeof(buf), net::timeout_t(0));
 
 	net::async::UDPSocket sender_sock;
 #ifdef WIN32

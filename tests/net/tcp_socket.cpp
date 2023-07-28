@@ -66,7 +66,7 @@ TEST(TCPSocket, SendAndReceive) {
 //*/
 
 namespace net = arch::net;
-using std::string_literals::operator""s;
+using namespace std::string_literals;
 
 std::map<std::string, std::string> database
 {

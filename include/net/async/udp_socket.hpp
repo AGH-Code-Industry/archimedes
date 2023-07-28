@@ -4,6 +4,7 @@
 #include <net/udp_socket.hpp>
 
 namespace arch::net::async {
+	/// @brief Class representing asynchronous UDPSocket.
 	class UDPSocket : protected net::UDPSocket {
 	public:
 		/// @brief Default constructor.
@@ -54,8 +55,8 @@ namespace arch::net::async {
 		using net::UDPSocket::usable;
 		using net::UDPSocket::usable_data;
 
-		/// @brief Sends given data to given host.
-		/// @details If data length exceeds sendbuff_size(), error occurs.
+		/// @brief Asynchronously sends given data to given host.
+		/// @details If data length exceeds sendbuff_size(), error occurs. 
 		/// @param host - host to send data to, ip() will be used as address.
 		/// @param port - port to send data to.
 		/// @param data - data to be sent.
@@ -86,19 +87,64 @@ namespace arch::net::async {
 		/// @brief Asynchronously receives data.
 		/// @param buf - buffer to save data to.
 		/// @param buflen - length of buffer.
-		/// @param timeout - timeout.
+		/// @param length - reference to value to save length of data to.
+		/// @param timeout - timeout, if negative wait indefinetly
 		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
-		/// @return std::future with result.
+		/// @return true if received data, false otherwise.
+		std::future<bool> recv(char* buf, int buflen, int& length, timeout_t timeout, bool peek = false);
+		/// @brief Asynchronously receives data, waits indefinetly.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param length - reference to value to save length of data to.
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return true if received data, false otherwise.
+		std::future<bool> recv(char* buf, int buflen, int& length, bool peek = false);
+		/// @brief Asynchronously receives data.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param timeout - timeout, if negative wait indefinetly
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return true if received data, false otherwise.
 		std::future<bool> recv(char* buf, int buflen, timeout_t timeout, bool peek = false);
-		/// @brief Asynchronously receives data and sender.
+		/// @brief Asynchronously receives data, waits indefinetly.
 		/// @param buf - buffer to save data to.
 		/// @param buflen - length of buffer.
 		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
-		/// @return std::future with sender host.
-		std::future<Host> recv(char* buf, int buflen, bool peek = false);
+		/// @return true if received data, false otherwise.
+		std::future<bool> recv(char* buf, int buflen, bool peek = false);
+		/// @brief Asynchronously receives data and sender.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param length - reference to value to save length of data to.
+		/// @param timeout - timeout, if negative wait indefinetly
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
+		std::future<Host> recv_from(char* buf, int buflen, int& length, timeout_t timeout, bool peek = false);
+		/// @brief Asynchronously receives data and sender, waits indefinetly.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param length - reference to value to save length of data to.
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
+		std::future<Host> recv_from(char* buf, int buflen, int& length, bool peek = false);
+		/// @brief Asynchronously receives data and sender.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param timeout - timeout, if negative wait indefinetly
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
+		std::future<Host> recv_from(char* buf, int buflen, timeout_t timeout, bool peek = false);
+		/// @brief Asynchronously receives data and sender, waits indefinetly.
+		/// @param buf - buffer to save data to.
+		/// @param buflen - length of buffer.
+		/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
+		/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
+		std::future<Host> recv_from(char* buf, int buflen, bool peek = false);
 
 	private:
 		using _base = net::UDPSocket;
+		std::timed_mutex _send_mutex;
+		std::timed_mutex _recv_mutex;
 	};
 }
 
