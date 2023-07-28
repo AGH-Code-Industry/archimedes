@@ -29,6 +29,23 @@ to bump archimedes version using
 git submodule update --remote
 ```
 
+# Compiling
+```sh
+pip install conan
+conan profile detect --force
+mkdir build
+conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+```
+# Running Tests
+If you have followed [Compiling](#Compiling) section, you should be able run tests
+```sh
+cd build
+./test_archimedes
+```
+
 # Project structure
 ```
 - archimedes

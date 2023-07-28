@@ -16,8 +16,6 @@ if (MSVC)
 endif (MSVC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-#set(DEPENDENCIES extern)
-
 add_library(${PROJECT_NAME})
 file(GLOB_RECURSE ARCHIMEDES_SOURCE src/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
