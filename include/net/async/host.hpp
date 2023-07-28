@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <net/includes.hpp>
@@ -81,4 +82,4 @@ namespace arch::net::async {
 
 namespace arch::net {
 	using AsyncHost = async::Host;
-}
+}*/

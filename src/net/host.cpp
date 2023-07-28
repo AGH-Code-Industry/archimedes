@@ -104,10 +104,10 @@ namespace arch::net {
 		return true;
 	}
 
-	async::Host Host::async() const {
+	/*async::Host Host::async() const {
 		async::Host host;
 		host._ips = this->_ips;
 		host._hostname = this->_hostname;
 		return host;
-	}
+	}*/
 }

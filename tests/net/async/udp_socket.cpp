@@ -1,3 +1,4 @@
+/*
 #include <gtest/gtest.h>
 #include <iostream>
 #include <net/async/udp_socket.hpp>
@@ -38,4 +39,4 @@ TEST(AsyncUDPSocket, SendAndReceive) {
 	EXPECT_TRUE(send_future.get());
 	EXPECT_TRUE(recv_future.get());
 	EXPECT_EQ(strcmp(msg, buf), 0);
-}
+}*/

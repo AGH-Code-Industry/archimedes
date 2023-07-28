@@ -5,9 +5,9 @@
 #include <vector>
 
 namespace arch::net {
-	namespace async {
+	/*namespace async {
 		class Host;
-	}
+	}*/
 
 	/// @brief Represents host in IPv4 network.
 	///
@@ -45,12 +45,12 @@ namespace arch::net {
 
 		/// @brief Returns asynchronous version of this host.
 		///
-		async::Host async() const;
+		//async::Host async() const;
 
 	private:
 		Host() = default;
 
-		friend class async::Host;
+		//friend class async::Host;
 
 		std::vector<IPv4> _ips{IPv4()};
 		std::string _hostname;

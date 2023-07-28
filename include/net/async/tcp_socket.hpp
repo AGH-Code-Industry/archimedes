@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <net/async/host.hpp>
@@ -131,4 +132,4 @@ namespace arch::net::async {
 
 namespace arch::net {
 	//using AsyncTCPSocket = async::TCPSocket;
-}
+}*/

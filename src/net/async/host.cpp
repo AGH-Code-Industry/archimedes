@@ -1,3 +1,4 @@
+/*
 #include <net/async/host.hpp>
 #include <net/__net_init.hpp>
 #include <net/host.hpp>
@@ -177,4 +178,4 @@ namespace arch::net::async {
 		host._hostname = this->_hostname;
 		return host;
 	}
-}
+}*/
