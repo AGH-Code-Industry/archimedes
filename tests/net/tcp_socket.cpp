@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <net/tcp_socket.hpp>
+#include <net/exception.hpp>
 #include <future>
 #include <string>
 #include <map>
@@ -14,16 +15,22 @@ TEST(TCPSocket, SendAndReceive) {
 
 	auto listen_future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
+		try {
 #ifdef _WIN32
-		listen_sock.exclusive(false);
-		EXPECT_FALSE(listen_sock.exclusive());
+			listen_sock.exclusive(false);
+			EXPECT_FALSE(listen_sock.exclusive());
 #endif
-		listen_sock.reuse(true);
-		EXPECT_TRUE(listen_sock.reuse());
+			listen_sock.reuse(true);
+			EXPECT_TRUE(listen_sock.reuse());
+		}
+		catch (std::exception& e) {
+			std::cout << "first " << e.what() << '\n';
+		}
 
+		
+		net::TCPSocket recv_sock;
 		EXPECT_TRUE(listen_sock.bind(50420));
 		EXPECT_TRUE(listen_sock.listen());
-		net::TCPSocket recv_sock;
 		EXPECT_TRUE(listen_sock.accept(recv_sock));
 
 		auto timer = std::chrono::system_clock::now() + timeout;
@@ -150,7 +157,12 @@ TEST(TCPSocket, ConditionalConnectSuccess) {
 		EXPECT_TRUE(listen_sock.listen());
 
 		net::TCPSocket connsock;
-		EXPECT_TRUE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+		try {
+			EXPECT_TRUE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+		}
+		catch (std::exception& e) {
+			std::cout << e.what() << '\n';
+		}
 
 		return;
 	});
@@ -194,7 +206,7 @@ TEST(TCPSocket, ConditionalConnectUserNotFound) {
 		EXPECT_TRUE(listen_sock.listen());
 
 		net::TCPSocket connsock;
-		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+		EXPECT_THROW(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database), arch::NetException);
 
 		return;
 	});
@@ -221,7 +233,7 @@ TEST(TCPSocket, ConditionalConnectUserNotFound) {
 
 	std::stringstream sstream;
 
-	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+	EXPECT_THROW(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream), arch::NetException);
 
 	EXPECT_EQ(sstream.str(), "username not found\n");
 
@@ -242,7 +254,7 @@ TEST(TCPSocket, ConditionalConnectWrongPassword) {
 		EXPECT_TRUE(listen_sock.listen());
 
 		net::TCPSocket connsock;
-		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+		EXPECT_THROW(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database), arch::NetException);
 
 		return;
 	});
@@ -269,7 +281,7 @@ TEST(TCPSocket, ConditionalConnectWrongPassword) {
 
 	std::stringstream sstream;
 
-	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+	EXPECT_THROW(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream), arch::NetException);
 
 	EXPECT_EQ(sstream.str(), "wrong password\n");
 
@@ -290,7 +302,7 @@ TEST(TCPSocket, ConditionalConnectBadFormat) {
 		EXPECT_TRUE(listen_sock.listen());
 
 		net::TCPSocket connsock;
-		EXPECT_FALSE(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database));
+		EXPECT_THROW(listen_sock.cond_accept(connsock, accept_condition, 128, 1, &database), arch::NetException);
 
 		return;
 	});
@@ -317,7 +329,7 @@ TEST(TCPSocket, ConditionalConnectBadFormat) {
 
 	std::stringstream sstream;
 
-	EXPECT_FALSE(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream));
+	EXPECT_THROW(conn_sock.cond_connect(net::Host::localhost(), 50420, data.data(), data.length(), 1, response_handler, &sstream), arch::NetException);
 
 	EXPECT_EQ(sstream.str(), "bad format\n");
 

@@ -1,13 +1,5 @@
 #include <gtest/gtest.h>
-#ifdef _WIN32
-#include <WinSock2.h>
-#include <ws2tcpip.h>
-#elif defined unix
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#endif
+#include <net/includes.hpp>
 #include <net.hpp>
 #include <iostream>
 

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <future>
+#include <net/exception.hpp>
 
 #include <net/udp_socket.hpp>
 

@@ -23,7 +23,26 @@ inline auto poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout) { return WSAPoll(f
 #endif
 #include <chrono>
 namespace arch::net {
-	/// @brief Timeout type, milliseconds.
-	///
-	using timeout_t = std::chrono::milliseconds::rep;
+#ifndef __NET_ERRNO__
+#define __NET_ERRNO__
+inline int net_errno(int parent_error) noexcept {
+	return
+#ifdef WIN32
+		WSAGetLastError();
+#elif defined unix
+	(parent_error == EAI_SYSTEM ? errno : parent_error);
+#endif
+}
+inline int net_errno() noexcept {
+	return
+#ifdef WIN32
+		WSAGetLastError();
+#elif defined unix
+		errno;
+#endif
+}
+#endif//__NET_ERRNO__
+/// @brief Timeout type, milliseconds.
+///
+using timeout_t = std::chrono::milliseconds::rep;
 }
