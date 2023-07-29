@@ -6,9 +6,9 @@ project(
   LANGUAGES CXX C
 )
 
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    include("conan_toolchain.cmake") # idk, but works xd
-endif()
+#if (CMAKE_GENERATOR MATCHES "Visual Studio")
+#    include("conan_toolchain.cmake") # idk, but works xd
+#endif()
 
 set(CMAKE_CXX_STANDARD 20)
 if (MSVC)
@@ -40,12 +40,12 @@ target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 #set(openddlparser_DIR "./")
 #set(fmt_DIR "./")
 
-find_package(glfw3 3.3 REQUIRED)
-find_package(glad REQUIRED)
-find_package(GTest REQUIRED)
-find_package(assimp REQUIRED)
-find_package(glm REQUIRED) 
-find_package(spdlog REQUIRED)
+find_package(glfw3 3.3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED) 
+find_package(spdlog CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
  ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog)
