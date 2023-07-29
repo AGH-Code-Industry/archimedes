@@ -16,7 +16,7 @@ TEST(TCPSocket, SendAndReceive) {
 	auto listen_future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
 		try {
-#ifdef _WIN32
+#ifdef WIN32
 			listen_sock.exclusive(false);
 			EXPECT_FALSE(listen_sock.exclusive());
 #endif
@@ -57,7 +57,7 @@ TEST(TCPSocket, SendAndReceive) {
 
 	net::TCPSocket send_sock;
 
-#ifdef _WIN32
+#ifdef WIN32
 	send_sock.exclusive(false);
 	EXPECT_FALSE(send_sock.exclusive());
 #endif
@@ -147,7 +147,7 @@ TEST(TCPSocket, ConditionalConnectSuccess) {
 	///*
 	auto future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
-#ifdef _WIN32
+#ifdef WIN32
 		listen_sock.exclusive(false);
 		EXPECT_FALSE(listen_sock.exclusive());
 #endif
@@ -170,7 +170,7 @@ TEST(TCPSocket, ConditionalConnectSuccess) {
 
 	//*/
 	net::TCPSocket conn_sock;
-#ifdef _WIN32
+#ifdef WIN32
 	conn_sock.exclusive(false);
 	EXPECT_FALSE(conn_sock.exclusive());
 #endif
@@ -196,7 +196,7 @@ TEST(TCPSocket, ConditionalConnectUserNotFound) {
 	///*
 	auto future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
-#ifdef _WIN32
+#ifdef WIN32
 		listen_sock.exclusive(false);
 		EXPECT_FALSE(listen_sock.exclusive());
 #endif
@@ -214,7 +214,7 @@ TEST(TCPSocket, ConditionalConnectUserNotFound) {
 
 	//*/
 	net::TCPSocket conn_sock;
-#ifdef _WIN32
+#ifdef WIN32
 	conn_sock.exclusive(false);
 	EXPECT_FALSE(conn_sock.exclusive());
 #endif
@@ -244,7 +244,7 @@ TEST(TCPSocket, ConditionalConnectWrongPassword) {
 	///*
 	auto future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
-#ifdef _WIN32
+#ifdef WIN32
 		listen_sock.exclusive(false);
 		EXPECT_FALSE(listen_sock.exclusive());
 #endif
@@ -262,7 +262,7 @@ TEST(TCPSocket, ConditionalConnectWrongPassword) {
 
 	//*/
 	net::TCPSocket conn_sock;
-#ifdef _WIN32
+#ifdef WIN32
 	conn_sock.exclusive(false);
 	EXPECT_FALSE(conn_sock.exclusive());
 #endif
@@ -292,7 +292,7 @@ TEST(TCPSocket, ConditionalConnectBadFormat) {
 	///*
 	auto future = std::async(std::launch::async, [&]() {
 		net::TCPSocket listen_sock;
-#ifdef _WIN32
+#ifdef WIN32
 		listen_sock.exclusive(false);
 		EXPECT_FALSE(listen_sock.exclusive());
 #endif
@@ -310,7 +310,7 @@ TEST(TCPSocket, ConditionalConnectBadFormat) {
 
 	//*/
 	net::TCPSocket conn_sock;
-#ifdef _WIN32
+#ifdef WIN32
 	conn_sock.exclusive(false);
 	EXPECT_FALSE(conn_sock.exclusive());
 #endif

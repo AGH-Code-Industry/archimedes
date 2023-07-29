@@ -1,6 +1,4 @@
-#ifdef _WIN32
-#define NOMINMAX
-#endif
+#include <net/utilities.hpp>
 #include <net/ipv4_network.hpp>
 #include <vector>
 #include <string>

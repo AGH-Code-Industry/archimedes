@@ -48,12 +48,7 @@ Socket::~Socket() {
 
 void Socket::close() {
 	if (_socket != INVALID_SOCKET) {
-		int result =
-#ifdef _WIN32
-			closesocket(_socket);
-#elif defined unix
-			::close(_socket);
-#endif
+		int result = closesocket(_socket);
 		if (result != 0) {
 			throw NetException(gai_strerror(net_errno(result)));
 		}
@@ -231,7 +226,7 @@ void Socket::send_buf(int new_val) {
 		throw NetException(gai_strerror(net_errno(result)));
 	}
 }
-#ifdef _WIN32 // exclusivity avalible only on Windows
+#ifdef WIN32 // exclusivity avalible only on Windows
 bool Socket::exclusive() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);

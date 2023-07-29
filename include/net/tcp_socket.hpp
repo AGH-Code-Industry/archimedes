@@ -29,11 +29,7 @@ public:
 	///
 	struct linger_data {
 		bool linger;
-#ifdef WIN32
-		u_short seconds;
-#elif defined unix
-		int seconds;
-#endif
+		decltype(linger::l_linger) seconds;
 	};
 
 	/// @brief Default constructor.
