@@ -51,7 +51,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
  ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog stb::stb)
 
 enable_testing() 
 set(TESTS_NAME test_${PROJECT_NAME})

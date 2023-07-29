@@ -36,6 +36,7 @@ Renderer::Renderer() { OpenGLDebugMessagesHandler::init(); }
 
 void Renderer3D::render() {
     _shader.activate();
+    _texture.use();
     for (const auto &obj : _objs) {
         obj.render();
     }

@@ -1,16 +1,25 @@
+#pragma once
+
+#include "graphics/primitives.h"
+
 namespace arch {
     
-//typedef unsigned int TextureId;
-using TextureId = unsigned int;
-
+/**
+ * A handle to 2-dimentional 32-bit RGBA image stored in VRAM.
+*/
 class Texture {
 public:
-    Texture(Texture &other) = delete;
-    Texture(Texture &&other) = delete;
-    Texture& operator=(Texture &other) = delete;
-    Texture& operator=(Texture &&other) = delete;
+    Texture() {}
+    Texture(uint32_t width, uint32_t height, const void* data);
+    Texture(Texture&) = delete;
+    Texture(Texture &&other);
+    Texture& operator=(Texture&) = delete;
+    Texture& operator=(Texture &&other);
+    ~Texture();
+
+    void use();
 private:
-    TextureId _id;
+    uint32_t _id = INVALID_OBJECT;
 };
 
 }

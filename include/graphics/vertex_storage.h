@@ -7,7 +7,7 @@ namespace arch {
 
 class VertexStorage {
 public:
-	void set(const std::vector<Vertex> &vertices, const std::vector<Index> &indices);
+	void set(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
 	void use() const;
 	size_t get_num_of_indices() const { return _num_of_indices; }
 private:

@@ -1,5 +1,4 @@
-#ifndef ARCHIMEDES_MODEL_H
-#define ARCHIMEDES_MODEL_H
+#pragma once
 
 #include "graphics/primitives.h"
 #include "graphics/texture.h"
@@ -8,12 +7,9 @@
 
 namespace arch {
 
-using Index = unsigned int;
-
 struct Mesh {
     std::vector<Vertex> vertices;
-    std::vector<Index> indices;
-    std::vector<TextureId> textures;
+    std::vector<uint32_t> indices;
 };
 
 struct Model {
@@ -21,6 +17,3 @@ struct Model {
 };
 
 }
-
-
-#endif //ARCHIMEDES_MODEL_H
