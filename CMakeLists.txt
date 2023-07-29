@@ -40,6 +40,9 @@ target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 #set(openddlparser_DIR "./")
 #set(fmt_DIR "./")
 
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
+
 find_package(glfw3 3.3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
