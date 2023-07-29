@@ -12,6 +12,7 @@
 #include <poll.h>
 #include <unistd.h>
 #include <cstring>
+#include <cerrno>
 #ifndef __ARCH_NET_UNIX_STD_FUNCTIONS__
 #define __ARCH_NET_UNIX_STD_FUNCTIONS__
 inline int closesocket(int fd) { return close(fd); }
