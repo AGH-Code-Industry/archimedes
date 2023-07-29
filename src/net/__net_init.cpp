@@ -14,16 +14,12 @@ namespace arch::net {
 			// log error or smth
 			return;
 		}
-#elif defined unix
-		// nothing
 #endif
 		initialized = true;
 	}
 	__NetworkAuto::~__NetworkAuto() {
 #ifdef _WIN32
 		WSACleanup();
-#elif defined unix
-		// nothing
 #endif
 	}
 }
