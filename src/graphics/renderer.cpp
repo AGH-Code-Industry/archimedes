@@ -7,7 +7,7 @@ namespace arch {
 void arch::OpenGLDebugMessagesHandler::init() {
     //check if glad supports debug output
     if (!glDebugMessageCallback) {
-        spdlog::warn("glDebugMessageCallback not available");
+        spdlog::warn("glDebugMessageCallback not available due to arch::OpenGLDebugMessagesHandler::init() function call.");
         return;
     }
     glEnable(GL_DEBUG_OUTPUT);
