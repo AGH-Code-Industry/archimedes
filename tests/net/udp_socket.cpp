@@ -5,7 +5,7 @@
 
 #include <net/udp_socket.hpp>
 
-///*
+/*
 TEST(UDPSocket, SendAndReceive) {
 	namespace net = arch::net;
 	auto&& msg = "przykladowa wiadomosc";
@@ -62,4 +62,4 @@ TEST(UDPSocket, SendAndReceive) {
 
 	future.wait();
 }
-//*/
+*/
