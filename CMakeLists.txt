@@ -7,12 +7,14 @@ project(
 )
 
 #if (CMAKE_GENERATOR MATCHES "Visual Studio")
-#include("conan_toolchain.cmake") # idk, but works xd
 #endif()
 
 set(CMAKE_CXX_STANDARD 20)
 if (MSVC)
     add_compile_options("/Zc:__cplusplus")
+    include("conan_toolchain.cmake") # idk, but works xd
+    list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
+    include_directories(${CMAKE_INCLUDE_PATH})
 endif (MSVC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -41,10 +43,8 @@ target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 #set(stb_DIR "./")
 
 #list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-#list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
-
-#list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/Chris/.conan2/p/stbb3237e7146d86/p/include")
-#include_directories(${CMAKE_INCLUDE_PATH})
+#if(MSVC)
+#endif(MSVC)
 
 find_package(stb CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
@@ -55,7 +55,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(glfw3 3.3 CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
  ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad::glad assimp::assimp spdlog::spdlog stb::stb)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw fmt::fmt glad::glad assimp::assimp spdlog::spdlog stb::stb)
 
 enable_testing() 
 set(TESTS_NAME test_${PROJECT_NAME})
@@ -64,11 +64,12 @@ add_executable(${TESTS_NAME})
 target_compile_definitions(${TESTS_NAME} PUBLIC -DSPDLOG_FMT_EXTERNAL)
 target_sources(${TESTS_NAME} PRIVATE ${TEST_ARCHIMEDES_SOURCE})
 target_include_directories(${TESTS_NAME} PRIVATE include)
-target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} gtest::gtest GTest::gtest_main spdlog::spdlog stb::stb)
+target_link_libraries(${TESTS_NAME} PRIVATE ${PROJECT_NAME} fmt::fmt gtest::gtest GTest::gtest_main spdlog::spdlog stb::stb)
 #include(GoogleTest)
 #gtest_discover_tests(${TESTS_NAME})
 
 add_executable(${PROJECT_NAME}_bin archimedes_bin/main.cpp)
 target_compile_definitions(${PROJECT_NAME}_bin PUBLIC -DSPDLOG_FMT_EXTERNAL)
+target_compile_definitions(${PROJECT_NAME} PUBLIC -DSPDLOG_FMT_EXTERNAL)
 target_include_directories(${PROJECT_NAME}_bin PUBLIC include)
-target_link_libraries(${PROJECT_NAME}_bin PRIVATE ${PROJECT_NAME} spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME}_bin PRIVATE ${PROJECT_NAME} spdlog::spdlog fmt::fmt)
