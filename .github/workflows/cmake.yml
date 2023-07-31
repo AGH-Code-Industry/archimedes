@@ -4,8 +4,6 @@ on:
   push:
     branches: 
     - master
-    #Temporary change to test pipeline
-    - conan-pipeline-fix
   pull_request:
     branches: 
     - master
