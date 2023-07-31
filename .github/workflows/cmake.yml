@@ -28,9 +28,9 @@ jobs:
     - name: Set up GCC
       uses: egor-tensin/setup-gcc@v1
       with:
-        version: latest
+        version: 12
         platform: x64
-        
+
     - name: Conan version
       run: echo "${{ steps.conan.outputs.version }}"
 
