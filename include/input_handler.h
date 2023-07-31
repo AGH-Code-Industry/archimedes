@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <window.h>
+#include <functional>
 
 #define BINDED_PAIR_ARRAY_SIZE 30
 #ifndef ARCHIMEDES_INPUT_HANDLER_H
@@ -10,17 +11,13 @@ namespace arch{
     class InputHandler{
     public:
         InputHandler(GLFWwindow *_window);
-        void bindKey(int keyCode, void (*func)());        
-        struct bindedPair {
-            int keyCode;
-            void (*func_pointer)();
-        };
-        static bindedPair bindedPairArray[BINDED_PAIR_ARRAY_SIZE];
+        void bindKey(int keyCode, std::function<void()> func);        
+
     private:
-        GLFWwindow *_window;
-        
+        static GLFWwindow *_window;
+        static std::unordered_map<int, std::function<void()>> bindedTable;
+        static void closeWindow();
         static void handleKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods);
-        void initializeBindedPairArray();
     };
 }
 

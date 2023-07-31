@@ -1,40 +1,25 @@
 #include "input_handler.h"
 
-#include <GLFW/glfw3.h>
-#include <window.h>
-#include <functional>
-
 namespace arch {
-    InputHandler::bindedPair InputHandler::bindedPairArray[BINDED_PAIR_ARRAY_SIZE] {};
+    std::unordered_map<int, std::function<void()>> InputHandler::bindedTable;
+    GLFWwindow *InputHandler::_window {};
     InputHandler::InputHandler(GLFWwindow *_window) {
         this->_window = _window;
-        initializeBindedPairArray();
         glfwSetKeyCallback(_window, handleKeyEvent);
+        bindKey(GLFW_KEY_ESCAPE, &closeWindow);
     }
 
-    void InputHandler::bindKey(int keyCode, void (*func)()) {
-        for (int i=0; i<BINDED_PAIR_ARRAY_SIZE; i++) {
-            if (bindedPairArray[i].keyCode == GLFW_KEY_UNKNOWN) {
-                bindedPairArray[i].keyCode = keyCode;
-                bindedPairArray[i].func_pointer = func;
-                break;
-            }
-        }
+    void InputHandler::bindKey(int keyCode, std::function<void()> func) {
+        bindedTable[keyCode] = func;
+    }
+
+    void InputHandler::closeWindow() {
+        glfwSetWindowShouldClose(_window, true);
     }
 
     void InputHandler::handleKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        for (int i=0; i<BINDED_PAIR_ARRAY_SIZE; i++) {
-            if (bindedPairArray[i].keyCode == key) {
-                bindedPairArray[i].func_pointer();
-                break;
-            }
-        }
-    }
-
-    void InputHandler::initializeBindedPairArray() {
-        for (int i=0; i<BINDED_PAIR_ARRAY_SIZE; i++) {
-            bindedPairArray[i].keyCode = GLFW_KEY_UNKNOWN;
-            bindedPairArray[i].func_pointer = nullptr;
+        if (bindedTable.find(key) != bindedTable.end()) {
+            bindedTable[key]();
         }
     }
 }
