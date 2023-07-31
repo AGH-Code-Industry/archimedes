@@ -47,7 +47,7 @@ jobs:
     - name: Conan Profile Change Compiler Standard
       run: |
           sed -i 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' ~/.conan2/profiles/default
-          conan profile show default
+          conan profile show 
 
     - name: Install Conan Pkg's
       run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
