@@ -12,6 +12,7 @@ namespace arch {
     void InputHandler::bindAll() {
         bindKey(GLFW_KEY_ESCAPE, &closeWindow);
         bindKey(GLFW_KEY_F, &maximizeWindow);
+        bindKey(GLFW_KEY_M, &restoreWindow);
     }
 
     void InputHandler::bindKey(int keyCode, std::function<void()> func) {
@@ -24,6 +25,14 @@ namespace arch {
 
     void InputHandler::maximizeWindow() {
         glfwMaximizeWindow(_window);
+    }
+
+    void InputHandler::iconifyWindow() {
+        glfwIconifyWindow(_window);
+    }
+
+    void InputHandler::restoreWindow() {
+        glfwRestoreWindow(_window);
     }
 
     void InputHandler::handleKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods) {
