@@ -12,8 +12,8 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 if (MSVC)
     add_compile_options("/Zc:__cplusplus")
-    include("conan_toolchain.cmake") # idk, but works xd
-    list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
+    include("conan_files/conan_toolchain.cmake") # idk, but works xd
+    list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files)
     include_directories(${CMAKE_INCLUDE_PATH})
 endif (MSVC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
