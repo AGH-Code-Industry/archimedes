@@ -23,9 +23,9 @@ TEST(UDPSocket, SendAndReceive) {
 
 		receiver_sock.bind(50420);
 
-		auto timer = std::chrono::system_clock::now() + timeout;
+		auto timer = std::chrono::high_resolution_clock::now() + timeout;
 		for (;;) {
-			if (std::chrono::system_clock::now() >= timer) {
+			if (std::chrono::high_resolution_clock::now() >= timer) {
 				EXPECT_TRUE(false);
 				return;
 			}
