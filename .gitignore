@@ -22,3 +22,4 @@ Testing/
 CMakeUserPresets.json
 compile_commands.json
 conan_files/
+CMakeSettings.json
