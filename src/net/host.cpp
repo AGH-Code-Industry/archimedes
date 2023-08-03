@@ -4,6 +4,7 @@
 #include <cstring>
 #include <algorithm>
 #include <net/utilities.hpp>
+#include <net/async/host.hpp>
 
 namespace arch::net {
 Host::Host(IPv4 ip, bool update) {
@@ -94,5 +95,14 @@ bool Host::update() {
 	freeaddrinfo(data);
 
 	return true;
+}
+async::Host Host::async() const {
+	async::Host host;
+	host._ips = this->_ips;
+	host._hostname = this->_hostname;
+	return host;
+}
+Host::Host() {
+	_ips[0] = IPv4();
 }
 }
