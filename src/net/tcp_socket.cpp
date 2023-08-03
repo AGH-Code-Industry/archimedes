@@ -100,7 +100,7 @@ bool TCPSocket::connected_force() {
 
 	pollfd pfd;
 	pfd.fd = _socket;
-	pfd.events = POLLIN;
+	pfd.events = POLLRDNORM;
 	pfd.revents = 0;
 	int result = poll(&pfd, 1, 0);
 	if (result != 1) {
@@ -108,7 +108,7 @@ bool TCPSocket::connected_force() {
 		return false;
 	}
 
-	if (pfd.revents & POLLIN) {
+	if (pfd.revents & POLLRDNORM) {
 		char buf;
 		result = ::recv(_socket, &buf, 0, MSG_PEEK);
 		if (result == 0) {
