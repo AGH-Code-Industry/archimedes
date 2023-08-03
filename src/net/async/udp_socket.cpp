@@ -38,7 +38,7 @@ namespace arch::net::async {
 			else { // timeout != inf
 				auto timer = std::chrono::high_resolution_clock::now();
 				if (_recv_mutex.try_lock_for(std::chrono::milliseconds(t))) {
-					time_left = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timer);
+					time_left = std::chrono::milliseconds(t) - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timer);
 				}
 				else {
 					return false;
