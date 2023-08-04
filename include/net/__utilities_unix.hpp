@@ -18,7 +18,10 @@
 #include <cstring>
 #include <cerrno>
 
-inline int closesocket(int fd) { return close(fd); }
+#ifndef closesocket(fd)
+#define closesocket(fd) close(fd)
+#endif
+
 inline int net_errno(int parent_error) noexcept { return (parent_error == EAI_SYSTEM ? errno : parent_error); }
 inline int net_errno() noexcept { return errno; }
 

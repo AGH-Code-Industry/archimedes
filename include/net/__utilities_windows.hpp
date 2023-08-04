@@ -8,7 +8,10 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-inline auto poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout) { return WSAPoll(fdArray, fds, timeout); }
+#ifndef poll
+#define poll(fdarr, fds, timeout) WSAPoll(fdarr, fds, timeout)
+#endif
+
 inline int net_errno(int parent_error) noexcept { return WSAGetLastError(); }
 inline int net_errno() noexcept { return WSAGetLastError(); }
 
