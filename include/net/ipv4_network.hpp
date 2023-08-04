@@ -8,21 +8,17 @@ namespace arch::net {
 	///
 class IPv4Mask : public IPv4 {
 public:
-	/// @brief Invalid mask (255.255.255.255).
-	///
-	static IPv4Mask invalid;
-
 	data_type data() const;
 	void data(data_type new_data) = delete;
-	void data(binary_type new_data) = delete;
-	void data(size_t octet, octet_type new_octet) = delete;
+	void data(uint32_t new_data) = delete;
+	void data(size_t octet, unsigned char new_octet) = delete;
 
 	/// @brief Default constructor, sets to invalid.
 	///
-	IPv4Mask();
+	IPv4Mask() = default;
 	/// @brief Decimal constructor.
 	/// @param decimal - decimal form of mask.
-	IPv4Mask(std::string_view decimal);
+	IPv4Mask(const std::string& decimal);
 	/// @brief Prefix constructor.
 	/// @param prefix - prefix of mask.
 	IPv4Mask(size_t prefix);
@@ -49,7 +45,7 @@ public:
 	IPv4Network(address_type address, size_t prefix);
 	/// @brief Mixed constructor.
 	/// @param address_with_prefix - decimal form of address with prefix (xxx.xxx.xxx.xxx/xx).
-	IPv4Network(std::string_view address_with_prefix);
+	IPv4Network(const std::string& address_with_prefix);
 
 	/// @brief Broadcast address of network.
 	/// 
