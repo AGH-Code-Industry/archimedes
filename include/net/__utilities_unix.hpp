@@ -19,7 +19,7 @@
 #include <cerrno>
 
 #ifndef closesocket(fd)
-#define closesocket(fd) close(fd)
+#define closesocket(fd) ::close(fd)
 #endif
 
 inline int net_errno(int parent_error) noexcept { return (parent_error == EAI_SYSTEM ? errno : parent_error); }
