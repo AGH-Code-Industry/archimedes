@@ -2,13 +2,13 @@
 #include <net/ipv4.hpp>
 #include <sstream>
 
-TEST(IPv4, Str2Bin) {
+TEST(IPv4, StringToBinary) {
 	arch::net::IPv4 ip;
 	ip.str("127.0.0.1");
 	EXPECT_EQ(ip.data().binary, inet_addr("127.0.0.1"));
 }
 
-TEST(IPv4, Oct2Bin) {
+TEST(IPv4, OctalToBinary) {
 	arch::net::IPv4 ip(127, 0, 0, 1);
 	EXPECT_EQ(ip.data().binary, inet_addr("127.0.0.1"));
 
@@ -19,12 +19,12 @@ TEST(IPv4, Oct2Bin) {
 	EXPECT_EQ(ip.data().binary, inet_addr("192.168.0.1"));
 }
 
-TEST(IPv4, Bin2Str) {
+TEST(IPv4, BinaryToString) {
 	arch::net::IPv4 ip(inet_addr("127.0.0.1"));
 	EXPECT_EQ(ip.str(), "127.0.0.1");
 }
 
-TEST(IPv4, Oct2Str) {
+TEST(IPv4, OctalToString) {
 	arch::net::IPv4 ip(127, 0, 0, 1);
 	EXPECT_EQ(ip.str(), "127.0.0.1");
 
