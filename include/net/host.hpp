@@ -15,16 +15,16 @@ class Host {
 public:
 	/// @brief IPv4 constructor.
 	/// @param ip - IPv4 of host.
-	/// @param get_hostname - if should search for hostname.
+	/// @param update - if should update via the network
 	Host(IPv4 ip, bool update = false);
 	/// @brief Hostname constructor.
 	/// @details In difference to IP constructor, this searches in network for specified host. hostname() will remain empty if not found.
 	/// @param hostname - Hostname of host.
-	Host(std::string_view hostname);
+	Host(const std::string& hostname);
 
 	/// @brief Returns localhost
 	/// @details Loopback address is guaranteed to be returned by ip().
-	///
+	/// @param update - if should update via the network
 	static Host localhost(bool update = false);
 
 	/// @brief Gets first IPv4 of host.
@@ -49,6 +49,8 @@ public:
 
 private:
 	Host() = default;
+
+	std::string _update_hostname();
 
 	//friend class async::Host;
 
