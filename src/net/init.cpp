@@ -1,9 +1,9 @@
-#include <net/__net_init.hpp>
+#include <net/init.hpp>
 #include <net/exception.hpp>
 #include <net/utilities.hpp>
 
 namespace arch::net {
-__NetworkAuto::__NetworkAuto() {
+void Init::init() {
 #ifdef WIN32
 	WSADATA wsa_data;
 	int init_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
@@ -11,11 +11,17 @@ __NetworkAuto::__NetworkAuto() {
 		throw NetException(gai_strerror(net_errno(init_result)));
 	}
 #endif
-	initialized = true;
+	_initialized = true;
 }
-__NetworkAuto::~__NetworkAuto() {
+void Init::cleanup() {
 #ifdef WIN32
-	WSACleanup();
+	int result = WSACleanup();
+	if (result != 0) {
+		throw NetException(gai_strerror(net_errno(result)));
+	}
 #endif
+}
+bool Init::initialized() {
+	return Init::_initialized;
 }
 }
