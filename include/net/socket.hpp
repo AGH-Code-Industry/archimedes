@@ -131,7 +131,7 @@ protected:
 	~Socket();
 
 	sock_type _socket = INVALID_SOCKET;
-	IPv4 _address{(IPv4::binary_type)0};
+	IPv4 _address{(uint32_t)0};
 	port_type _port = 0;
 	protocol_t _proto = protocol_t::None;
 };

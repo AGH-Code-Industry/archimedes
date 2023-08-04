@@ -1,11 +1,16 @@
 #include <net/socket.hpp>
 #include <net/exception.hpp>
+#include <net/init.hpp>
 
 namespace arch::net {
 const IPv4 Socket::any_address(INADDR_ANY);
 const Socket::port_type Socket::random_port = 0;
 
 Socket::Socket(protocol_t p) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	switch (p) {
 		case protocol_t::UDP:
 			_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -26,21 +31,19 @@ Socket::Socket(protocol_t p) {
 }
 Socket::Socket(protocol_t p, IPv4 address, port_type port) :
 	Socket(p) {
-	try {
-		bind(address, port);
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
 	}
-	catch (NetException e) {
-		throw e;
-	}
+
+	bind(address, port);
 }
 Socket::Socket(protocol_t p, port_type port) :
 	Socket(p) {
-	try {
-		bind(port);
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
 	}
-	catch (NetException e) {
-		throw e;
-	}
+	
+	bind(port);
 }
 Socket::~Socket() {
 	close();
@@ -60,6 +63,10 @@ void Socket::close() {
 	}
 }
 bool Socket::bind(IPv4 address, port_type port) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int result;
 	sockaddr_in sock;
 	memset(&sock, 0, sizeof(sock));
@@ -79,20 +86,11 @@ bool Socket::bind(IPv4 address, port_type port) {
 	return true;
 }
 bool Socket::bind(port_type port) {
-	try {
-		return bind(any_address, port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return bind(any_address, port);
 }
 Socket::port_type Socket::bind() {
-	try {
-		bind(random_port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	bind(random_port);
+
 	sockaddr_in data;
 	memset(&data, 0, sizeof(data));
 	socklen_t len = sizeof(data);
@@ -103,18 +101,38 @@ Socket::port_type Socket::bind() {
 }
 
 IPv4 Socket::address() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	return _address;
 }
 Socket::port_type Socket::port() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	return _port;
 }
 Socket::protocol_t Socket::protocol() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	return _proto;
 }
 bool Socket::bound() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	return _port != 0;
 }
 bool Socket::data_avalible() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	pollfd poll_data;
 	memset(&poll_data, 0, sizeof(poll_data));
 	poll_data.fd = _socket;
@@ -139,6 +157,10 @@ bool Socket::data_avalible() const {
 	return retval;
 }
 bool Socket::sendable() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	pollfd poll_data;
 	memset(&poll_data, 0, sizeof(poll_data));
 	poll_data.fd = _socket;
@@ -162,6 +184,10 @@ bool Socket::sendable() const {
 	return retval;
 }
 Socket::usable_data Socket::usable() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	pollfd poll_data;
 	memset(&poll_data, 0, sizeof(poll_data));
 	poll_data.fd = _socket;
@@ -189,6 +215,10 @@ Socket::usable_data Socket::usable() const {
 }
 
 int Socket::recv_buf() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -200,6 +230,10 @@ int Socket::recv_buf() const {
 	return optval;
 }
 void Socket::recv_buf(int new_val) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
@@ -208,6 +242,10 @@ void Socket::recv_buf(int new_val) {
 	}
 }
 int Socket::send_buf() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -219,6 +257,10 @@ int Socket::send_buf() const {
 	return optval;
 }
 void Socket::send_buf(int new_val) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
@@ -228,6 +270,10 @@ void Socket::send_buf(int new_val) {
 }
 #ifdef WIN32 // exclusivity avalible only on Windows
 bool Socket::exclusive() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -239,6 +285,10 @@ bool Socket::exclusive() const {
 	return optval;
 }
 void Socket::exclusive(bool new_val) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
@@ -248,6 +298,10 @@ void Socket::exclusive(bool new_val) {
 }
 #endif
 bool Socket::reuse() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -259,6 +313,10 @@ bool Socket::reuse() const {
 	return optval;
 }
 void Socket::reuse(bool new_val) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));

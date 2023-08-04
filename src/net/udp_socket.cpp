@@ -1,5 +1,6 @@
 #include <net/udp_socket.hpp>
 #include <net/exception.hpp>
+#include <net/init.hpp>
 
 namespace arch::net {
 UDPSocket::UDPSocket() :
@@ -13,6 +14,10 @@ UDPSocket::~UDPSocket() {
 }
 
 bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int len) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_addr = host.ip();
@@ -27,31 +32,20 @@ bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int 
 	return result;
 }
 bool UDPSocket::send_to(const Host& host, const char* data, int len) {
-	try {
-		return send_to(host, _port, data, len);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return send_to(host, _port, data, len);
 }
-bool UDPSocket::send_to(const Host& host, port_type port, std::string_view data) {
-	try {
-		return send_to(host, port, data.data(), data.length());
-	}
-	catch (NetException e) {
-		throw e;
-	}
+bool UDPSocket::send_to(const Host& host, port_type port, const std::string& data) {
+	return send_to(host, port, data.data(), data.length());
 }
-bool UDPSocket::send_to(const Host& host, std::string_view data) {
-	try {
-		return send_to(host, _port, data);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+bool UDPSocket::send_to(const Host& host, const std::string& data) {
+	return send_to(host, _port, data);
 }
 
 bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
 	if (result == SOCKET_ERROR) {
 		throw NetException(gai_strerror(net_errno()));
@@ -62,14 +56,13 @@ bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 }
 bool UDPSocket::recv(char* buf, int buflen, bool peek) {
 	int temp;
-	try {
-		return recv(buf, buflen, temp, peek);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return recv(buf, buflen, temp, peek);
 }
 Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	sockaddr_in addr;
 	socklen_t addr_len;
 	addr_len = sizeof(addr);
@@ -85,15 +78,14 @@ Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
 }
 Host UDPSocket::recv_from(char* buf, int buflen, bool peek) {
 	int temp;
-	try {
-		return recv_from(buf, buflen, temp, peek);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return recv_from(buf, buflen, temp, peek);
 }
 
 bool UDPSocket::broadcast_enabled() const {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -105,6 +97,10 @@ bool UDPSocket::broadcast_enabled() const {
 	return optval;
 }
 void UDPSocket::broadcast_enabled(bool new_val) {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));

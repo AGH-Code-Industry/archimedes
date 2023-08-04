@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <net/ipv4_network.hpp>
+#include <net/exception.hpp>
 #include <bitset>
 #include <iostream>
 
@@ -15,15 +16,10 @@ TEST(IPv4Mask, Get) {
 }
 
 TEST(IPv4Mask, Invalid) {
-	arch::net::IPv4Mask mask1("255.255.255.2");
-	arch::net::IPv4Mask mask2("255.255.2.255");
-	arch::net::IPv4Mask mask3("255.2.255.255");
-	arch::net::IPv4Mask mask4("2.255.255.255");
-
-	EXPECT_EQ(mask1, arch::net::IPv4Mask::invalid);
-	EXPECT_EQ(mask2, arch::net::IPv4Mask::invalid);
-	EXPECT_EQ(mask3, arch::net::IPv4Mask::invalid);
-	EXPECT_EQ(mask4, arch::net::IPv4Mask::invalid);
+	EXPECT_THROW(arch::net::IPv4Mask mask1("255.255.255.2"), arch::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask2("255.255.2.255"), arch::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask3("255.2.255.255"), arch::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask4("2.255.255.255"), arch::NetException);
 }
 
 TEST(IPv4Network, Constructors) {

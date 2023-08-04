@@ -70,13 +70,13 @@ public:
 	/// @param port - port to send data to.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, port_type port, std::string_view data);
+	bool send_to(const Host& host, port_type port, const std::string& data);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendbuff_size(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, std::string_view data);
+	bool send_to(const Host& host, const std::string& data);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendbuff_size(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
