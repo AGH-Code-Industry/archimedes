@@ -1,5 +1,5 @@
 #include <net/host.hpp>
-#include <net/__net_init.hpp>
+#include <net/init.hpp>
 #include <net/exception.hpp>
 #include <cstring>
 #include <algorithm>
@@ -12,7 +12,7 @@ Host::Host(IPv4 ip, bool update) {
 		this->update();
 	}
 }
-Host::Host(std::string_view hostname) {
+Host::Host(const std::string& hostname) {
 	_hostname = hostname;
 
 	update();
@@ -32,8 +32,8 @@ bool Host::has_ip(IPv4 address) const {
 const std::string& Host::hostname() const {
 	return _hostname;
 }
-bool Host::update() {
-	if (not __net_auto.initialized) {
+std::string Host::_update_hostname() {
+	if (not Init::initialized()) {
 		throw NetException("network submodule not initialized");
 	}
 
@@ -71,6 +71,15 @@ bool Host::update() {
 		node_name = _ips[0].str();
 	}
 
+	return node_name;
+}
+bool Host::update() {
+	if (not Init::initialized()) {
+		throw NetException("network submodule not initialized");
+	}
+	
+	auto node_name = _update_hostname();
+
 	static addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -78,7 +87,6 @@ bool Host::update() {
 	hints.ai_protocol = IPPROTO_TCP;
 
 	addrinfo* data;
-
 	int result = getaddrinfo(node_name.c_str(), nullptr, &hints, &data);
 
 	if (result != 0) {
