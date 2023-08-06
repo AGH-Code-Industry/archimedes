@@ -2,6 +2,7 @@ from conan import ConanFile
 
 class Archimedes(ConanFile):
     name = "Archimedes"
+    settings = "build_type"
     
     def requirements(self):
         self.requires("glad/0.1.36")
@@ -18,6 +19,5 @@ class Archimedes(ConanFile):
         self.options["glad/0.1.36"].spec = "gl"
         self.options["glad/0.1.36"].no_loader = False
 
-    settings = "build_type",
     
     generators = "CMakeDeps", "CMakeToolchain"
