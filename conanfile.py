@@ -12,6 +12,7 @@ class Archimedes(ConanFile):
         self.requires("spdlog/1.11.0")
         self.requires("gtest/1.13.0")
         self.requires("stb/cci.20220909")
+        self.requires("draco/1.5.6", override=True)
 
     def configure(self):
         self.options["glad/0.1.36"].gl_profile = "core"
