@@ -72,7 +72,8 @@ void Engine::main_loop() {
     renderer.set_texture(texture_loader.read_file("pawelskrzynski.jpg"));
     renderer.submit(model);
 
-    InputHandler input_handler(_window.get());
+    InputHandler::get().setCurrentWindow(_window.get());
+
     while (!_window.should_close()) {
         _window.clear(_engine_config.background_color);
 

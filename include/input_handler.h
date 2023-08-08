@@ -8,13 +8,17 @@
 namespace arch{
     class InputHandler{
     public:
-        InputHandler(GLFWwindow *_window);
-        void bindKey(int keyCode, std::function<void()> func); 
-        void bindAll();       
+        InputHandler(const InputHandler&) = delete;
+        static InputHandler& get();
+        void setCurrentWindow(GLFWwindow* _window);       
 
     private:
+        InputHandler();
+        static InputHandler inputHandlerInstance;
         static GLFWwindow *_window;
         static std::unordered_map<int, std::function<void()>> bindedTable;
+        void bindKey(int keyCode, std::function<void()> func); 
+        void bindAll();
         static void closeWindow();
         static void maximizeWindow();
         static void iconifyWindow();

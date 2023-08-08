@@ -1,9 +1,17 @@
 #include "input_handler.h"
 
 namespace arch {
+    InputHandler InputHandler::inputHandlerInstance;
     std::unordered_map<int, std::function<void()>> InputHandler::bindedTable;
     GLFWwindow *InputHandler::_window {};
-    InputHandler::InputHandler(GLFWwindow *_window) {
+    
+    InputHandler::InputHandler() {}
+
+    InputHandler& InputHandler::get() {
+        return inputHandlerInstance;
+    }
+
+    void InputHandler::setCurrentWindow(GLFWwindow* _window) {
         this->_window = _window;
         glfwSetKeyCallback(_window, handleKeyEvent);
         bindAll();
