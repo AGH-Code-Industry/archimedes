@@ -1,10 +1,9 @@
+#pragma once
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <window.h>
 #include <functional>
-
-#ifndef ARCHIMEDES_INPUT_HANDLER_H
-#define ARCHIMEDES_INPUT_HANDLER_H
 
 namespace arch{
     class InputHandler{
@@ -23,5 +22,3 @@ namespace arch{
         static void handleKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods);
     };
 }
-
-#endif //ARCHIMEDES_INPUT_HANDLER_H
