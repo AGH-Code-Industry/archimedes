@@ -5,8 +5,13 @@
 namespace arch {
 
 void arch::OpenGLDebugMessagesHandler::init() {
+    //check if glad supports debug output
+    if (!glDebugMessageCallback) {
+        spdlog::warn("glDebugMessageCallback not available due to arch::OpenGLDebugMessagesHandler::init() function call.");
+        return;
+    }
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(_debug_message_callback, nullptr);
+    glDebugMessageCallback(_debug_message_callback, nullptr);    
 }
 
 void GLAPIENTRY OpenGLDebugMessagesHandler::_debug_message_callback(

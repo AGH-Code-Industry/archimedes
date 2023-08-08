@@ -25,6 +25,12 @@ jobs:
       id: conan
       uses: turtlebrowser/get-conan@main
 
+    - name: Set up GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 12
+        platform: x64
+
     - name: Conan version
       run: echo "${{ steps.conan.outputs.version }}"
 
@@ -38,10 +44,14 @@ jobs:
         key: ${{ runner.os }}-builder-${{ env.cache-name }}-${{ hashFiles('conanfile.py') }}
         restore-keys: ${{ runner.os }}-builder-${{ env.cache-name }}-
 
-    - name: Setup Conan Profile
+    - name: Detect Conan Profile
       run: |
           conan profile detect --force
-          conan profile show
+
+    - name: Conan Profile Change Compiler Standard
+      run: |
+          sed -i 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' ~/.conan2/profiles/default
+          conan profile show 
 
     - name: Install Conan Pkg's
       run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
