@@ -1,51 +1,52 @@
 #include "input_handler.h"
 
 namespace arch {
-    InputHandler InputHandler::inputHandlerInstance;
-    std::unordered_map<int, std::function<void()>> InputHandler::bindedTable;
+    InputHandler InputHandler::input_handler_instance;
+    std::unordered_map<int, std::function<void()>> InputHandler::binded_table;
     GLFWwindow *InputHandler::_window {};
     
     InputHandler::InputHandler() {}
 
     InputHandler& InputHandler::get() {
-        return inputHandlerInstance;
+        return input_handler_instance;
     }
 
-    void InputHandler::setCurrentWindow(GLFWwindow* _window) {
-        this->_window = _window;
-        glfwSetKeyCallback(_window, handleKeyEvent);
-        bindAll();
+    void InputHandler::set_current_window(GLFWwindow* window) {
+        _window = window;
+        glfwSetKeyCallback(_window, handle_key_event);
+        bind_all();
     }
 
-    void InputHandler::bindAll() {
-        bindKey(GLFW_KEY_ESCAPE, &closeWindow);
-        bindKey(GLFW_KEY_F, &maximizeWindow);
-        bindKey(GLFW_KEY_M, &restoreWindow);
+    void InputHandler::bind_all() {
+        bind_key(GLFW_KEY_ESCAPE, &close_window);
+        bind_key(GLFW_KEY_F, &maximize_window);
+        bind_key(GLFW_KEY_M, &restore_window);
     }
 
-    void InputHandler::bindKey(int keyCode, std::function<void()> func) {
-        bindedTable[keyCode] = func;
+    void InputHandler::bind_key(int keyCode, std::function<void()> func) {
+        binded_table[keyCode] = func;
     }
 
-    void InputHandler::closeWindow() {
+    void InputHandler::close_window() {
         glfwSetWindowShouldClose(_window, true);
     }
 
-    void InputHandler::maximizeWindow() {
+    void InputHandler::maximize_window() {
         glfwMaximizeWindow(_window);
     }
 
-    void InputHandler::iconifyWindow() {
+    void InputHandler::iconify_window() {
         glfwIconifyWindow(_window);
     }
 
-    void InputHandler::restoreWindow() {
+    void InputHandler::restore_window() {
         glfwRestoreWindow(_window);
     }
 
-    void InputHandler::handleKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        if (bindedTable.find(key) != bindedTable.end()) {
-            bindedTable[key]();
+    void InputHandler::handle_key_event(GLFWwindow *window, int key, int scancode, int action, int mods) {
+        auto it = binded_table.find(key);
+        if (it != binded_table.end()) {
+            it->second();
         }
     }
 }
