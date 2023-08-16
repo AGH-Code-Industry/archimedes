@@ -17,6 +17,7 @@
 #include <poll.h>
 #include <unistd.h>
 #include <cstring>
+#include <string>
 #include <cerrno>
 
 #ifndef closesocket(fd)
