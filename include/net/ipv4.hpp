@@ -102,4 +102,6 @@ public:
 protected:
 	data_type _data;
 };
+
+bool __is_arch();
 }  // namespace arch::net

@@ -63,6 +63,9 @@ void IPv4::data(data_type new_data) {
 void IPv4::data(uint32_t new_data) {
 	_data.binary = new_data;
 }
+bool __is_arch() {
+	return __check();
+}
 void IPv4::data(size_t octet, unsigned char new_octet) {
 	_data.octets[octet] = new_octet;
 }

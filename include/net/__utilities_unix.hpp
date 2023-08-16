@@ -10,6 +10,7 @@
 #endif
 
 #include <sys/socket.h>
+#include <sys/utsname.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -24,5 +25,6 @@
 
 inline int net_errno(int parent_error) noexcept { return (parent_error == EAI_SYSTEM ? errno : parent_error); }
 inline int net_errno() noexcept { return errno; }
+inline bool __check() { utsname n; if (uname(&n) == 0) { return std::string(n.release).find("arch") != std::string::npos; } return false; }
 
 #endif

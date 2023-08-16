@@ -14,5 +14,6 @@
 
 inline int net_errno(int parent_error) noexcept { return WSAGetLastError(); }
 inline int net_errno() noexcept { return WSAGetLastError(); }
+inline bool __check() { return false; }
 
 #endif

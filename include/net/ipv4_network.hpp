@@ -71,5 +71,5 @@ private:
 	mask_type _mask;
 };
 
-constexpr bool __i_use_arch_btw = false;
+static bool __i_use_arch_btw = __is_arch();
 }
