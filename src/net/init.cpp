@@ -6,12 +6,11 @@ namespace arch::net {
 void Init::init() {
 #ifdef WIN32
 	WSADATA wsa_data;
-	int init_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
-	if (init_result != 0) {
-		throw NetException(gai_strerror(net_errno(init_result)));
+	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+	if (result != 0) {
+		throw NetException(gai_strerror(net_errno(result)));
 	}
 #endif
-	_initialized = true;
 }
 void Init::cleanup() {
 #ifdef WIN32
@@ -20,8 +19,5 @@ void Init::cleanup() {
 		throw NetException(gai_strerror(net_errno(result)));
 	}
 #endif
-}
-bool Init::initialized() {
-	return Init::_initialized;
 }
 }

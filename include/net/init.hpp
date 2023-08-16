@@ -1,12 +1,8 @@
 #pragma once
 
 namespace arch::net {
-class Init final {
-public:
+struct Init final {
 	static void init();
 	static void cleanup();
-	static bool initialized();
-private:
-	inline static bool _initialized = false;
 };
 }

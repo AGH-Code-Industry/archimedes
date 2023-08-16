@@ -15,10 +15,6 @@ TCPSocket::~TCPSocket() {
 }
 
 TCPSocket::linger_data TCPSocket::linger() const {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	::linger optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -30,10 +26,6 @@ TCPSocket::linger_data TCPSocket::linger() const {
 	return {(bool)optval.l_onoff, optval.l_linger};
 }
 void TCPSocket::linger(linger_data data) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	::linger optval{data.linger, data.seconds};
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
@@ -43,10 +35,6 @@ void TCPSocket::linger(linger_data data) {
 }
 
 bool TCPSocket::connect(const Host& host, port_type port) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (listening()) {
 		throw NetException("socket marked as listening cannot be connected");
 	}
@@ -67,10 +55,6 @@ bool TCPSocket::connect(const Host& host, port_type port) {
 	return true;
 }
 bool TCPSocket::cond_connect(const Host& host, port_type port, void* data, int data_len, int response_len, accept_response_handler handler, void* handler_data) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	connect(host, port);
 
 	_status = 0;
@@ -102,17 +86,9 @@ bool TCPSocket::cond_connect(const Host& host, port_type port, void* data, int d
 	}
 }
 bool TCPSocket::connected() const {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	return _status & 1;
 }
 bool TCPSocket::connected_force() {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (listening()) {
 		return false;
 	}
@@ -145,17 +121,9 @@ bool TCPSocket::connected_force() {
 }
 
 bool TCPSocket::listen() {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	return listen(-1);
 }
 bool TCPSocket::listen(int maxconn) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (listening()) {
 		return false;
 	}
@@ -175,18 +143,10 @@ bool TCPSocket::listen(int maxconn) {
 	return true;
 }
 bool TCPSocket::listening() const {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	return _status & (1 << 1);
 }
 
 bool TCPSocket::accept(TCPSocket& new_sock) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (not listening()) {
 		throw NetException("only listening sockets can accept()");
 	}
@@ -209,10 +169,6 @@ bool TCPSocket::accept(TCPSocket& new_sock) {
 	return true;
 }
 bool TCPSocket::cond_accept(TCPSocket& new_sock, accept_condition condition, int data_len, int response_len, void* additional_data) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	accept(new_sock);
 
 	new_sock._status = 0;
@@ -243,10 +199,6 @@ bool TCPSocket::cond_accept(TCPSocket& new_sock, accept_condition condition, int
 }
 
 bool TCPSocket::send(const char* data, int len) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (not connected()) {
 		return false;
 	}
@@ -263,10 +215,6 @@ bool TCPSocket::send(const std::string& data) {
 }
 
 bool TCPSocket::recv(char* buf, int buflen, int& length, bool peek) {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	if (not connected()) {
 		return false;
 	}

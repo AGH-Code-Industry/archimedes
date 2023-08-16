@@ -33,10 +33,6 @@ const std::string& Host::hostname() const {
 	return _hostname;
 }
 std::string Host::_update_hostname() {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-
 	std::string node_name;
 	node_name.reserve(1025);
 	memset(node_name.data(), 0, 1025);
@@ -74,10 +70,6 @@ std::string Host::_update_hostname() {
 	return node_name;
 }
 bool Host::update() {
-	if (not Init::initialized()) {
-		throw NetException("network submodule not initialized");
-	}
-	
 	auto node_name = _update_hostname();
 
 	static addrinfo hints;
