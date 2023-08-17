@@ -481,6 +481,12 @@ std::string nameoftype_fmt(std::string_view name) {
 				}
 			}
 		}
+		else if (token == "true") {
+			to_return += '1';
+		}
+		else if (token == "false") {
+			to_return += '0';
+		}
 		else {
 			to_return += token;
 		}
