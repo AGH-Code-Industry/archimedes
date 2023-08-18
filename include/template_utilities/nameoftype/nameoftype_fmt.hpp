@@ -315,6 +315,36 @@ std::string nameoftype_fmt(std::string_view name) {
 	std::erase_if(tokens, erase_pred);
 
 	std::string to_return;
+	std::string multitoken;
+	auto multitoken_to_token = [&multitoken]()->std::string_view {
+		if (multitoken == "short int" or multitoken == "signed short" or multitoken == "signed short int") {
+			return "short";
+		}
+		else if (multitoken == "unsigned short int") {
+			return "unsigned short";
+		}
+		else if (multitoken == "signed" or multitoken == "signed int") {
+			return "int";
+		}
+		else if (multitoken == "unsigned") {
+			return "unsigned int";
+		}
+		else if (multitoken == "long int" or multitoken == "signed long" or multitoken == "signed long int") {
+			return "long";
+		}
+		else if (multitoken == "unsigned long int") {
+			return "unsigned long";
+		}
+		else if (multitoken == "long long int" or multitoken == "signed long long" or multitoken == "signed long long int") {
+			return "long long";
+		}
+		else if (multitoken == "unsigned long long int") {
+			return "unsigned long long";
+		}
+		else {
+			return multitoken;
+		}
+	};
 	for (auto&& token : tokens) { // format literals
 		if (isdigit(token[0])) { // format numerical literal
 			std::string fmted_token;
@@ -487,9 +517,48 @@ std::string nameoftype_fmt(std::string_view name) {
 		else if (token == "false") {
 			to_return += '0';
 		}
+		else if (token == "signed" or
+			token == "unsigned" or
+			token == "char" or
+			token == "short" or
+			token == "int" or
+			token == "long" or
+			token == "double") {
+
+			multitoken += token;
+			multitoken += ' ';
+		}
+#ifdef _MSC_VER
+		else if (token == "__int8") {
+			multitoken += "char";
+			multitoken += ' ';
+		}
+		else if (token == "__int16") {
+			multitoken += "short";
+			multitoken += ' ';
+		}
+		else if (token == "__int32") {
+			multitoken += "int";
+			multitoken += ' ';
+		}
+		else if (token == "__int64") {
+			multitoken += "long long";
+			multitoken += ' ';
+		}
+#endif
 		else {
+			if (not multitoken.empty()) {
+				multitoken.pop_back();
+				to_return += multitoken_to_token();
+				multitoken.clear();
+			}
 			to_return += token;
 		}
+	}
+	if (not multitoken.empty()) {
+		multitoken.pop_back();
+		to_return += multitoken_to_token();
+		multitoken.clear();
 	}
 
 	return to_return;
