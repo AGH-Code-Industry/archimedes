@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace arch::tmpl_utils {
 std::string nameoftype_fmt(std::string_view name) {
@@ -315,34 +316,56 @@ std::string nameoftype_fmt(std::string_view name) {
 	std::erase_if(tokens, erase_pred);
 
 	std::string to_return;
-	std::string multitoken;
+	std::multiset<std::string_view> multitoken;
 	auto multitoken_to_token = [&multitoken]()->std::string_view {
-		if (multitoken == "short int" or multitoken == "signed short" or multitoken == "signed short int") {
-			return "short";
+		if (multitoken.contains("char")) {
+			if (multitoken.contains("unsigned")) {
+				return "unsigned char";
+			}
+			else if (multitoken.contains("signed")) {
+				return "signed char";
+			}
+			else {
+				return "char";
+			}
 		}
-		else if (multitoken == "unsigned short int") {
-			return "unsigned short";
+		else if (multitoken.contains("short")) {
+			if (multitoken.contains("unsigned")) {
+				return "unsigned short";
+			}
+			else {
+				return "short";
+			}
 		}
-		else if (multitoken == "signed" or multitoken == "signed int") {
-			return "int";
-		}
-		else if (multitoken == "unsigned") {
-			return "unsigned int";
-		}
-		else if (multitoken == "long int" or multitoken == "signed long" or multitoken == "signed long int") {
-			return "long";
-		}
-		else if (multitoken == "unsigned long int") {
-			return "unsigned long";
-		}
-		else if (multitoken == "long long int" or multitoken == "signed long long" or multitoken == "signed long long int") {
-			return "long long";
-		}
-		else if (multitoken == "unsigned long long int") {
-			return "unsigned long long";
+		else if (multitoken.contains("long")) {
+			std::cout << "long\n";
+			if (multitoken.count("long") == 1) {
+				if (multitoken.contains("double")) {
+					return "long double";
+				}
+				else if (multitoken.contains("unsigned")) {
+					return "unsigned long";
+				}
+				else {
+					return "long";
+				}
+			}
+			else { // count == 2
+				if (multitoken.contains("unsigned")) {
+					return "unsigned long long";
+				}
+				else {
+					return "long long";
+				}
+			}
 		}
 		else {
-			return multitoken;
+			if (multitoken.contains("unsigned")) {
+				return "unsigned int";
+			}
+			else {
+				return "int";
+			}
 		}
 	};
 	for (auto&& token : tokens) { // format literals
@@ -525,30 +548,25 @@ std::string nameoftype_fmt(std::string_view name) {
 			token == "long" or
 			token == "double") {
 
-			multitoken += token;
-			multitoken += ' ';
+			multitoken.insert(token);
 		}
 #ifdef _MSC_VER
 		else if (token == "__int8") {
-			multitoken += "char";
-			multitoken += ' ';
+			multitoken.insert("char");
 		}
 		else if (token == "__int16") {
-			multitoken += "short";
-			multitoken += ' ';
+			multitoken.insert("short");
 		}
 		else if (token == "__int32") {
-			multitoken += "int";
-			multitoken += ' ';
+			multitoken.insert("int");
 		}
 		else if (token == "__int64") {
-			multitoken += "long long";
-			multitoken += ' ';
+			multitoken.insert("long");
+			multitoken.insert("long");
 		}
 #endif
 		else {
 			if (not multitoken.empty()) {
-				multitoken.pop_back();
 				to_return += multitoken_to_token();
 				multitoken.clear();
 			}
@@ -556,7 +574,6 @@ std::string nameoftype_fmt(std::string_view name) {
 		}
 	}
 	if (not multitoken.empty()) {
-		multitoken.pop_back();
 		to_return += multitoken_to_token();
 		multitoken.clear();
 	}
