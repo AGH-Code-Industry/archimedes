@@ -133,4 +133,4 @@ struct std::hash<arch::TypeDescriptorWrapper> {
 
 /// @brief Obtains TypeDescriptor.
 ///
-#define typedesc(T) arch::TypeDescriptor<decltype(T)>::get()
+#define typedesc(T) arch::TypeDescriptor<T>::get()
