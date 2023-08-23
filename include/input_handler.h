@@ -8,22 +8,27 @@
 namespace arch{
     class InputHandler{
     public:
-        InputHandler(const InputHandler&) = delete;
-        InputHandler(const InputHandler&&) = delete;
         static InputHandler& get();
-        void set_current_window(GLFWwindow* window);       
+
+        /**
+         * Sets InputHandler to specific window and initializes key-function binds.
+        */
+        void initialize(GLFWwindow* window);       
 
     private:
         InputHandler();
-        static InputHandler input_handler_instance;
-        static GLFWwindow *_window;
-        static std::unordered_map<int, std::function<void()>> binded_table;
+        static InputHandler *instance;
+        GLFWwindow *_window;
+        static std::unordered_map<int, std::function<void()>> key_to_function_table;
+
+        /**
+         * Binds specific key code to a function.
+        */
         void bind_key(int keyCode, std::function<void()> func); 
-        void bind_all();
-        static void close_window();
-        static void maximize_window();
-        static void iconify_window();
-        static void restore_window();
+
+        /**
+         * Callback function that runs when key is pressed or released.
+        */
         static void handle_key_event(GLFWwindow *window, int key, int scancode, int action, int mods);
     };
 }
