@@ -3,6 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <spdlog/spdlog.h>
+#include <sstream>
 
 using namespace arch;
 
@@ -25,9 +26,8 @@ TextureLoadingException::TextureLoadingException(
     const std::filesystem::path &filepath,
     const std::string &reason
 ) : Exception("Texture loading") { 
-    append_msg("from path ");
-    append_msg(filepath);
-    append_msg(" - ");
-    append_msg(reason);
+    std::stringstream description;
+    description << "from path " << filepath << " - " << reason;
+    set_description(description.str());
 }
 

@@ -1,15 +1,11 @@
-//
-// Created by tosiek on 22.02.23.
-//
+#include "exceptions/init_exception.h"
 
-#include <exceptions/init_exception.h>
+namespace arch {
 
-using namespace arch;
+    InitException::InitException() : Exception("INITIALIZATION", "Something failed during initialization.") {}
 
-InitException::InitException(const std::string& message) {
-    _message = "Failed while initialization: " + message;
+    InitException::InitException(const std::string description) : Exception("INITIALIZATION") {
+        set_description(description);
+    }
 }
 
-const char *InitException::what() const noexcept {
-    return _message.c_str();
-}

@@ -1,24 +1,13 @@
-//
-// Created by tosiek on 22.02.23.
-//
+#pragma once
 
-#include <exception>
-#include <string>
-
-#ifndef ARCHIMEDES_INIT_EXCEPTION_H
-#define ARCHIMEDES_INIT_EXCEPTION_H
+#include "exception.h"
 
 namespace arch {
-    class InitException : public std::exception {
+
+    class InitException : public Exception {
     public:
-        explicit InitException(const std::string& message = "");
-
-        [[nodiscard]] const char* what() const noexcept override;
-
-    private:
-        std::string _message;
+        InitException();
+        InitException(const std::string description);
     };
 }
 
-
-#endif //ARCHIMEDES_INIT_EXCEPTION_H

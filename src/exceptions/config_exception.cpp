@@ -1,15 +1,9 @@
-//
-// Created by tosiek on 24.02.23.
-//
-
 #include "exceptions/config_exception.h"
 
-using namespace arch;
+namespace arch {
+    ConfigException::ConfigException() : Exception("CONFIG", "Failed while loading config.") {}
 
-ConfigException::ConfigException(const std::string& message) {
-    _message = "Failed load configuration file: " + message;
-}
-
-const char *ConfigException::what() const noexcept {
-    return _message.c_str();
+    ConfigException::ConfigException(const std::string description) : Exception("CONFIG") {
+        set_description(description);
+    }
 }

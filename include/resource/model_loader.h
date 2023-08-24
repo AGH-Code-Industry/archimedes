@@ -24,11 +24,8 @@ private:
 
 class AssimpImportException : public Exception {
 public:
-    AssimpImportException(Assimp::Importer &importer) : Exception("Import file with assimp") { 
-        append_msg(importer.GetErrorString()); 
-    }
+    AssimpImportException(Assimp::Importer &importer);
 };
-
 
 class AssimpModelLoader : public ResourceLoader<Model> {
 public:

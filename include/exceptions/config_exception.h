@@ -1,24 +1,13 @@
-//
-// Created by tosiek on 24.02.23.
-//
+#pragma once
 
-#include <exception>
-#include <string>
-
-#ifndef ARCHIMEDES_CONFIG_EXCEPTION_H
-#define ARCHIMEDES_CONFIG_EXCEPTION_H
+#include "exception.h"
 
 namespace arch {
-    class ConfigException : public std::exception {
+
+    class ConfigException : public Exception {
     public:
-        explicit ConfigException(const std::string& message = "");
-
-        [[nodiscard]] const char* what() const noexcept override;
-
-    private:
-        std::string _message;
+        ConfigException();
+        ConfigException(const std::string description);
     };
 }
 
-
-#endif //ARCHIMEDES_CONFIG_EXCEPTION_H

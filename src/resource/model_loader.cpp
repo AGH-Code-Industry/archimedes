@@ -24,6 +24,11 @@ void AssimpInitializer::init_logger() {
         Assimp::Logger::Err | Assimp::Logger::Warn;
     Assimp::DefaultLogger::get()->attachStream(new SpdlogStream, severity);
 }
+
+AssimpImportException::AssimpImportException(Assimp::Importer &importer) : Exception("Import file with assimp") {
+    set_description(importer.GetErrorString());
+}
+
 Model AssimpModelLoader::read_file(const std::filesystem::path &path) {
     return {};
 }

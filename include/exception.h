@@ -7,11 +7,12 @@ namespace arch {
 
 class Exception : public std::exception {
 public:
-	Exception(std::string title);
+	Exception(const std::string &title);
+	Exception(const std::string &title, const std::string &description);
 	const char *what() const noexcept override;
 
 protected:
-	void append_msg(const std::string &msg);
+	void set_description(const std::string &description);
 
 private:
 	std::string _msg;

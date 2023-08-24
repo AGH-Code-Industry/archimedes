@@ -2,8 +2,9 @@
 
 namespace arch {
 
-GladException::GladException() : Exception("GLAD") {
-	append_msg("Failed to initialize GLAD");
-}
+GladException::GladException() : Exception("GLAD", "Failed to initialize GLAD.") {}
 
+GladException::GladException(const std::string description) : Exception("GLAD") {
+    set_description(description);
+}
 }

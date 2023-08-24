@@ -7,6 +7,7 @@ namespace arch {
 class GladException : public Exception {
 public:
 	GladException();
+	GladException(const std ::string description);
 };
 
 }

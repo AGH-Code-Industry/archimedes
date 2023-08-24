@@ -11,7 +11,7 @@ GLFWException::GLFWException() : Exception("GLFW") {
     int code = glfwGetError(&description);
     std::stringstream ss;
     ss << "code " << code << " description " << description;
-    append_msg(ss.str());
+    set_description(ss.str());
 }
 
 }

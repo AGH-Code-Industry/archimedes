@@ -2,8 +2,13 @@
 
 namespace arch {
 
-Exception::Exception(std::string title) : _msg(title) {
+Exception::Exception(const std::string &title) : _msg(title) {
 	_msg.append(": ");
+}
+
+Exception::Exception(const std::string &title, const std::string &description) : _msg(title) {
+	_msg.append(": ");
+	set_description(description);
 }
 
 const char *Exception::what() const noexcept {
@@ -11,8 +16,8 @@ const char *Exception::what() const noexcept {
 }
 
 
-void Exception::append_msg(const std::string &msg) {
-	_msg.append(msg);
+void Exception::set_description(const std::string &description) {
+	_msg.append(description);
 }
 
 	
