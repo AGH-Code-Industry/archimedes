@@ -11,7 +11,7 @@ Texture TextureLoader::read_file(const std::filesystem::path &filepath) {
         throw TextureLoadingException(filepath, "file does not exists");
     int width, height, n_channels;
     stbi_set_flip_vertically_on_load(true);
-    void *data = stbi_load(filepath.c_str(), &width, &height, &n_channels, STBI_rgb_alpha);
+    void *data = stbi_load(filepath.string().c_str(), &width, &height, &n_channels, STBI_rgb_alpha);
     if (data == nullptr) {
         throw TextureLoadingException(filepath, stbi_failure_reason());
     }
@@ -26,7 +26,7 @@ TextureLoadingException::TextureLoadingException(
     const std::string &reason
 ) : Exception("Texture loading") { 
     append_msg("from path ");
-    append_msg(filepath);
+    append_msg(filepath.string());
     append_msg(" - ");
     append_msg(reason);
 }
