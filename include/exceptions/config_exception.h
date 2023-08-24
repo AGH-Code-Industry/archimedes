@@ -9,15 +9,15 @@
 #define ARCHIMEDES_CONFIG_EXCEPTION_H
 
 namespace arch {
-    class ConfigException : public std::exception {
-    public:
-        explicit ConfigException(const std::string& message = "");
+class ConfigException : public std::exception {
+public:
+    explicit ConfigException(const std::string& message = "");
 
-        [[nodiscard]] const char* what() const noexcept override;
+    [[nodiscard]] const char* what() const noexcept override;
 
-    private:
-        std::string _message;
-    };
+private:
+    std::string _message;
+};
 }
 
 

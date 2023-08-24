@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include <vector>
+#include <array>
 
 namespace arch {
 
