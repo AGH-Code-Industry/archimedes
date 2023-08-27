@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 
 const char *Shader::default_vertex_source = 
-                                    "#version 460 core\n"
+                                    "#version 450 core\n"
                                     "layout (location = 0) in vec3 aPos;\n"
                                     "layout (location = 1) in vec3 aColor;\n"
                                     "layout (location = 2) in vec2 aTexCoord;\n"
@@ -18,7 +18,7 @@ const char *Shader::default_vertex_source =
                                     "    TexCoord = aTexCoord;\n"
                                     "}";
 const char *Shader::default_fragment_source = 
-                                    "#version 460 core\n"
+                                    "#version 450 core\n"
 
                                     "out vec4 FragColor;\n"
 

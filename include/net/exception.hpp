@@ -1,11 +1,10 @@
 #include <exception.h>
 
-namespace arch {
+namespace arch::net {
 class NetException : public Exception {
 public:
 	NetException(std::string title);
 };
-namespace net {
+
 using Exception = NetException;
-}
 }

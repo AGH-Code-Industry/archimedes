@@ -1,5 +1,6 @@
 #include <net/socket.hpp>
 #include <net/exception.hpp>
+#include <net/init.hpp>
 
 namespace arch::net {
 const IPv4 Socket::any_address(INADDR_ANY);
@@ -26,21 +27,11 @@ Socket::Socket(protocol_t p) {
 }
 Socket::Socket(protocol_t p, IPv4 address, port_type port) :
 	Socket(p) {
-	try {
-		bind(address, port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	bind(address, port);
 }
 Socket::Socket(protocol_t p, port_type port) :
 	Socket(p) {
-	try {
-		bind(port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	bind(port);
 }
 Socket::~Socket() {
 	close();
@@ -79,20 +70,11 @@ bool Socket::bind(IPv4 address, port_type port) {
 	return true;
 }
 bool Socket::bind(port_type port) {
-	try {
-		return bind(any_address, port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return bind(any_address, port);
 }
 Socket::port_type Socket::bind() {
-	try {
-		bind(random_port);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	bind(random_port);
+
 	sockaddr_in data;
 	memset(&data, 0, sizeof(data));
 	socklen_t len = sizeof(data);

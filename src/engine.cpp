@@ -6,6 +6,7 @@
 #include "graphics/glad_exception.h"
 #include "resource/texture_loader.h"
 #include "resource/model_loader.h"
+#include "input_handler.h"
 
 #include <spdlog/spdlog.h>
 
@@ -70,8 +71,10 @@ void Engine::main_loop() {
     Renderer3D renderer {};
     renderer.set_texture(texture_loader.read_file("pawelskrzynski.jpg"));
     renderer.submit(model);
+
+    InputHandler::get().initialize(_window.get());
+
     while (!_window.should_close()) {
-        process_input();
         _window.clear(_engine_config.background_color);
 
         renderer.render();
@@ -107,10 +110,4 @@ void Engine::initialize() {
 
 void Engine::terminate() {
     glfwTerminate();
-}
-
-void Engine::process_input() {
-    if(glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(_window.get(), true);
-    }
 }

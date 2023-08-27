@@ -124,7 +124,7 @@ public:
 	/// @brief Sends data to peer.
 	/// @param data - data to be sent.
 	/// @return true on success, false otherwise.
-	bool send(std::string_view data);
+	bool send(const std::string& data);
 
 	/// @brief Receives data.
 	/// @param buf - buffer to save data to.

@@ -1,5 +1,6 @@
 #include <net/udp_socket.hpp>
 #include <net/exception.hpp>
+#include <net/init.hpp>
 
 namespace arch::net {
 UDPSocket::UDPSocket() :
@@ -27,28 +28,13 @@ bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int 
 	return result;
 }
 bool UDPSocket::send_to(const Host& host, const char* data, int len) {
-	try {
-		return send_to(host, _port, data, len);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return send_to(host, _port, data, len);
 }
-bool UDPSocket::send_to(const Host& host, port_type port, std::string_view data) {
-	try {
-		return send_to(host, port, data.data(), data.length());
-	}
-	catch (NetException e) {
-		throw e;
-	}
+bool UDPSocket::send_to(const Host& host, port_type port, const std::string& data) {
+	return send_to(host, port, data.data(), data.length());
 }
-bool UDPSocket::send_to(const Host& host, std::string_view data) {
-	try {
-		return send_to(host, _port, data);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+bool UDPSocket::send_to(const Host& host, const std::string& data) {
+	return send_to(host, _port, data);
 }
 
 bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
@@ -62,12 +48,7 @@ bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 }
 bool UDPSocket::recv(char* buf, int buflen, bool peek) {
 	int temp;
-	try {
-		return recv(buf, buflen, temp, peek);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return recv(buf, buflen, temp, peek);
 }
 Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
 	sockaddr_in addr;
@@ -85,12 +66,7 @@ Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
 }
 Host UDPSocket::recv_from(char* buf, int buflen, bool peek) {
 	int temp;
-	try {
-		return recv_from(buf, buflen, temp, peek);
-	}
-	catch (NetException e) {
-		throw e;
-	}
+	return recv_from(buf, buflen, temp, peek);
 }
 
 bool UDPSocket::broadcast_enabled() const {
