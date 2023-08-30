@@ -55,7 +55,9 @@ public:
 	using net::TCPSocket::bound;
 	using net::TCPSocket::close;
 	using net::TCPSocket::data_avalible;
+#ifdef WIN32
 	using net::TCPSocket::exclusive;
+#endif
 	using net::TCPSocket::port;
 	using net::TCPSocket::protocol;
 	using net::TCPSocket::recv_buf;

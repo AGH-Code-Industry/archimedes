@@ -110,8 +110,6 @@ std::string Host::_update_hostname() {
 	return node_name;
 }
 std::future<Host::update_result> Host::update(timeout_t timeout) {
-	static_assert(__cpp_lib_jthread == 201911L, "kurla panie C++20 nie dziala");
-
 	return std::async(std::launch::async, [t = std::chrono::milliseconds(timeout), this]()mutable->Host::update_result {
 		std::unique_lock update_lock(_update_mutex, std::defer_lock);
 		auto time_now = std::chrono::high_resolution_clock::now();

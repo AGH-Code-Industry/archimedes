@@ -20,7 +20,7 @@
 #include <string>
 #include <cerrno>
 
-#ifndef closesocket(fd)
+#ifndef closesocket
 #define closesocket(fd) ::close(fd)
 #endif
 
