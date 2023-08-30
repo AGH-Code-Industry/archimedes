@@ -21,23 +21,24 @@ namespace arch::net::async {
 	std::future<bool> UDPSocket::send_to(const Host& host, const char* data, int len) {
 		return send_to(host, _port, data, len);
 	}
-	std::future<bool> UDPSocket::send_to(const Host& host, port_type port, std::string_view data) {
+	std::future<bool> UDPSocket::send_to(const Host& host, port_type port, const std::string& data) {
 		return send_to(host, port, data.data(), data.length());
 	}
-	std::future<bool> UDPSocket::send_to(const Host& host, std::string_view data) {
+	std::future<bool> UDPSocket::send_to(const Host& host, const std::string& data) {
 		return send_to(host, _port, data);
 	}
 
 	std::future<bool> UDPSocket::recv(char* buf, int buflen, int& length, timeout_t timeout, bool peek) {
 		return std::async(std::launch::async, [this](char* b, int bl, std::reference_wrapper<int> l, timeout_t t, bool p)->bool {
+			std::unique_lock lock(_recv_mutex, std::defer_lock);
 			std::chrono::milliseconds time_left;
 			if (t < 0) { // timeout == inf
-				_recv_mutex.lock();
+				lock.lock();
 				time_left = std::chrono::milliseconds(t);
 			}
 			else { // timeout != inf
 				auto timer = std::chrono::high_resolution_clock::now();
-				if (_recv_mutex.try_lock_for(std::chrono::milliseconds(t))) {
+				if (lock.try_lock_for(std::chrono::milliseconds(t))) {
 					time_left = std::chrono::milliseconds(t) - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timer);
 				}
 				else {
@@ -55,22 +56,12 @@ namespace arch::net::async {
 				throw NetException(gai_strerror(net_errno()));
 			}
 			else if (result == 0) { // timeout expired
-				_recv_mutex.unlock();
 				return false;
 			}
 			else if (poll_data.revents & POLLRDNORM) { // read
-				try {
-					auto res = _base::recv(b, bl, l.get(), p);
-					_recv_mutex.unlock();
-					return res;
-				}
-				catch (NetException e) {
-					_recv_mutex.unlock();
-					throw e;
-				}
+				return _base::recv(b, bl, l.get(), p);
 			}
 			else { // cannot read
-				_recv_mutex.unlock();
 				return false;
 			}
 		}, buf, buflen, std::ref(length), timeout, peek);
@@ -88,14 +79,15 @@ namespace arch::net::async {
 	
 	std::future<Host> UDPSocket::recv_from(char* buf, int buflen, int& length, timeout_t timeout, bool peek) {
 		return std::async(std::launch::async, [this](char* b, int bl, std::reference_wrapper<int> l, timeout_t t, bool p)->Host {
+			std::unique_lock lock(_recv_mutex, std::defer_lock);
 			std::chrono::milliseconds time_left;
 			if (t < 0) { // timeout == inf
-				_recv_mutex.lock();
+				lock.lock();
 				time_left = std::chrono::milliseconds(t);
 			}
 			else { // timeout != inf
 				auto timer = std::chrono::high_resolution_clock::now();
-				if (_recv_mutex.try_lock_for(std::chrono::milliseconds(t))) {
+				if (lock.try_lock_for(std::chrono::milliseconds(t))) {
 					time_left = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timer);
 				}
 				else {
@@ -113,22 +105,12 @@ namespace arch::net::async {
 				throw NetException(gai_strerror(net_errno()));
 			}
 			else if (result == 0) { // timeout expired
-				_recv_mutex.unlock();
 				return Host(IPv4());
 			}
 			else if (poll_data.revents & POLLRDNORM) { // read
-				try {
-					auto res = _base::recv_from(b, bl, l.get(), p);
-					_recv_mutex.unlock();
-					return res.async();
-				}
-				catch (NetException e) {
-					_recv_mutex.unlock();
-					throw e;
-				}
+				return _base::recv_from(b, bl, l.get(), p).async();
 			}
 			else { // cannot read
-				_recv_mutex.unlock();
 				return Host(IPv4());
 			}
 		}, buf, buflen, std::ref(length), timeout, peek);
