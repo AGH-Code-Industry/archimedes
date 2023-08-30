@@ -46,7 +46,9 @@ public:
 	using net::UDPSocket::broadcast_enabled;
 	using net::UDPSocket::close;
 	using net::UDPSocket::data_avalible;
+#ifdef WIN32
 	using net::UDPSocket::exclusive;
+#endif
 	using net::UDPSocket::port;
 	using net::UDPSocket::protocol;
 	using net::UDPSocket::recv_buf;
