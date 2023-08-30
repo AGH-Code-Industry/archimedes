@@ -48,9 +48,11 @@ public:
 	async::Host async() const;
 
 private:
+	friend class async::Host;
+
 	Host();
 
-	friend class async::Host;
+	std::string _update_hostname();
 
 	std::vector<IPv4> _ips{IPv4()};
 	std::string _hostname;
