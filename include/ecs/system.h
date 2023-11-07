@@ -7,14 +7,15 @@
 
 namespace arch::ecs {
 
-	class GameCoordinator;
+class GameCoordinator;
 
-	class System {
-	public:
-		virtual void init() = 0;
+class System {
+public:
+	virtual void init() = 0;
 
-		ComponentMask mask;
-		std::unordered_set<EntityId> entity_ids;
-	};
+	ComponentMask mask;
+	std::unordered_set<EntityId> entity_ids;
+};
+
 }
 #endif

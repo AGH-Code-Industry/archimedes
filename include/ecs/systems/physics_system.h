@@ -6,10 +6,12 @@
 #include "ecs/components/transform.h"
 
 namespace arch::ecs {
-	class PhysicsSystem : public Behavior {
-	public:
-		void init() override;
-		void update(float delta_time, const GameCoordinator& coordinator) override;
-	};
+
+class PhysicsSystem : public Behavior {
+public:
+	void init() override;
+	void update(float delta_time, const GameCoordinator& coordinator) override;
+};
+
 }
 #endif

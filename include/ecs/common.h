@@ -10,35 +10,36 @@
 #define assert_msg(exp, msg) if (exp) { spdlog::error(msg); exit(-1); }
 
 namespace arch::ecs {
-	constexpr uint8_t max_components = 69;
-	constexpr uint32_t initial_entities = 2137;
 
-	typedef uint32_t EntityId;
-	typedef uint32_t SystemId;
-	typedef uint32_t ComponentId;
-	typedef std::bitset<max_components> ComponentMask;
+constexpr uint8_t max_components = 69;
 
-	class ComponentIdGenerator {
-		static uint32_t counter;
+using EntityId = uint32_t;
+using SystemId = uint32_t;
+using ComponentId = uint32_t;
+using ComponentMask = std::bitset<max_components>;
 
-	public:
-		template <class T>
-		static uint32_t get_component_id() {
-			static uint32_t component_id = counter++;
-			return component_id;
-		}
-	};
+class ComponentIdGenerator {
+	static uint32_t counter;
 
-	class SystemIdGenerator {
-		static uint32_t counter;
+public:
+	template <class T>
+	static uint32_t get_component_id() {
+		static uint32_t component_id = counter++;
+		return component_id;
+	}
+};
 
-	public:
-		template <class T>
-		static uint32_t get_system_id() {
-			static uint32_t system_id = counter++;
-			return system_id;
-		}
-	};
+class SystemIdGenerator {
+	static uint32_t counter;
+
+public:
+	template <class T>
+	static uint32_t get_system_id() {
+		static uint32_t system_id = counter++;
+		return system_id;
+	}
+};
+
 }
 
 #endif

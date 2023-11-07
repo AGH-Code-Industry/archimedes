@@ -2,9 +2,7 @@
 
 using namespace arch::ecs;
 
-EntityManager::EntityManager(): _entity_count(0) {
-	_entities.reserve(initial_entities);
-}
+EntityManager::EntityManager(): _entity_count(0) {}
 
 EntityId EntityManager::create_entity() {
     EntityId id = get_new_id();

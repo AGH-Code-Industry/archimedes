@@ -4,10 +4,12 @@
 #include "ecs/system.h"
 
 namespace arch::ecs {
-	class Behavior: public System {
-	public:
-		virtual void update(float deltaTime, const GameCoordinator &coordinator) = 0;
-	};
+
+class Behavior: public System {
+public:
+	virtual void update(float deltaTime, const GameCoordinator &coordinator) = 0;
+};
+
 }
 
 

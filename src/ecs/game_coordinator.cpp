@@ -2,10 +2,10 @@
 
 using namespace arch::ecs;
 
-void GameCoordinator::init() {
-    _componentManager = std::make_unique<ComponentManager>();
-    _entityManager = std::make_unique<EntityManager>();
-    _systemManager = std::make_unique<SystemManager>();
+GameCoordinator::GameCoordinator() {
+	_componentManager = std::make_unique<ComponentManager>();
+	_entityManager = std::make_unique<EntityManager>();
+	_systemManager = std::make_unique<SystemManager>();
 }
 
 EntityId GameCoordinator::create_entity() const {

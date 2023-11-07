@@ -5,14 +5,15 @@
 #include "common.h"
 
 namespace arch::ecs {
-	class Entity {
-	public:
-		Entity();
-		Entity(EntityId id, ComponentMask mask);
 
-		ComponentMask mask;
-		EntityId id;
-	};
+struct Entity {
+	Entity();
+	Entity(EntityId id, ComponentMask mask);
+
+	ComponentMask mask;
+	EntityId id;
+};
+
 }
 
 #endif
