@@ -7,12 +7,28 @@ project(
 )
 
 set(CMAKE_CXX_STANDARD 20)
-if (MSVC)
-    add_compile_options("/Zc:__cplusplus")
-    include("conan_files/conan_toolchain.cmake") # idk, but works xd
-    list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files)
+if (WIN32)
+    if (MSVC)
+        add_compile_options("/Zc:__cplusplus")
+    endif (MSVC)
+
+    if (
+        "${CMAKE_CONFIGURATION_TYPES}" STREQUAL Debug
+        OR "${CMAKE_BUILD_TYPE}" STREQUAL Debug
+        OR "${CMAKE_CONFIGURATION_TYPES}" STREQUAL "RelWithDebInfo"
+        OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"
+    )
+        message(STATUS "Debug Mode")
+        include("conan_files_debug/conan_toolchain.cmake") # idk, but works xd
+        list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files_debug)
+    else ()
+        message(STATUS "Release Mode")
+        include("conan_files/conan_toolchain.cmake") # idk, but works xd
+        list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files)
+    endif ()
+
     include_directories(${CMAKE_INCLUDE_PATH})
-endif (MSVC)
+endif (WIN32)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 add_library(${PROJECT_NAME})
@@ -26,8 +42,10 @@ find_package(assimp CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED) 
 find_package(spdlog CONFIG REQUIRED)
 find_package(glfw3 3.3 CONFIG REQUIRED)
-target_include_directories(${PROJECT_NAME} PUBLIC include ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR}
- ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+if (NOT WIN32)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${glad_INCLUDE_DIR} ${assimp_INCLUDE_DIR} ${GTest_INCLUDE_DIR} ${glm_INCLUDE_DIR} ${glfw3_INCLUDE_DIR} ${spdlog_INCLUDE_DIR})
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw fmt::fmt glad::glad assimp::assimp spdlog::spdlog stb::stb)
 
 enable_testing() 
