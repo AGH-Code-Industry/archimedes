@@ -69,7 +69,7 @@ void Engine::main_loop() {
     Model model { { { vertices, indices } } };
     TextureLoader texture_loader;
     Renderer3D renderer {};
-    renderer.set_texture(texture_loader.read_file("pawelskrzynski.jpg"));
+    //renderer.set_texture(texture_loader.read_file("pawelskrzynski.jpg"));
     renderer.submit(model);
 
     InputHandler::get().initialize(_window.get());
