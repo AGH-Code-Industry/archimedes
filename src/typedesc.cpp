@@ -4,13 +4,17 @@
 namespace arch {
 int TypeDescriptorWrapper::_precision = 16;
 
-TypeDescriptorWrapper::TypeDescriptorWrapper(const std::string& _n, size_t _h, size_t _s, size_t _a) :
+TypeDescriptorWrapper::TypeDescriptorWrapper(const std::string& (*_n_fn)(), const std::string& _n, size_t _h, size_t _s, size_t _a) :
+	_name_fn{_n_fn},
 	_name{_n},
 	_hash{_h},
 	_size{_s},
 	_alignment{_a} {}
 
 const std::string& TypeDescriptorWrapper::name() const noexcept {
+	if (_name.empty()) {
+		return _name_fn();
+	}
 	return _name;
 }
 size_t TypeDescriptorWrapper::hash() const noexcept {
@@ -27,6 +31,9 @@ bool TypeDescriptorWrapper::operator==(const TypeDescriptorWrapper& other) const
 	static std::random_device rd;
 	static std::mt19937_64 gen(rd());
 	static std::uniform_int_distribution<size_t> distrib;
+	if (_name.empty()) {
+		_name_fn();
+	}
 
 	if (hash() == other.hash() and _name.length() == other._name.length()) {
 		if (_precision >= _name.length()) {
@@ -41,6 +48,9 @@ bool TypeDescriptorWrapper::operator==(const TypeDescriptorWrapper& other) const
 	return false;
 }
 std::strong_ordering TypeDescriptorWrapper::operator<=>(const TypeDescriptorWrapper& other) const noexcept {
+	if (_name.empty()) {
+		_name_fn();
+	}
 	if (hash() < other.hash()) {
 		return std::strong_ordering::less;
 	}

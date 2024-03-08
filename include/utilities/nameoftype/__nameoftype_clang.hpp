@@ -2,11 +2,12 @@
 #ifdef __clang__
 
 #include <source_location>
+#include <string>
 
-namespace arch::tmpl_utils {
+namespace arch::utils {
 template<class T>
 constexpr const char* __nameoftype() {
-	constexpr auto&& signature_begin = "std::string_view arch::tmpl_utils::nameof_type() [";
+	constexpr auto&& signature_begin = "std::string_view arch::utils::nameof_type() [T = ";
 	constexpr auto&& signature_end = "]";
 
 	const auto location = std::source_location::current();

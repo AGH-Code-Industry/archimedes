@@ -2,11 +2,12 @@
 #ifdef _MSC_VER
 
 #include <source_location>
+#include <string>
 
-namespace arch::tmpl_utils {
+namespace arch::utils {
 template<class T>
 constexpr std::string_view __nameoftype() {
-	constexpr auto&& signature_begin = "class std::basic_string_view<char,struct std::char_traits<char> > __cdecl arch::tmpl_utils::__nameoftype<";
+	constexpr auto&& signature_begin = "class std::basic_string_view<char,struct std::char_traits<char> > __cdecl arch::utils::__nameoftype<";
 	constexpr auto&& signature_end = ">(void)";
 
 	const auto location = std::source_location::current();

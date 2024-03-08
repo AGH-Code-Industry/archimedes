@@ -2,7 +2,9 @@
 
 #include <string>
 #include <compare>
-#include <template_utilities/nameoftype.hpp>
+#include <utilities/nameoftype.hpp>
+#include <utilities/size_of.hpp>
+#include <utilities/align_of.hpp>
 #include <serialization/hash.hpp>
 #include <iostream>
 
@@ -48,8 +50,9 @@ private:
 
 	friend std::unique_ptr<TypeDescriptorWrapper> std::make_unique<TypeDescriptorWrapper>();
 
-	TypeDescriptorWrapper(const std::string& _n, size_t _h, size_t _s, size_t _a);
+	TypeDescriptorWrapper(const std::string& (*_n_fn)(), const std::string& _n, size_t _h, size_t _s, size_t _a);
 
+	const std::string& (*_name_fn)();
 	const std::string& _name;
 	size_t _hash;
 	size_t _size;
@@ -81,10 +84,10 @@ public:
 	static const TypeDescriptorWrapper& get() noexcept;
 
 private:
-	static inline std::string _name;// = tmpl_utils::nameoftype_fmt(tmpl_utils::nameoftype<T>());
+	static inline std::string _name;// = utils::nameoftype_fmt(utils::nameoftype<T>());
 	static inline size_t _hash;// = arch::ser::hash(name());
-	static inline constexpr size_t _size = sizeof(T);
-	static inline constexpr size_t _alignment = alignof(T);
+	static inline constexpr size_t _size = utils::size_of_v<T>;
+	static inline constexpr size_t _alignment = utils::align_of_v<T>;
 
 	static inline std::unique_ptr<TypeDescriptorWrapper> _wrapper;
 };
@@ -92,7 +95,7 @@ private:
 template<class T>
 const std::string& TypeDescriptor<T>::name() noexcept {
 	if (_name.empty()) {
-		_name = tmpl_utils::nameoftype_fmt(tmpl_utils::nameoftype<T>());
+		_name = utils::nameoftype_fmt(utils::nameoftype<T>());
 		_hash = arch::ser::hash(name());
 	}
 	return _name;
@@ -100,7 +103,7 @@ const std::string& TypeDescriptor<T>::name() noexcept {
 template<class T>
 size_t TypeDescriptor<T>::hash() noexcept {
 	if (_name.empty()) {
-		_name = tmpl_utils::nameoftype_fmt(tmpl_utils::nameoftype<T>());
+		_name = utils::nameoftype_fmt(utils::nameoftype<T>());
 		_hash = arch::ser::hash(name());
 	}
 	return _hash;
@@ -116,7 +119,7 @@ size_t TypeDescriptor<T>::alignment() noexcept {
 template<class T>
 const TypeDescriptorWrapper& TypeDescriptor<T>::get() noexcept {
 	if (_wrapper.get() == nullptr) {
-		_wrapper = std::unique_ptr<TypeDescriptorWrapper>(new TypeDescriptorWrapper(name(), hash(), size(), alignment()));
+		_wrapper = std::unique_ptr<TypeDescriptorWrapper>(new TypeDescriptorWrapper(name, name(), hash(), size(), alignment()));
 	}
 	//TypeDescriptorWrapper wrapper{name(), hash(), size(), alignment()};
 	return *_wrapper;
@@ -133,4 +136,4 @@ struct std::hash<arch::TypeDescriptorWrapper> {
 
 /// @brief Obtains TypeDescriptor.
 ///
-#define typedesc(T) arch::TypeDescriptor<T>::get()
+#define typedesc(T) (arch::TypeDescriptor<T>::get())

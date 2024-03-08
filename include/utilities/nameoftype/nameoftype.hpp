@@ -1,19 +1,9 @@
 #pragma once
 
-#ifdef _MSC_VER // Microsoft compiler
-#include "__nameoftype_msc.hpp"
-#elif defined __clang__ // clang compiler
-#include "__nameoftype_clang.hpp"
-#elif defined __GNUC__ // GCC compiler
-#include "__nameoftype_gcc.hpp"
-#else
-static_assert(false, "compiler does not support std::source_location::function_name() with signatures");
-#endif
-
 #include <source_location>
 #include <string>
 
-namespace arch::tmpl_utils {
+namespace arch::utils {
 template<class T = int>
 constexpr std::string_view __signature() = delete;
 

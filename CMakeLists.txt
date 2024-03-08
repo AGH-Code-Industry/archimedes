@@ -12,6 +12,7 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 if (MSVC)
     add_compile_options("/Zc:__cplusplus")
+    add_compile_options("/Zc:preprocessor")
     include("conan_files/conan_toolchain.cmake") # idk, but works xd
     list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files)
     include_directories(${CMAKE_INCLUDE_PATH})
@@ -72,4 +73,4 @@ add_executable(${PROJECT_NAME}_bin archimedes_bin/main.cpp)
 target_compile_definitions(${PROJECT_NAME}_bin PUBLIC -DSPDLOG_FMT_EXTERNAL)
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DSPDLOG_FMT_EXTERNAL)
 target_include_directories(${PROJECT_NAME}_bin PUBLIC include)
-target_link_libraries(${PROJECT_NAME}_bin PRIVATE ${PROJECT_NAME} spdlog::spdlog fmt::fmt)
+target_link_libraries(${PROJECT_NAME}_bin PRIVATE ${PROJECT_NAME} spdlog::spdlog fmt::fmt stb::stb)

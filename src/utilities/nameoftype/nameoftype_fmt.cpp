@@ -1,6 +1,6 @@
-#include <template_utilities/nameoftype/nameoftype_fmt.hpp>
+#include <utilities/nameoftype/nameoftype_fmt.hpp>
 
-namespace arch::tmpl_utils {
+namespace arch::utils {
 enum token_type {
 	white, // spaces
 	str, // string literals

@@ -2,11 +2,12 @@
 #ifdef __GNUC__
 
 #include <source_location>
+#include <string>
 
-namespace arch::tmpl_utils {
+namespace arch::utils {
 template<class T>
 constexpr const char* __nameoftype() {
-	constexpr auto&& signature_begin = "constexpr std::string_view arch::tmpl_utils::nameof_type() [with T = ";
+	constexpr auto&& signature_begin = "constexpr std::string_view arch::utils::nameof_type() [with T = ";
 	constexpr auto&& signature_end = "; std::string_view = std::basic_string_view<char>]";
 
 	const auto location = std::source_location::current();
