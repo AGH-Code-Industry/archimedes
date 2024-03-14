@@ -64,6 +64,6 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ./test_archimedes
+      run: ./archimedes_tests
 
 
