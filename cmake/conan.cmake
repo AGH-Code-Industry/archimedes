@@ -55,10 +55,6 @@ list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/conan_files/${ARCHIMEDE
 # includes from conan
 include_directories(${CMAKE_INCLUDE_PATH})
 
-# libraries from conan
-foreach(LIB_PATH ${CMAKE_LIBRARY_PATH})
-    file(GLOB LIBS ${LIB_PATH}/**.lib)
-    foreach(LIB ${LIBS})
-        list(PREPEND ARCHIMEDES_LIBRARIES ${LIB})
-    endforeach()
-endforeach()
+# automatic find_package()
+include("${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/conandeps_legacy.cmake")
+list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})

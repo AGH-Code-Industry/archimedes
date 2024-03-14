@@ -11,13 +11,13 @@ endif()
 
 # set user home directory
 if(ARCHIMEDES_WINDOWS)    
-    add_definitions(-DARCHIMEDES_WINDOWS=1)
-    add_definitions(-DARCHIMEDES_LINUX=0)
+    add_compile_definitions(ARCHIMEDES_WINDOWS=1)
+    add_compile_definitions(ARCHIMEDES_LINUX=0)
 
     message(STATUS "OS: Windows")
 elseif(ARCHIMEDES_LINUX)    
-    add_definitions(-DARCHIMEDES_WINDOWS=0)
-    add_definitions(-DARCHIMEDES_LINUX=1)
+    add_compile_definitions(ARCHIMEDES_WINDOWS=0)
+    add_compile_definitions(ARCHIMEDES_LINUX=1)
 
     message(STATUS "OS: Linux")
 endif()

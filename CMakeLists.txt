@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 include("cmake/build_mode.cmake")
 include("cmake/os.cmake")
 include("cmake/msvc.cmake")
+include("cmake/defines.cmake")
 
 # uncomment below to force conan reinstallation
 #set(ARCHIMEDES_FORCE_CONAN_INSTALL TRUE)
