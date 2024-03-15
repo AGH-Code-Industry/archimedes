@@ -28,7 +28,7 @@ jobs:
     - name: Set up GCC
       uses: egor-tensin/setup-gcc@v1
       with:
-        version: 12
+        version: 13
         platform: x64
 
     - name: Conan version
@@ -64,6 +64,6 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ./test_archimedes
+      run: ./archimedes_tests
 
 
