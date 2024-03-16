@@ -6,7 +6,7 @@
 namespace arch {
 
 template <typename... Args>
-void Logger::_log_impl(LogLevel level, const std::source_location loc, std::format_string<Args...> fmt, Args &&...args) {
+void Logger::_log_impl(LogLevel level, const std::source_location loc, spdlog::format_string_t<Args...> fmt, Args &&...args) {
 	auto filepath = relative(loc.file_name(), std::filesystem::current_path() / "..");
 
 	s_logger->log(
@@ -22,21 +22,21 @@ namespace _details {
 
 template<typename... Args>
 struct UniversalLogger {
-	UniversalLogger(LogLevel level, std::format_string<Args...> fmt, Args&&... args, std::source_location loc = std::source_location::current()) {
+	UniversalLogger(LogLevel level, spdlog::format_string_t<Args...> fmt, Args&&... args, std::source_location loc = std::source_location::current()) {
 		Logger::_log_impl(level, loc, fmt, std::forward<Args>(args)...);
 	}
 };
 template<typename... Args>
-UniversalLogger(LogLevel level, std::format_string<Args...> fmt, Args&&... args) -> UniversalLogger<Args...>;
+UniversalLogger(LogLevel level, spdlog::format_string_t<Args...>&& fmt, Args&&... args) -> UniversalLogger<Args...>;
 
 template<LogLevel level, typename... Args>
     struct LeveledLogger {
-	LeveledLogger(std::format_string<Args...> fmt, Args&&... args, std::source_location loc = std::source_location::current()) {
+	LeveledLogger(spdlog::format_string_t<Args...>&& fmt, Args&&... args, std::source_location loc = std::source_location::current()) {
 		Logger::_log_impl(level, loc, fmt, std::forward<Args>(args)...);
 	}
 };
 template<LogLevel level, typename... Args>
-LeveledLogger(std::format_string<Args...> fmt, Args&&... args) -> LeveledLogger<level, Args...>;
+LeveledLogger(spdlog::format_string_t<Args...> fmt, Args&&... args) -> LeveledLogger<level, Args...>;
 
 }
 

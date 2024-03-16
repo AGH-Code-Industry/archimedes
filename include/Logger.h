@@ -62,7 +62,7 @@ public:
 private:
 
 	template <typename... Args>
-	static void _log_impl(LogLevel level, std::source_location loc, std::format_string<Args...> fmt, Args&&... args);
+	static void _log_impl(LogLevel level, std::source_location loc, spdlog::format_string_t<Args...> fmt, Args&&... args);
 
 	static std::shared_ptr<spdlog::logger> s_logger;
 };

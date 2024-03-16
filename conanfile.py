@@ -19,6 +19,6 @@ class Archimedes(ConanFile):
         self.options["glad/0.1.36"].gl_version = "4.6"
         self.options["glad/0.1.36"].spec = "gl"
         self.options["glad/0.1.36"].no_loader = False
-        self.options["spdlog/1.12.0"].use_std_fmt = True
+        # self.options["spdlog/1.12.0"].use_std_fmt = True
     
     generators = "CMakeDeps", "CMakeToolchain"
