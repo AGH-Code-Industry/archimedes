@@ -22,3 +22,5 @@ CMakeUserPresets.json
 compile_commands.json
 cmake/conan_files/
 CMakeSettings.json
+cmake-build-release
+cmake-build-debug
