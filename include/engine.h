@@ -1,12 +1,14 @@
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
-#include <window.h>
-#include <fstream>
-#include <string>
 #include <exceptions/config_exception.h>
 #include <gtest/gtest_prod.h>
+#include <window.h>
 
+#include <fstream>
+#include <string>
+
+#include "resource/imgui_loader.h"
 
 namespace arch {
 
@@ -34,24 +36,27 @@ private:
     Window _window;
     EngineConfig _engine_config;
 
-    FRIEND_TEST(EngineTest, ConfigWindowTest);
+	FRIEND_TEST(EngineTest, ConfigWindowTest);
 
-    /**
-     * Responsible for drawing game on the screen.
-     */
-    void main_loop();
+#if ARCHIMEDES_DEBUG
+	ImGuiLoader* _imgui = nullptr;
+#endif
 
-    /**
-     * Initialize glfw in engine and creates window.
-     */
-    void initialize();
+	/**
+	 * Responsible for drawing game on the screen.
+	 */
+	void main_loop();
 
-    /**
-     * Clearing all previously allocated GLFW and Engine resources.
-     */
-    static void terminate();
+	/**
+	 * Initialize glfw in engine and creates window.
+	 */
+	void initialize();
 
+	/**
+	 * Clearing all previously allocated GLFW and Engine resources.
+	 */
+	static void terminate();
 };
-}
+}  // namespace arch
 
-#endif //ARCHIMEDES_ENGINE_H
+#endif	// ARCHIMEDES_ENGINE_H

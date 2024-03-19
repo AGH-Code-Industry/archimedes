@@ -37,35 +37,35 @@ void Engine::start() {
 void Engine::main_loop() {
     spdlog::info("Starting engine main loop");
     // 3D cube
-    // std::vector<Vertex> vertices {
-    //     { glm::vec3(0.5f, 0.5f, 0.5f), {}, {}},
-    //     { glm::vec3(-0.5f, 0.5f, 0.5f), {}, {}},
-    //     { glm::vec3(-0.5f, -0.5f, 0.5f), {}, {}},
-    //     { glm::vec3(0.5f, -0.5f, 0.5f), {}, {}},
-    //     { glm::vec3(0.5f, 0.5f, -0.5f), {}, {}},
-    //     { glm::vec3(-0.5f, 0.5f, -0.5f), {}, {}},
-    //     { glm::vec3(-0.5f, -0.5f, -0.5f), {}, {}},
-    //     { glm::vec3(0.5f, -0.5f, -0.5f), {}, {}}
-    // };
-    // std::vector<uint32_t> indices { 
-    //     0, 1, 2, 0, 3, 2,
-    //     4, 5, 6, 4, 7, 6,
-    //     4, 0, 3, 4, 7, 3,
-    //     5, 1, 2, 5, 6, 2,
-    //     7, 6, 2, 7, 3, 2,
-    //     4, 5, 1, 5, 0, 1
-    // };
+     std::vector<Vertex> vertices {
+         { glm::vec3(0.5f, 0.5f, 0.5f), {}, {}},
+         { glm::vec3(-0.5f, 0.5f, 0.5f), {}, {}},
+         { glm::vec3(-0.5f, -0.5f, 0.5f), {}, {}},
+         { glm::vec3(0.5f, -0.5f, 0.5f), {}, {}},
+         { glm::vec3(0.5f, 0.5f, -0.5f), {}, {}},
+         { glm::vec3(-0.5f, 0.5f, -0.5f), {}, {}},
+         { glm::vec3(-0.5f, -0.5f, -0.5f), {}, {}},
+         { glm::vec3(0.5f, -0.5f, -0.5f), {}, {}}
+     };
+     std::vector<uint32_t> indices { 
+         0, 1, 2, 0, 3, 2,
+         4, 5, 6, 4, 7, 6,
+         4, 0, 3, 4, 7, 3,
+         5, 1, 2, 5, 6, 2,
+         7, 6, 2, 7, 3, 2,
+         4, 5, 1, 5, 0, 1
+     };
     // 2D square
-    std::vector<Vertex> vertices {
-        { glm::vec3(0.5f, 0.5f, 0.0f), {}, glm::vec2(1.0f, 1.0f) },
-        { glm::vec3(0.5f, -0.5f, 0.0f), {}, glm::vec2(1.0f, 0.0f) },
-        { glm::vec3(-0.5f, -0.5f, 0.0f), {}, glm::vec2(0.0f, 0.0f) },
-        { glm::vec3(-0.5f, 0.5f, 0.0f), {}, glm::vec2(0.0f, 1.0f) }
-    };
-    std::vector<uint32_t> indices {
-        0, 1, 3,
-        1, 2, 3
-    };
+    //std::vector<Vertex> vertices {
+    //    { glm::vec3(0.5f, 0.5f, 0.0f), {}, glm::vec2(1.0f, 1.0f) },
+    //    { glm::vec3(0.5f, -0.5f, 0.0f), {}, glm::vec2(1.0f, 0.0f) },
+    //    { glm::vec3(-0.5f, -0.5f, 0.0f), {}, glm::vec2(0.0f, 0.0f) },
+    //    { glm::vec3(-0.5f, 0.5f, 0.0f), {}, glm::vec2(0.0f, 1.0f) }
+    //};
+    //std::vector<uint32_t> indices {
+    //    0, 1, 3,
+    //    1, 2, 3
+    //};
     Model model { { { vertices, indices } } };
     TextureLoader texture_loader;
     Renderer3D renderer {};
@@ -76,9 +76,17 @@ void Engine::main_loop() {
 
     while (!_window.should_close()) {
         _window.clear(_engine_config.background_color);
+		renderer.render();
 
-        renderer.render();
-        
+#if ARCHIMEDES_DEBUG
+        if (_imgui != nullptr) {
+			_imgui->RenderNextF();
+			_imgui->ShowStats();
+		}
+
+
+		if (_imgui != nullptr) _imgui->RenderLastF();
+#endif
         _window.swap_buffers();
         glfwPollEvents();
     }
@@ -94,6 +102,12 @@ void Engine::initialize() {
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+#if ARCHIMEDES_DEBUG
+	_imgui = new ImGuiLoader(_window.get());
+
+	spdlog::info("IMGUI initialization successful");
 #endif
 
     _window.resize(_engine_config.window_width, _engine_config.window_height);

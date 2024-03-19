@@ -1,4 +1,9 @@
+import os
+
 from conan import ConanFile
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
+
 
 class Archimedes(ConanFile):
     name = "Archimedes"
@@ -11,7 +16,8 @@ class Archimedes(ConanFile):
         self.requires("assimp/5.2.2")
         self.requires("spdlog/1.12.0")
         self.requires("gtest/1.13.0")
-        self.requires("stb/cci.20220909")
+        self.requires("stb/cci.20230920")
+        self.requires("imgui/1.90")
         self.requires("draco/1.5.6", override=True)
 
     def configure(self):
@@ -21,4 +27,11 @@ class Archimedes(ConanFile):
         self.options["glad/0.1.36"].no_loader = False
         self.options["spdlog/1.12.0"].use_std_fmt = True
     
+    def generate(self):
+        copy(self, "*glfw*", os.path.join(self.dependencies["imgui"].package_folder,
+            "res", "bindings"), os.path.join(self.source_folder, "bindings"))
+        copy(self, "*opengl3*", os.path.join(self.dependencies["imgui"].package_folder,
+            "res", "bindings"), os.path.join(self.source_folder, "bindings"))
+   
+
     generators = "CMakeDeps", "CMakeToolchain"
