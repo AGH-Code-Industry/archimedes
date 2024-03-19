@@ -5,7 +5,7 @@
 
 namespace arch {
 
-/// @brief Logging level for Logge to indicate how important the message is.
+/// @brief Logging level for Logger to indicate how important the message is.
 ///
 enum class LogLevel
 {
@@ -54,27 +54,27 @@ public:
 	template <typename... Args>
 	using log = _details::UniversalLogger<Args...>;
 
-	/// @brief Fast way of loggin messages at @enum LogLevel::trace.
+	/// @brief Fast way of logging messages at @enum LogLevel::trace.
 	template <typename... Args>
 	using trace = _details::LeveledLogger<LogLevel::trace, Args...>;
 
-	/// @brief Fast way of loggin messages at @enum LogLevel::debug.
+	/// @brief Fast way of logging messages at @enum LogLevel::debug.
 	template <typename... Args>
 	using debug = _details::LeveledLogger<LogLevel::debug, Args...>;
 
-	/// @brief Fast way of loggin messages at @enum LogLevel::info.
+	/// @brief Fast way of logging messages at @enum LogLevel::info.
 	template<typename... Args>
 	using info = _details::LeveledLogger<LogLevel::info, Args...>;
 
-	/// @brief Fast way of loggin messages at \enum LogLevel::warn.
+	/// @brief Fast way of logging messages at \enum LogLevel::warn.
 	template<typename... Args>
 	using warn = _details::LeveledLogger<LogLevel::warn, Args...>;
 
-	/// @brief Fast way of loggin messages at \enum LogLevel::error.
+	/// @brief Fast way of logging messages at \enum LogLevel::error.
 	template<typename... Args>
 	using error = _details::LeveledLogger<LogLevel::error, Args...>;
 
-	/// @brief Fast way of loggin messages at \enum LogLevel::critical.
+	/// @brief Fast way of logging messages at \enum LogLevel::critical.
 	template<typename... Args>
 	using critical = _details::LeveledLogger<LogLevel::critical, Args...>;
 
