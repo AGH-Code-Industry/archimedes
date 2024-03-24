@@ -1,12 +1,11 @@
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
+#include <gtest/gtest_prod.h>
 #include <window.h>
+
 #include <fstream>
 #include <string>
-#include <exceptions/config_exception.h>
-#include <gtest/gtest_prod.h>
-
 
 namespace arch {
 

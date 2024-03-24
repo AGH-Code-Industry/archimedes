@@ -15,5 +15,4 @@ void Exception::append_msg(const std::string &msg) {
 	_msg.append(msg);
 }
 
-	
 }
