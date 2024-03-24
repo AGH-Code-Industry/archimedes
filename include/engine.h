@@ -1,6 +1,7 @@
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
+#include <gfx/Renderer.h>
 #include <gtest/gtest_prod.h>
 #include <window.h>
 
@@ -32,6 +33,7 @@ public:
 private:
     Window _window;
     EngineConfig _engine_config;
+    gfx::Renderer _renderer;
 
     FRIEND_TEST(EngineTest, ConfigWindowTest);
 

@@ -11,9 +11,10 @@
 
 using namespace arch;
 
-Engine::Engine(EngineConfig config) : 
-_window(1, 1, {}),
-_engine_config(config) {}
+Engine::Engine(EngineConfig config):
+	_window(1, 1, {}),
+	_engine_config(config),
+	_renderer() {}
 
 Engine::~Engine() {
     terminate();
@@ -95,9 +96,7 @@ void Engine::initialize() {
     _window.resize(_engine_config.window_width, _engine_config.window_height);
     _window.set_title(_engine_config.window_title);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        throw GladException();
-    }
+	_renderer.init();
 
     // if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     //     throw GladException();
