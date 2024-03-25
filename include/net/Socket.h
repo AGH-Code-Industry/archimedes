@@ -1,6 +1,6 @@
 #pragma once
 
-#include <net/utilities.h>
+#include <net/Utilities.h>
 #include <net/IPv4.h>
 #include <type_traits>
 
@@ -16,8 +16,8 @@ public:
 	///
 	enum class Protocol : uint16_t {
 		none,
-		UDP,
-		TCP
+		udp,
+		tcp
 	};
 
 	/// @brief UDP socket.
@@ -122,9 +122,9 @@ public:
 	void reuse(bool newVal);
 
 protected:
-	Socket(Protocol p);
-	Socket(Protocol p, IPv4 address, Port port);
-	Socket(Protocol p, Port port);
+	Socket(Protocol protocol);
+	Socket(Protocol protocol, IPv4 address, Port port);
+	Socket(Protocol protocol, Port port);
 	Socket(const Socket&) = delete;
 	Socket(Socket&) = delete;
 	Socket(Socket&&) = default;

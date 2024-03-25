@@ -1,7 +1,7 @@
 #if ARCHIMEDES_WINDOWS
-#include <net/_utilitiesWindows.h>
+#include <net/_UtilitiesWindows.h>
 #elif ARCHIMEDES_UNIX
-#include <net/_utilitiesUnix.h>
+#include <net/_UtilitiesUnix.h>
 #endif
 
 #include <chrono>

@@ -2,15 +2,15 @@
 #include <net/IPv4.h>
 #include <memory>
 #include <net/Init.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 
 namespace arch::net {
 TCPSocket::TCPSocket() :
-	Socket(Socket::Protocol::TCP) {}
+	Socket(Socket::Protocol::tcp) {}
 TCPSocket::TCPSocket(Port port) :
-	Socket(Socket::Protocol::TCP, port) {}
+	Socket(Socket::Protocol::tcp, port) {}
 TCPSocket::TCPSocket(IPv4 address, Port port) :
-	Socket(Socket::Protocol::TCP, address, port) {}
+	Socket(Socket::Protocol::tcp, address, port) {}
 TCPSocket::~TCPSocket() {
 	Socket::~Socket();
 }
@@ -21,7 +21,7 @@ TCPSocket::LingerData TCPSocket::linger() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_LINGER, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return {(bool)optval.l_onoff, optval.l_linger};
@@ -31,7 +31,7 @@ void TCPSocket::linger(LingerData data) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 
@@ -48,7 +48,7 @@ bool TCPSocket::connect(const Host& host, Port port) {
 
 	int result = ::connect(_socket, (sockaddr*)&sock, sizeof(sock));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	_peerAddr = host.ip();
@@ -63,7 +63,7 @@ bool TCPSocket::condConnect(const Host& host, Port port, void* data, int dataLen
 	int result = ::send(_socket, (char*)data, dataLen, 0);
 	if (result == SOCKET_ERROR) {
 		_peerAddr = IPv4();
-		throw NetException(std::string("while sending connection data: ") + gai_strerror(net_errno()));
+		throw NetException(std::string("while sending connection data: ") + gai_strerror(netErrno()));
 	}
 	auto response_buffer = std::unique_ptr<char[]>(new char[responseLen]);
 	memset(response_buffer.get(), 0, responseLen);
@@ -71,7 +71,7 @@ bool TCPSocket::condConnect(const Host& host, Port port, void* data, int dataLen
 	result = ::recv(_socket, response_buffer.get(), responseLen, 0);
 	if (result == SOCKET_ERROR) {
 		_peerAddr = IPv4();
-		throw NetException(std::string("while receiving response: ") + gai_strerror(net_errno()));
+		throw NetException(std::string("while receiving response: ") + gai_strerror(netErrno()));
 	}
 	else if (result == 0) {
 		throw NetException(std::string("peer disconnected before sending response"));
@@ -137,7 +137,7 @@ bool TCPSocket::listen(int maxconn) {
 
 	int result = ::listen(_socket, maxconn);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	_status = 1 << 1;
@@ -157,13 +157,13 @@ bool TCPSocket::accept(TCPSocket& newSock) {
 	memset(&sock, 0, sizeof(sock));
 	auto result = ::accept(_socket, (sockaddr*)&sock, &socklen);
 	if (result == INVALID_SOCKET) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	newSock._address = _address;
 	newSock._peerAddr = IPv4(sock.sin_addr);
 	newSock._port = ntohs(sock.sin_port);
-	newSock._proto = Socket::Protocol::TCP;
+	newSock._proto = Socket::Protocol::tcp;
 	newSock._socket = result;
 	newSock._status = 1;
 
@@ -178,7 +178,7 @@ bool TCPSocket::condAccept(TCPSocket& newSock, AcceptCondition condition, int da
 	// receive connection data
 	int result = ::recv(newSock._socket, buffer.get(), dataLen, 0);
 	if (result == SOCKET_ERROR) {
-		throw NetException(std::string("while receiving connection data: ") + gai_strerror(net_errno()));
+		throw NetException(std::string("while receiving connection data: ") + gai_strerror(netErrno()));
 	}
 	else if (result == 0) {
 		throw NetException(std::string("peer disconnected before sending connection data"));
@@ -188,7 +188,7 @@ bool TCPSocket::condAccept(TCPSocket& newSock, AcceptCondition condition, int da
 	auto return_result = condition(buffer.get(), dataLen, additionalData, resp_buffer.get(), responseLen);
 	result = ::send(newSock._socket, resp_buffer.get(), responseLen, 0);
 	if (result == SOCKET_ERROR) {
-		throw NetException(std::string("while sending connection data: ") + gai_strerror(net_errno()));
+		throw NetException(std::string("while sending connection data: ") + gai_strerror(netErrno()));
 	}
 	if (return_result) {
 		newSock._status = 1;
@@ -206,7 +206,7 @@ bool TCPSocket::send(const char* data, int len) {
 
 	int result = ::send(_socket, data, len, 0);
 	if (result == SOCKET_ERROR) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	return true;
@@ -222,7 +222,7 @@ bool TCPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 
 	int result = ::recv(_socket, buf, buflen, 0);
 	if (result == SOCKET_ERROR) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 	else if (result == 0) {
 		_status = 0;

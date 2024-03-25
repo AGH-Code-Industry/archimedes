@@ -12,8 +12,8 @@
 #define poll WSAPoll
 #endif
 
-inline int net_errno(int _ignored) noexcept { return WSAGetLastError(); }
-inline int net_errno() noexcept { return WSAGetLastError(); }
+inline int netErrno(int _ignored) noexcept { return WSAGetLastError(); }
+inline int netErrno() noexcept { return WSAGetLastError(); }
 inline bool _check() { return false; }
 
 #endif

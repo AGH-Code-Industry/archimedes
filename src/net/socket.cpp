@@ -1,5 +1,5 @@
 #include <net/Socket.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 #include <net/IPv4.h>
 #include <net/Init.h>
 
@@ -7,12 +7,12 @@ namespace arch::net {
 const IPv4 Socket::anyAddress(INADDR_ANY);
 const Socket::Port Socket::randomPort = 0;
 
-Socket::Socket(Protocol p) {
-	switch (p) {
-		case Protocol::UDP:
+Socket::Socket(Protocol protocol) {
+	switch (protocol) {
+		case Protocol::udp:
 			_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			break;
-		case Protocol::TCP:
+		case Protocol::tcp:
 			_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			break;
 		default:
@@ -21,17 +21,17 @@ Socket::Socket(Protocol p) {
 	}
 
 	if (_socket == INVALID_SOCKET) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
-	_proto = p;
+	_proto = protocol;
 }
-Socket::Socket(Protocol p, IPv4 address, Port port) :
-	Socket(p) {
+Socket::Socket(Protocol protocol, IPv4 address, Port port) :
+	Socket(protocol) {
 	bind(address, port);
 }
-Socket::Socket(Protocol p, Port port) :
-	Socket(p) {
+Socket::Socket(Protocol protocol, Port port) :
+	Socket(protocol) {
 	bind(port);
 }
 Socket::~Socket() {
@@ -42,7 +42,7 @@ void Socket::close() {
 	if (_socket != INVALID_SOCKET) {
 		int result = closesocket(_socket);
 		if (result != 0) {
-			throw NetException(gai_strerror(net_errno(result)));
+			throw NetException(gai_strerror(netErrno(result)));
 		}
 
 		_socket = INVALID_SOCKET;
@@ -64,7 +64,7 @@ bool Socket::bind(IPv4 address, Port port) {
 	result = ::bind(_socket, (sockaddr*)&sock, sizeof(sock));
 
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	_address = address;
@@ -179,7 +179,7 @@ int Socket::recvBuf() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
@@ -189,7 +189,7 @@ void Socket::recvBuf(int new_val) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 int Socket::sendBuf() const {
@@ -198,7 +198,7 @@ int Socket::sendBuf() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
@@ -208,7 +208,7 @@ void Socket::sendBuf(int new_val) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 #if ARCHIMEDES_WINDOWS // exclusivity avalible only on Windows :(
@@ -218,7 +218,7 @@ bool Socket::exclusive() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
@@ -228,7 +228,7 @@ void Socket::exclusive(bool newVal) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 #endif
@@ -238,7 +238,7 @@ bool Socket::reuse() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
@@ -248,13 +248,13 @@ void Socket::reuse(bool newVal) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #if ARCHIMEDES_UNIX
 	optval = newVal;
 	result = setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }

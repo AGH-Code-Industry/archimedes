@@ -1,6 +1,6 @@
-#include <net/utilities.h>
+#include <net/Utilities.h>
 #include <net/IPv4Network.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 #include <net/IPv4.h>
 #include <vector>
 #include <string>

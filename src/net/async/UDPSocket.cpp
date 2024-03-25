@@ -1,5 +1,5 @@
 #include <net/async/UDPSocket.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 
 namespace arch::net::async {
 	UDPSocket::UDPSocket() :
@@ -53,7 +53,7 @@ namespace arch::net::async {
 			int result = poll(&pollData, 1, timeLeft.count());
 
 			if (result == SOCKET_ERROR) {
-				throw NetException(gai_strerror(net_errno()));
+				throw NetException(gai_strerror(netErrno()));
 			}
 			else if (result == 0) { // timeout expired
 				return false;
@@ -102,7 +102,7 @@ namespace arch::net::async {
 			int result = poll(&pollData, 1, timeLeft.count());
 
 			if (result == SOCKET_ERROR) {
-				throw NetException(gai_strerror(net_errno()));
+				throw NetException(gai_strerror(netErrno()));
 			}
 			else if (result == 0) { // timeout expired
 				return Host(IPv4());

@@ -1,6 +1,6 @@
 #include <net/async/Host.h>
 #include <net/Host.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 #include <thread>
 
 namespace arch::net::async {
@@ -98,7 +98,7 @@ std::string Host::_updateHostname() {
 
 		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, servInfo, NI_MAXSERV, 0);
 		if (result != 0) {
-			throw NetException(gai_strerror(net_errno(result)));
+			throw NetException(gai_strerror(netErrno(result)));
 		}
 		else {
 			_hostname = hostname;
@@ -152,7 +152,7 @@ std::future<Host::UpdateResult> Host::update(TimeoutMs timeout) {
 
 				// transports exception back to async
 				try {
-					throw NetException(gai_strerror(net_errno(result)));
+					throw NetException(gai_strerror(netErrno(result)));
 				}
 				catch (...) {
 					exception = std::current_exception();

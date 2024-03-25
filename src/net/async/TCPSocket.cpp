@@ -1,5 +1,5 @@
 #include <net/async/TCPSocket.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 
 namespace arch::net::async {
 TCPSocket::TCPSocket() :
@@ -52,13 +52,13 @@ std::future<bool> TCPSocket::accept(TCPSocket& new_sock) {
 		memset(&sock, 0, sizeof(sock));
 		auto result = ::accept(_socket, (sockaddr*)&sock, &socklen);
 		if (result == INVALID_SOCKET) {
-			throw NetException(gai_strerror(net_errno()));
+			throw NetException(gai_strerror(netErrno()));
 		}
 
 		_ns._address = _address;
 		_ns._peerAddr = IPv4(sock.sin_addr);
 		_ns._port = ntohs(sock.sin_port);
-		_ns._proto = Socket::Protocol::TCP;
+		_ns._proto = Socket::Protocol::tcp;
 		_ns._socket = result;
 		_ns._status = 1;
 
@@ -78,7 +78,7 @@ std::future<bool> TCPSocket::condAccept(TCPSocket& new_sock, AcceptCondition con
 		// receive connection data
 		int result = ::recv(_ns._socket, buffer.get(), dl, 0);
 		if (result == SOCKET_ERROR) {
-			throw NetException(std::string("while receiving connection data: ") + gai_strerror(net_errno()));
+			throw NetException(std::string("while receiving connection data: ") + gai_strerror(netErrno()));
 		}
 		else if (result == 0) {
 			throw NetException(std::string("peer disconnected before sending connection data"));
@@ -88,7 +88,7 @@ std::future<bool> TCPSocket::condAccept(TCPSocket& new_sock, AcceptCondition con
 		auto return_result = c(buffer.get(), dl, ad, respBuffer.get(), rl);
 		result = ::send(_ns._socket, respBuffer.get(), rl, 0);
 		if (result == SOCKET_ERROR) {
-			throw NetException(std::string("while sending connection data: ") + gai_strerror(net_errno()));
+			throw NetException(std::string("while sending connection data: ") + gai_strerror(netErrno()));
 		}
 		if (return_result) {
 			_ns._status = 1;
@@ -137,7 +137,7 @@ std::future<bool> TCPSocket::recv(char* buf, int buflen, int& length, TimeoutMs 
 		int result = poll(&pollData, 1, time_left.count());
 
 		if (result == SOCKET_ERROR) {
-			throw NetException(gai_strerror(net_errno()));
+			throw NetException(gai_strerror(netErrno()));
 		}
 		else if (result == 0) { // timeout expired
 			_recvMutex.unlock();

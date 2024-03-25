@@ -2,7 +2,7 @@
 
 #include <compare>
 #include <iostream>
-#include <net/utilities.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
 /// @brief Represents IPv4 address.

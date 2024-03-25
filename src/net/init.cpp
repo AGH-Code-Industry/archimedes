@@ -1,6 +1,6 @@
 #include <net/Init.h>
-#include <net/Exception.h>
-#include <net/utilities.h>
+#include <net/NetException.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
 void Init::init() {
@@ -8,7 +8,7 @@ void Init::init() {
 	WSADATA wsaData;
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }
@@ -16,7 +16,7 @@ void Init::cleanup() {
 #if ARCHIMEDES_WINDOWS
 	int result = WSACleanup();
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }

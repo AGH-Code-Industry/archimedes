@@ -24,8 +24,8 @@
 #define closesocket(fd) ::close(fd)
 #endif
 
-inline int net_errno(int parentError) noexcept { return (parentError == EAI_SYSTEM ? errno : parentError); }
-inline int net_errno() noexcept { return errno; }
+inline int netErrno(int parentError) noexcept { return (parentError == EAI_SYSTEM ? errno : parentError); }
+inline int netErrno() noexcept { return errno; }
 inline bool _check() { utsname n; if (uname(&n) == 0) { return std::string(n.release).find("arch") != std::string::npos; } return false; }
 
 #endif

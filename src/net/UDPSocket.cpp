@@ -1,15 +1,15 @@
 #include <net/UDPSocket.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 #include <net/IPv4.h>
 #include <net/Init.h>
 
 namespace arch::net {
 UDPSocket::UDPSocket() :
-	Socket(Socket::Protocol::UDP) {}
+	Socket(Socket::Protocol::udp) {}
 UDPSocket::UDPSocket(Port port) :
-	Socket(Socket::Protocol::UDP, port) {}
+	Socket(Socket::Protocol::udp, port) {}
 UDPSocket::UDPSocket(IPv4 address, Port port) :
-	Socket(Socket::Protocol::UDP, address, port) {}
+	Socket(Socket::Protocol::udp, address, port) {}
 UDPSocket::~UDPSocket() {
 	Socket::~Socket();
 }
@@ -24,7 +24,7 @@ bool UDPSocket::sendTo(const Host& host, Port port, const char* data, int len) {
 
 	int result = sendto(_socket, data, len, 0, (sockaddr*)&addr, sizeof(addr));
 	if (result == SOCKET_ERROR) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	return result;
@@ -42,7 +42,7 @@ bool UDPSocket::sendTo(const Host& host, const std::string& data) {
 bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 	int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
 	if (result == SOCKET_ERROR) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	length = result;
@@ -60,7 +60,7 @@ Host UDPSocket::recvFrom(char* buf, int buflen, int& length, bool peek) {
 
 	int result = ::recvfrom(_socket, buf, buflen, peek ? MSG_PEEK : 0, (sockaddr*)&addr, &addrLen);
 	if (result == SOCKET_ERROR) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
 	length = result;
@@ -77,7 +77,7 @@ bool UDPSocket::broadcastEnabled() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
@@ -87,7 +87,7 @@ void UDPSocket::broadcastEnabled(bool newVal) {
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 }

@@ -1,9 +1,9 @@
 #include <net/Host.h>
 #include <net/Init.h>
-#include <net/Exception.h>
+#include <net/NetException.h>
 #include <cstring>
 #include <algorithm>
-#include <net/utilities.h>
+#include <net/Utilities.h>
 #include <net/async/Host.h>
 #include <net/IPv4.h>
 
@@ -60,7 +60,7 @@ std::string Host::_updateHostname() {
 
 		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, servInfo, NI_MAXSERV, 0);
 		if (result != 0) {
-			throw NetException(gai_strerror(net_errno(result)));
+			throw NetException(gai_strerror(netErrno(result)));
 		}
 		else {
 			_hostname = hostname;
@@ -84,7 +84,7 @@ bool Host::update() {
 	int result = getaddrinfo(nodeName.c_str(), nullptr, &hints, &data);
 
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	for (auto i = data; i != nullptr; i = i->ai_next) {
