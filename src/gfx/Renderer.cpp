@@ -23,23 +23,32 @@ void Renderer::init() {
 		VK_KHR_SURFACE_EXTENSION_NAME,
 	};
 
+	std::vector layers = {
+		"VK_LAYER_KHRONOS_validation",
+	};
+
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-	arch::Logger::info("Available layers: {}", layerCount);
+	layers.erase(std::ranges::remove_if(layers, [&](auto layer) {
+		for (auto l : availableLayers)
+			if (std::strcmp(layer, l.layerName) == 0) return false;
+		return true;
+	}).begin());
 
-	std::array layers = {
-		"VK_LAYER_KHRONOS_validation",
-	};
+	Logger::info("Available layers {}:", layerCount);
+	for (auto layer : availableLayers) {
+		Logger::info("  - {}", layer.layerName);
+	}
 
-	VkInstanceCreateInfo create_info {
+	VkInstanceCreateInfo create_info{
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.pApplicationInfo = &appInfo,
-		.enabledLayerCount = layers.size(),
+		.enabledLayerCount = (uint32_t)layers.size(),
 		.ppEnabledLayerNames = layers.data(),
-		.enabledExtensionCount = instanceExtensions.size(),
+		.enabledExtensionCount = (uint32_t)instanceExtensions.size(),
 		.ppEnabledExtensionNames = instanceExtensions.data(),
 	};
 
