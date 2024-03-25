@@ -34,12 +34,14 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/con
 	endif()
 
 	if(${ARCHIMEDES_LINUX})
-		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER "-c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True")
+		message(STATUS)
+		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE "-c tools.system.package_manager:mode=install")
+		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
 	endif()
 
 	# install conan requirements
 	execute_process(
-		COMMAND conan install . -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=20 -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=20 ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER} -of=cmake/conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default
+		COMMAND conan install . -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=20 -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=20 ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE} -of=cmake/conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default
 		COMMAND_ECHO STDOUT
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		OUTPUT_VARIABLE ARCHIMEDES_CONAN_INSTALL_OUTPUT
