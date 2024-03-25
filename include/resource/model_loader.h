@@ -1,3 +1,5 @@
+// will be useful in the future
+
 // #include "exception.h"
 //
 // #include <assimp/Importer.hpp>
