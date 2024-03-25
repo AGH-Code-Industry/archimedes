@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-#include <net/ipv4_network.hpp>
-#include <net/exception.hpp>
+#include <net.h>
 #include <bitset>
 #include <iostream>
 
@@ -27,11 +26,11 @@ TEST(IPv4Network, Constructors) {
 	arch::net::IPv4Network net2(arch::net::IPv4("192.168.0.0"), 24);
 	arch::net::IPv4Network net3("192.168.0.0/24");
 
-	EXPECT_EQ(net1.network_address(), net2.network_address());
-	EXPECT_EQ(net2.network_address(), net3.network_address());
-	EXPECT_EQ(net1.network_address(), net3.network_address());
+	EXPECT_EQ(net1.networkAddress(), net2.networkAddress());
+	EXPECT_EQ(net2.networkAddress(), net3.networkAddress());
+	EXPECT_EQ(net1.networkAddress(), net3.networkAddress());
 
-	EXPECT_EQ(net1.network_address(), arch::net::IPv4("192.168.0.0"));
+	EXPECT_EQ(net1.networkAddress(), arch::net::IPv4("192.168.0.0"));
 	EXPECT_EQ(net1.mask(), arch::net::IPv4Mask(24));
 }
 
@@ -40,7 +39,7 @@ TEST(IPv4Network, Broadcast) {
 	arch::net::IPv4Network net2("0.0.0.0/0");
 
 	auto&& mask = net2.mask().data();
-	auto&& addr = net2.network_address().data();
+	auto&& addr = net2.networkAddress().data();
 
 	EXPECT_EQ(net1.broadcast(), arch::net::IPv4("192.168.0.255"));
 	EXPECT_EQ(net2.broadcast(), arch::net::IPv4("255.255.255.255"));
@@ -50,24 +49,24 @@ TEST(IPv4Network, FirstHost) {
 	arch::net::IPv4Network net1("192.168.0.8/30");
 	arch::net::IPv4Network net2("192.168.0.8/29");
 
-	EXPECT_EQ(net1.first_host(), arch::net::IPv4("192.168.0.9"));
-	EXPECT_EQ(net2.first_host(), arch::net::IPv4("192.168.0.9"));
+	EXPECT_EQ(net1.firstHost(), arch::net::IPv4("192.168.0.9"));
+	EXPECT_EQ(net2.firstHost(), arch::net::IPv4("192.168.0.9"));
 }
 
 TEST(IPv4Network, LastHost) {
 	arch::net::IPv4Network net1("192.168.0.8/30");
 	arch::net::IPv4Network net2("192.168.0.8/29");
 
-	EXPECT_EQ(net1.last_host(), arch::net::IPv4("192.168.0.10"));
-	EXPECT_EQ(net2.last_host(), arch::net::IPv4("192.168.0.14"));
+	EXPECT_EQ(net1.lastHost(), arch::net::IPv4("192.168.0.10"));
+	EXPECT_EQ(net2.lastHost(), arch::net::IPv4("192.168.0.14"));
 }
 
 TEST(IPv4Network, NetworkAddress) {
 	arch::net::IPv4Network net1("192.168.0.8/30");
 	arch::net::IPv4Network net2("192.168.0.8/29");
 
-	EXPECT_EQ(net1.network_address(), arch::net::IPv4("192.168.0.8"));
-	EXPECT_EQ(net2.network_address(), arch::net::IPv4("192.168.0.8"));
+	EXPECT_EQ(net1.networkAddress(), arch::net::IPv4("192.168.0.8"));
+	EXPECT_EQ(net2.networkAddress(), arch::net::IPv4("192.168.0.8"));
 }
 
 TEST(IPv4Network, Mask) {
@@ -82,5 +81,5 @@ TEST(IPv4Network, NetworkFromHost) {
 	arch::net::IPv4Network net1("192.168.0.200/24");
 
 	EXPECT_EQ(net1.mask(), arch::net::IPv4Mask(24));
-	EXPECT_EQ(net1.network_address(), arch::net::IPv4("192.168.0.0"));
+	EXPECT_EQ(net1.networkAddress(), arch::net::IPv4("192.168.0.0"));
 }

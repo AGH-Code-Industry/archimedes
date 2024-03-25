@@ -1,10 +1,9 @@
 #pragma once
 
-#include <net/socket.hpp>
-#include <net/host.hpp>
+#include <net/Socket.h>
+#include <net/Host.h>
 
 namespace arch::net {
-class Serializable;
 
 /// @brief Represents synchronous UDP socket.
 ///
@@ -15,10 +14,10 @@ public:
 	UDPSocket();
 	/// @brief Any-binding constructor
 	/// @details Binds to all interfaces using INADDR_ANY.
-	UDPSocket(port_type port);
+	UDPSocket(Port port);
 	/// @brief Binding constructor.
 	///
-	UDPSocket(IPv4 address, port_type port);
+	UDPSocket(IPv4 address, Port port);
 	/// @brief Deleted copy-constructor.
 	///
 	UDPSocket(const UDPSocket&) = delete;
@@ -44,41 +43,41 @@ public:
 
 	/// @brief Check if socket is able to send broadcast.
 	///
-	bool broadcast_enabled() const;
+	bool broadcastEnabled() const;
 	/// @brief Set if socket is able to send broadcast.
 	///
-	void broadcast_enabled(bool val);
+	void broadcastEnabled(bool val);
 
 	/// @brief Sends given data to given host.
-	/// @details If data length exceeds sendbuff_size(), error occurs.
+	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param port - port to send data to.
 	/// @param data - data to be sent.
-	/// @param length - length of data to be sent.
+	/// @param len - length of data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, port_type port, const char* data, int len);
+	bool sendTo(const Host& host, Port port, const char* data, int len);
 	/// @brief Sends given data to given host.
-	/// @details If data length exceeds sendbuff_size(), error occurs.
+	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
-	/// @param length - length of data to be sent.
+	/// @param len - length of data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, const char* data, int len);
+	bool sendTo(const Host& host, const char* data, int len);
 	/// @brief Sends given data to given host.
-	/// @details If data length exceeds sendbuff_size(), error occurs.
+	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param port - port to send data to.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, port_type port, const std::string& data);
+	bool sendTo(const Host& host, Port port, const std::string& data);
 	/// @brief Sends given data to given host.
-	/// @details If data length exceeds sendbuff_size(), error occurs.
+	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool send_to(const Host& host, const std::string& data);
+	bool sendTo(const Host& host, const std::string& data);
 	/// @brief Sends given data to given host.
-	/// @details If data length exceeds sendbuff_size(), error occurs.
+	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param serializable - object to be serialized and sent.
 	/// @return true on success, false on any error.
@@ -103,12 +102,12 @@ public:
 	/// @param length - reference to value to save length of data to.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
-	Host recv_from(char* buf, int buflen, int& length, bool peek = false);
+	Host recvFrom(char* buf, int buflen, int& length, bool peek = false);
 	/// @brief Receives data and sender.
 	/// @param buf - buffer to save data to.
 	/// @param buflen - length of buffer.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
-	Host recv_from(char* buf, int buflen, bool peek = false);
+	Host recvFrom(char* buf, int buflen, bool peek = false);
 };
 }

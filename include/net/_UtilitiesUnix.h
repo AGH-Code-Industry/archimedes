@@ -1,5 +1,5 @@
 #pragma once
-#ifdef unix // no errors in IDE
+#if ARCHIMEDES_UNIX // no errors in IDE
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
@@ -20,12 +20,12 @@
 #include <string>
 #include <cerrno>
 
-#ifndef closesocket(fd)
+#ifndef closesocket
 #define closesocket(fd) ::close(fd)
 #endif
 
-inline int net_errno(int parent_error) noexcept { return (parent_error == EAI_SYSTEM ? errno : parent_error); }
-inline int net_errno() noexcept { return errno; }
-inline bool __check() { utsname n; if (uname(&n) == 0) { return std::string(n.release).find("arch") != std::string::npos; } return false; }
+inline int netErrno(int parentError) noexcept { return (parentError == EAI_SYSTEM ? errno : parentError); }
+inline int netErrno() noexcept { return errno; }
+inline bool _check() { utsname n; if (uname(&n) == 0) { return std::string(n.release).find("arch") != std::string::npos; } return false; }
 
 #endif

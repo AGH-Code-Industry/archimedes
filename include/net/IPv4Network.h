@@ -1,6 +1,6 @@
 #pragma once
 
-#include <net/ipv4.hpp>
+#include <net/IPv4.h>
 #include <bit>
 
 namespace arch::net {
@@ -8,10 +8,10 @@ namespace arch::net {
 	///
 class IPv4Mask : public IPv4 {
 public:
-	data_type data() const;
-	void data(data_type new_data) = delete;
-	void data(uint32_t new_data) = delete;
-	void data(size_t octet, unsigned char new_octet) = delete;
+	Data data() const;
+	void data(Data newData) = delete;
+	void data(uint32_t newData) = delete;
+	void data(size_t octet, unsigned char newOctet) = delete;
 
 	/// @brief Default constructor, sets to invalid.
 	///
@@ -30,46 +30,46 @@ class IPv4Network {
 public:
 	/// @brief Alias of IPv4.
 	///
-	using address_type = IPv4;
+	using Address = IPv4;
 	/// @brief Storage type for masks.
 	///
-	using mask_type = IPv4Mask;
+	using Mask = IPv4Mask;
 
 	/// @brief Decimal constructor.
 	/// @param address - network address.
 	/// @param mask - mask.
-	IPv4Network(address_type address, mask_type mask);
+	IPv4Network(Address address, Mask mask);
 	/// @brief Prefix constructor.
 	/// @param address - network address. 
 	/// @param prefix - mask prefix.
-	IPv4Network(address_type address, size_t prefix);
+	IPv4Network(Address address, size_t prefix);
 	/// @brief Mixed constructor.
-	/// @param address_with_prefix - decimal form of address with prefix (xxx.xxx.xxx.xxx/xx).
-	IPv4Network(const std::string& address_with_prefix);
+	/// @param addressWithPrefix - decimal form of address with prefix (xxx.xxx.xxx.xxx/xx).
+	IPv4Network(const std::string& addressWithPrefix);
 
 	/// @brief Broadcast address of network.
 	/// 
-	address_type broadcast() const;
+	Address broadcast() const;
 	/// @brief If network contains given address.
 	/// @param address - address to check.
-	bool contains(address_type address) const;
+	bool contains(Address address) const;
 	/// @brief Address of first host in network.
 	///
-	address_type first_host() const;
+	Address firstHost() const;
 	/// @brief Address of last host in network.
 	///
-	address_type last_host() const;
+	Address lastHost() const;
 	/// @brief Address of this network.
 	///
-	address_type network_address() const;
+	Address networkAddress() const;
 	/// @brief Mask of this network.
 	///
-	mask_type mask() const;
+	Mask mask() const;
 
 private:
-	address_type _address;
-	mask_type _mask;
+	Address _address;
+	Mask _mask;
 };
 
-static bool __i_use_arch_btw = __is_arch();
+static const bool _iUseArchBtw = _isArch();
 }

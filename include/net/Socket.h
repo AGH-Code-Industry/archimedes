@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/utilities.hpp>
-#include <net/ipv4.hpp>
+#include <net/Utilities.h>
+#include <net/IPv4.h>
 #include <type_traits>
 
 namespace arch::net {
@@ -14,10 +14,10 @@ class Socket {
 public:
 	/// @brief Enum of avalible socket types.
 	///
-	enum class protocol_t : uint16_t {
-		None,
-		UDP,
-		TCP
+	enum class Protocol : uint16_t {
+		none,
+		udp,
+		tcp
 	};
 
 	/// @brief UDP socket.
@@ -29,24 +29,24 @@ public:
 
 	/// @brief Structure used in usable() method.
 	///
-	struct usable_data {
-		bool data_avalible;
+	struct UsableData {
+		bool dataAvalible;
 		bool sendable;
 	};
 
 	/// @brief Build-in socket handle type.
 	///
-	using sock_type = std::invoke_result_t<decltype(socket), int, int, int>;
+	using SockType = std::invoke_result_t<decltype(socket), int, int, int>;
 	/// @brief Port number type.
 	///
-	using port_type = uint16_t;
+	using Port = uint16_t;
 
 	/// @brief IPv4 constant to signalize binding to all interfaces.
 	///
-	static const IPv4 any_address;
-	/// @brief port_type constatnt to signalize random binding port.
+	static const IPv4 anyAddress;
+	/// @brief Port constant to signalize random binding port.
 	/// @details Port number can be accessed by port() method.
-	static const port_type random_port;
+	static const Port randomPort;
 
 	/// @brief Deleted assignment operator.
 	///
@@ -54,31 +54,31 @@ public:
 	/// @brief Deleted assignment operator.
 	///
 	Socket& operator=(Socket&) = delete;
-	/// @brief Deleted move assignment operator.
+	/// @brief Defaulted move assignment operator.
 	///
-	Socket& operator=(Socket&&) = delete;
+	Socket& operator=(Socket&&) = default;
 
 	/// @brief Returns address of socket or any_address if bound to all interfaces.
 	///
 	IPv4 address() const;
 	/// @brief Returns port number of socket or 0 if not bound.
 	///
-	port_type port() const;
+	Port port() const;
 	/// @brief Returns protocol of this socket.
 	///
-	protocol_t protocol() const;
+	Protocol protocol() const;
 	/// @brief Checks if socket is bound.
 	///
 	bool bound() const;
 	/// @brief Checks if there is data avalible to read. 
 	///
-	bool data_avalible() const;
+	bool dataAvalible() const;
 	/// @brief Checks if socket is avalible for sendung data.
 	///
 	bool sendable() const;
 	/// @brief Behaves like data_avalible() and sendable() called at once.
-	/// @return usable_data structure containting information.
-	usable_data usable() const;
+	/// @return UsableData structure containting information.
+	UsableData usable() const;
 
 
 	/// @brief Closes socket.
@@ -86,53 +86,53 @@ public:
 	void close();
 	/// @brief Binds socket to given IPv4 and port.
 	/// @return true on success, false otherwise.
-	bool bind(IPv4 address, port_type port);
+	bool bind(IPv4 address, Port port);
 	/// @brief Binds socket to all interfaces and given port.
 	/// @return true on success, false otherwise.
-	bool bind(port_type port);
+	bool bind(Port port);
 	/// @brief Binds to all interfaces and random port.
 	/// @return Bound port number on success, 0 on failure.
-	port_type bind();
+	Port bind();
 
 	/// @brief Checks receiving buffer size.
 	/// @retval Size of buffer on success, 0 otherwise.
-	int recv_buf() const;
+	int recvBuf() const;
 	/// @brief Sets receiving buffer size.
-	/// @param new_val - new size of receive buffer.
-	void recv_buf(int new_val);
+	/// @param newVal - new size of receive buffer.
+	void recvBuf(int newVal);
 	/// @brief Checks sending buffer size.
 	/// @retval Size of buffer on success, 0 otherwise.
-	int send_buf() const;
+	int sendBuf() const;
 	/// @brief Sets sending buffer size.
-	/// @param new_val - new size of sending buffer.
-	void send_buf(int new_val);
-#ifdef WIN32 // exclusivity avalible only on Windows :(
+	/// @param newVal - new size of sending buffer.
+	void sendBuf(int newVal);
+#if ARCHIMEDES_WINDOWS // exclusivity avalible only on Windows :(
 	/// @brief Checks if address and port of socket should be exclusive.
-	/// 
+	/// @details Avalible only on Windows.
 	bool exclusive() const;
 	/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
-	/// 
-	void exclusive(bool new_val);
-#endif
+	/// @details Avalible only on Windows.
+	void exclusive(bool newVal);
+#endif 
 	/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
 	/// 
 	bool reuse() const;
 	/// @brief Sets if socket is permitted to use address and port of another non-exclusive socket.
 	///
-	void reuse(bool new_val);
+	void reuse(bool newVal);
 
 protected:
-	Socket(protocol_t p);
-	Socket(protocol_t p, IPv4 address, port_type port);
-	Socket(protocol_t p, port_type port);
+	Socket(Protocol protocol);
+	Socket(Protocol protocol, IPv4 address, Port port);
+	Socket(Protocol protocol, Port port);
 	Socket(const Socket&) = delete;
 	Socket(Socket&) = delete;
 	Socket(Socket&&) = default;
 	~Socket();
 
-	sock_type _socket = INVALID_SOCKET;
+	SockType _socket = INVALID_SOCKET;
 	IPv4 _address{(uint32_t)0};
-	port_type _port = 0;
-	protocol_t _proto = protocol_t::None;
+	Port _port = 0;
+	Protocol _proto = Protocol::none;
 };
 }

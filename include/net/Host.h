@@ -1,13 +1,13 @@
 #pragma once
 
-#include <net/utilities.hpp>
-#include <net/ipv4.hpp>
+#include <net/Utilities.h>
+#include <net/IPv4.h>
 #include <vector>
 
 namespace arch::net {
-	/*namespace async {
+	namespace async {
 		class Host;
-	}*/
+	}
 
 	/// @brief Represents host in IPv4 network.
 	///
@@ -35,7 +35,7 @@ public:
 	const std::vector<IPv4>& ips() const;
 	/// @brief Checks if host has given address in its list.
 	/// @param address - address to check
-	bool has_ip(IPv4 address) const;
+	bool hasIp(IPv4 address) const;
 	/// @brief Gets hostname of host.
 	///
 	const std::string& hostname() const;
@@ -45,14 +45,14 @@ public:
 
 	/// @brief Returns asynchronous version of this host.
 	///
-	//async::Host async() const;
+	async::Host async() const;
 
 private:
-	Host() = default;
+	friend class async::Host;
 
-	std::string _update_hostname();
+	Host();
 
-	//friend class async::Host;
+	std::string _updateHostname();
 
 	std::vector<IPv4> _ips{IPv4()};
 	std::string _hostname;
