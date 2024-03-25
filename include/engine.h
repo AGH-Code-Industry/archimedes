@@ -1,12 +1,12 @@
 #ifndef ARCHIMEDES_ENGINE_H
 #define ARCHIMEDES_ENGINE_H
 
+#include <gfx/Renderer.h>
+#include <gtest/gtest_prod.h>
 #include <window.h>
+
 #include <fstream>
 #include <string>
-#include <exceptions/config_exception.h>
-#include <gtest/gtest_prod.h>
-
 
 namespace arch {
 
@@ -33,6 +33,7 @@ public:
 private:
     Window _window;
     EngineConfig _engine_config;
+    gfx::Renderer _renderer;
 
     FRIEND_TEST(EngineTest, ConfigWindowTest);
 
