@@ -1,5 +1,7 @@
 #include "gfx/Renderer.h"
 
+/// @brief Temporary code
+
 #include <Logger.h>
 
 #include <array>
