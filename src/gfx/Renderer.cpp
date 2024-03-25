@@ -4,6 +4,8 @@
 
 #include <array>
 #include <vector>
+#include <ranges>
+#include <algorithm>
 
 namespace arch::gfx {
 
@@ -32,14 +34,14 @@ void Renderer::init() {
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-	layers.erase(std::ranges::remove_if(layers, [&](auto layer) {
-		for (auto l : availableLayers)
+	layers.erase(std::ranges::remove_if(layers, [&](auto&& layer) {
+		for (auto&& l : availableLayers)
 			if (std::strcmp(layer, l.layerName) == 0) return false;
 		return true;
 	}).begin());
 
 	Logger::info("Available layers {}:", layerCount);
-	for (auto layer : availableLayers) {
+	for (auto&& layer : availableLayers) {
 		Logger::info("  - {}", layer.layerName);
 	}
 
