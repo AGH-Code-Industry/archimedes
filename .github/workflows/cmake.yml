@@ -45,9 +45,9 @@ jobs:
         key: ${{ runner.os }}-builder-${{ env.cache-name }}-${{ hashFiles('conanfile.py') }}
         restore-keys: ${{ runner.os }}-builder-${{ env.cache-name }}-
 
-    #- name: Detect Conan Profile
-    #  run: |
-    #      conan profile detect --force
+    - name: Detect Conan Profile
+      run: |
+          conan profile detect --force
 
     #- name: Conan Profile Change Compiler Standard
     #  run: |
@@ -59,8 +59,6 @@ jobs:
     
     - name: Configure CMake
       run: |
-          pwd
-          ls
           cmake ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
