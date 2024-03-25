@@ -22,9 +22,10 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/con
 		message(STATUS "Conan files not found for ${ARCHIMEDES_BUILD_TYPE} mode, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
 	endif()
 
-	#execute_process(
-	#	COMMAND conan profile detect --force
-	#) 
+	execute_process(
+		COMMAND "conan profile detect --force"
+		COMMAND_ECHO STDOUT
+	) 
 
 	file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/")
 
@@ -34,7 +35,6 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/con
 	endif()
 
 	if(${ARCHIMEDES_LINUX})
-		message(STATUS)
 		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE "-c tools.system.package_manager:mode=install")
 		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
 	endif()
