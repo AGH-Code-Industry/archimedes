@@ -8,7 +8,6 @@ build
 _deps
 CMakeFiles/
 Makefile
-*.cmake
 CMakeCache.txt
 model.txt
 linux_build/
@@ -21,5 +20,6 @@ Testing/
 .vscode
 CMakeUserPresets.json
 compile_commands.json
-conan_files/
+cmake/conan_files/
 CMakeSettings.json
+cmake-build-*
