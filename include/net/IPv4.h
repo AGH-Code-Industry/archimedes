@@ -42,9 +42,6 @@ public:
 	/// @brief Binary value constructor
 	/// @param binary - binary value of address.
 	explicit IPv4(uint32_t binary);
-	static_assert(ARCHIMEDES_WINDOWS == 0);
-	static_assert(ARCHIMEDES_LINUX == 1);
-	static_assert(ARCHIMEDES_UNIX == 1);
 
 	/// @brief in_addr constructor.
 	/// @param addr - in_addr structure to convert from.
