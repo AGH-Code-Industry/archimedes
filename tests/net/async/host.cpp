@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
-#include <net/utilities.hpp>
-#include <net.hpp>
+#include <net.h>
 #include <iostream>
-#include <net/async/host.hpp>
-#include <net/init.hpp>
 
 TEST(AsyncHost, LocalHost) {
 	namespace net = arch::net;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/utilities.hpp>
-#include <net/ipv4.hpp>
+#include <net/utilities.h>
+#include <net/IPv4.h>
 #include <vector>
 #include <future>
 
@@ -14,14 +14,16 @@ namespace arch::net::async {
 ///
 class Host {
 public:
-	/// @brief result of update() method
+	/// @brief Result of update() method
 	///
-	enum class update_result {
+	enum class UpdateResult {
 		success,
 		failure,
 		timeout,
 		none
 	};
+
+	using FromResult = std::pair<Host, UpdateResult>;
 
 	/// @brief IPv4 constructor.
 	/// @param ip - IPv4 of host.
@@ -29,6 +31,9 @@ public:
 	/// @brief Copy constructor.
 	///
 	Host(const Host& other);
+	/// @brief Defaulted move constructor.
+	///
+	Host(Host&&) = default;
 
 	/// @brief Returns localhost
 	/// @details Loopback address is guaranteed to be returned by ip().
@@ -38,18 +43,18 @@ public:
 	/// @details Loopback address is guaranteed to be returned by ip().
 	/// @param update - if to call update afterwards
 	/// @param timeout - timeout in milliseconds 
-	static std::future<std::pair<Host, update_result>> localhost(bool update, timeout_t timeout = 3000);
+	static std::future<FromResult> localhost(bool update, TimeoutMs timeout = 3000);
 	/// @brief Creates Host from given IPv4 and updates it asynchronously.
 	/// @param ip - IPv4 of host.
 	/// @param update - if to call update afterwards
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing Host.
-	static std::future<std::pair<Host, update_result>> from_ip(IPv4 ip, bool update = false, timeout_t timeout = 3000);
+	static std::future<FromResult> fromIp(IPv4 ip, bool update = false, TimeoutMs timeout = 3000);
 	/// @brief Creates Host from given hostname and updates it asynchronously.
 	/// @param hostname - hostname.
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing Host.
-	static std::future<std::pair<Host, update_result>> from_hostname(std::string_view hostname, timeout_t timeout = 3000);
+	static std::future<FromResult> fromHostname(std::string_view hostname, TimeoutMs timeout = 3000);
 
 	/// @brief Gets first IPv4 of host.
 	///
@@ -59,14 +64,14 @@ public:
 	const std::vector<IPv4>& ips() const;
 	/// @brief Checks if host has given address in its list.
 	/// @param address - address to check
-	bool has_ip(IPv4 address) const;
+	bool hasIp(IPv4 address) const;
 	/// @brief Gets hostname of host.
 	///
 	const std::string& hostname() const;
 	/// @brief Updates host info asynchronously.
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing result of operation.
-	std::future<update_result> update(timeout_t timeout = 3000);
+	std::future<UpdateResult> update(TimeoutMs timeout = 3000);
 
 	/// @brief Returns synchronous version of this host.
 	/// 
@@ -77,11 +82,11 @@ private:
 
 	Host();
 
-	std::string _update_hostname();
+	std::string _updateHostname();
 
 	std::vector<IPv4> _ips{IPv4()};
 	std::string _hostname;
 
-	std::timed_mutex _update_mutex;
+	std::timed_mutex _updateMutex;
 };
 }

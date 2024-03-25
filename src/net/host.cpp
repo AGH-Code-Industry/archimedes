@@ -1,10 +1,11 @@
-#include <net/host.hpp>
-#include <net/init.hpp>
-#include <net/exception.hpp>
+#include <net/Host.h>
+#include <net/Init.h>
+#include <net/Exception.h>
 #include <cstring>
 #include <algorithm>
-#include <net/utilities.hpp>
-#include <net/async/host.hpp>
+#include <net/utilities.h>
+#include <net/async/Host.h>
+#include <net/IPv4.h>
 
 namespace arch::net {
 Host::Host(IPv4 ip, bool update) {
@@ -27,25 +28,25 @@ const IPv4& Host::ip() const {
 const std::vector<IPv4>& Host::ips() const {
 	return _ips;
 }
-bool Host::has_ip(IPv4 address) const {
+bool Host::hasIp(IPv4 address) const {
 	return std::find(_ips.begin(), _ips.end(), address) != _ips.end();
 }
 const std::string& Host::hostname() const {
 	return _hostname;
 }
-std::string Host::_update_hostname() {
-	std::string node_name;
-	node_name.reserve(1025);
-	memset(node_name.data(), 0, 1025);
+std::string Host::_updateHostname() {
+	std::string nodeName;
+	nodeName.reserve(1025);
+	memset(nodeName.data(), 0, 1025);
 
 	if (not _hostname.empty()) { // hostname avalible
-		node_name = _hostname;
+		nodeName = _hostname;
 	}
 	else if (_ips[0] == IPv4::localhost) {
 		char hostname[NI_MAXHOST]{};
 		gethostname(hostname, NI_MAXHOST);
 		_hostname = hostname;
-		node_name = _hostname;
+		nodeName = _hostname;
 	}
 	else { // update hostname
 		sockaddr_in sa;
@@ -55,9 +56,9 @@ std::string Host::_update_hostname() {
 		sa.sin_port = htons(0);
 
 		char hostname[NI_MAXHOST]{};
-		char serv_info[NI_MAXSERV];
+		static char servInfo[NI_MAXSERV];
 
-		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
+		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, servInfo, NI_MAXSERV, 0);
 		if (result != 0) {
 			throw NetException(gai_strerror(net_errno(result)));
 		}
@@ -65,22 +66,22 @@ std::string Host::_update_hostname() {
 			_hostname = hostname;
 		}
 
-		node_name = _ips[0].str();
+		nodeName = _ips[0].str();
 	}
 
-	return node_name;
+	return nodeName;
 }
 bool Host::update() {
-	auto node_name = _update_hostname();
+	auto nodeName = _updateHostname();
 
-	static addrinfo hints;
+	addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
 	addrinfo* data;
-	int result = getaddrinfo(node_name.c_str(), nullptr, &hints, &data);
+	int result = getaddrinfo(nodeName.c_str(), nullptr, &hints, &data);
 
 	if (result != 0) {
 		throw NetException(gai_strerror(net_errno(result)));

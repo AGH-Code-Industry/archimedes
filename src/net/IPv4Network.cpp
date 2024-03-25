@@ -1,6 +1,7 @@
-#include <net/utilities.hpp>
-#include <net/ipv4_network.hpp>
-#include <net/exception.hpp>
+#include <net/Utilities.h>
+#include <net/IPv4Network.h>
+#include <net/Exception.h>
+#include <net/IPv4.h>
 #include <vector>
 #include <string>
 
@@ -28,45 +29,45 @@ IPv4Mask::IPv4Mask(size_t prefix) {
 	std::swap(_data.octets[0], _data.octets[3]);
 	std::swap(_data.octets[1], _data.octets[2]);
 }
-IPv4Mask::data_type IPv4Mask::data() const {
+IPv4Mask::Data IPv4Mask::data() const {
 	return _data;
 }
 
-IPv4Network::IPv4Network(address_type address, mask_type mask) :
+IPv4Network::IPv4Network(Address address, Mask mask) :
 	_address{address.data().binary & mask.data().binary},
 	_mask{mask} {
 
 }
-IPv4Network::IPv4Network(address_type address, size_t prefix) :
+IPv4Network::IPv4Network(Address address, size_t prefix) :
 	IPv4Network(address, IPv4Mask(prefix)) {
 
 }
-IPv4Network::IPv4Network(const std::string& address_with_prefix) {
-	auto divisor = address_with_prefix.find('/');
-	std::string mask{address_with_prefix.substr(divisor + 1)};
-	std::string address{address_with_prefix.substr(0, divisor)};
+IPv4Network::IPv4Network(const std::string& addressWithPrefix) {
+	auto divisor = addressWithPrefix.find('/');
+	std::string mask{addressWithPrefix.substr(divisor + 1)};
+	std::string address{addressWithPrefix.substr(0, divisor)};
 
 	*this = IPv4Network(IPv4(address), IPv4Mask(std::stoul(mask)));
 }
 
-IPv4Network::address_type IPv4Network::broadcast() const {
+IPv4Network::Address IPv4Network::broadcast() const {
 	return IPv4((compl _mask.data().binary) bitor _address.data().binary);
 }
-bool IPv4Network::contains(address_type address) const {
-	return first_host() <= address and address <= last_host();
+bool IPv4Network::contains(Address address) const {
+	return firstHost() <= address and address <= lastHost();
 }
-IPv4Network::address_type IPv4Network::first_host() const {
+IPv4Network::Address IPv4Network::firstHost() const {
 	auto temp = _address;
 	return ++temp;
 }
-IPv4Network::address_type IPv4Network::last_host() const {
+IPv4Network::Address IPv4Network::lastHost() const {
 	auto temp = broadcast();
 	return --temp;
 }
-IPv4Network::address_type IPv4Network::network_address() const {
+IPv4Network::Address IPv4Network::networkAddress() const {
 	return _address;
 }
-IPv4Network::mask_type IPv4Network::mask() const {
+IPv4Network::Mask IPv4Network::mask() const {
 	return _mask;
 }
 }

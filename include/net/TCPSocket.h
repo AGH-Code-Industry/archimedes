@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/socket.hpp>
-#include <net/host.hpp>
+#include <net/Socket.h>
+#include <net/Host.h>
 #include <chrono>
 
 namespace arch::net {
@@ -11,23 +11,23 @@ class Serializable;
 ///
 class TCPSocket : public Socket {
 public:
-	/// @brief Predicate to cond_accept().
+	/// @brief Predicate to condAccept().
 	/// @param void* - pointer to acceptance data.
 	/// @param int - length of acceptance data in bytes.
 	/// @param void* - pointer to additional data used by predicate.
 	/// @param void* - pointer to response buffer.
 	/// @param int - response buffer length.
 	/// @retval true if connection accepted, false otherwise.
-	using accept_condition = bool(*)(void*, int, void*, void*, int);
-	/// @brief Predicate to cond_connect().
+	using AcceptCondition = bool(*)(void*, int, void*, void*, int);
+	/// @brief Predicate to condConnect().
 	/// @param void* - response data.
 	/// @param int - response length.
 	/// @param void* - additional data.
-	using accept_response_handler = bool(*)(void*, int, void*);
+	using AcceptResponseHandler = bool(*)(void*, int, void*);
 
 	/// @brief data used by linger() methods.
 	///
-	struct linger_data {
+	struct LingerData {
 		bool linger;
 		decltype(linger::l_linger) seconds;
 	};
@@ -37,10 +37,10 @@ public:
 	TCPSocket();
 	/// @brief Any-binding constructor
 	/// @details Binds to all interfaces using INADDR_ANY.
-	TCPSocket(port_type port);
+	TCPSocket(Port port);
 	/// @brief Binding constructor.
 	///
-	TCPSocket(IPv4 address, port_type port);
+	TCPSocket(IPv4 address, Port port);
 	/// @brief Deleted copy-constructor.
 	///
 	TCPSocket(const TCPSocket&) = delete;
@@ -66,32 +66,32 @@ public:
 
 	/// @brief Returns current linger data of socket.
 	///
-	linger_data linger() const;
+	LingerData linger() const;
 	/// @brief Sets linger data of socket.
 	/// @param data - linger data
-	void linger(linger_data data);
+	void linger(LingerData data);
 
 	/// @brief Requests unconditional connection.
 	/// @param host - host, to which ip() connection is requested.
 	/// @param port - port on which connection is requested.
 	/// @return true on success, false otherwise.
-	bool connect(const Host& host, port_type port);
+	bool connect(const Host& host, Port port);
 	/// @brief Requests conditional connection.
 	/// @param host - host, to which ip() connection is requested.
 	/// @param port - port on which connection is requested.
 	/// @param data - acceptance data to be sent.
-	/// @param data_len - length of acceptance data.
-	/// @param response_len - length of response data.
+	/// @param dataLen - length of acceptance data.
+	/// @param responseLen - length of response data.
 	/// @param handler - pointer to response handler.
-	/// @param handler_data - additional data for handler.
+	/// @param handlerData - additional data for handler.
 	/// @return true on success, false otherwise.
-	bool cond_connect(const Host& host, port_type port, void* data, int data_len, int response_len, accept_response_handler handler, void* handler_data = nullptr);
+	bool condConnect(const Host& host, Port port, void* data, int dataLen, int responseLen, AcceptResponseHandler handler, void* handlerData = nullptr);
 	/// @brief Checks if socket was connected as of last operation.
 	///
 	bool connected() const;
 	/// @brief Checks if socket is connected.
 	/// 
-	bool connected_force();
+	bool connectedForce();
 
 	/// @brief Puts socket into listening mode.
 	/// @return true on success, false otherwise.
@@ -105,16 +105,16 @@ public:
 	bool listening() const;
 
 	/// @brief Unconditionally accepts incoming connection.
-	/// @param new_sock - socket object that will hold connection socket.
+	/// @param newSock - socket object that will hold connection socket.
 	/// @return true on success, false otherwise. 
-	bool accept(TCPSocket& new_sock);
+	bool accept(TCPSocket& newSock);
 	/// @brief Conditionally accepts incoming connection.
-	/// @param new_sock - socket object that will hold connection socket.
+	/// @param newSock - socket object that will hold connection socket.
 	/// @param condition - callback to predicate.
-	/// @param data_len - length of acceptance data.
-	/// @param additional_data - additional data used by predicate.
+	/// @param dataLen - length of acceptance data.
+	/// @param additionalData - additional data used by predicate.
 	/// @return true on success, false otherwise. 
-	bool cond_accept(TCPSocket& new_sock, accept_condition condition, int data_len, int response_len, void* additional_data = nullptr);
+	bool condAccept(TCPSocket& newSock, AcceptCondition condition, int dataLen, int responseLen, void* additionalData = nullptr);
 
 	/// @brief Sends data to peer.
 	/// @param data - data to be sent.
@@ -142,7 +142,7 @@ public:
 
 protected:
 
-	IPv4 _peer_addr;
+	IPv4 _peerAddr;
 	uint8_t _status = 0;
 };
 }

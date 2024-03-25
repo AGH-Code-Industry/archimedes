@@ -1,6 +1,6 @@
-#include <net/async/host.hpp>
-#include <net/host.hpp>
-#include <net/exception.hpp>
+#include <net/async/Host.h>
+#include <net/Host.h>
+#include <net/Exception.h>
 #include <thread>
 
 namespace arch::net::async {
@@ -15,44 +15,44 @@ Host::Host(const Host& other) {
 Host Host::localhost() {
 	return Host(IPv4::localhost);
 }
-std::future<std::pair<Host, Host::update_result>> Host::localhost(bool update, timeout_t timeout) {
+std::future<Host::FromResult> Host::localhost(bool update, TimeoutMs timeout) {
 	if (update) {
-		return std::async(std::launch::async, [t = timeout]()->std::pair<Host, Host::update_result> {
+		return std::async(std::launch::async, [t = timeout]() -> Host::FromResult {
 			Host host = localhost();
-			auto update_future = host.update(t);
-			auto update_result = update_future.get();
-			return std::make_pair(host, update_result);
+			auto updateFuture = host.update(t);
+			auto updateResult = updateFuture.get();
+			return {host, updateResult};
 		});
 	}
 	else {
-		return std::async(std::launch::async, []()->std::pair<Host, Host::update_result> {
-			return std::make_pair(localhost(), update_result::none);
+		return std::async(std::launch::async, []() -> Host::FromResult {
+			return {localhost(), UpdateResult::none};
 		});
 	}
 }
 
-std::future<std::pair<Host, Host::update_result>> Host::from_ip(IPv4 ip, bool update, timeout_t timeout) {
+std::future<Host::FromResult> Host::fromIp(IPv4 ip, bool update, TimeoutMs timeout) {
 	if (update) {
-		return std::async(std::launch::async, [_ip = ip, t = timeout]()->std::pair<Host, Host::update_result> {
+		return std::async(std::launch::async, [_ip = ip, t = timeout]() -> Host::FromResult {
 			Host host{_ip};
-			auto update_future = host.update(t);
-			auto update_result = update_future.get();
-			return std::make_pair(host, update_result);
+			auto updateFuture = host.update(t);
+			auto updateResult = updateFuture.get();
+			return {host, updateResult};
 		});
 	}
 	else {
-		return std::async(std::launch::async, [_ip = ip]()->std::pair<Host, Host::update_result> {
-			return std::make_pair(Host(_ip), update_result::none);
+		return std::async(std::launch::async, [_ip = ip]() -> Host::FromResult {
+			return {Host(_ip), UpdateResult::none};
 		});
 	}
 }
-std::future<std::pair<Host, Host::update_result>> Host::from_hostname(std::string_view hostname, timeout_t timeout) {
-	return std::async(std::launch::async, [h = hostname, t = timeout]()->std::pair<Host, Host::update_result> {
+std::future<Host::FromResult> Host::fromHostname(std::string_view hostname, TimeoutMs timeout) {
+	return std::async(std::launch::async, [h = hostname, t = timeout]() -> Host::FromResult {
 		Host host;
 		host._hostname = h;
 		auto update_future = host.update(t);
 		auto update_result = update_future.get();
-		return std::make_pair(host, update_result::none);
+		return {host, UpdateResult::none};
 	});
 }
 
@@ -62,7 +62,7 @@ const IPv4& Host::ip() const {
 const std::vector<IPv4>& Host::ips() const {
 	return _ips;
 }
-bool Host::has_ip(IPv4 address) const {
+bool Host::hasIp(IPv4 address) const {
 	for (auto&& ip : _ips) if (ip == address) {
 		return true;
 	}
@@ -72,19 +72,19 @@ bool Host::has_ip(IPv4 address) const {
 const std::string& Host::hostname() const {
 	return _hostname;
 }
-std::string Host::_update_hostname() {
-	std::string node_name;
-	node_name.reserve(1025);
-	memset(node_name.data(), 0, 1025);
+std::string Host::_updateHostname() {
+	std::string nodeName;
+	nodeName.reserve(1025);
+	memset(nodeName.data(), 0, 1025);
 
 	if (not _hostname.empty()) { // hostname avalible
-		node_name = _hostname;
+		nodeName = _hostname;
 	}
 	else if (_ips[0] == IPv4::localhost) {
 		char hostname[NI_MAXHOST]{};
 		gethostname(hostname, NI_MAXHOST);
 		_hostname = hostname;
-		node_name = _hostname;
+		nodeName = _hostname;
 	}
 	else { // update hostname
 		sockaddr_in sa;
@@ -94,9 +94,9 @@ std::string Host::_update_hostname() {
 		sa.sin_port = htons(0);
 
 		char hostname[NI_MAXHOST]{};
-		char serv_info[NI_MAXSERV];
+		static char servInfo[NI_MAXSERV];
 
-		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, serv_info, NI_MAXSERV, 0);
+		int result = getnameinfo((sockaddr*)&sa, sizeof(sockaddr), hostname, NI_MAXHOST, servInfo, NI_MAXSERV, 0);
 		if (result != 0) {
 			throw NetException(gai_strerror(net_errno(result)));
 		}
@@ -104,32 +104,32 @@ std::string Host::_update_hostname() {
 			_hostname = hostname;
 		}
 
-		node_name = _ips[0].str();
+		nodeName = _ips[0].str();
 	}
 
-	return node_name;
+	return nodeName;
 }
-std::future<Host::update_result> Host::update(timeout_t timeout) {
-	return std::async(std::launch::async, [t = std::chrono::milliseconds(timeout), this]()mutable->Host::update_result {
-		std::unique_lock update_lock(_update_mutex, std::defer_lock);
-		auto time_now = std::chrono::high_resolution_clock::now();
+std::future<Host::UpdateResult> Host::update(TimeoutMs timeout) {
+	return std::async(std::launch::async, [t = std::chrono::milliseconds(timeout), this]() mutable -> Host::UpdateResult {
+		std::unique_lock update_lock(_updateMutex, std::defer_lock);
+		auto timeNow = std::chrono::high_resolution_clock::now();
 		if (not update_lock.try_lock_for(t)) {
-			return update_result::timeout;
+			return UpdateResult::timeout;
 		}
 
-		t -= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - time_now);
+		t -= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timeNow);
 
 		std::mutex m;
 		std::condition_variable cv;
-		Host::update_result _result = Host::update_result::none;
+		Host::UpdateResult updateResult = Host::UpdateResult::none;
 		std::exception_ptr exception;
 
 		std::jthread update_thread([&, this]() {
-			std::string node_name;
+			std::string nodeName;
 
 			// transports exception back to async
 			try {
-				node_name = _update_hostname();
+				nodeName = _updateHostname();
 			}
 			catch (...) {
 				exception = std::current_exception();
@@ -137,7 +137,7 @@ std::future<Host::update_result> Host::update(timeout_t timeout) {
 				return;
 			}
 				
-			static addrinfo hints;
+			addrinfo hints;
 			memset(&hints, 0, sizeof(hints));
 			hints.ai_family = AF_INET;
 			hints.ai_socktype = SOCK_STREAM;
@@ -145,10 +145,10 @@ std::future<Host::update_result> Host::update(timeout_t timeout) {
 
 			addrinfo* data;
 
-			int result = getaddrinfo(node_name.c_str(), nullptr, &hints, &data);
+			int result = getaddrinfo(nodeName.c_str(), nullptr, &hints, &data);
 
 			if (result != 0) {
-				_result = Host::update_result::failure;
+				updateResult = Host::UpdateResult::failure;
 
 				// transports exception back to async
 				try {
@@ -169,7 +169,7 @@ std::future<Host::update_result> Host::update(timeout_t timeout) {
 
 			freeaddrinfo(data);
 
-			_result = Host::update_result::success;
+			updateResult = Host::UpdateResult::success;
 			cv.notify_one();
 			return;
 		});
@@ -177,13 +177,13 @@ std::future<Host::update_result> Host::update(timeout_t timeout) {
 		std::unique_lock<std::mutex> lock(m);
 		auto wres = cv.wait_for(lock, t);
 		if (wres == std::cv_status::timeout) {
-			return Host::update_result::timeout;
+			return Host::UpdateResult::timeout;
 		}
 		else {
 			if (exception) { // rethrows exception from update_thread
 				std::rethrow_exception(exception);
 			}
-			return _result;
+			return updateResult;
 		}
 	});
 }

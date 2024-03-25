@@ -1,19 +1,21 @@
-#include <net/udp_socket.hpp>
-#include <net/exception.hpp>
-#include <net/init.hpp>
+#include <net/UDPSocket.h>
+#include <net/Exception.h>
+#include <net/IPv4.h>
+#include <net/Init.h>
 
 namespace arch::net {
 UDPSocket::UDPSocket() :
-	Socket(Socket::protocol_t::UDP) {}
-UDPSocket::UDPSocket(port_type port) :
-	Socket(Socket::protocol_t::UDP, port) {}
-UDPSocket::UDPSocket(IPv4 address, port_type port) :
-	Socket(Socket::protocol_t::UDP, address, port) {}
+	Socket(Socket::Protocol::UDP) {}
+UDPSocket::UDPSocket(Port port) :
+	Socket(Socket::Protocol::UDP, port) {}
+UDPSocket::UDPSocket(IPv4 address, Port port) :
+	Socket(Socket::Protocol::UDP, address, port) {}
 UDPSocket::~UDPSocket() {
 	Socket::~Socket();
 }
 
-bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int len) {
+bool UDPSocket::sendTo(const Host& host, Port port, const char* data, int len) {
+	// address settings
 	sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_addr = host.ip();
@@ -27,14 +29,14 @@ bool UDPSocket::send_to(const Host& host, port_type port, const char* data, int 
 
 	return result;
 }
-bool UDPSocket::send_to(const Host& host, const char* data, int len) {
-	return send_to(host, _port, data, len);
+bool UDPSocket::sendTo(const Host& host, const char* data, int len) {
+	return sendTo(host, _port, data, len);
 }
-bool UDPSocket::send_to(const Host& host, port_type port, const std::string& data) {
-	return send_to(host, port, data.data(), data.length());
+bool UDPSocket::sendTo(const Host& host, Port port, const std::string& data) {
+	return sendTo(host, port, data.data(), data.length());
 }
-bool UDPSocket::send_to(const Host& host, const std::string& data) {
-	return send_to(host, _port, data);
+bool UDPSocket::sendTo(const Host& host, const std::string& data) {
+	return sendTo(host, _port, data);
 }
 
 bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
@@ -50,13 +52,13 @@ bool UDPSocket::recv(char* buf, int buflen, bool peek) {
 	int temp;
 	return recv(buf, buflen, temp, peek);
 }
-Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
+Host UDPSocket::recvFrom(char* buf, int buflen, int& length, bool peek) {
 	sockaddr_in addr;
-	socklen_t addr_len;
-	addr_len = sizeof(addr);
+	socklen_t addrLen;
+	addrLen = sizeof(addr);
 	memset(&addr, 0, sizeof(addr));
 
-	int result = ::recvfrom(_socket, buf, buflen, peek ? MSG_PEEK : 0, (sockaddr*)&addr, &addr_len);
+	int result = ::recvfrom(_socket, buf, buflen, peek ? MSG_PEEK : 0, (sockaddr*)&addr, &addrLen);
 	if (result == SOCKET_ERROR) {
 		throw NetException(gai_strerror(net_errno()));
 	}
@@ -64,12 +66,12 @@ Host UDPSocket::recv_from(char* buf, int buflen, int& length, bool peek) {
 	length = result;
 	return Host(IPv4(addr.sin_addr));
 }
-Host UDPSocket::recv_from(char* buf, int buflen, bool peek) {
-	int temp;
-	return recv_from(buf, buflen, temp, peek);
+Host UDPSocket::recvFrom(char* buf, int buflen, bool peek) {
+	static int ignored;
+	return recvFrom(buf, buflen, ignored, peek);
 }
 
-bool UDPSocket::broadcast_enabled() const {
+bool UDPSocket::broadcastEnabled() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
@@ -80,8 +82,8 @@ bool UDPSocket::broadcast_enabled() const {
 
 	return optval;
 }
-void UDPSocket::broadcast_enabled(bool new_val) {
-	int optval = new_val;
+void UDPSocket::broadcastEnabled(bool newVal) {
+	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
 	if (result != 0) {

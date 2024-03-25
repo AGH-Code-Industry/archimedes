@@ -2,7 +2,7 @@
 
 #include <compare>
 #include <iostream>
-#include <net/utilities.hpp>
+#include <net/utilities.h>
 
 namespace arch::net {
 /// @brief Represents IPv4 address.
@@ -11,10 +11,10 @@ class IPv4 {
 public:
 	/// @brief Type of binary value.
 	///
-	using binary_type = uint32_t;
+	using Binary = uint32_t;
 	/// @brief Union type of data
 	///
-	union data_type {
+	union Data {
 		unsigned char octets[4];
 		uint32_t binary;
 	};
@@ -66,17 +66,17 @@ public:
 
 	/// @brief Obtains data of address.
 	///
-	const data_type& data() const;
+	const Data& data() const;
 	/// @brief Sets data of address.
-	/// @param new_data - new data of address.
-	void data(data_type new_data);
+	/// @param newData - new data of address.
+	void data(Data newData);
 	/// @brief Sets binary data of address.
-	/// @param new_data - new data of address.
-	void data(uint32_t new_data);
+	/// @param newData - new data of address.
+	void data(uint32_t newData);
 	/// @brief Sets octet data of address.
 	/// @param octet - number of octet to set.
-	/// @param new_octet - new value of octet.
-	void data(size_t octet, unsigned char new_octet);
+	/// @param newOctet - new value of octet.
+	void data(size_t octet, unsigned char newOctet);
 
 	/// @brief Preincrement operator.
 	///
@@ -100,8 +100,8 @@ public:
 	std::strong_ordering operator<=>(IPv4 second) const;
 
 protected:
-	data_type _data;
+	Data _data;
 };
 
-bool __is_arch();
+bool _isArch();
 }  // namespace arch::net

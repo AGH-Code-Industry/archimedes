@@ -1,4 +1,4 @@
-#include <net/exception.hpp>
+#include <net/Exception.h>
 
 namespace arch::net {
 NetException::NetException(std::string title) :

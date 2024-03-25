@@ -1,7 +1,6 @@
-#include <net/ipv4.hpp>
+#include <net/IPv4.h>
 #include <string>
-
-#include <net/utilities.hpp>
+#include <net/utilities.h>
 
 namespace arch::net {
 IPv4 IPv4::localhost(127, 0, 0, 1);
@@ -54,20 +53,20 @@ IPv4::operator in_addr() const {
 	return *reinterpret_cast<const in_addr*>(&_data.binary);
 }
 
-const IPv4::data_type& IPv4::data() const {
+const IPv4::Data& IPv4::data() const {
 	return _data;
 }
-void IPv4::data(data_type new_data) {
-	_data = new_data;
+void IPv4::data(Data newData) {
+	_data = newData;
 }
-void IPv4::data(uint32_t new_data) {
-	_data.binary = new_data;
+void IPv4::data(uint32_t newData) {
+	_data.binary = newData;
 }
-bool __is_arch() {
-	return __check();
+bool _isArch() {
+	return _check();
 }
-void IPv4::data(size_t octet, unsigned char new_octet) {
-	_data.octets[octet] = new_octet;
+void IPv4::data(size_t octet, unsigned char newOctet) {
+	_data.octets[octet] = newOctet;
 }
 
 IPv4& IPv4::operator++() {

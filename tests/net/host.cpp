@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
-#include <net/utilities.hpp>
-#include <net/init.hpp>
-#include <net.hpp>
+#include <net.h>
 #include <iostream>
 
 TEST(Host, LocalHost) { // ~15ms

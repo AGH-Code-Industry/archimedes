@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/utilities.hpp>
-#include <net/ipv4.hpp>
+#include <net/utilities.h>
+#include <net/IPv4.h>
 #include <vector>
 
 namespace arch::net {
@@ -35,7 +35,7 @@ public:
 	const std::vector<IPv4>& ips() const;
 	/// @brief Checks if host has given address in its list.
 	/// @param address - address to check
-	bool has_ip(IPv4 address) const;
+	bool hasIp(IPv4 address) const;
 	/// @brief Gets hostname of host.
 	///
 	const std::string& hostname() const;
@@ -52,7 +52,7 @@ private:
 
 	Host();
 
-	std::string _update_hostname();
+	std::string _updateHostname();
 
 	std::vector<IPv4> _ips{IPv4()};
 	std::string _hostname;
