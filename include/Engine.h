@@ -2,8 +2,8 @@
 
 #include <string>
 
+#include "Window.h"
 #include "gfx/Renderer.h"
-#include "window.h"
 #include <gtest/gtest_prod.h>
 
 namespace arch {
