@@ -1,12 +1,12 @@
-#include "engine.h"
+#include "Engine.h"
 
 #include <glm/glm.hpp>
 
 #include "InputHandler.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
-#include <Logger.h>
-#include <exceptions/GLFWException.h>
+#include "Logger.h"
+#include "exceptions/GLFWException.h"
 
 namespace arch {
 

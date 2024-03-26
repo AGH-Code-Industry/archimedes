@@ -1,7 +1,8 @@
+#include "net/IPv4.h"
+
 #include <string>
 
-#include <net/IPv4.h>
-#include <net/Utilities.h>
+#include "net/Utilities.h"
 
 namespace arch::net {
 IPv4 IPv4::localhost(127, 0, 0, 1);

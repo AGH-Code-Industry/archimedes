@@ -1,7 +1,7 @@
 #include "net/Socket.h"
 
-#include <net/IPv4.h>
-#include <net/NetException.h>
+#include "net/IPv4.h"
+#include "net/NetException.h"
 
 namespace arch::net {
 

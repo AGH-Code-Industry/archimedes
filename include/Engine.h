@@ -1,12 +1,12 @@
-#ifndef ARCHIMEDES_ENGINE_H
-#define ARCHIMEDES_ENGINE_H
+#pragma once
 
 #include <fstream>
 #include <string>
 
-#include <gfx/Renderer.h>
+#include "gfx/Renderer.h"
+#include "window.h"
+
 #include <gtest/gtest_prod.h>
-#include <window.h>
 
 namespace arch {
 
@@ -52,6 +52,5 @@ private:
 	 */
 	static void _terminate();
 };
-} // namespace arch
 
-#endif // ARCHIMEDES_ENGINE_H
+} // namespace arch

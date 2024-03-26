@@ -1,7 +1,7 @@
-#include "window.h"
+#include "Window.h"
 
 #include <GLFW/glfw3.h>
-#include <exceptions/GLFWException.h>
+#include "exceptions/GLFWException.h"
 #include <spdlog/spdlog.h>
 
 namespace arch {
