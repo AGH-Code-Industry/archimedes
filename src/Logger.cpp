@@ -24,7 +24,6 @@ void Logger::init(LogLevel logLevel, const std::string& name) {
 		logSinks.emplace_back(sink);
 	}
 
-
 #ifndef ARCH_NO_LOG_FILE
 	{
 		// Add a file sink
@@ -39,11 +38,11 @@ void Logger::init(LogLevel logLevel, const std::string& name) {
 
 	// Create logger
 	s_logger = std::make_unique<spdlog::logger>(name, logSinks.begin(), logSinks.end());
-	spdlog::register_logger(s_logger);
+	register_logger(s_logger);
 
 	// SEt the log level
 	s_logger->set_level((spdlog::level::level_enum)logLevel);
 	s_logger->flush_on(spdlog::level::debug);
 }
 
-}
+} // namespace arch

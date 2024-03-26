@@ -1,10 +1,11 @@
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 
+
 class Archimedes(ConanFile):
     name = "Archimedes"
     settings = "build_type"
-    
+
     def requirements(self):
         self.requires("glfw/3.3.8")
         self.requires("glm/0.9.9.8")
@@ -25,5 +26,5 @@ class Archimedes(ConanFile):
     def configure(self):
         if is_msvc(self, True):
             self.options["spdlog/1.12.0"].use_std_fmt = True
-    
+
     generators = "CMakeDeps", "CMakeToolchain"

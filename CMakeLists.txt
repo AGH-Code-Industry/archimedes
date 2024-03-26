@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 
 project(
-  archimedes
-  VERSION 0.1.0
-  LANGUAGES CXX C
+        archimedes
+        VERSION 0.1.0
+        LANGUAGES CXX C
 )
 
 set(CMAKE_CXX_STANDARD 20)
@@ -22,6 +22,6 @@ include("cmake/library.cmake")
 
 # CMake targets
 file(GLOB_RECURSE ARCHIMEDES_TARGETS cmake/targets/*.cmake)
-foreach(ARCHIMEDES_TARGET ${ARCHIMEDES_TARGETS})
+foreach (ARCHIMEDES_TARGET ${ARCHIMEDES_TARGETS})
     include(${ARCHIMEDES_TARGET})
-endforeach()
+endforeach ()

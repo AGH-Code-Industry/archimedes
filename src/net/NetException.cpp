@@ -1,6 +1,7 @@
-#include <net/NetException.h>
+#include "net/NetException.h"
 
 namespace arch::net {
-NetException::NetException(std::string title) :
-	Exception("Network submodule error: " + title) {}
-}
+
+NetException::NetException(const std::string& title): Exception("Network submodule error: " + title) {}
+
+} // namespace arch::net

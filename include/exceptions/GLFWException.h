@@ -1,12 +1,12 @@
 #pragma once
 
-#include <exception.h>
+#include "Exception.h"
 
 namespace arch {
 
-class GLFWException : public Exception {
+class GLFWException: public Exception {
 public:
 	GLFWException();
 };
 
-}
+} // namespace arch

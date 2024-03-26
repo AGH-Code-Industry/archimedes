@@ -1,9 +1,9 @@
 // will be useful in the future
 
-// #include "exception.h"
+// #include "Exception.h"
 //
 // #include <assimp/Importer.hpp>
-// #include <resource/resource_loader.h>
+// #include <resource/ResourceLoader.h>
 // #include <assimp/scene.h>
 // #include <assimp/vector3.h>
 // #include <assimp/LogStream.hpp>
