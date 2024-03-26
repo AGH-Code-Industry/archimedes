@@ -3,8 +3,8 @@
 
 #define NOMINMAX
 
-#include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <WinSock2.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -12,8 +12,16 @@
 #define poll WSAPoll
 #endif
 
-inline int netErrno(int _ignored) noexcept { return WSAGetLastError(); }
-inline int netErrno() noexcept { return WSAGetLastError(); }
-inline bool _check() { return false; }
+inline int netErrno(int _) noexcept {
+	return WSAGetLastError();
+}
+
+inline int netErrno() noexcept {
+	return WSAGetLastError();
+}
+
+inline bool _check() {
+	return false;
+}
 
 #endif

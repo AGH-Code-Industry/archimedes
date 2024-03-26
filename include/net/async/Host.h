@@ -1,15 +1,16 @@
 #pragma once
 
-#include <net/Utilities.h>
-#include <net/IPv4.h>
-#include <vector>
 #include <future>
+#include <vector>
+
+#include <net/IPv4.h>
 
 namespace arch::net {
 class Host;
 }
 
 namespace arch::net::async {
+
 /// @brief Represents asynchronous host in IPv4 network.
 ///
 class Host {
@@ -42,19 +43,19 @@ public:
 	/// @brief Returns localhost asynchronously
 	/// @details Loopback address is guaranteed to be returned by ip().
 	/// @param update - if to call update afterwards
-	/// @param timeout - timeout in milliseconds 
-	static std::future<FromResult> localhost(bool update, TimeoutMs timeout = 3000);
+	/// @param timeout - timeout in milliseconds
+	static std::future<FromResult> localhost(bool update, TimeoutMs timeout = 3'000);
 	/// @brief Creates Host from given IPv4 and updates it asynchronously.
 	/// @param ip - IPv4 of host.
 	/// @param update - if to call update afterwards
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing Host.
-	static std::future<FromResult> fromIp(IPv4 ip, bool update = false, TimeoutMs timeout = 3000);
+	static std::future<FromResult> fromIp(IPv4 ip, bool update = false, TimeoutMs timeout = 3'000);
 	/// @brief Creates Host from given hostname and updates it asynchronously.
 	/// @param hostname - hostname.
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing Host.
-	static std::future<FromResult> fromHostname(std::string_view hostname, TimeoutMs timeout = 3000);
+	static std::future<FromResult> fromHostname(std::string_view hostname, TimeoutMs timeout = 3'000);
 
 	/// @brief Gets first IPv4 of host.
 	///
@@ -71,10 +72,10 @@ public:
 	/// @brief Updates host info asynchronously.
 	/// @param timeout - timeout in milliseconds
 	/// @return future object containing result of operation.
-	std::future<UpdateResult> update(TimeoutMs timeout = 3000);
+	std::future<UpdateResult> update(TimeoutMs timeout = 3'000);
 
 	/// @brief Returns synchronous version of this host.
-	/// 
+	///
 	net::Host sync() const;
 
 private:
@@ -89,4 +90,5 @@ private:
 
 	std::timed_mutex _updateMutex;
 };
-}
+
+} // namespace arch::net::async

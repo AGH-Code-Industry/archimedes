@@ -2,19 +2,19 @@
 
 /// @brief Temporary code
 
-#include <Logger.h>
-
-#include <array>
-#include <vector>
-#include <ranges>
 #include <algorithm>
+#include <array>
+#include <ranges>
+#include <vector>
+
+#include <Logger.h>
 
 namespace arch::gfx {
 
 void Renderer::init() {
 	volkInitialize();
 
-	VkApplicationInfo appInfo {
+	VkApplicationInfo appInfo{
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		.pApplicationName = "Hello Triangle",
 		.applicationVersion = VK_MAKE_VERSION(1, 0, 0),
@@ -36,18 +36,21 @@ void Renderer::init() {
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-	layers.erase(std::ranges::remove_if(layers, [&](auto&& layer) {
-		for (auto&& l : availableLayers)
-			if (std::strcmp(layer, l.layerName) == 0) return false;
+	std::erase_if(layers, [&](auto&& layer) {
+		for (auto&& l : availableLayers) {
+			if (std::strcmp(layer, l.layerName) == 0) {
+				return false;
+			}
+		}
 		return true;
-	}).begin());
+	});
 
 	Logger::info("Available layers {}:", layerCount);
 	for (auto&& layer : availableLayers) {
 		Logger::info("  - {}", layer.layerName);
 	}
 
-	VkInstanceCreateInfo create_info{
+	VkInstanceCreateInfo createInfo{
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.pApplicationInfo = &appInfo,
 		.enabledLayerCount = (uint32_t)layers.size(),
@@ -57,12 +60,13 @@ void Renderer::init() {
 	};
 
 	VkInstance instance;
-	VkResult status = vkCreateInstance(&create_info, nullptr, &instance);
+	VkResult status = vkCreateInstance(&createInfo, nullptr, &instance);
 
-	if (status != VK_SUCCESS)
-		arch::Logger::error("Failed to create Vulkan instance.");
+	if (status != VK_SUCCESS) {
+		Logger::error("Failed to create Vulkan instance.");
+	}
 
 	Logger::info("Created Vulkan instance.");
 }
 
-}
+} // namespace arch::gfx

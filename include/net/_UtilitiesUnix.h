@@ -1,4 +1,5 @@
 #pragma once
+
 #if ARCHIMEDES_UNIX // no errors in IDE
 
 #ifndef INVALID_SOCKET

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <net/IPv4.h>
-#include <bit>
 
 namespace arch::net {
-	/// @brief Represents network mask of IPv4.
-	///
-class IPv4Mask : public IPv4 {
+
+/// @brief Represents network mask of IPv4.
+///
+class IPv4Mask: public IPv4 {
 public:
 	Data data() const;
 	void data(Data newData) = delete;
@@ -40,7 +40,7 @@ public:
 	/// @param mask - mask.
 	IPv4Network(Address address, Mask mask);
 	/// @brief Prefix constructor.
-	/// @param address - network address. 
+	/// @param address - network address.
 	/// @param prefix - mask prefix.
 	IPv4Network(Address address, size_t prefix);
 	/// @brief Mixed constructor.
@@ -48,7 +48,7 @@ public:
 	IPv4Network(const std::string& addressWithPrefix);
 
 	/// @brief Broadcast address of network.
-	/// 
+	///
 	Address broadcast() const;
 	/// @brief If network contains given address.
 	/// @param address - address to check.
@@ -72,4 +72,5 @@ private:
 };
 
 static const bool _iUseArchBtw = _isArch();
-}
+
+} // namespace arch::net

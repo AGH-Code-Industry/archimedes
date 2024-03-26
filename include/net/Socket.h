@@ -1,10 +1,12 @@
 #pragma once
 
-#include <net/Utilities.h>
-#include <net/IPv4.h>
 #include <type_traits>
 
+#include <net/IPv4.h>
+#include <net/Utilities.h>
+
 namespace arch::net {
+
 class UDPSocket;
 class TCPSocket;
 
@@ -70,7 +72,7 @@ public:
 	/// @brief Checks if socket is bound.
 	///
 	bool bound() const;
-	/// @brief Checks if there is data avalible to read. 
+	/// @brief Checks if there is data avalible to read.
 	///
 	bool dataAvalible() const;
 	/// @brief Checks if socket is avalible for sendung data.
@@ -79,7 +81,6 @@ public:
 	/// @brief Behaves like data_avalible() and sendable() called at once.
 	/// @return UsableData structure containting information.
 	UsableData usable() const;
-
 
 	/// @brief Closes socket.
 	///
@@ -99,27 +100,27 @@ public:
 	int recvBuf() const;
 	/// @brief Sets receiving buffer size.
 	/// @param newVal - new size of receive buffer.
-	void recvBuf(int newVal);
+	void recvBuf(int newVal) const;
 	/// @brief Checks sending buffer size.
 	/// @retval Size of buffer on success, 0 otherwise.
 	int sendBuf() const;
 	/// @brief Sets sending buffer size.
 	/// @param newVal - new size of sending buffer.
-	void sendBuf(int newVal);
+	void sendBuf(int newVal) const;
 #if ARCHIMEDES_WINDOWS // exclusivity avalible only on Windows :(
 	/// @brief Checks if address and port of socket should be exclusive.
 	/// @details Avalible only on Windows.
 	bool exclusive() const;
 	/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
 	/// @details Avalible only on Windows.
-	void exclusive(bool newVal);
-#endif 
+	void exclusive(bool newVal) const;
+#endif
 	/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
-	/// 
+	///
 	bool reuse() const;
 	/// @brief Sets if socket is permitted to use address and port of another non-exclusive socket.
 	///
-	void reuse(bool newVal);
+	void reuse(bool newVal) const;
 
 protected:
 	Socket(Protocol protocol);
@@ -135,4 +136,5 @@ protected:
 	Port _port = 0;
 	Protocol _proto = Protocol::none;
 };
-}
+
+} // namespace arch::net

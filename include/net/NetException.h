@@ -1,10 +1,14 @@
-#include <exception.h>
+#pragma once
+
+#include <Exception.h>
 
 namespace arch::net {
-class NetException : public arch::Exception {
+
+class NetException: public Exception {
 public:
-	NetException(std::string title);
+	NetException(const std::string& title);
 };
 
 using Exception = NetException;
-}
+
+} // namespace arch::net

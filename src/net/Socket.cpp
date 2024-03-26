@@ -1,23 +1,18 @@
-#include <net/Socket.h>
-#include <net/NetException.h>
+#include "net/Socket.h"
+
 #include <net/IPv4.h>
-#include <net/Init.h>
+#include <net/NetException.h>
 
 namespace arch::net {
-const IPv4 Socket::anyAddress(INADDR_ANY);
+
+const IPv4 Socket::anyAddress((uint32_t)INADDR_ANY);
 const Socket::Port Socket::randomPort = 0;
 
 Socket::Socket(Protocol protocol) {
 	switch (protocol) {
-		case Protocol::udp:
-			_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			break;
-		case Protocol::tcp:
-			_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			break;
-		default:
-			throw std::invalid_argument("invalid protocol value");
-			break;
+		case Protocol::udp: _socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); break;
+		case Protocol::tcp: _socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); break;
+		default:			throw std::invalid_argument("invalid protocol value");
 	}
 
 	if (_socket == INVALID_SOCKET) {
@@ -26,14 +21,15 @@ Socket::Socket(Protocol protocol) {
 
 	_proto = protocol;
 }
-Socket::Socket(Protocol protocol, IPv4 address, Port port) :
-	Socket(protocol) {
+
+Socket::Socket(Protocol protocol, IPv4 address, Port port): Socket(protocol) {
 	bind(address, port);
 }
-Socket::Socket(Protocol protocol, Port port) :
-	Socket(protocol) {
+
+Socket::Socket(Protocol protocol, Port port): Socket(protocol) {
 	bind(port);
 }
+
 Socket::~Socket() {
 	close();
 }
@@ -51,17 +47,15 @@ void Socket::close() {
 		_proto = Socket::Protocol::none;
 	}
 }
-bool Socket::bind(IPv4 address, Port port) {
-	int result;
 
+bool Socket::bind(IPv4 address, Port port) {
 	// socket settings
-	sockaddr_in sock;
-	memset(&sock, 0, sizeof(sock));
+	sockaddr_in sock = {};
 	sock.sin_addr = address;
 	sock.sin_family = AF_INET;
 	sock.sin_port = htons(port);
 
-	result = ::bind(_socket, (sockaddr*)&sock, sizeof(sock));
+	int result = ::bind(_socket, (sockaddr*)&sock, sizeof(sock));
 
 	if (result != 0) {
 		throw NetException(gai_strerror(netErrno(result)));
@@ -72,14 +66,15 @@ bool Socket::bind(IPv4 address, Port port) {
 
 	return true;
 }
+
 bool Socket::bind(Port port) {
 	return bind(anyAddress, port);
 }
+
 Socket::Port Socket::bind() {
 	bind(randomPort);
 
-	sockaddr_in data;
-	memset(&data, 0, sizeof(data));
+	sockaddr_in data = {};
 	socklen_t len = sizeof(data);
 	getsockname(_socket, (sockaddr*)&data, &len);
 
@@ -90,18 +85,21 @@ Socket::Port Socket::bind() {
 IPv4 Socket::address() const {
 	return _address;
 }
+
 Socket::Port Socket::port() const {
 	return _port;
 }
+
 Socket::Protocol Socket::protocol() const {
 	return _proto;
 }
+
 bool Socket::bound() const {
 	return _port != 0;
 }
+
 bool Socket::dataAvalible() const {
-	pollfd pollData;
-	memset(&pollData, 0, sizeof(pollData));
+	pollfd pollData = {};
 	pollData.fd = _socket;
 	pollData.events = POLLRDNORM;
 
@@ -117,15 +115,15 @@ bool Socket::dataAvalible() const {
 	if (pollData.revents & POLLNVAL) {
 		retval = false;
 	}
-	if (not (pollData.revents & POLLRDNORM)) {
+	if (not(pollData.revents & POLLRDNORM)) {
 		retval = false;
 	}
 
 	return retval;
 }
+
 bool Socket::sendable() const {
-	pollfd pollData;
-	memset(&pollData, 0, sizeof(pollData));
+	pollfd pollData = {};
 	pollData.fd = _socket;
 
 	bool retval = true;
@@ -140,15 +138,15 @@ bool Socket::sendable() const {
 	if (pollData.revents & POLLNVAL) {
 		retval = false;
 	}
-	if (not (pollData.revents & POLLWRNORM)) {
+	if (not(pollData.revents & POLLWRNORM)) {
 		retval = false;
 	}
 
 	return retval;
 }
+
 Socket::UsableData Socket::usable() const {
-	pollfd pollData;
-	memset(&pollData, 0, sizeof(pollData));
+	pollfd pollData = {};
 	pollData.fd = _socket;
 
 	bool retval = true;
@@ -168,8 +166,8 @@ Socket::UsableData Socket::usable() const {
 	}
 
 	UsableData data;
-	data.dataAvalible = bool(pollData.revents & POLLRDNORM);
-	data.sendable = bool(pollData.revents & POLLWRNORM);
+	data.dataAvalible = (bool)(pollData.revents & POLLRDNORM);
+	data.sendable = (bool)(pollData.revents & POLLWRNORM);
 	return data;
 }
 
@@ -184,14 +182,16 @@ int Socket::recvBuf() const {
 
 	return optval;
 }
-void Socket::recvBuf(int new_val) {
-	int optval = new_val;
+
+void Socket::recvBuf(int newVal) const {
+	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
 		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
+
 int Socket::sendBuf() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);
@@ -203,8 +203,9 @@ int Socket::sendBuf() const {
 
 	return optval;
 }
-void Socket::sendBuf(int new_val) {
-	int optval = new_val;
+
+void Socket::sendBuf(int newVal) const {
+	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
@@ -223,7 +224,8 @@ bool Socket::exclusive() const {
 
 	return optval;
 }
-void Socket::exclusive(bool newVal) {
+
+void Socket::exclusive(bool newVal) const {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
@@ -243,7 +245,8 @@ bool Socket::reuse() const {
 
 	return optval;
 }
-void Socket::reuse(bool newVal) {
+
+void Socket::reuse(bool newVal) const {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));
@@ -258,4 +261,5 @@ void Socket::reuse(bool newVal) {
 	}
 #endif
 }
-}
+
+} // namespace arch::net

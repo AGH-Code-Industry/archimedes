@@ -1,16 +1,18 @@
 #pragma once
 
-#include <net/Utilities.h>
-#include <net/IPv4.h>
 #include <vector>
 
-namespace arch::net {
-	namespace async {
-		class Host;
-	}
+#include <net/IPv4.h>
+#include <net/Utilities.h>
 
-	/// @brief Represents host in IPv4 network.
-	///
+namespace arch::net {
+
+namespace async {
+class Host;
+}
+
+/// @brief Represents host in IPv4 network.
+///
 class Host {
 public:
 	/// @brief IPv4 constructor.
@@ -18,7 +20,8 @@ public:
 	/// @param update - if should update via the network
 	Host(IPv4 ip, bool update = false);
 	/// @brief Hostname constructor.
-	/// @details In difference to IP constructor, this searches in network for specified host. hostname() will remain empty if not found.
+	/// @details In difference to IP constructor, this searches in network for specified host. hostname() will remain
+	/// empty if not found.
 	/// @param hostname - Hostname of host.
 	Host(const std::string& hostname);
 
@@ -57,4 +60,5 @@ private:
 	std::vector<IPv4> _ips{IPv4()};
 	std::string _hostname;
 };
-}
+
+} // namespace arch::net

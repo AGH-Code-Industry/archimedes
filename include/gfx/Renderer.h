@@ -11,7 +11,7 @@ public:
 	void init();
 
 private:
-	VkInstance _instance;
+	VkInstance _instance{};
 };
 
-}
+} // namespace arch::gfx
