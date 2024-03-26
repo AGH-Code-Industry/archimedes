@@ -1,4 +1,4 @@
-#include <engine.h>
+#include <Engine.h>
 #include <gtest/gtest.h>
 
 TEST(EngineTest, CreatingEngine) {
