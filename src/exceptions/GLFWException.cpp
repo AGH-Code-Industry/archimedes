@@ -2,11 +2,10 @@
 
 #include <GLFW/glfw3.h>
 
-
 namespace arch {
 
-GLFWException::GLFWException() : Exception("GLFW") {
-	const char *description;
+GLFWException::GLFWException(): Exception("GLFW") {
+	const char* description;
 	int code = glfwGetError(&description);
 	append_msg("code ");
 	append_msg(std::to_string(code));
@@ -14,4 +13,4 @@ GLFWException::GLFWException() : Exception("GLFW") {
 	append_msg(description);
 }
 
-} // arch
+} // namespace arch

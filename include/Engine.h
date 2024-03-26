@@ -1,11 +1,9 @@
 #pragma once
 
-#include <fstream>
 #include <string>
 
 #include "gfx/Renderer.h"
 #include "window.h"
-
 #include <gtest/gtest_prod.h>
 
 namespace arch {
@@ -32,7 +30,7 @@ public:
 
 private:
 	Window _window;
-	EngineConfig _engine_config;
+	EngineConfig _engineConfig;
 	gfx::Renderer _renderer;
 
 	FRIEND_TEST(EngineTest, ConfigWindowTest);

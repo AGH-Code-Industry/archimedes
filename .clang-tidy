@@ -18,6 +18,9 @@ CheckOptions:
   - { key: readability-identifier-naming.EnumConstantCase,       value: camelBack }
 
   - { key: readability-identifier-naming.PrivateMethodCase,      value: camelBack }
+  - { key: readability-identifier-naming.ProtectedMethodCase,    value: camelBack }
+  - { key: readability-identifier-naming.PrivateMemberCase,      value: camelBack }
+  - { key: readability-identifier-naming.ProtectedMemberCase,    value: camelBack }
   - { key: readability-identifier-naming.PrivateMethodPrefix,    value: _ }
   - { key: readability-identifier-naming.ProtectedMethodPrefix,  value: _ }
   - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _ }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Logger.h"
-
 #include <filesystem>
 
+#include "Logger.h"
 
 namespace arch {
 

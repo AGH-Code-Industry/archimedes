@@ -3,10 +3,12 @@
 #include <future>
 #include <vector>
 
-#include <net/IPv4.h>
+#include "net/IPv4.h"
 
 namespace arch::net {
+
 class Host;
+
 }
 
 namespace arch::net::async {

@@ -1,3 +1,5 @@
+#pragma once
+
 #if ARCHIMEDES_WINDOWS
 #include <net/_UtilitiesWindows.h>
 #elif ARCHIMEDES_UNIX
@@ -13,3 +15,4 @@ namespace arch::net {
 using TimeoutMs = std::chrono::milliseconds::rep;
 
 } // namespace arch::net
+

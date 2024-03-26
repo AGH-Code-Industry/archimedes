@@ -10,7 +10,7 @@ const char* Exception::what() const noexcept {
 	return _msg.c_str();
 }
 
-void Exception::append_msg(const std::string& msg) {
+void Exception::_appendMsg(const std::string& msg) {
 	_msg.append(msg);
 }
 

@@ -3,14 +3,14 @@
 #include <glm/glm.hpp>
 
 #include "InputHandler.h"
-#include "resource/ModelLoader.h"
-#include "resource/TextureLoader.h"
 #include "Logger.h"
 #include "exceptions/GLFWException.h"
+#include "resource/ModelLoader.h"
+#include "resource/TextureLoader.h"
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config): _window(1, 1, {}), _engine_config(config), _renderer() {}
+Engine::Engine(const EngineConfig& config): _window(1, 1, {}), _engineConfig(config) {}
 
 Engine::~Engine() {
 	_terminate();
@@ -73,7 +73,7 @@ void Engine::_mainLoop() {
 	InputHandler::get().initialize(_window.get());
 
 	while (!_window.shouldClose()) {
-		_window.clear(_engine_config.background_color);
+		_window.clear(_engineConfig.background_color);
 
 		// renderer.render();
 
@@ -87,8 +87,8 @@ void Engine::_initialize() {
 		throw GLFWException();
 	}
 
-	_window.resize(_engine_config.window_width, _engine_config.window_height);
-	_window.setTitle(_engine_config.window_title);
+	_window.resize(_engineConfig.window_width, _engineConfig.window_height);
+	_window.setTitle(_engineConfig.window_title);
 
 	_renderer.init();
 
