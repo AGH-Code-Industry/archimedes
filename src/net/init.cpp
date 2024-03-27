@@ -1,22 +1,22 @@
-#include <net/init.hpp>
-#include <net/exception.hpp>
-#include <net/utilities.hpp>
+#include <net/Init.h>
+#include <net/NetException.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
 void Init::init() {
-#ifdef WIN32
-	WSADATA wsa_data;
-	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+#if ARCHIMEDES_WINDOWS
+	WSADATA wsaData;
+	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }
 void Init::cleanup() {
-#ifdef WIN32
+#if ARCHIMEDES_WINDOWS
 	int result = WSACleanup();
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }

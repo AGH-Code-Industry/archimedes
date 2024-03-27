@@ -25,3 +25,5 @@ else()
 endif()
 
 message(STATUS "Build mode: ${ARCHIMEDES_BUILD_TYPE}")
+
+set(CMAKE_BUILD_TYPE ${ARCHIMEDES_BUILD_TYPE})

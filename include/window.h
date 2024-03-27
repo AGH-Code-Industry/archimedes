@@ -2,12 +2,10 @@
 // Created by tosiek on 22.02.23.
 //
 
-#include <glad/glad.h>
+// #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <memory>
 #include <string>
 
-#include <exceptions/init_exception.h>
 #include <glm/vec4.hpp>
 
 #ifndef ARCHIMEDES_WINDOW_H

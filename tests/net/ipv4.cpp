@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <net/ipv4.hpp>
+#include <net.h>
 #include <sstream>
 
 TEST(IPv4, StringToBinary) {

@@ -1,9 +1,11 @@
-#pragma once
+// will be useful in the future
 
-#include <filesystem>
-
-template<typename Resource>
-class ResourceLoader {
-public:
-    virtual Resource read_file(const std::filesystem::path &filepath) = 0;
-};
+// #pragma once
+//
+// #include <filesystem>
+//
+// template<typename Resource>
+// class ResourceLoader {
+// public:
+//     virtual Resource read_file(const std::filesystem::path &filepath) = 0;
+// };

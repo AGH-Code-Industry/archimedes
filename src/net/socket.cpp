@@ -1,36 +1,37 @@
-#include <net/socket.hpp>
-#include <net/exception.hpp>
-#include <net/init.hpp>
+#include <net/Socket.h>
+#include <net/NetException.h>
+#include <net/IPv4.h>
+#include <net/Init.h>
 
 namespace arch::net {
-const IPv4 Socket::any_address(INADDR_ANY);
-const Socket::port_type Socket::random_port = 0;
+const IPv4 Socket::anyAddress(INADDR_ANY);
+const Socket::Port Socket::randomPort = 0;
 
-Socket::Socket(protocol_t p) {
-	switch (p) {
-		case protocol_t::UDP:
+Socket::Socket(Protocol protocol) {
+	switch (protocol) {
+		case Protocol::udp:
 			_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			break;
-		case protocol_t::TCP:
+		case Protocol::tcp:
 			_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			break;
 		default:
-			throw std::invalid_argument("invalid protocol_t value");
+			throw std::invalid_argument("invalid protocol value");
 			break;
 	}
 
 	if (_socket == INVALID_SOCKET) {
-		throw NetException(gai_strerror(net_errno()));
+		throw NetException(gai_strerror(netErrno()));
 	}
 
-	_proto = p;
+	_proto = protocol;
 }
-Socket::Socket(protocol_t p, IPv4 address, port_type port) :
-	Socket(p) {
+Socket::Socket(Protocol protocol, IPv4 address, Port port) :
+	Socket(protocol) {
 	bind(address, port);
 }
-Socket::Socket(protocol_t p, port_type port) :
-	Socket(p) {
+Socket::Socket(Protocol protocol, Port port) :
+	Socket(protocol) {
 	bind(port);
 }
 Socket::~Socket() {
@@ -41,17 +42,19 @@ void Socket::close() {
 	if (_socket != INVALID_SOCKET) {
 		int result = closesocket(_socket);
 		if (result != 0) {
-			throw NetException(gai_strerror(net_errno(result)));
+			throw NetException(gai_strerror(netErrno(result)));
 		}
 
 		_socket = INVALID_SOCKET;
 		_address.data(0);
 		_port = 0;
-		_proto = Socket::protocol_t::None;
+		_proto = Socket::Protocol::none;
 	}
 }
-bool Socket::bind(IPv4 address, port_type port) {
+bool Socket::bind(IPv4 address, Port port) {
 	int result;
+
+	// socket settings
 	sockaddr_in sock;
 	memset(&sock, 0, sizeof(sock));
 	sock.sin_addr = address;
@@ -61,7 +64,7 @@ bool Socket::bind(IPv4 address, port_type port) {
 	result = ::bind(_socket, (sockaddr*)&sock, sizeof(sock));
 
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	_address = address;
@@ -69,11 +72,11 @@ bool Socket::bind(IPv4 address, port_type port) {
 
 	return true;
 }
-bool Socket::bind(port_type port) {
-	return bind(any_address, port);
+bool Socket::bind(Port port) {
+	return bind(anyAddress, port);
 }
-Socket::port_type Socket::bind() {
-	bind(random_port);
+Socket::Port Socket::bind() {
+	bind(randomPort);
 
 	sockaddr_in data;
 	memset(&data, 0, sizeof(data));
@@ -87,145 +90,145 @@ Socket::port_type Socket::bind() {
 IPv4 Socket::address() const {
 	return _address;
 }
-Socket::port_type Socket::port() const {
+Socket::Port Socket::port() const {
 	return _port;
 }
-Socket::protocol_t Socket::protocol() const {
+Socket::Protocol Socket::protocol() const {
 	return _proto;
 }
 bool Socket::bound() const {
 	return _port != 0;
 }
-bool Socket::data_avalible() const {
-	pollfd poll_data;
-	memset(&poll_data, 0, sizeof(poll_data));
-	poll_data.fd = _socket;
-	poll_data.events = POLLRDNORM;
+bool Socket::dataAvalible() const {
+	pollfd pollData;
+	memset(&pollData, 0, sizeof(pollData));
+	pollData.fd = _socket;
+	pollData.events = POLLRDNORM;
 
 	bool retval = true;
 
-	int result = poll(&poll_data, 1, 0);
+	int result = poll(&pollData, 1, 0);
 	if (result != 1) {
 		return false;
 	}
-	if (poll_data.revents & POLLERR) {
+	if (pollData.revents & POLLERR) {
 		retval = false;
 	}
-	if (poll_data.revents & POLLNVAL) {
+	if (pollData.revents & POLLNVAL) {
 		retval = false;
 	}
-	if (not (poll_data.revents & POLLRDNORM)) {
+	if (not (pollData.revents & POLLRDNORM)) {
 		retval = false;
 	}
 
 	return retval;
 }
 bool Socket::sendable() const {
-	pollfd poll_data;
-	memset(&poll_data, 0, sizeof(poll_data));
-	poll_data.fd = _socket;
+	pollfd pollData;
+	memset(&pollData, 0, sizeof(pollData));
+	pollData.fd = _socket;
 
 	bool retval = true;
 
-	int result = poll(&poll_data, 1, 0);
+	int result = poll(&pollData, 1, 0);
 	if (result != 1) {
 		return false;
 	}
-	if (poll_data.revents & POLLERR) {
+	if (pollData.revents & POLLERR) {
 		retval = false;
 	}
-	if (poll_data.revents & POLLNVAL) {
+	if (pollData.revents & POLLNVAL) {
 		retval = false;
 	}
-	if (not (poll_data.revents & POLLWRNORM)) {
+	if (not (pollData.revents & POLLWRNORM)) {
 		retval = false;
 	}
 
 	return retval;
 }
-Socket::usable_data Socket::usable() const {
-	pollfd poll_data;
-	memset(&poll_data, 0, sizeof(poll_data));
-	poll_data.fd = _socket;
+Socket::UsableData Socket::usable() const {
+	pollfd pollData;
+	memset(&pollData, 0, sizeof(pollData));
+	pollData.fd = _socket;
 
 	bool retval = true;
 
-	int result = poll(&poll_data, 1, 0);
+	int result = poll(&pollData, 1, 0);
 	if (result != 1) {
 		return {false, false};
 	}
-	if (poll_data.revents & POLLERR) {
+	if (pollData.revents & POLLERR) {
 		retval = false;
 	}
-	if (poll_data.revents & POLLNVAL) {
+	if (pollData.revents & POLLNVAL) {
 		retval = false;
 	}
 	if (not retval) {
 		return {false, false};
 	}
 
-	usable_data data;
-	data.data_avalible = bool(poll_data.revents & POLLRDNORM);
-	data.sendable = bool(poll_data.revents & POLLWRNORM);
+	UsableData data;
+	data.dataAvalible = bool(pollData.revents & POLLRDNORM);
+	data.sendable = bool(pollData.revents & POLLWRNORM);
 	return data;
 }
 
-int Socket::recv_buf() const {
+int Socket::recvBuf() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
 }
-void Socket::recv_buf(int new_val) {
+void Socket::recvBuf(int new_val) {
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
-int Socket::send_buf() const {
+int Socket::sendBuf() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
 }
-void Socket::send_buf(int new_val) {
+void Socket::sendBuf(int new_val) {
 	int optval = new_val;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
-#ifdef WIN32 // exclusivity avalible only on Windows
+#if ARCHIMEDES_WINDOWS // exclusivity avalible only on Windows :(
 bool Socket::exclusive() const {
 	int optval;
 	socklen_t optlen = sizeof(optval);
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
 }
-void Socket::exclusive(bool new_val) {
-	int optval = new_val;
+void Socket::exclusive(bool newVal) {
+	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 }
 #endif
@@ -235,23 +238,23 @@ bool Socket::reuse() const {
 
 	int result = getsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, &optlen);
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 
 	return optval;
 }
-void Socket::reuse(bool new_val) {
-	int optval = new_val;
+void Socket::reuse(bool newVal) {
+	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));
 	if (result != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+		throw NetException(gai_strerror(netErrno(result)));
 	}
-#ifdef unix
-	optval = new_val;
-	int result2 = setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, (char*)&optval, sizeof(optval));
-	if (result2 != 0) {
-		throw NetException(gai_strerror(net_errno(result)));
+#if ARCHIMEDES_UNIX
+	optval = newVal;
+	result = setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, (char*)&optval, sizeof(optval));
+	if (result != 0) {
+		throw NetException(gai_strerror(netErrno(result)));
 	}
 #endif
 }

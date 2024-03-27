@@ -1,7 +1,7 @@
 #include "window.h"
-#include "graphics/glfw_exception.h"
 
 #include <GLFW/glfw3.h>
+#include <exceptions/GLFWException.h>
 #include <spdlog/spdlog.h>
 
 namespace arch {
@@ -28,7 +28,6 @@ void Window::initialize(int width, int height, const char* name, GLFWmonitor* mo
     }
 
     glfwMakeContextCurrent(_window);
-	gladLoadGL();
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
 }
 
