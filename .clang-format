@@ -196,7 +196,7 @@ PenaltyBreakComment: 10
 PenaltyBreakFirstLessLess: 100
 PenaltyBreakString: 1000
 PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 60
+PenaltyReturnTypeOnItsOwnLine: 600
 PenaltyBreakOpenParenthesis: 60
 PenaltyBreakTemplateDeclaration: 10
 PenaltyIndentedWhitespace: 0
