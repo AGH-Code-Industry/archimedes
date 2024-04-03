@@ -115,7 +115,7 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 
-Cpp11BracedListStyle: true
+Cpp11BracedListStyle: false
 EmptyLineAfterAccessModifier: Leave
 EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: true
