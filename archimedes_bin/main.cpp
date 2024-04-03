@@ -13,10 +13,14 @@ int main() {
 
 	arch::Logger::log(arch::LogLevel::info, "Info log");
 
-	arch::EngineConfig config {
-		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
+	arch::EngineConfig config{
+		.windowWidth = 600,
+		.windowHeight = 480,
+		.windowTitle = "Archimedes Test",
+		.backgroundColor = arch::Color(0, 0, 0, 0),
+		.renderingApi = arch::gfx::RenderingAPI::vulkan
 	};
 
-	arch::Engine engine { config };
+	arch::Engine engine{config};
 	engine.start();
 }

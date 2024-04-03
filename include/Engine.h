@@ -9,10 +9,11 @@
 namespace arch {
 
 struct EngineConfig {
-	int window_width;
-	int window_height;
-	std::string window_title;
-	glm::vec4 background_color;
+	int windowWidth;
+	int windowHeight;
+	std::string windowTitle;
+	Color backgroundColor;
+	gfx::RenderingAPI renderingApi;
 };
 
 /**
@@ -29,9 +30,9 @@ public:
 	void start();
 
 private:
-	Window _window;
+	Ref<Window> _window;
 	EngineConfig _engineConfig;
-	gfx::Renderer _renderer;
+	Ref<gfx::Renderer> _renderer;
 
 	FRIEND_TEST(EngineTest, ConfigWindowTest);
 
@@ -48,7 +49,7 @@ private:
 	/**
 	 * Clearing all previously allocated GLFW and Engine resources.
 	 */
-	static void _terminate();
+	void _shutdown();
 };
 
 } // namespace arch

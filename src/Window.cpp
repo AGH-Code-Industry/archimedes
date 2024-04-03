@@ -21,6 +21,8 @@ void Window::initialize(int width, int height, const char* name, GLFWmonitor* mo
 		throw GLFWException();
 	}
 
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
 	_window = glfwCreateWindow(width, height, name, monitor, window);
 
 	if (!_window) {
@@ -29,6 +31,7 @@ void Window::initialize(int width, int height, const char* name, GLFWmonitor* mo
 	}
 
 	glfwMakeContextCurrent(_window);
+
 	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
 }
 

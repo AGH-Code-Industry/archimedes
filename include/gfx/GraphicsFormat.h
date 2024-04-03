@@ -1,0 +1,26 @@
+#pragma once
+
+namespace arch::gfx {
+
+enum class GraphicsFormat {
+	rgba8,
+	rgb8,
+	rg8,
+	r8,
+
+	rgba16f,
+	rgb16f,
+	rg16f,
+	r16f,
+
+	rgba32f,
+	rgb32f,
+	rg32f,
+	r32f,
+
+	depth24stencil8,
+	depth32f,
+	depth32fStencil8,
+};
+
+} // namespace arch::gfx
