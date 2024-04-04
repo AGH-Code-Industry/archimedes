@@ -1,13 +1,13 @@
 #pragma once
 
-#include <net/Socket.h>
-#include <net/Host.h>
+#include "net/Host.h"
+#include "net/Socket.h"
 
 namespace arch::net {
 
 /// @brief Represents synchronous UDP socket.
 ///
-class UDPSocket : public Socket {
+class UDPSocket: public Socket {
 public:
 	/// @brief Default constructor.
 	///
@@ -39,7 +39,7 @@ public:
 	UDPSocket& operator=(UDPSocket&) = delete;
 	/// @brief Deleted assignment operator.
 	///
-	UDPSocket& operator=(UDPSocket&&) = delete;
+	UDPSocket& operator=(UDPSocket&&) = default;
 
 	/// @brief Check if socket is able to send broadcast.
 	///
@@ -81,7 +81,7 @@ public:
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param serializable - object to be serialized and sent.
 	/// @return true on success, false on any error.
-	//bool send_to(const Host& host, Serializable* serializable) = delete; // to update after serialization
+	// bool send_to(const Host& host, Serializable* serializable) = delete; // to update after serialization
 
 	/// @brief Receives data.
 	/// @param buf - buffer to save data to.
@@ -110,4 +110,5 @@ public:
 	/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
 	Host recvFrom(char* buf, int buflen, bool peek = false);
 };
-}
+
+} // namespace arch::net

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <compare>
-#include <iostream>
-#include <net/Utilities.h>
+
+#include "net/Utilities.h"
 
 namespace arch::net {
+
 /// @brief Represents IPv4 address.
 ///
 class IPv4 {
@@ -12,6 +13,7 @@ public:
 	/// @brief Type of binary value.
 	///
 	using Binary = uint32_t;
+
 	/// @brief Union type of data
 	///
 	union Data {
@@ -33,12 +35,11 @@ public:
 	/// @param octets - array of 4 octets of IPv4 address.
 	IPv4(unsigned char octets[4]);
 	/// @brief Octets constructor.
-	/// @param octet_0 - first octet.
-	/// @param octet_1 - second octet.
-	/// @param octet_2 - third octet.
-	/// @param octet_3 - forth octet.
-	IPv4(unsigned char octet_0, unsigned char octet_1, unsigned char octet_2,
-		 unsigned char octet_3);
+	/// @param octet0 - first octet.
+	/// @param octet1 - second octet.
+	/// @param octet2 - third octet.
+	/// @param octet3 - forth octet.
+	IPv4(unsigned char octet0, unsigned char octet1, unsigned char octet2, unsigned char octet3);
 	/// @brief Binary value constructor
 	/// @param binary - binary value of address.
 	explicit IPv4(uint32_t binary);
@@ -46,8 +47,6 @@ public:
 	/// @brief in_addr constructor.
 	/// @param addr - in_addr structure to convert from.
 	IPv4(in_addr addr);
-
-
 
 	/// @brief ostream insertion operator.
 	/// @param os - ostream.
@@ -105,4 +104,5 @@ protected:
 };
 
 bool _isArch();
-}  // namespace arch::net
+
+} // namespace arch::net

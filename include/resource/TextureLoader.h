@@ -2,9 +2,9 @@
 
 // #pragma once
 //
-// #include "resource/resource_loader.h"
+// #include "resource/ResourceLoader.h"
 // #include "gfx/texture.h"
-// #include "exception.h"
+// #include "Exception.h"
 //
 // namespace arch {
 //
