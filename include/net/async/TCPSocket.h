@@ -1,12 +1,12 @@
 #pragma once
 
-#include "net/TCPSocket.h"
-#include "net/async/Host.h"
+#include <net/TCPSocket.h>
+#include <net/async/Host.h>
 
 namespace arch::net::async {
 /// @brief Represents asynchronous TCP sockets.
 ///
-class TCPSocket: net::TCPSocket {
+class TCPSocket: private net::TCPSocket {
 public:
 	using net::TCPSocket::AcceptCondition;
 	using net::TCPSocket::AcceptResponseHandler;
@@ -102,7 +102,7 @@ public:
 	/// @brief Unconditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
 	/// @return true on success, false otherwise.
-	std::future<bool> accept(TCPSocket& newSock) const;
+	std::future<bool> accept(TCPSocket& newSock);
 	/// @brief Conditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
 	/// @param condition - callback to predicate.
@@ -162,5 +162,4 @@ private:
 	std::mutex _sendMutex;
 	std::timed_mutex _recvMutex;
 };
-
 } // namespace arch::net::async

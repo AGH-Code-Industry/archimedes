@@ -15,7 +15,7 @@ UDPSocket::~UDPSocket() {
 	Socket::~Socket();
 }
 
-bool UDPSocket::sendTo(const Host& host, Port port, const char* data, int len) const {
+bool UDPSocket::sendTo(const Host& host, Port port, const char* data, int len) {
 	// address settings
 	sockaddr_in addr = {};
 	addr.sin_addr = host.ip();
@@ -30,19 +30,19 @@ bool UDPSocket::sendTo(const Host& host, Port port, const char* data, int len) c
 	return result;
 }
 
-bool UDPSocket::sendTo(const Host& host, const char* data, int len) const {
+bool UDPSocket::sendTo(const Host& host, const char* data, int len) {
 	return sendTo(host, _port, data, len);
 }
 
-bool UDPSocket::sendTo(const Host& host, Port port, const std::string& data) const {
+bool UDPSocket::sendTo(const Host& host, Port port, const std::string& data) {
 	return sendTo(host, port, data.data(), data.length());
 }
 
-bool UDPSocket::sendTo(const Host& host, const std::string& data) const {
+bool UDPSocket::sendTo(const Host& host, const std::string& data) {
 	return sendTo(host, _port, data);
 }
 
-bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) const {
+bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 	int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
 	if (result == SOCKET_ERROR) {
 		throw NetException(gai_strerror(netErrno()));
@@ -52,12 +52,12 @@ bool UDPSocket::recv(char* buf, int buflen, int& length, bool peek) const {
 	return result;
 }
 
-bool UDPSocket::recv(char* buf, int buflen, bool peek) const {
+bool UDPSocket::recv(char* buf, int buflen, bool peek) {
 	int temp;
 	return recv(buf, buflen, temp, peek);
 }
 
-Host UDPSocket::recvFrom(char* buf, int buflen, int& length, bool peek) const {
+Host UDPSocket::recvFrom(char* buf, int buflen, int& length, bool peek) {
 	sockaddr_in addr = {};
 	socklen_t addrLen;
 	addrLen = sizeof(addr);
@@ -71,7 +71,7 @@ Host UDPSocket::recvFrom(char* buf, int buflen, int& length, bool peek) const {
 	return Host(IPv4(addr.sin_addr));
 }
 
-Host UDPSocket::recvFrom(char* buf, int buflen, bool peek) const {
+Host UDPSocket::recvFrom(char* buf, int buflen, bool peek) {
 	static int ignored;
 	return recvFrom(buf, buflen, ignored, peek);
 }
@@ -88,7 +88,7 @@ bool UDPSocket::broadcastEnabled() const {
 	return optval;
 }
 
-void UDPSocket::broadcastEnabled(bool newVal) const {
+void UDPSocket::broadcastEnabled(bool newVal) {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));

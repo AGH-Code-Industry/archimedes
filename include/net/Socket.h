@@ -2,11 +2,10 @@
 
 #include <type_traits>
 
-#include "net/IPv4.h"
-#include "net/Utilities.h"
+#include <net/IPv4.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
-
 class UDPSocket;
 class TCPSocket;
 
@@ -100,27 +99,27 @@ public:
 	int recvBuf() const;
 	/// @brief Sets receiving buffer size.
 	/// @param newVal - new size of receive buffer.
-	void recvBuf(int newVal) const;
+	void recvBuf(int newVal);
 	/// @brief Checks sending buffer size.
 	/// @retval Size of buffer on success, 0 otherwise.
 	int sendBuf() const;
 	/// @brief Sets sending buffer size.
 	/// @param newVal - new size of sending buffer.
-	void sendBuf(int newVal) const;
+	void sendBuf(int newVal);
 #if ARCHIMEDES_WINDOWS // exclusivity avalible only on Windows :(
 	/// @brief Checks if address and port of socket should be exclusive.
 	/// @details Avalible only on Windows.
 	bool exclusive() const;
 	/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
 	/// @details Avalible only on Windows.
-	void exclusive(bool newVal) const;
+	void exclusive(bool newVal);
 #endif
 	/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
 	///
 	bool reuse() const;
 	/// @brief Sets if socket is permitted to use address and port of another non-exclusive socket.
 	///
-	void reuse(bool newVal) const;
+	void reuse(bool newVal);
 
 protected:
 	Socket(Protocol protocol);
@@ -132,9 +131,8 @@ protected:
 	~Socket();
 
 	SockType _socket = INVALID_SOCKET;
-	IPv4 _address{(uint32_t)0};
+	IPv4 _address{ (uint32_t)0 };
 	Port _port = 0;
 	Protocol _proto = Protocol::none;
 };
-
 } // namespace arch::net

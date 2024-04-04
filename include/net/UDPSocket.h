@@ -39,14 +39,14 @@ public:
 	UDPSocket& operator=(UDPSocket&) = delete;
 	/// @brief Deleted assignment operator.
 	///
-	UDPSocket& operator=(UDPSocket&&) = delete;
+	UDPSocket& operator=(UDPSocket&&) = default;
 
 	/// @brief Check if socket is able to send broadcast.
 	///
 	bool broadcastEnabled() const;
 	/// @brief Set if socket is able to send broadcast.
 	///
-	void broadcastEnabled(bool val) const;
+	void broadcastEnabled(bool val);
 
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
@@ -55,27 +55,27 @@ public:
 	/// @param data - data to be sent.
 	/// @param len - length of data to be sent.
 	/// @return true on success, false on any error.
-	bool sendTo(const Host& host, Port port, const char* data, int len) const;
+	bool sendTo(const Host& host, Port port, const char* data, int len);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
 	/// @param len - length of data to be sent.
 	/// @return true on success, false on any error.
-	bool sendTo(const Host& host, const char* data, int len) const;
+	bool sendTo(const Host& host, const char* data, int len);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param port - port to send data to.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool sendTo(const Host& host, Port port, const std::string& data) const;
+	bool sendTo(const Host& host, Port port, const std::string& data);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
 	/// @return true on success, false on any error.
-	bool sendTo(const Host& host, const std::string& data) const;
+	bool sendTo(const Host& host, const std::string& data);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
@@ -89,26 +89,26 @@ public:
 	/// @param length - reference to value to save length of data to.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return true if received data, false otherwise.
-	bool recv(char* buf, int buflen, int& length, bool peek = false) const;
+	bool recv(char* buf, int buflen, int& length, bool peek = false);
 	/// @brief Receives data.
 	/// @param buf - buffer to save data to.
 	/// @param buflen - length of buffer.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return true if received data, false otherwise.
-	bool recv(char* buf, int buflen, bool peek = false) const;
+	bool recv(char* buf, int buflen, bool peek = false);
 	/// @brief Receives data and sender.
 	/// @param buf - buffer to save data to.
 	/// @param buflen - length of buffer.
 	/// @param length - reference to value to save length of data to.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
-	Host recvFrom(char* buf, int buflen, int& length, bool peek = false) const;
+	Host recvFrom(char* buf, int buflen, int& length, bool peek = false);
 	/// @brief Receives data and sender.
 	/// @param buf - buffer to save data to.
 	/// @param buflen - length of buffer.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
 	/// @return Unupdated sender host on success, Host("0.0.0.0") otherwise.
-	Host recvFrom(char* buf, int buflen, bool peek = false) const;
+	Host recvFrom(char* buf, int buflen, bool peek = false);
 };
 
 } // namespace arch::net

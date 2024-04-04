@@ -29,7 +29,7 @@ TCPSocket::LingerData TCPSocket::linger() const {
 	return {(bool)optval.l_onoff, optval.l_linger};
 }
 
-void TCPSocket::linger(LingerData data) const {
+void TCPSocket::linger(LingerData data) {
 	::linger optval{data.linger, data.seconds};
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
@@ -159,7 +159,7 @@ bool TCPSocket::listening() const {
 	return _status & (1 << 1);
 }
 
-bool TCPSocket::accept(TCPSocket& newSock) const {
+bool TCPSocket::accept(TCPSocket& newSock) {
 	if (not listening()) {
 		throw NetException("only listening sockets can accept()");
 	}
@@ -188,7 +188,7 @@ bool TCPSocket::condAccept(
 	int dataLen,
 	int responseLen,
 	void* additionalData
-) const {
+) {
 	accept(newSock);
 
 	newSock._status = 0;
@@ -218,7 +218,7 @@ bool TCPSocket::condAccept(
 	throw NetException("rejected incoming connection");
 }
 
-bool TCPSocket::send(const char* data, int len) const {
+bool TCPSocket::send(const char* data, int len) {
 	if (not connected()) {
 		return false;
 	}
@@ -231,7 +231,7 @@ bool TCPSocket::send(const char* data, int len) const {
 	return true;
 }
 
-bool TCPSocket::send(const std::string& data) const {
+bool TCPSocket::send(const std::string& data) {
 	return send(data.data(), data.length());
 }
 
