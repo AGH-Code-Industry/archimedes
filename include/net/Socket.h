@@ -1,8 +1,9 @@
 #pragma once
 
-#include <net/Utilities.h>
-#include <net/IPv4.h>
 #include <type_traits>
+
+#include <net/IPv4.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
 class UDPSocket;
@@ -70,7 +71,7 @@ public:
 	/// @brief Checks if socket is bound.
 	///
 	bool bound() const;
-	/// @brief Checks if there is data avalible to read. 
+	/// @brief Checks if there is data avalible to read.
 	///
 	bool dataAvalible() const;
 	/// @brief Checks if socket is avalible for sendung data.
@@ -79,7 +80,6 @@ public:
 	/// @brief Behaves like data_avalible() and sendable() called at once.
 	/// @return UsableData structure containting information.
 	UsableData usable() const;
-
 
 	/// @brief Closes socket.
 	///
@@ -113,9 +113,9 @@ public:
 	/// @brief Sets if address and port of socket should be exclusive. Must be set before binding.
 	/// @details Avalible only on Windows.
 	void exclusive(bool newVal);
-#endif 
+#endif
 	/// @brief Checks if socket is permitted to use address and port of another non-exclusive socket.
-	/// 
+	///
 	bool reuse() const;
 	/// @brief Sets if socket is permitted to use address and port of another non-exclusive socket.
 	///
@@ -131,8 +131,8 @@ protected:
 	~Socket();
 
 	SockType _socket = INVALID_SOCKET;
-	IPv4 _address{(uint32_t)0};
+	IPv4 _address{ (uint32_t)0 };
 	Port _port = 0;
 	Protocol _proto = Protocol::none;
 };
-}
+} // namespace arch::net

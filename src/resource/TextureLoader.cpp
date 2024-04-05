@@ -1,4 +1,4 @@
-// #include "resource/texture_loader.h"
+// #include "resource/TextureLoader.h"
 //
 // #define STB_IMAGE_IMPLEMENTATION
 // #include <stb_image.h>

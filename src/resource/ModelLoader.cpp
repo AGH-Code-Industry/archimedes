@@ -1,4 +1,4 @@
-// #include "resource/model_loader.h"
+// #include "resource/ModelLoader.h"
 // #include "assimp/mesh.h"
 // #include "gfx/model.h"
 // #include "gfx/primitives.h"

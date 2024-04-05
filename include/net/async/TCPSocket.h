@@ -1,12 +1,12 @@
 #pragma once
 
-#include <net/async/Host.h>
 #include <net/TCPSocket.h>
+#include <net/async/Host.h>
 
 namespace arch::net::async {
 /// @brief Represents asynchronous TCP sockets.
 ///
-class TCPSocket : private net::TCPSocket {
+class TCPSocket: private net::TCPSocket {
 public:
 	using net::TCPSocket::AcceptCondition;
 	using net::TCPSocket::AcceptResponseHandler;
@@ -44,17 +44,17 @@ public:
 	///
 	TCPSocket& operator=(TCPSocket&&) = delete;
 
-	using net::TCPSocket::linger;
 	using net::TCPSocket::connected;
+	using net::TCPSocket::linger;
 	/// @brief Checks if socket is connected.
-	/// 
+	///
 	std::future<bool> connectedForce();
-	using net::TCPSocket::listening;
 	using net::TCPSocket::address;
 	using net::TCPSocket::bind;
 	using net::TCPSocket::bound;
 	using net::TCPSocket::close;
 	using net::TCPSocket::dataAvalible;
+	using net::TCPSocket::listening;
 #if ARCHIMEDES_WINDOWS
 	using net::TCPSocket::exclusive;
 #endif
@@ -81,7 +81,15 @@ public:
 	/// @param handler - pointer to response handler.
 	/// @param handlerData - additional data for handler.
 	/// @return true on success, false otherwise.
-	std::future<bool> condConnect(const Host& host, Port port, void* data, int dataLen, int responseLen, AcceptResponseHandler handler, void* handlerData = nullptr);
+	std::future<bool> condConnect(
+		const Host& host,
+		Port port,
+		void* data,
+		int dataLen,
+		int responseLen,
+		AcceptResponseHandler handler,
+		void* handlerData = nullptr
+	);
 
 	/// @brief Puts socket into listening mode.
 	/// @return true on success, false otherwise.
@@ -93,7 +101,7 @@ public:
 
 	/// @brief Unconditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
-	/// @return true on success, false otherwise. 
+	/// @return true on success, false otherwise.
 	std::future<bool> accept(TCPSocket& newSock);
 	/// @brief Conditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
@@ -101,8 +109,14 @@ public:
 	/// @param dataLen - length of acceptance data.
 	/// @param responseLen - length of response data.
 	/// @param additionalData - additional data used by predicate.
-	/// @return true on success, false otherwise. 
-	std::future<bool> condAccept(TCPSocket& newSock, AcceptCondition condition, int dataLen, int responseLen, void* additionalData = nullptr);
+	/// @return true on success, false otherwise.
+	std::future<bool> condAccept(
+		TCPSocket& newSock,
+		AcceptCondition condition,
+		int dataLen,
+		int responseLen,
+		void* additionalData = nullptr
+	);
 
 	/// @brief Sends data to peer.
 	/// @param data - data to be sent.
@@ -140,7 +154,7 @@ public:
 	/// @param buf - buffer to save data to.
 	/// @param buflen - length of buffer.
 	/// @param peek - if to copy data but not erase it from socket's buffer (false by default).
-	/// @return true if received data, false otherwise. 
+	/// @return true if received data, false otherwise.
 	std::future<bool> recv(char* buf, int buflen, bool peek = false);
 
 private:
@@ -148,4 +162,4 @@ private:
 	std::mutex _sendMutex;
 	std::timed_mutex _recvMutex;
 };
-}
+} // namespace arch::net::async

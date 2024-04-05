@@ -1,8 +1,10 @@
-#include <net/Init.h>
-#include <net/NetException.h>
-#include <net/Utilities.h>
+#include "net/Init.h"
+
+#include "net/NetException.h"
+#include "net/Utilities.h"
 
 namespace arch::net {
+
 void Init::init() {
 #if ARCHIMEDES_WINDOWS
 	WSADATA wsaData;
@@ -12,6 +14,7 @@ void Init::init() {
 	}
 #endif
 }
+
 void Init::cleanup() {
 #if ARCHIMEDES_WINDOWS
 	int result = WSACleanup();
@@ -20,4 +23,5 @@ void Init::cleanup() {
 	}
 #endif
 }
-}
+
+} // namespace arch::net
