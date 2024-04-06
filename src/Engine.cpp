@@ -75,7 +75,7 @@ void Engine::_mainLoop() {
 	while (!_window.shouldClose()) {
 		_window.clear(_engineConfig.background_color);
 
-		// renderer.render();
+		renderer.render();
 
 		_window.swapBuffers();
 		glfwPollEvents();

@@ -1,4 +1,5 @@
 #pragma once
+#include <AL/al.h>
 #include <AL/alc.h>
 
 namespace arch::audio {
@@ -7,8 +8,8 @@ public:
 	SoundDevice();
 	~SoundDevice();
 
-	ALCdevice* ALCDevice;
-	ALCcontext* ALCContext;
+	ALCdevice* alcDevice;
+	ALCcontext* alcContext;
 };
 
-}  // namespace arch::audio
+} // namespace arch::audio
