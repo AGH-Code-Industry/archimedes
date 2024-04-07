@@ -1,22 +1,24 @@
 #pragma once
 
 #include <compare>
+#include <iostream>
 #include <string>
 
-namespace arch::meta::rtti {
+namespace arch {
+namespace meta {
+namespace rtti {
 /// @brief Class containing type data
-/// @details There exists only one TypeDescriptor per type
 class TypeDescriptor {
 public:
-	/// @brief Deleted copy constructor.
-	TypeDescriptor(const TypeDescriptor&) = delete;
-	/// @brief Deleted move constructor.
-	TypeDescriptor(TypeDescriptor&&) = delete;
+	/// @brief Copy constructor.
+	TypeDescriptor(const TypeDescriptor&) noexcept = default;
+	/// @brief Move constructor.
+	TypeDescriptor(TypeDescriptor&&) noexcept = default;
 
-	/// @brief Deleted copy-assignment constructor.
-	TypeDescriptor& operator=(const TypeDescriptor&) = delete;
-	/// @brief Deleted move-assignment constructor.
-	TypeDescriptor& operator=(TypeDescriptor&&) = delete;
+	/// @brief Deleted copy-assignment operator.
+	TypeDescriptor& operator=(const TypeDescriptor&) noexcept = default;
+	/// @brief Deleted move-assignment operator.
+	TypeDescriptor& operator=(TypeDescriptor&&) noexcept = default;
 
 	/// @brief Standardized type name
 	std::string name;
@@ -42,4 +44,10 @@ private:
 	template<class T>
 	friend class TypeDescriptorOwner;
 };
-} // namespace arch::meta::rtti
+} // namespace rtti
+
+using rtti::TypeDescriptor;
+} // namespace meta
+
+using meta::TypeDescriptor;
+} // namespace arch
