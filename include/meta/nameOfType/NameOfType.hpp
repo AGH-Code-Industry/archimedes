@@ -11,6 +11,9 @@ namespace _nameOfType {
 /// @brief signature<T>() Specialization returning signature with 'int'
 template<>
 constexpr std::string_view signature<int>() noexcept {
+	// Major compilers do not return simply name of function: 'signature'
+	// but its signature: 'std::basic_string_view<...> signature<int>() noexcept'
+	// this allows to capture position of 'int' in signature
 	const auto location = std::source_location::current();
 	return location.function_name();
 }
@@ -22,6 +25,8 @@ constexpr std::string_view nameOf() noexcept {
 	auto len = intSignature.length();
 
 	auto suffix = intSignature.substr(found + (sizeof("int") - 1));
+
+	// renaming signature -> nameOf
 	found -= sizeof("signature");
 	found += sizeof("nameOf");
 
@@ -30,6 +35,7 @@ constexpr std::string_view nameOf() noexcept {
 	const auto location = std::source_location::current();
 	std::string_view functionName = location.function_name();
 
+	// trimming function signature
 	return std::string_view(
 		functionName.data() + prefix.length(),
 		functionName.length() - prefix.length() - suffix.length()

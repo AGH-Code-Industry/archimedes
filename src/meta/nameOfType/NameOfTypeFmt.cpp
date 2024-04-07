@@ -5,6 +5,8 @@
 #include <meta/nameOfType/NameOfTypeFmt.h>
 
 namespace arch::meta::_nameOfType {
+
+/// @brief Enum with types of tokens present in typeOf<T>() result
 enum TokenType {
 	white, // spaces
 	str, // string literals
@@ -19,24 +21,9 @@ enum TokenType {
 	punct, // punctuation
 };
 
-const char* tokenToStr(TokenType t) {
-	switch (t) {
-		case white:	   return "white"; break;
-		case str:	   return "str"; break;
-		case strEnd:   return "strEnd"; break;
-		case ch:	   return "ch"; break;
-		case chEnd:	   return "chEnd"; break;
-		case forceStr: return "forceStr"; break;
-		case forceCh:  return "forceCh"; break;
-		case alpha:	   return "alpha"; break;
-		case num:	   return "num"; break;
-		case punct:	   return "punct"; break;
-		default:	   return ""; break;
-	}
-}
-
-// returns type of token given character belongs to within given context
-// return values: white, ch, chEnd, forceCh, str, strEnd, forceStr, num, alpha, punct
+/// @brief Returns TokenType of character c, depending on context
+/// @param c - character to check
+/// @param context - current TokenType
 TokenType getTokenType(char c, TokenType context) {
 	if (isspace(c)) {
 		// 1. separator of tokens
@@ -139,15 +126,20 @@ TokenType getTokenType(char c, TokenType context) {
 	}
 }
 
-struct currentTokenT {
+/// @brief Postition indicator of token
+struct CurrentTokenT {
 	size_t begin;
 	size_t count;
 };
 
+/// @brief Parses given type name into tokens
+/// @param name - type name to parse
+/// @param tokens - vector to save tokens to
 void parseTokens(std::string_view& name, std::vector<std::string_view>& tokens) {
 	TokenType context = white;
-	currentTokenT currentToken{ 0, 0 };
+	CurrentTokenT currentToken{ 0, 0 };
 
+	// saves current token to vector and resets currentToken
 	auto saveToken = [&]() {
 		tokens.emplace_back(name.substr(currentToken.begin, currentToken.count));
 		currentToken.begin += currentToken.count;
@@ -161,58 +153,28 @@ void parseTokens(std::string_view& name, std::vector<std::string_view>& tokens) 
 			case white: // between tokens
 				switch (type) { // new symbol
 					case alpha:
-						context = alpha;
-						currentToken.begin = i;
-						currentToken.count = 1;
-						break;
 					case punct:
-						context = punct;
-						currentToken.begin = i;
-						currentToken.count = 1;
-						break;
 					case str:
-						context = str;
-						currentToken.begin = i;
-						currentToken.count = 1;
-						break;
 					case ch:
-						context = ch;
-						currentToken.begin = i;
-						currentToken.count = 1;
-						break;
 					case num:
-						context = num;
+						context = type;
 						currentToken.begin = i;
 						currentToken.count = 1;
 						break;
-					case white:
-					default:	break;
 				}
 				break;
 			case str:
+				++currentToken.count;
 				switch (type) {
-					case str: ++currentToken.count; break;
-					case strEnd:
-						++currentToken.count;
-						saveToken();
-						break;
-					case forceStr:
-						++currentToken.count;
-						context = forceStr;
-						break;
+					case strEnd:   saveToken(); break;
+					case forceStr: context = forceStr; break;
 				}
 				break;
 			case ch:
+				++currentToken.count;
 				switch (type) {
-					case ch: ++currentToken.count; break;
-					case chEnd:
-						++currentToken.count;
-						saveToken();
-						break;
-					case forceCh:
-						++currentToken.count;
-						context = forceCh;
-						break;
+					case chEnd:	  saveToken(); break;
+					case forceCh: context = forceCh; break;
 				}
 				break;
 			case forceStr:
@@ -268,10 +230,18 @@ void parseTokens(std::string_view& name, std::vector<std::string_view>& tokens) 
 	}
 }
 
-bool specifierErasePred(const std::string_view& x) {
-	return x == "struct" or x == "class" or x == "enum" or x == "constexpr" or x == "constinit" or x == "consteval";
+/// @brief Returns true if token is one of the following:
+/// @brief struct, class, enum, constexpr, constinit, consteval
+/// @param token - token to check
+bool specifierErasePred(const std::string_view& token) {
+	return token == "struct" or token == "class" or token == "enum" or token == "constexpr" or token == "constinit" or
+		token == "consteval";
 }
 
+/// @brief Standardizes order of combination of tokens that form one type
+/// @details C++ standard says that ex. unsigned long long == long unsigned long
+/// @param multitoken - multiset of tokens to standardize
+/// @return Tokens in standardized order
 std::string_view multitokenToToken(std::multiset<std::string_view>& multitoken) {
 	if (multitoken.contains("char")) {
 		if (multitoken.contains("unsigned")) {
@@ -312,6 +282,9 @@ std::string_view multitokenToToken(std::multiset<std::string_view>& multitoken) 
 	}
 }
 
+/// @brief Formats numerical values
+/// @param token - numerical value to format
+/// @param toReturn - string to append formatted value to
 void fmtNumeric(std::string_view& token, std::string& toReturn) {
 	std::string formattedToken;
 	if (token.find('.') != token.npos) { // floating point literal
@@ -321,7 +294,7 @@ void fmtNumeric(std::string_view& token, std::string& toReturn) {
 		} else if (token.ends_with('l') or token.ends_with('L')) { // long double
 			formattedToken = token;
 			formattedToken = std::to_string(std::stold(formattedToken));
-		} else { // double literal
+		} else { // double
 			formattedToken = token;
 			formattedToken = std::to_string(std::stod(formattedToken));
 		}
@@ -333,7 +306,13 @@ void fmtNumeric(std::string_view& token, std::string& toReturn) {
 	toReturn += formattedToken;
 }
 
+/// @brief Formats string literal
+/// @param tokens - vector of all tokens
+/// @param i - index of current token
+/// @param token - current token
+/// @param toReturn - string to append formatted string to
 void fmtString(std::vector<std::string_view>& tokens, size_t i, std::string_view& token, std::string& toReturn) {
+	// processing literal type
 	if (i != 0) {
 		if (tokens[i - 1] == "L") {
 			toReturn.pop_back();
@@ -355,8 +334,10 @@ void fmtString(std::vector<std::string_view>& tokens, size_t i, std::string_view
 __addChar:
 		toReturn += "char{";
 	}
+
+	// appending chars
 	for (size_t j = 1; j != token.length() - 1; ++j) {
-		if (token[j] == '\\') {
+		if (token[j] == '\\') { // escape sequence
 			std::string temp;
 			size_t processed;
 			switch (token[j + 1]) {
@@ -401,52 +382,58 @@ __addChar:
 	toReturn += "0}";
 }
 
-void fmtChar(std::string_view& token, std::string& to_return) {
+/// @brief Formats character literal
+/// @param token - current token
+/// @param toReturn - string to append formatted character to
+void fmtChar(std::string_view& token, std::string& toReturn) {
 	for (size_t j = 1; j < token.length() - 1; ++j) {
-		if (token[j] == '\\') {
+		if (token[j] == '\\') { // escape character
 			std::string temp;
 			size_t processed;
 			switch (token[j + 1]) {
-				case '\'': to_return += 0x27; break;
-				case '\"': to_return += 0x22; break;
-				case '?':  to_return += 0x3f; break;
-				case '\\': to_return += 0x5c; break;
-				case 'a':  to_return += 0x07; break;
-				case 'b':  to_return += 0x08; break;
-				case 'f':  to_return += 0x0c; break;
-				case 'n':  to_return += 0x0a; break;
-				case 'r':  to_return += 0x0d; break;
-				case 't':  to_return += 0x09; break;
-				case 'v':  to_return += 0x0b; break;
-				case 'e':  to_return += 0x1b; break;
+				case '\'': toReturn += 0x27; break;
+				case '\"': toReturn += 0x22; break;
+				case '?':  toReturn += 0x3f; break;
+				case '\\': toReturn += 0x5c; break;
+				case 'a':  toReturn += 0x07; break;
+				case 'b':  toReturn += 0x08; break;
+				case 'f':  toReturn += 0x0c; break;
+				case 'n':  toReturn += 0x0a; break;
+				case 'r':  toReturn += 0x0d; break;
+				case 't':  toReturn += 0x09; break;
+				case 'v':  toReturn += 0x0b; break;
+				case 'e':  toReturn += 0x1b; break;
 				case 'x': // hex literal
 					temp = token.substr(j + 2);
-					to_return += std::to_string(std::stoull(temp, &processed, 16));
+					toReturn += std::to_string(std::stoull(temp, &processed, 16));
 					j += processed + 1;
 					break;
 				case 'u': // unicode 4 digits
 					temp = token.substr(j + 2, 4);
-					to_return += std::to_string(std::stoull(temp, nullptr, 16));
+					toReturn += std::to_string(std::stoull(temp, nullptr, 16));
 					j += 4 + 1;
 					break;
 				case 'U': // unicode 8 digits
 					temp = token.substr(j + 2, 8);
-					to_return += std::to_string(std::stoull(temp, nullptr, 16));
+					toReturn += std::to_string(std::stoull(temp, nullptr, 16));
 					j += 8 + 1;
 					break;
 				default: // octal literal
 					temp = token.substr(j + 1, 3);
-					to_return += std::to_string(std::stoull(temp, &processed, 8));
+					toReturn += std::to_string(std::stoull(temp, &processed, 8));
 					j += processed;
 					break;
 			}
 			++j;
 		} else {
-			to_return += std::to_string((int)token[j]);
+			toReturn += std::to_string((int)token[j]);
 		}
 	}
 }
 
+/// @brief Main formatting function
+/// @param tokens - vector of tokens to format
+/// @return Formatted type name
 std::string finalFmt(std::vector<std::string_view>& tokens) {
 	std::string toReturn;
 	std::multiset<std::string_view> multitoken;
@@ -496,11 +483,9 @@ std::string finalFmt(std::vector<std::string_view>& tokens) {
 
 std::string nameOfTypeFmt(std::string_view name) noexcept {
 	std::vector<std::string_view> tokens;
-
 	parseTokens(name, tokens);
-
 	std::erase_if(tokens, specifierErasePred);
-
 	return finalFmt(tokens);
 }
+
 } // namespace arch::meta::_nameOfType

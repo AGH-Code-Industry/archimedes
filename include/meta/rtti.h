@@ -4,5 +4,4 @@
 
 #include "rtti/HashTypeName.h"
 #include "rtti/TypeDescriptor.h"
-#include "rtti/TypeDescriptorBlock.h"
-#include "rtti/TypeDescriptorWrapper.h"
+#include "rtti/TypeDescriptorOwner.h"

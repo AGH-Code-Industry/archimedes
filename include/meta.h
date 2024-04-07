@@ -2,7 +2,6 @@
 
 #include "meta/Typeof.hpp"
 
-// #include "meta/BaseRegistry.h"
-// #include "meta/RegisterBases.h"
+#include "meta/baseUtils.h"
 #include "meta/nameOfType.h"
 #include "meta/rtti.h"
