@@ -1,4 +1,4 @@
-#include <audio/exception.h>
+#include <audio/Exception.h>
 
 namespace arch::audio {
 AudioException::AudioException(const std::string& description)

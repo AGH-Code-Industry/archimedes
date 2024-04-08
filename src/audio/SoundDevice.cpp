@@ -1,8 +1,8 @@
 #include <Logger.h>
-#include <audio/calls.hpp>
+#include <audio/Calls.hpp>
 
-#include <audio/exception.h>
-#include <audio/sound_device.h>
+#include <audio/Exception.h>
+#include <audio/SoundDevice.h>
 
 namespace arch::audio {
 SoundDevice::SoundDevice() {
