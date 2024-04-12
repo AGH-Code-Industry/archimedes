@@ -1,7 +1,7 @@
 Checks: '-*,readability-identifier-naming'
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase,          value: camelBack }
-  - { key: readability-identifier-naming.NamespaceIgnoredRegexp, value: _* }
+  - { key: readability-identifier-naming.NamespaceIgnoredRegexp, value: _.* }
 
   - { key: readability-identifier-naming.EnumCase,               value: CamelCase }
   - { key: readability-identifier-naming.ClassCase,              value: CamelCase }
@@ -16,6 +16,7 @@ CheckOptions:
   - { key: readability-identifier-naming.ParameterCase,          value: camelBack }
   - { key: readability-identifier-naming.ClassMemberCase,        value: camelBack }
   - { key: readability-identifier-naming.EnumConstantCase,       value: camelBack }
+  - { key: readability-identifier-naming.ClassMemberPrefix,      value: s_ }
 
   - { key: readability-identifier-naming.PrivateMethodCase,      value: camelBack }
   - { key: readability-identifier-naming.ProtectedMethodCase,    value: camelBack }
@@ -23,5 +24,6 @@ CheckOptions:
   - { key: readability-identifier-naming.ProtectedMemberCase,    value: camelBack }
   - { key: readability-identifier-naming.PrivateMethodPrefix,    value: _ }
   - { key: readability-identifier-naming.ProtectedMethodPrefix,  value: _ }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _ }
   - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _ }
   - { key: readability-identifier-naming.ProtectedMemberPrefix,  value: _ }

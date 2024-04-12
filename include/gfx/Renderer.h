@@ -13,6 +13,8 @@ class Renderer: public std::enable_shared_from_this<Renderer> {
 public:
 	static Ref<Renderer> create(RenderingAPI api);
 
+	static Ref<Renderer> current() { return s_current; }
+
 protected:
 	Renderer(const Ref<buffer::BufferManager>& bufferManager): _bufferManager(bufferManager) {}
 
@@ -38,7 +40,7 @@ protected:
 	Ref<buffer::BufferManager> _bufferManager;
 
 private:
-	static Ref<Renderer> current;
+	static Ref<Renderer> s_current;
 };
 
 } // namespace arch::gfx
