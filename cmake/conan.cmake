@@ -24,7 +24,8 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/con
 
 	execute_process(
 		COMMAND "conan" "profile" "detect" "--force"
-	) 
+		COMMAND_ERROR_IS_FATAL ANY
+	)
 
 	file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/")
 
