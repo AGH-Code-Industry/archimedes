@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
+#include "Application.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
 #include <gtest/gtest_prod.h>
@@ -13,6 +15,7 @@ struct EngineConfig {
 	int window_height;
 	std::string window_title;
 	glm::vec4 background_color;
+	std::shared_ptr<Application> userApplication;
 };
 
 /**
