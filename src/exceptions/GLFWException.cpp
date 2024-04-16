@@ -4,13 +4,10 @@
 
 namespace arch {
 
-GLFWException::GLFWException(): Exception("GLFW") {
+GLFWException::GLFWException(const std::source_location& location): Exception("GLFW", location) {
 	const char* description;
 	int code = glfwGetError(&description);
-	_appendMsg("code ");
-	_appendMsg(std::to_string(code));
-	_appendMsg(" description ");
-	_appendMsg(description);
+	_message = "(Code: " + std::to_string(code) + "): " + description;
 }
 
 } // namespace arch

@@ -17,14 +17,16 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	_initialize();
-
 	try {
+		_initialize();
+
 		_mainLoop();
+	} catch (Exception& e) {
+		e.print();
 	} catch (std::exception& e) {
 		Logger::error("Crashed with exception: {}", e.what());
 	} catch (...) {
-		Logger::error("Dupa");
+		Logger::error("Unhandled exception occurred");
 	}
 }
 
@@ -58,12 +60,12 @@ void Engine::_mainLoop() {
 	};
 
 	std::vector<Vertex> vertices{
-		{ glm::vec3(0.5f,	 0.5f, 0.0f), {}, glm::vec2(1.0f, 1.0f)},
-		{ glm::vec3(0.5f, -0.5f, 0.0f), {}, glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), {}, glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), {}, glm::vec2(0.0f, 1.0f)}
+		{  glm::vec3(0.5f,  0.5f, 0.0f), {}, glm::vec2(1.0f, 1.0f) },
+		{  glm::vec3(0.5f, -0.5f, 0.0f), {}, glm::vec2(1.0f, 0.0f) },
+		{ glm::vec3(-0.5f, -0.5f, 0.0f), {}, glm::vec2(0.0f, 0.0f) },
+		{ glm::vec3(-0.5f,  0.5f, 0.0f), {}, glm::vec2(0.0f, 1.0f) }
 	};
-	std::vector<uint32_t> indices{0, 1, 3, 1, 2, 3};
+	std::vector<uint32_t> indices{ 0, 1, 3, 1, 2, 3 };
 	// Model model { { { vertices, indices } } };
 	// TextureLoader texture_loader;
 	// Renderer3D renderer {};

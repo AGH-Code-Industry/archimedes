@@ -4,9 +4,9 @@
 
 namespace arch {
 
-class GLFWException: public Exception {
+class GLFWException final: public Exception {
 public:
-	GLFWException();
+	GLFWException(const std::source_location& location = std::source_location::current());
 };
 
 } // namespace arch

@@ -1,20 +1,30 @@
 #pragma once
 
 #include <exception>
-#include <string>
+#include <source_location>
+
+#include "Logger.h"
 
 namespace arch {
 
 class Exception: public std::exception {
+protected:
+	Exception(const std::string& title, const std::source_location& location);
+	Exception(const std::string& title, const std::string& message, const std::source_location& location);
+
 public:
-	Exception(const std::string& title);
+	void print(LogLevel level = LogLevel::error) const;
+
 	const char* what() const noexcept override;
 
-protected:
-	void _appendMsg(const std::string& msg);
+	std::string_view title() const;
+	std::string_view message() const;
+	const std::source_location& location() const;
 
-private:
-	std::string _msg;
+protected:
+	std::string _title;
+	std::string _message;
+	std::source_location _location;
 };
 
 } // namespace arch
