@@ -34,7 +34,7 @@ jobs:
     - name: Conan version
       run: echo "${{ steps.conan.outputs.version }}"
 
-    - name: GitHub Cache Action for conan
+    - name: GitHub Cache Action for Conan
       id: cache-conan
       uses: actions/cache@v3
       env:
@@ -44,30 +44,6 @@ jobs:
         key: ${{ runner.os }}-builder-${{ env.cache-name }}-${{ hashFiles('conanfile.py') }}
         restore-keys: ${{ runner.os }}-builder-${{ env.cache-name }}-
 
-    #- name: Detect Conan Profile
-    #  run: |
-    #      conan profile detect --force
-
-    #- name: Conan Profile Change Compiler Standard
-    #  run: |
-    #      sed -i 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' ~/.conan2/profiles/default
-    #      conan profile show 
-
-    #- name: Install Conan Pkg's
-    #  run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
-
-    - name: Test
-      run: |
-        echo "GH_REPO: $GH_REPO"
-
-    - name: GCC Path
-      run: |
-        echo "CC: $CC"
-
-    - name: G++ Path
-      run: | 
-        echo "CCX: $CCX"
-
     - name: Configure CMake
       run: |
           cmake ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
@@ -75,7 +51,7 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Test
+    - name: Run Tests
       working-directory: ${{github.workspace}}/build
       run: ./archimedes_tests
 
