@@ -56,6 +56,11 @@ jobs:
 
     #- name: Install Conan Pkg's
     #  run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+
+    - name: GCC Path
+      run: |
+        echo $CC
+        echo $CCX
     
     - name: Configure CMake
       run: |
