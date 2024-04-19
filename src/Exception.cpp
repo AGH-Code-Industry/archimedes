@@ -12,7 +12,7 @@ Exception::Exception(const std::string& title, const std::string& message, const
 	_location(location) {}
 
 void Exception::print(LogLevel level) const {
-	Logger::log(level, "[{}]: {}", _title, _message, _location);
+	Logger::log<const std::string&, const std::string&>(level, "[{}]: {}", _title, _message, _location);
 }
 
 const char* Exception::what() const noexcept {
