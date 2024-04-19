@@ -23,6 +23,7 @@ using u64 = uint64_t;
 
 using f32 = float_t;
 using f64 = double_t;
+using fld = long double;
 
 using float2 = glm::vec2;
 using float3 = glm::vec3;
