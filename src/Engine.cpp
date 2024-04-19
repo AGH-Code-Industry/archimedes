@@ -1,7 +1,6 @@
 #include "Engine.h"
 
-#include <glm/glm.hpp>
-
+#include "ArchMath.h"
 #include "InputHandler.h"
 #include "Logger.h"
 #include "exceptions/GLFWException.h"
@@ -52,18 +51,18 @@ void Engine::_mainLoop() {
 	// };
 	// 2D square
 	struct Vertex {
-		glm::vec3 position;
-		glm::vec3 color;
-		glm::vec2 tex_coords;
+		float3 position;
+		float3 color;
+		float2 tex_coords;
 	};
 
 	std::vector<Vertex> vertices{
-		{ glm::vec3(0.5f,	 0.5f, 0.0f), {}, glm::vec2(1.0f, 1.0f)},
-		{ glm::vec3(0.5f, -0.5f, 0.0f), {}, glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), {}, glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), {}, glm::vec2(0.0f, 1.0f)}
+		{  float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f) },
+		{  float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f) },
+		{ float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f) },
+		{ float3(-0.5f,	0.5f, 0.0f), {}, float2(0.0f, 1.0f) }
 	};
-	std::vector<uint32_t> indices{0, 1, 3, 1, 2, 3};
+	std::vector<u32> indices{ 0, 1, 3, 1, 2, 3 };
 	// Model model { { { vertices, indices } } };
 	// TextureLoader texture_loader;
 	// Renderer3D renderer {};

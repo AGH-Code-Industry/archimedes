@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/vec4.hpp>
 #include <string>
 
+#include <ArchMath.h>
 #include <GLFW/glfw3.h>
 
 namespace arch {
@@ -33,7 +33,7 @@ public:
 	 */
 	GLFWwindow* get() const;
 
-	void clear(glm::vec4 color) const;
+	void clear(Color color) const;
 	void clear(float r, float g, float b, float a) const;
 	void swapBuffers() const;
 	void resize(int width, int height) const;
