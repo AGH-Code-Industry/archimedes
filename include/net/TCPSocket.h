@@ -2,11 +2,10 @@
 
 #include <chrono>
 
-#include "net/Host.h"
-#include "net/Socket.h"
+#include <net/Host.h>
+#include <net/Socket.h>
 
 namespace arch::net {
-
 class Serializable;
 
 /// @brief Represents TCP sockets.
@@ -71,7 +70,7 @@ public:
 	LingerData linger() const;
 	/// @brief Sets linger data of socket.
 	/// @param data - linger data
-	void linger(LingerData data) const;
+	void linger(LingerData data);
 
 	/// @brief Requests unconditional connection.
 	/// @param host - host, to which ip() connection is requested.
@@ -117,12 +116,11 @@ public:
 	/// @brief Unconditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
 	/// @return true on success, false otherwise.
-	bool accept(TCPSocket& newSock) const;
+	bool accept(TCPSocket& newSock);
 	/// @brief Conditionally accepts incoming connection.
 	/// @param newSock - socket object that will hold connection socket.
 	/// @param condition - callback to predicate.
 	/// @param dataLen - length of acceptance data.
-	/// @param responseLen - length of response data.
 	/// @param additionalData - additional data used by predicate.
 	/// @return true on success, false otherwise.
 	bool condAccept(
@@ -131,17 +129,17 @@ public:
 		int dataLen,
 		int responseLen,
 		void* additionalData = nullptr
-	) const;
+	);
 
 	/// @brief Sends data to peer.
 	/// @param data - data to be sent.
 	/// @param len - length of data to be sent.
 	/// @return true on success, false otherwise.
-	bool send(const char* data, int len) const;
+	bool send(const char* data, int len);
 	/// @brief Sends data to peer.
 	/// @param data - data to be sent.
 	/// @return true on success, false otherwise.
-	bool send(const std::string& data) const;
+	bool send(const std::string& data);
 
 	/// @brief Receives data.
 	/// @param buf - buffer to save data to.
@@ -162,5 +160,4 @@ protected:
 	IPv4 _peerAddr;
 	uint8_t _status = 0;
 };
-
 } // namespace arch::net

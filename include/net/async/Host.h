@@ -3,16 +3,14 @@
 #include <future>
 #include <vector>
 
-#include "net/IPv4.h"
+#include <net/IPv4.h>
+#include <net/Utilities.h>
 
 namespace arch::net {
-
 class Host;
-
 }
 
 namespace arch::net::async {
-
 /// @brief Represents asynchronous host in IPv4 network.
 ///
 class Host {
@@ -87,10 +85,9 @@ private:
 
 	std::string _updateHostname();
 
-	std::vector<IPv4> _ips{IPv4()};
+	std::vector<IPv4> _ips{ IPv4() };
 	std::string _hostname;
 
 	std::timed_mutex _updateMutex;
 };
-
 } // namespace arch::net::async

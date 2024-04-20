@@ -60,7 +60,7 @@ std::future<bool> TCPSocket::listen(int maxconn) {
 	return std::async(std::launch::async, [this](int m) -> bool { return _Base::listen(m); }, maxconn);
 }
 
-std::future<bool> TCPSocket::accept(TCPSocket& newSock) const {
+std::future<bool> TCPSocket::accept(TCPSocket& newSock) {
 	return std::async(
 		std::launch::async,
 		[this](std::reference_wrapper<TCPSocket> ns) -> bool {

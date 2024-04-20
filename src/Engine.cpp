@@ -1,7 +1,6 @@
 #include "Engine.h"
 
-#include <glm/glm.hpp>
-
+#include "ArchMath.h"
 #include "InputHandler.h"
 #include "Logger.h"
 #include "gfx.h"
@@ -39,8 +38,8 @@ void Engine::_mainLoop() {
 	};
 
 	std::vector<Vertex> vertices{
-		{ float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f)},
-		{ float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f)},
+		{float3( 0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f)},
+		{float3( 0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f)},
 		{float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f)},
 		{float3(-0.5f,  0.5f, 0.0f), {}, float2(0.0f, 1.0f)}
 	};

@@ -59,13 +59,13 @@ bool Window::shouldClose() const {
 	return glfwWindowShouldClose(_window);
 }
 
-void Window::clear(glm::vec4 color) const {
-	glClearColor(color.x, color.y, color.z, color.w);
+void Window::clear(Color color) const {
+	glClearColor(color.r, color.g, color.b, color.a);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Window::clear(float r, float g, float b, float a) const {
-	glm::vec4 color(r, g, b, a);
+	Color color(r, g, b, a);
 	clear(color);
 }
 

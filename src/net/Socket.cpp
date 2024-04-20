@@ -183,7 +183,7 @@ int Socket::recvBuf() const {
 	return optval;
 }
 
-void Socket::recvBuf(int newVal) const {
+void Socket::recvBuf(int newVal) {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval));
@@ -204,7 +204,7 @@ int Socket::sendBuf() const {
 	return optval;
 }
 
-void Socket::sendBuf(int newVal) const {
+void Socket::sendBuf(int newVal) {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval));
@@ -225,7 +225,7 @@ bool Socket::exclusive() const {
 	return optval;
 }
 
-void Socket::exclusive(bool newVal) const {
+void Socket::exclusive(bool newVal) {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&optval, sizeof(optval));
@@ -246,7 +246,7 @@ bool Socket::reuse() const {
 	return optval;
 }
 
-void Socket::reuse(bool newVal) const {
+void Socket::reuse(bool newVal) {
 	int optval = newVal;
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval));

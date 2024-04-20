@@ -1,10 +1,9 @@
 #pragma once
 
-#include "net/UDPSocket.h"
-#include "net/async/Host.h"
+#include <net/UDPSocket.h>
+#include <net/async/Host.h>
 
 namespace arch::net::async {
-
 /// @brief Class representing asynchronous UDPSocket.
 ///
 class UDPSocket: protected net::UDPSocket {
@@ -66,14 +65,14 @@ public:
 	/// @param data - data to be sent.
 	/// @param length - length of data to be sent.
 	/// @return std::future with info if succeeded.
-	std::future<bool> sendTo(const Host& host, Port port, const char* data, int length);
+	std::future<bool> sendTo(const Host& host, Port port, const char* data, int len);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
 	/// @param data - data to be sent.
 	/// @param length - length of data to be sent.
 	/// @return std::future with info if succeeded.
-	std::future<bool> sendTo(const Host& host, const char* data, int length);
+	std::future<bool> sendTo(const Host& host, const char* data, int len);
 	/// @brief Sends given data to given host.
 	/// @details If data length exceeds sendBuff(), error occurs.
 	/// @param host - host to send data to, ip() will be used as address.
@@ -150,5 +149,4 @@ private:
 	std::mutex _sendMutex;
 	std::timed_mutex _recvMutex;
 };
-
 } // namespace arch::net::async
