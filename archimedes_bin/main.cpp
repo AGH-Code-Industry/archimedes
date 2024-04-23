@@ -24,7 +24,7 @@ int main() {
 
 	std::string cwd = "/home/anon/dev/archimedes-audio-system/archimedes/archimedes_bin/";
 	arch::audio::SoundDevice device;
-	arch::audio::AudioSource source(cwd + "rickroll.wav", arch::audio::WAV);
+	arch::audio::AudioSource source(cwd + "chip.wav", arch::audio::WAV);
 	source.play();
 
 

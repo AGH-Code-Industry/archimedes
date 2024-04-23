@@ -1,5 +1,6 @@
 #include <audio/AudioSource.h>
 #include <audio/Calls.hpp>
+#include <iostream>
 
 namespace arch::audio{
 
@@ -27,6 +28,7 @@ namespace arch::audio{
 		clip->load();
 		alCall(alGenBuffers, 1, &buffer);
 		alCall(alGenSources, 1, &source);
+		loadData();
 		alCall(alSourcei, source, AL_BUFFER, buffer);
 		updateSource();
 	}
@@ -37,6 +39,7 @@ namespace arch::audio{
 	}
 
 	void AudioSource::play(){
+		alCall(alSourcePlay, source);
 		ALint state = AL_PLAYING;
 		while(state == AL_PLAYING){
 			alCall(alGetSourcei, source, AL_SOURCE_STATE, &state);

@@ -7,7 +7,7 @@
 
 namespace arch::audio{
 
-	void Clip::readFirstWAVChunk(std::ifstream& input, ALchar buffer[4]){
+	void Clip::readFirstWAVChunk(std::ifstream& input, ALchar buffer[5]){
 		if(not input.read(buffer, 4)){
 			throw AudioException(filePath + " - couldn't read ChunkID");
 		}
@@ -21,7 +21,7 @@ namespace arch::audio{
 		}
 	}
 
-	void Clip::readSecondWAVChunk(std::ifstream& input, ALchar buffer[4],
+	void Clip::readSecondWAVChunk(std::ifstream& input, ALchar buffer[5],
 								ALushort& channelsNumber, ALushort& bitsPerSample){
 		if(not input.read(buffer, 4)){
 			throw AudioException(filePath + " - couldn't read Format");
@@ -75,7 +75,7 @@ namespace arch::audio{
 
 	}
 
-	void Clip::readListWAVChunk(std::ifstream& input, ALchar buffer[4]) {
+	void Clip::readListWAVChunk(std::ifstream& input, ALchar buffer[5]) {
 		if(not input.read(buffer, 4)) {
 			throw AudioException(filePath + " - couldn't read ListSize");
 		}
@@ -86,7 +86,7 @@ namespace arch::audio{
 		}
 	}
 
-	void Clip::readThirdWAVChunk(std::ifstream& input, ALchar buffer[4]){
+	void Clip::readThirdWAVChunk(std::ifstream& input, ALchar buffer[5]){
 		if(not input.read(buffer, 4)){
 			throw AudioException(filePath + " - couldn't read Subchunk2ID");
 		}
@@ -113,7 +113,7 @@ namespace arch::audio{
 		if(input.fail()){
 			throw AudioException(filePath + " - bad state set on file");
 		}
-
+		dataSize = dataSize - dataSize % 4;
 		data.reserve(dataSize);
 		data.assign(std::istreambuf_iterator<ALchar>(input), std::istreambuf_iterator<ALchar>());
 	}
@@ -135,6 +135,7 @@ namespace arch::audio{
 				return AL_FORMAT_STEREO16;
 			}
 		}
+		std::cout<<channelsNumber<< " " << bitsPerSample << std::endl;
 		throw AudioException(filePath + " - wrong format");
 	}
 
@@ -144,7 +145,7 @@ namespace arch::audio{
 		if(not input.is_open()){
 			throw AudioException("Couldn't open file " + filePath);
 		}
-		ALchar buffer[4];
+		ALchar buffer[90] = "buff";
 		readFirstWAVChunk(input, buffer);
 		readSecondWAVChunk(input, buffer, channelsNumber, bitsPerSample);
 		readThirdWAVChunk(input, buffer);
