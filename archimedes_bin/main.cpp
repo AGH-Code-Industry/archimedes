@@ -1,5 +1,7 @@
 #include <Engine.h>
 #include <Logger.h>
+#include <audio/SoundDevice.h>
+#include <audio/AudioSource.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
@@ -17,6 +19,14 @@ int main() {
 		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
 	};
 
+
 	arch::Engine engine { config };
-	engine.start();
+
+	std::string cwd = "/home/anon/dev/archimedes-audio-system/archimedes/archimedes_bin/";
+	arch::audio::SoundDevice device;
+	arch::audio::AudioSource source(cwd + "rickroll.wav", arch::audio::WAV);
+	source.play();
+
+
+
 }
