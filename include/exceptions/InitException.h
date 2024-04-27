@@ -1,18 +1,21 @@
 #pragma once
 
-#include <exception>
 #include <string>
+
+#include "Exception.h"
 
 namespace arch {
 
-class InitException: public std::exception {
+/// Exception thrown when an error occurs during initialization.
+/// @see Exception
+///
+class InitException final: public Exception {
 public:
-	explicit InitException(const std::string& message = "");
-
-	[[nodiscard]] const char* what() const noexcept override;
-
-private:
-	std::string _message;
+	/// Constructor.
+	/// @param message Message of the exception.
+	/// @param location Source location of the exception.
+	///
+	InitException(const std::string& message, const std::source_location& location = std::source_location::current());
 };
 
 } // namespace arch

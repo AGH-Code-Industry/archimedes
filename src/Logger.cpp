@@ -28,6 +28,7 @@ void Logger::init(LogLevel logLevel, const std::string& name) {
 	{
 		// Add a file sink
 		char logPath[256];
+		// ReSharper disable once CppRedundantCastExpression
 		std::snprintf(logPath, sizeof(logPath), "Logs/%s-%lld.log", name.c_str(), (long long)std::time(nullptr));
 
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath, true);
