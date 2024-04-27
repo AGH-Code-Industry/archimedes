@@ -2,7 +2,7 @@
 
 namespace arch::net {
 
-NetException::NetException(const std::string& title, const std::source_location& location):
-	Exception("Network", title, location) {}
+NetException::NetException(const std::string& message, const std::source_location& location):
+	Exception("Network", message, location) {}
 
 } // namespace arch::net
