@@ -3,7 +3,7 @@
 #include "HashTypeName.h"
 #include "TypeDescriptor.h"
 #include "TypeDescriptorOwner.h"
-#include <meta/nameOfType.h>
+#include <meta/NameOfType.h>
 
 namespace arch::meta::rtti {
 
