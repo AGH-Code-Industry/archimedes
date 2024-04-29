@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RTTIEnabled.hpp"
+#include "StaticTypedesc.hpp"
 #include <memory>
 
 #include "Typedesc.h"

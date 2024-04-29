@@ -27,9 +27,6 @@ private:                                                                        
 		static_assert(arch::meta::thisT::HasThisT<typeof(*this)>, "EnableRTTI requires THIS_T(T) class attribute"); \
 		return static_typedesc(*this);                                                                              \
 	}                                                                                                               \
-	/* friend getter class */                                                                                       \
-	template<class>                                                                                                 \
-	friend struct arch::meta::rtti::UniqueGetter;                                                                   \
 	/* friend operator */                                                                                           \
 	template<class _ARCH_TEMPLATE_T>                                                                                \
 	friend const arch::meta::rtti::TypeDescriptor&                                                                  \
