@@ -1,8 +1,8 @@
 #include "Engine.h"
 
+#include "Exception.h"
 #include "InputHandler.h"
 #include "Logger.h"
-#include "Exception.h"
 #include "gfx.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
@@ -40,12 +40,12 @@ void Engine::_mainLoop() {
 	};
 
 	std::vector<Vertex> vertices{
-		{float3( 0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f)},
-		{float3( 0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f)},
-		{float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f)},
-		{float3(-0.5f,  0.5f, 0.0f), {}, float2(0.0f, 1.0f)}
+		{  float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f) },
+		{  float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f) },
+		{ float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f) },
+		{ float3(-0.5f,	0.5f, 0.0f), {}, float2(0.0f, 1.0f) }
 	};
-	std::vector<u32> indices{0, 1, 3, 1, 2, 3};
+	std::vector<u32> indices{ 0, 1, 3, 1, 2, 3 };
 
 	// Ref<Shader> shader = Shader::load("shaders/vertex_shader.sprv", "shaders/fragment_shader.sprv");
 	// Ref<Material> material = Material::create(shader);
@@ -56,23 +56,23 @@ void Engine::_mainLoop() {
 
 	Ref<Mesh> mesh = Mesh::create(std::span(vertices), indices);
 
-	InputHandler::get().initialize(_window->get());
+	InputHandler::get().initialize(_mainWindow->get());
 
-	while (!_window->shouldClose()) {
-		_window->clear(_engineConfig.backgroundColor);
+	while (!_mainWindow->shouldClose()) {
+		_mainWindow->clear(_engineConfig.backgroundColor);
 
 		_renderer->render(mesh, /* material,*/ Mat4x4(1.0f));
 
-		_window->swapBuffers();
+		_mainWindow->swapBuffers();
 		glfwPollEvents();
 	}
 }
 
 void Engine::_initialize() {
-	_window = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
+	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
 	_renderer = Renderer::create(_engineConfig.renderingApi);
-	_renderer->init(_window);
+	_renderer->init(_mainWindow);
 	_renderer->makeCurrent();
 
 	Logger::info("Engine initialization successful");

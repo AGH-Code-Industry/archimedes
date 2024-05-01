@@ -30,7 +30,7 @@ public:
 	void start();
 
 private:
-	Ref<Window> _window;
+	Ref<Window> _mainWindow;
 	EngineConfig _engineConfig;
 	Ref<gfx::Renderer> _renderer;
 
