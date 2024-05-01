@@ -11,6 +11,12 @@ namespace arch::math {
 
 using Byte = std::byte;
 
+// NOLINTBEGIN(*-identifier-naming)
+
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -32,6 +38,8 @@ using int4 = glm::ivec4;
 using uint2 = glm::uvec2;
 using uint3 = glm::uvec3;
 using uint4 = glm::uvec4;
+
+// NOLINTEND(*-identifier-naming)
 
 using Mat2x2 = glm::mat2;
 using Mat3x3 = glm::mat3;
