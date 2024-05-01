@@ -33,6 +33,8 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 }
 
 void VulkanRenderer::shutdown() {
+	_cleanupSwapchain();
+
 	vkDestroyDevice(device, allocator);
 	device = nullptr;
 
@@ -302,6 +304,16 @@ void VulkanRenderer::_createImageViews() {
 			"Failed to create image view!"
 		);
 	}
+}
+
+void VulkanRenderer::_cleanupSwapchain() {
+	for (const auto& frame : swapchainFrames) {
+		vkDestroyImageView(device, frame.imageView, allocator);
+	}
+	swapchainFrames.clear();
+
+	vkDestroySwapchainKHR(device, swapchain, allocator);
+	swapchain = nullptr;
 }
 
 } // namespace arch::gfx::vulkan
