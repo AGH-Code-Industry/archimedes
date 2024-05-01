@@ -30,8 +30,6 @@ private:
 	void _recreateSwapchain();
 	void _cleanupSwapchain();
 
-	void _createImageViews();
-
 public:
 	VkAllocationCallbacks* allocator = nullptr;
 	VkInstance instance = nullptr;
@@ -48,7 +46,7 @@ public:
 
 	VkSwapchainKHR swapchain = nullptr;
 	VkFormat swapchainImageFormat = VK_FORMAT_UNDEFINED;
-	VkExtent2D swapchainExtent = {0, 0};
+	VkExtent2D swapchainExtent = { 0, 0 };
 
 	QueueFamilyIndices indices;
 	SwapchainSupportDetails swapchainSupportDetails;

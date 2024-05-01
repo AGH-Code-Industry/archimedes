@@ -27,7 +27,6 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 	volkLoadDevice(device);
 
 	_createSwapchain();
-	_createImageViews();
 
 	Logger::info("Created Vulkan instance.");
 }
@@ -66,9 +65,9 @@ void VulkanRenderer::_createInstance() {
 	VkInstanceCreateInfo createInfo{
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.pApplicationInfo = &appInfo,
-		.enabledLayerCount = (uint32_t)layers.size(),
+		.enabledLayerCount = (u32)layers.size(),
 		.ppEnabledLayerNames = layers.data(),
-		.enabledExtensionCount = (uint32_t)extensions.size(),
+		.enabledExtensionCount = (u32)extensions.size(),
 		.ppEnabledExtensionNames = extensions.data(),
 	};
 
@@ -100,7 +99,7 @@ void VulkanRenderer::_createSurface() {
 }
 
 void VulkanRenderer::_pickPhisicalDevice() {
-	uint32_t deviceCount = 0;
+	u32 deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
@@ -110,11 +109,11 @@ void VulkanRenderer::_pickPhisicalDevice() {
 	std::vector<VkPhysicalDevice> devices(deviceCount);
 	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-	int bestScore = -1;
+	i32 bestScore = -1;
 	for (const auto& device : devices) {
 		QueueFamilyIndices currentIndices;
 		SwapchainSupportDetails currentSwapchainSupportDetails;
-		if (int score = VulkanUtils::getDeviceScore(device, surface, currentIndices, currentSwapchainSupportDetails);
+		if (i32 score = VulkanUtils::getDeviceScore(device, surface, currentIndices, currentSwapchainSupportDetails);
 			score >= 0 && bestScore < score) {
 			physicalDevice = device;
 			indices = currentIndices;
@@ -129,7 +128,7 @@ void VulkanRenderer::_pickPhisicalDevice() {
 }
 
 void VulkanRenderer::_createLogicalDevice() {
-	float queuePriority = 1.f;
+	f32 queuePriority = 1.f;
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -212,16 +211,16 @@ void VulkanRenderer::_createSwapchain() {
 	if (swapchainSupportDetails.capabilities.currentExtent.width != std::numeric_limits<u32>::max()) {
 		extent = swapchainSupportDetails.capabilities.currentExtent;
 	} else {
-		int width, height;
+		i32 width, height;
 		glfwGetFramebufferSize(_window->get(), &width, &height);
 
 		extent = { std::clamp(
-					   static_cast<u32>(width),
+					   (u32)width,
 					   swapchainSupportDetails.capabilities.minImageExtent.width,
 					   swapchainSupportDetails.capabilities.maxImageExtent.width
 				   ),
 				   std::clamp(
-					   static_cast<u32>(height),
+					   (u32)height,
 					   swapchainSupportDetails.capabilities.minImageExtent.height,
 					   swapchainSupportDetails.capabilities.maxImageExtent.height
 				   ) };
@@ -269,15 +268,14 @@ void VulkanRenderer::_createSwapchain() {
 	std::vector<VkImage> swapchainImages(imageCount);
 	vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data());
 	swapchainFrames.resize(imageCount);
-	for (int i = 0; i < swapchainFrames.size(); ++i) {
+	for (u64 i = 0; i < swapchainFrames.size(); ++i) {
 		swapchainFrames[i].image = swapchainImages[i];
 	}
 
 	swapchainExtent = extent;
 	swapchainImageFormat = surfaceFormat.format;
-}
 
-void VulkanRenderer::_createImageViews() {
+	// Image Views
 	for (u64 i = 0; i < swapchainFrames.size(); i++) {
 		VkImageViewCreateInfo createInfo = {
 			.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -296,7 +294,7 @@ void VulkanRenderer::_createImageViews() {
 				.levelCount = 1,
 				.baseArrayLayer = 0,
 				.layerCount = 1,
-			},
+			}
 		};
 
 		VulkanUtils::vkAssert(
@@ -314,6 +312,24 @@ void VulkanRenderer::_cleanupSwapchain() {
 
 	vkDestroySwapchainKHR(device, swapchain, allocator);
 	swapchain = nullptr;
+}
+
+void VulkanRenderer::_recreateSwapchain() {
+	i32 width = 0, height = 0;
+	GLFWwindow* window = _window->get();
+	glfwGetFramebufferSize(window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(device);
+
+	_cleanupSwapchain();
+
+	swapchainSupportDetails = VulkanUtils::getSwapchainSupportDetails(physicalDevice, surface);
+
+	_createSwapchain();
 }
 
 } // namespace arch::gfx::vulkan
