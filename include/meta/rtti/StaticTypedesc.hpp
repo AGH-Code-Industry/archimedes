@@ -5,8 +5,8 @@
 #include "TypeDescriptor.h"
 #include "TypeDescriptorOwner.h"
 
-#define _staticTypedescImpl(...) arch::meta::rtti::TypeDescriptorOwner<typeof(__VA_ARGS__)>::get()
+#define _ARCH_STATIC_TYPEDESC_IMPL(...) arch::meta::rtti::TypeDescriptorOwner<typeof(__VA_ARGS__)>::get()
 
 /// @brief Queries TypeDescriptor of given type, without usage of polymorphism
 /// @param ... - type/expression which TypeDescriptor to access
-#define static_typedesc(...) _staticTypedescImpl(__VA_ARGS__)
+#define staticTypedesc(...) _ARCH_STATIC_TYPEDESC_IMPL(__VA_ARGS__)

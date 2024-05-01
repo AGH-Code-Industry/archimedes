@@ -38,7 +38,7 @@ constexpr std::string_view nameOf() noexcept {
 	auto prefix = intSignature.substr(0, found);
 
 	const auto location = std::source_location::current(
-#if __INTELLISENSE__
+#if __INTELLISENSE__ // Visual Studio cannot into constexpr
 		__builtin_LINE(),
 		__builtin_COLUMN(),
 		__builtin_FILE(),
@@ -56,8 +56,8 @@ constexpr std::string_view nameOf() noexcept {
 
 } // namespace arch::meta::nameOfType
 
-#define _nameOfTypeImpl(x) arch::meta::nameOfType::nameOf<x>()
+#define _ARCH_NAMEOF_TYPE_NO_FMT_IMPL(...) arch::meta::nameOfType::nameOf<__VA_ARGS__>()
 /// @brief Returns nonstandardized name of given type (constexpr)
-#define nameOfTypeNoFmt(x) _nameOfTypeImpl(x)
+#define nameOfTypeNoFmt(...) _ARCH_NAMEOF_TYPE_NO_FMT_IMPL(__VA_ARGS__)
 /// @brief Returns standardized name of given type (runtime only)
-#define nameOfType(x) arch::meta::nameOfType::nameOfTypeFmt(nameOfTypeNoFmt(x))
+#define nameOfType(...) arch::meta::nameOfType::nameOfFmt(nameOfTypeNoFmt(__VA_ARGS__))

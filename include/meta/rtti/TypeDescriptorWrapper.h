@@ -4,9 +4,7 @@
 
 #include "TypeDescriptor.h"
 
-namespace arch {
-namespace meta {
-namespace rtti {
+namespace arch::meta::rtti {
 
 class TypeDescriptor;
 
@@ -55,10 +53,13 @@ private:
 
 	const TypeDescriptor* _desc;
 };
-} // namespace rtti
 
+} // namespace arch::meta::rtti
+
+namespace arch::meta {
 using rtti::TypeDescriptorWrapper;
-} // namespace meta
+}
 
+namespace arch {
 using meta::TypeDescriptorWrapper;
-} // namespace arch
+}

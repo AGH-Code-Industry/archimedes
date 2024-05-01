@@ -238,12 +238,12 @@ bool specifierErasePred(const std::string_view& token) {
 		token == "consteval";
 }
 
-#define _HANDLE_CV_IMPL(...)                                                                        \
+#define _ARCH_HANDLE_CV_IMPL(...)                                                                   \
 	(multitoken.contains("const") ?                                                                 \
 		 (multitoken.contains("volatile") ? "const volatile " __VA_ARGS__ : "const " __VA_ARGS__) : \
 		 (multitoken.contains("volatile") ? "volatile " __VA_ARGS__ : "" __VA_ARGS__))
 
-#define _HANDLE_CV(...) _HANDLE_CV_IMPL(__VA_ARGS__)
+#define _ARCH_HANDLE_CV(...) _ARCH_HANDLE_CV_IMPL(__VA_ARGS__)
 
 /// @brief Standardizes order of combination of tokens that form one type
 /// @details C++ standard says that ex. unsigned long long == long unsigned long
@@ -252,39 +252,39 @@ bool specifierErasePred(const std::string_view& token) {
 std::string_view multitokenToToken(std::multiset<std::string_view>& multitoken) {
 	if (multitoken.contains("char")) {
 		if (multitoken.contains("unsigned")) {
-			return _HANDLE_CV("unsigned char");
+			return _ARCH_HANDLE_CV("unsigned char");
 		} else if (multitoken.contains("signed")) {
-			return _HANDLE_CV("signed char");
+			return _ARCH_HANDLE_CV("signed char");
 		} else {
-			return _HANDLE_CV("char");
+			return _ARCH_HANDLE_CV("char");
 		}
 	} else if (multitoken.contains("short")) {
 		if (multitoken.contains("unsigned")) {
-			return _HANDLE_CV("unsigned short");
+			return _ARCH_HANDLE_CV("unsigned short");
 		} else {
-			return _HANDLE_CV("short");
+			return _ARCH_HANDLE_CV("short");
 		}
 	} else if (multitoken.contains("long")) {
 		if (multitoken.count("long") == 1) {
 			if (multitoken.contains("double")) {
-				return _HANDLE_CV("long double");
+				return _ARCH_HANDLE_CV("long double");
 			} else if (multitoken.contains("unsigned")) {
-				return _HANDLE_CV("unsigned long");
+				return _ARCH_HANDLE_CV("unsigned long");
 			} else {
-				return _HANDLE_CV("long");
+				return _ARCH_HANDLE_CV("long");
 			}
 		} else { // count == 2
 			if (multitoken.contains("unsigned")) {
-				return _HANDLE_CV("unsigned long long");
+				return _ARCH_HANDLE_CV("unsigned long long");
 			} else {
-				return _HANDLE_CV("long long");
+				return _ARCH_HANDLE_CV("long long");
 			}
 		}
 	} else if (multitoken.contains("int")) {
 		if (multitoken.contains("unsigned")) {
-			return _HANDLE_CV("unsigned int");
+			return _ARCH_HANDLE_CV("unsigned int");
 		} else {
-			return _HANDLE_CV("int");
+			return _ARCH_HANDLE_CV("int");
 		}
 	} else if (multitoken.contains("const")) {
 		if (multitoken.contains("volatile")) {
@@ -498,7 +498,7 @@ std::string finalFmt(std::vector<std::string_view>& tokens) {
 	return toReturn;
 }
 
-std::string nameOfTypeFmt(std::string_view name) noexcept {
+std::string nameOfFmt(std::string_view name) noexcept {
 	std::vector<std::string_view> tokens;
 	parseTokens(name, tokens);
 	std::erase_if(tokens, specifierErasePred);

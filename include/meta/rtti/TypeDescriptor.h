@@ -4,9 +4,8 @@
 #include <string>
 #include <typeinfo>
 
-namespace arch {
-namespace meta {
-namespace rtti {
+namespace arch::meta::rtti {
+
 class TypeDescriptorWrapper;
 
 /// @brief Class containing type data
@@ -47,10 +46,13 @@ private:
 
 	const std::type_info* _typeid;
 };
-} // namespace rtti
 
+} // namespace arch::meta::rtti
+
+namespace arch::meta {
 using rtti::TypeDescriptor;
-} // namespace meta
+}
 
+namespace arch {
 using meta::TypeDescriptor;
-} // namespace arch
+}

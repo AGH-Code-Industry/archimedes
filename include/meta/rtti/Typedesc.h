@@ -5,11 +5,7 @@
 
 #include "TypeDescriptor.h"
 
-namespace arch::meta::rtti {
-
-/// @brief Concept checking whether T is not std::default_initializable
-template<class T>
-concept NotDefaultInitializable = not std::default_initializable<T>;
+namespace arch::meta::rtti::_details {
 
 /// @brief Helper struct of typedesc() macro
 struct Helper {
@@ -21,7 +17,8 @@ struct Helper {
 	/// @brief Reference casting operator, used only for type deduction
 	/// @tparam T - type to which refernce cast to
 	/// @return Casted (*this)
-	template<NotDefaultInitializable T>
+	template<class T>
+	requires(not std::default_initializable<T>)
 	operator const T&() const noexcept;
 	// #ifndef _MSC_VER // works without it on MSVC
 	/// @brief Casting operator, used only for type deduction
@@ -40,7 +37,7 @@ static inline constexpr Helper helper{};
 
 /// @brief Helper multiplication operator
 /// @brief If T is polymorphic and RTTIEnabled, obtains TypeDescriptor from lhs
-/// @brief Else obtains TypeDescriptor by static_typedesc(T)
+/// @brief Else obtains TypeDescriptor by staticTypedesc(T)
 /// @tparam T - type of lhs
 /// @param lhs - object which TypeDescriptor to obtain
 /// @param rhs - Helper object
@@ -66,6 +63,6 @@ const TypeDescriptor& ptrToTypeDesc<TypeDescriptor>(const TypeDescriptor* desc) 
 template<class T>
 const T* toPtr(const T& val) noexcept;
 
-} // namespace arch::meta::rtti
+} // namespace arch::meta::rtti::_details
 
 #include "Typedesc.hpp"

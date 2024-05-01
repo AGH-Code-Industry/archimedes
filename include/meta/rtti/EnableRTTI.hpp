@@ -25,10 +25,10 @@ private:                                                                        
 	/* virtual method returning TypeDescriptor */                                                                   \
 	virtual inline const arch::TypeDescriptor& _getTypeDescriptor() const noexcept {                                \
 		static_assert(arch::meta::thisT::HasThisT<typeof(*this)>, "EnableRTTI requires THIS_T(T) class attribute"); \
-		return static_typedesc(*this);                                                                              \
+		return staticTypedesc(*this);                                                                               \
 	}                                                                                                               \
 	/* friend operator */                                                                                           \
 	template<class _ARCH_TEMPLATE_T>                                                                                \
 	friend const arch::meta::rtti::TypeDescriptor&                                                                  \
-	arch::meta::rtti::operator*(const _ARCH_TEMPLATE_T&, const arch::meta::rtti::Helper&) noexcept
+	arch::meta::rtti::_details::operator*(const _ARCH_TEMPLATE_T&, const arch::meta::rtti::_details::Helper&) noexcept
 
