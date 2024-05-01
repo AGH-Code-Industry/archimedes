@@ -47,8 +47,9 @@ void Engine::_mainLoop() {
 	};
 	std::vector<u32> indices{ 0, 1, 3, 1, 2, 3 };
 
-	// Ref<Shader> shader = Shader::load("shaders/vertex_shader.sprv", "shaders/fragment_shader.sprv");
-	// Ref<Material> material = Material::create(shader);
+	// Ref<Shader> vShader = Shader::load("shaders/vertex_shader.sprv");
+	// Ref<Shader> fShader = Shader::load("shaders/fragment_shader.sprv");
+	// Ref<Material> material = Material::create(vShader, fShader);
 	// material->setTexture("_mainTxt", TextureLoader::read_file("textures/.jpg"));
 	// material->SetFloat("_mixValue", 0.2f);
 	// material->SetFloat3("_pos", glm::vec3(0.5f, 0.5f, 0.5f));
