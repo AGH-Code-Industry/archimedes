@@ -1,5 +1,7 @@
 #pragma once
 #include <array>
+#include <source_location>
+#include <string>
 #include <vector>
 
 #include "VulkanTypes.h"
@@ -14,7 +16,7 @@ public:
 		VK_KHR_MAINTENANCE_1_EXTENSION_NAME,
 	};
 
-	static constexpr std::array VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
+	static constexpr std::array VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
 
 	static bool areValidationLayersEnabled();
 
@@ -45,6 +47,12 @@ public:
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData
+	);
+
+	static void vkAssert(
+		VkResult result,
+		const std::string& message,
+		const std::source_location& location = std::source_location::current()
 	);
 };
 

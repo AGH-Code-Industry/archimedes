@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Window.h"
 #include "platform/vulkan/VulkanUtils.h"
+#include "platform/vulkan/exceptions/VulkanException.h"
 #include <GLFW/glfw3.h>
 
 namespace arch::gfx::vulkan {
@@ -12,21 +13,21 @@ namespace arch::gfx::vulkan {
 void VulkanRenderer::init(const Ref<Window>& window) {
 	_window = window;
 
-	volkInitialize();
+	VulkanUtils::vkAssert(volkInitialize(), "Failed to initialize volk.");
 
 	_createInstance();
 
 	volkLoadInstance(instance);
 
 	_setupDebugMessage();
-
 	_createSurface();
-
 	_pickPhisicalDevice();
-
 	_createLogicalDevice();
 
 	volkLoadDevice(device);
+
+	_createSwapchain();
+	_createImageViews();
 
 	Logger::info("Created Vulkan instance.");
 }
@@ -69,11 +70,7 @@ void VulkanRenderer::_createInstance() {
 		.ppEnabledExtensionNames = extensions.data(),
 	};
 
-	VkResult status = vkCreateInstance(&createInfo, allocator, &instance);
-
-	if (status != VK_SUCCESS) {
-		Logger::error("Failed to create Vulkan instance.");
-	}
+	VulkanUtils::vkAssert(vkCreateInstance(&createInfo, allocator, &instance), "Failed to create Vulkan instance.");
 }
 
 void VulkanRenderer::_setupDebugMessage() {
@@ -87,14 +84,17 @@ void VulkanRenderer::_setupDebugMessage() {
 		.pUserData = nullptr,
 	};
 
-	vkCreateDebugUtilsMessengerEXT(instance, &createInfo, allocator, &debugMessenger);
+	VulkanUtils::vkAssert(
+		vkCreateDebugUtilsMessengerEXT(instance, &createInfo, allocator, &debugMessenger),
+		"Failed to setup debug messenger."
+	);
 }
 
 void VulkanRenderer::_createSurface() {
-	VkResult status = glfwCreateWindowSurface(instance, _window->get(), allocator, &surface);
-	if (status != VK_SUCCESS) {
-		throw std::runtime_error("failed to create window surface!");
-	}
+	VulkanUtils::vkAssert(
+		glfwCreateWindowSurface(instance, _window->get(), allocator, &surface),
+		"Failed to create window surface."
+	);
 }
 
 void VulkanRenderer::_pickPhisicalDevice() {
@@ -102,7 +102,7 @@ void VulkanRenderer::_pickPhisicalDevice() {
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
-		throw std::runtime_error("failed to find GPUs with Vulkan support!");
+		throw exceptions::VulkanException("Failed to find GPUs with Vulkan support!");
 	}
 
 	std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -122,7 +122,7 @@ void VulkanRenderer::_pickPhisicalDevice() {
 	}
 
 	if (physicalDevice == VK_NULL_HANDLE) {
-		throw std::runtime_error("failed to find a suitable GPU!");
+		throw exceptions::VulkanException("Failed to find a suitable GPU!");
 	}
 }
 
@@ -146,7 +146,7 @@ void VulkanRenderer::_createLogicalDevice() {
 	}
 
 	if (indices.transferFamily != indices.graphicsFamily && indices.transferFamily != indices.presentFamily) {
-		// Present Queue
+		// Transfer Queue
 		queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 									 .queueFamilyIndex = indices.transferFamily,
 									 .queueCount = 1,
@@ -176,9 +176,10 @@ void VulkanRenderer::_createLogicalDevice() {
 		}
 	}
 
-	if (vkCreateDevice(physicalDevice, &createInfo, allocator, &device) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create logical device!");
-	}
+	VulkanUtils::vkAssert(
+		vkCreateDevice(physicalDevice, &createInfo, allocator, &device),
+		"Failed to create logical device!"
+	);
 
 	vkGetDeviceQueue(device, indices.transferFamily, 0, &transferQueue);
 	vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
@@ -196,12 +197,14 @@ void VulkanRenderer::_createSwapchain() {
 	}
 
 	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
+#if false // Triple buffering - currently not supported
 	for (const auto& availablePresentMode : swapchainSupportDetails.presentModes) {
 		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
 			presentMode = availablePresentMode;
 			break;
 		}
 	}
+#endif
 
 	VkExtent2D extent;
 	if (swapchainSupportDetails.capabilities.currentExtent.width != std::numeric_limits<u32>::max()) {
@@ -255,9 +258,10 @@ void VulkanRenderer::_createSwapchain() {
 		createInfo.pQueueFamilyIndices = nullptr; // Optional
 	}
 
-	if (vkCreateSwapchainKHR(device, &createInfo, allocator, &swapchain) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create swap chain!");
-	}
+	VulkanUtils::vkAssert(
+		vkCreateSwapchainKHR(device, &createInfo, allocator, &swapchain),
+		"Failed to create swap chain!"
+	);
 
 	vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
 	std::vector<VkImage> swapchainImages(imageCount);
@@ -293,9 +297,10 @@ void VulkanRenderer::_createImageViews() {
 			},
 		};
 
-		if (vkCreateImageView(device, &createInfo, allocator, &swapchainFrames[i].imageView) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create image views!");
-		}
+		VulkanUtils::vkAssert(
+			vkCreateImageView(device, &createInfo, allocator, &swapchainFrames[i].imageView),
+			"Failed to create image view!"
+		);
 	}
 }
 

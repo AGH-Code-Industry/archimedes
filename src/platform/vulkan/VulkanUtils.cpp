@@ -3,6 +3,7 @@
 #include <set>
 
 #include "Logger.h"
+#include "platform/vulkan/exceptions/VulkanException.h"
 #include <GLFW/glfw3.h>
 
 namespace arch::gfx::vulkan {
@@ -16,7 +17,7 @@ std::vector<const char*> VulkanUtils::getValidationLayers() {
 		return {};
 	}
 
-	std::vector<const char*> layers{VALIDATION_LAYERS.begin(), VALIDATION_LAYERS.end()};
+	std::vector<const char*> layers{ VALIDATION_LAYERS.begin(), VALIDATION_LAYERS.end() };
 
 	// Get all avalible layers
 	uint32_t layerCount;
@@ -104,7 +105,7 @@ int VulkanUtils::getDeviceScore(
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-		std::set<std::string> requiredExtensions = {DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end()};
+		std::set<std::string> requiredExtensions = { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
 
 		for (const auto& [extensionName, specVersion] : availableExtensions) {
 			requiredExtensions.erase(extensionName);
@@ -190,7 +191,7 @@ u32 VulkanUtils::findMemoryType(VkPhysicalDevice device, uint32_t typeFilter, Vk
 		}
 	}
 
-	throw std::runtime_error("failed to find suitable memory type!");
+	throw exceptions::VulkanException("Failed to find suitable memory type!");
 }
 
 VkFormat VulkanUtils::findSupportedFormat(
@@ -211,7 +212,7 @@ VkFormat VulkanUtils::findSupportedFormat(
 			return format;
 		}
 	}
-	throw std::runtime_error("failed to find supported format!");
+	throw exceptions::VulkanException("Failed to find supported format!");
 }
 
 u32 VulkanUtils::debugCallback(
@@ -234,6 +235,12 @@ u32 VulkanUtils::debugCallback(
 
 	Logger::log(level, "[Vulkan] {}", pCallbackData->pMessage);
 	return VK_FALSE;
+}
+
+void VulkanUtils::vkAssert(VkResult result, const std::string& message, const std::source_location& location) {
+	if (result != VK_SUCCESS) {
+		throw exceptions::VulkanException(message, location);
+	}
 }
 
 } // namespace arch::gfx::vulkan
