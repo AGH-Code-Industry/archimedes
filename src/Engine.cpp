@@ -1,8 +1,8 @@
 #include "Engine.h"
 
-#include "ArchMath.h"
 #include "InputHandler.h"
 #include "Logger.h"
+#include "Exception.h"
 #include "gfx.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
@@ -16,14 +16,16 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	_initialize();
-
 	try {
+		_initialize();
+
 		_mainLoop();
+	} catch (Exception& e) {
+		e.print();
 	} catch (std::exception& e) {
 		Logger::error("Crashed with exception: {}", e.what());
 	} catch (...) {
-		Logger::error("Dupa");
+		Logger::error("Unhandled exception occurred");
 	}
 }
 
