@@ -1,6 +1,6 @@
 #include "gfx/Mesh.h"
 
-#include "gfx/buffer.h"
+#include "gfx/Buffer.h"
 
 namespace arch::gfx {
 
