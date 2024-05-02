@@ -29,16 +29,28 @@ to bump archimedes version using
 git submodule update --remote
 ```
 
+
 # Compiling
+
+Prerequred:
+- Conan 2.x
+- git
+- CMake >= 3.19
+
 ```sh
-pip install conan
-conan profile detect --force
-mkdir build
-conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build .
+git clone https://github.com/AGH-Code-Industry/archimedes
 ```
+```sh
+cd archimedes
+```
+
+```sh
+cmake . -B build -DCMAKE_BUILD_TYPE=<Release/Debug> -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE
+```
+```sh
+cmake --build ./build
+```
+
 # Running Tests
 If you have followed [Compiling](#Compiling) section, you should be able run tests
 ```sh
@@ -49,15 +61,18 @@ cd build
 # Project structure
 ```
 - archimedes
+  - conanfile.py
   - CMakeLists.txt
   - README.md
   - LICENSE.md
-  - extern
-      - ... <zależności, które postanowimy trzymać razem z projektem np. glad>
+  - cmake
+      - ... <pliki cmake>
   - include
-      - ... <headery .h projektu>
+      - ... <pliki nagłówkowe .h i implementacje szablonów .hpp>
   - src
-      - ... <pliki źródłowe .cpp projektu> 
+      - ... <pliki źródłowe .cpp>
+  - archimedes_bin
+      - ... <przykładowy projekt testowy>
   - tests
-      - ... <pliki źródłowe testów jednostkowych> 
+      - ... <pliki źródłowe .cpp testów jednostkowych>
 ```
