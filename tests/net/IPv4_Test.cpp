@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include <gtest/gtest.h>
-#include <net.h>
+#include <Net.h>
 
 TEST(IPv4, StringToBinary) {
 	arch::net::IPv4 ip;
