@@ -1,24 +1,17 @@
 #pragma once
 
 #include <compare>
-#include <iostream>
 #include <string>
+#include <typeinfo>
 
-namespace arch {
-namespace meta {
-namespace rtti {
+namespace arch::meta::rtti {
+
+class TypeDescriptorWrapper;
+
 /// @brief Class containing type data
+/// @brief It is guaranteed that only one TypeDescriptor exists per type
 class TypeDescriptor {
 public:
-	/// @brief Copy constructor.
-	TypeDescriptor(const TypeDescriptor&) noexcept = default;
-	/// @brief Move constructor.
-	TypeDescriptor(TypeDescriptor&&) noexcept = default;
-
-	/// @brief Deleted copy-assignment operator.
-	TypeDescriptor& operator=(const TypeDescriptor&) noexcept = default;
-	/// @brief Deleted move-assignment operator.
-	TypeDescriptor& operator=(TypeDescriptor&&) noexcept = default;
 
 	/// @brief Standardized type name
 	std::string name;
@@ -30,12 +23,19 @@ public:
 	/// @details Computed using cyclic polynomial rolling hash algorithm
 	size_t hash;
 
-	/// @brief Equality operator.
+	/// @brief Equality operator
 	/// @param other - TypeDescriptor to compare
 	bool operator==(const TypeDescriptor& other) const noexcept;
+	/// @brief Equality operator
+	/// @param other - std::type_info to compare
+	bool operator==(const std::type_info& other) const noexcept;
 	/// @brief Comparision operator
-	/// @brief Equal to this->name <=> other.name
+	/// @param other - TypeDescriptor to compare
 	std::strong_ordering operator<=>(const TypeDescriptor& other) const noexcept;
+
+	/// @brief Wraps this TypeDescriptor
+	/// @return TypeDescriptorWrapper(*this)
+	TypeDescriptorWrapper wrap() const noexcept;
 
 private:
 	// used only by TypeDescriptorOwner
@@ -43,11 +43,16 @@ private:
 
 	template<class T>
 	friend class TypeDescriptorOwner;
+
+	const std::type_info* _typeid;
 };
-} // namespace rtti
 
+} // namespace arch::meta::rtti
+
+namespace arch::meta {
 using rtti::TypeDescriptor;
-} // namespace meta
+}
 
+namespace arch {
 using meta::TypeDescriptor;
-} // namespace arch
+}

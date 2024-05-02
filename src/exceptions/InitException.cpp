@@ -2,12 +2,7 @@
 
 namespace arch {
 
-InitException::InitException(const std::string& message) {
-	_message = "Failed while initialization: " + message;
-}
-
-const char* InitException::what() const noexcept {
-	return _message.c_str();
-}
+InitException::InitException(const std::string& message, const std::source_location& location):
+	Exception("Init", message, location) {}
 
 } // namespace arch

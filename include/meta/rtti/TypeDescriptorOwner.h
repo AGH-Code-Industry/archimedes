@@ -11,6 +11,7 @@ namespace arch::meta::rtti {
 template<class T>
 class TypeDescriptorOwner {
 public:
+	/// @brief Returns TypeDescriptor of T, initializes if not present
 	static const TypeDescriptor& get() noexcept;
 
 private:

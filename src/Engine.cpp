@@ -16,14 +16,16 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	_initialize();
-
 	try {
+		_initialize();
+
 		_mainLoop();
+	} catch (Exception& e) {
+		e.print();
 	} catch (std::exception& e) {
 		Logger::error("Crashed with exception: {}", e.what());
 	} catch (...) {
-		Logger::error("Dupa");
+		Logger::error("Unhandled exception occurred");
 	}
 }
 
@@ -57,8 +59,8 @@ void Engine::_mainLoop() {
 	};
 
 	std::vector<Vertex> vertices{
-		{  float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f) },
-		{  float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f) },
+		{ float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f) },
+		{ float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f) },
 		{ float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f) },
 		{ float3(-0.5f,	0.5f, 0.0f), {}, float2(0.0f, 1.0f) }
 	};

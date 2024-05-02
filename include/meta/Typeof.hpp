@@ -2,28 +2,31 @@
 
 #include <type_traits>
 
-namespace arch::meta::_typeof {
-/// @brief Helper struct of noref_typeof() macro
+namespace arch::meta::typeOf::_details {
+/// @brief Helper struct of typeof() macro
 /// @brief (does nothing)
-struct TypeOfHelper {
+struct Helper {
 	/// @brief Helper casting operator
 	/// @brief (does nothing)
 	template<class T>
 	operator T() const;
 	/// @brief Helper dereference operator
 	/// @brief (does nothing)
-	TypeOfHelper operator*();
+	Helper operator*();
 };
 
 /// @brief Helper multiplication operator
 /// @brief (does nothing)
 template<class T>
-T operator*(T a, TypeOfHelper);
-} // namespace arch::meta::_typeof
+const T& operator*(const T&, Helper);
+} // namespace arch::meta::typeOf::_details
 
-// evil operator*/casting semantic level hacking
-#define _typeofImpl(x) std::remove_cvref_t<decltype((x) * arch::meta::_typeof::TypeOfHelper{})>
+// if ... is a type			-> dereference Helper, cast to ..., obtain decltype of result
+// if ... is an expression	-> multiply ... by Helper, obtain decltype of result
+#define _ARCH_TYPEOF_IMPL(...)                           \
+	/* evil operator* and cast semantic level hacking */ \
+	std::remove_cvref_t<decltype((__VA_ARGS__) * arch::meta::typeOf::_details::Helper{})>
 
-/// @brief Queries non-reference type of expression or type given
+/// @brief Queries non-const, non-reference type of expression or type given
 /// @param x - type or expression to query
-#define typeof(x) _typeofImpl(x)
+#define typeof(...) _ARCH_TYPEOF_IMPL(__VA_ARGS__)

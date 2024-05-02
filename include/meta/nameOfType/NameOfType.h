@@ -3,9 +3,8 @@
 #include <source_location>
 #include <string_view>
 
-namespace arch {
-namespace meta {
-namespace _nameOfType { // NOLINT(*)
+namespace arch::meta::nameOfType {
+
 /// @brief Helper function, which signature is used to determine name of type
 template<class T>
 constexpr std::string_view signature() noexcept = delete;
@@ -16,8 +15,6 @@ constexpr std::string_view signature() noexcept = delete;
 template<class T>
 constexpr std::string_view nameOf() noexcept;
 
-} // namespace _nameOfType
-} // namespace meta
-} // namespace arch
+} // namespace arch::meta::nameOfType
 
 #include "NameOfType.hpp"
