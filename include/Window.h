@@ -54,9 +54,9 @@ private:
 	 * @param monitor The monitor to use for fullscreen mode.
 	 * @param window The window whose context to share resources with, or NULL to not share resources.
 	 */
-	void initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window);
+	void _initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window);
 
-	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+	static void _framebufferSizeCallback(GLFWwindow* window, int width, int height);
 };
 
 } // namespace arch
