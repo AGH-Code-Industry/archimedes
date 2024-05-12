@@ -80,11 +80,18 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
-	Logger::info("Engine shutdown");
+	Logger::info("Engine shutingdown");
 	glfwTerminate();
 
-	_renderer->shutdown();
-	_renderer = nullptr;
+	if (_renderer) {
+		Logger::info("Shutingdown renderer");
+		_renderer->shutdown();
+		_renderer = nullptr;
+	} else {
+		Logger::info("Renderer is already shutdown");
+	}
+
+	Logger::info("Engine shutdown");
 }
 
 } // namespace arch
