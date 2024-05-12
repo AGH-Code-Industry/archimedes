@@ -3,6 +3,8 @@
 namespace arch::gfx {
 
 enum class GraphicsFormat {
+	none,
+
 	rgba8,
 	rgb8,
 	rg8,
@@ -18,7 +20,7 @@ enum class GraphicsFormat {
 	rg32f,
 	r32f,
 
-	depth24stencil8,
+	depth24Stencil8,
 	depth32f,
 	depth32fStencil8,
 };

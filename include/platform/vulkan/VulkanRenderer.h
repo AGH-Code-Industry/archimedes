@@ -1,16 +1,16 @@
 #pragma once
 
-#include "VulkanTypes.h"
+#include "VulkanContext.h"
+#include "VulkanSwapchain.h"
 #include "Window.h"
-#include "buffer/VulkanBufferManager.h"
 #include "gfx/Renderer.h"
-#include <volk.h>
 
 namespace arch::gfx::vulkan {
 
 class VulkanRenderer final: public Renderer {
 public:
-	VulkanRenderer(): Renderer(createRef<buffer::VulkanBufferManager>()) {}
+	VulkanRenderer() = default;
+	~VulkanRenderer() override = default;
 
 	void init(const Ref<Window>& window) override;
 	void shutdown() override;
@@ -18,17 +18,9 @@ public:
 	void render(const Ref<Mesh>& mesh, const Mat4x4& transform) override;
 
 private:
-
-	void _createInstance();
-	void _setupDebugMessage();
-	void _createSurface();
-
-	void _pickPhisicalDevice();
-	void _createLogicalDevice();
-
-	void _createSwapchain();
-	void _recreateSwapchain();
-	void _cleanupSwapchain();
+	void _createRenderPass();
+	void _craeteDepthTexture();
+	void _createFramebuffers();
 
 public:
 	VkAllocationCallbacks* allocator = nullptr;
@@ -38,26 +30,23 @@ public:
 	VkPhysicalDevice physicalDevice = nullptr;
 	VkDevice device = nullptr;
 
-	VkSurfaceKHR surface = nullptr;
+	Ref<VulkanContext> context;
+	Ref<VulkanSwapchain> swapchain;
 
-	VkQueue transferQueue = nullptr;
-	VkQueue graphicsQueue = nullptr;
-	VkQueue presentQueue = nullptr;
-
-	VkSwapchainKHR swapchain = nullptr;
-	VkFormat swapchainImageFormat = VK_FORMAT_UNDEFINED;
-	VkExtent2D swapchainExtent = { 0, 0 };
-
-	QueueFamilyIndices indices;
-	SwapchainSupportDetails swapchainSupportDetails;
+	VkRenderPass renderPass;
 
 	struct FrameData {
-		VkImage image;
-		VkImageView imageView;
-		VkFramebuffer framebuffer;
+		VkFramebuffer framebuffers;
+
+		VkCommandBuffer commandBuffer;
+		VkSemaphore imageAvailableSemaphore;
+		VkSemaphore renderFinishedSemaphore;
+		VkFence inFlightFence;
 	};
 
-	std::vector<FrameData> swapchainFrames;
+	std::vector<FrameData> frames;
+	std::uint32_t _frameIndex = 0;
+	Ref<texture::VulkanTexture2D> depthTexture;
 };
 
 } // namespace arch::gfx::vulkan

@@ -16,7 +16,7 @@ public:
 	static Ref<Renderer> current() { return s_current; }
 
 protected:
-	Renderer(const Ref<buffer::BufferManager>& bufferManager): _bufferManager(bufferManager) {}
+	Renderer() = default;
 
 public:
 	virtual ~Renderer() = default;
@@ -36,8 +36,6 @@ public:
 
 protected:
 	Ref<Window> _window = nullptr;
-
-	Ref<buffer::BufferManager> _bufferManager;
 
 private:
 	static Ref<Renderer> s_current;
