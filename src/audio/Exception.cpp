@@ -1,6 +1,6 @@
 #include <audio/AudioException.h>
 
 namespace arch::audio {
-AudioException::AudioException(std::string_view description, const std::source_location& location)
-	: Exception(std::string("Audio submodule error: ") + std::string(description)) {}
+AudioException::AudioException(const std::string& message, const std::source_location& location)
+	: Exception("Audio", message, location) {}
 }  // namespace arch::audio

@@ -5,15 +5,15 @@
 
 namespace arch::audio{
 	class AudioSource{
-		void updateSource();
-		void loadData();
+		void _updateSource();
+		void _loadData();
 
 		public:
 		ALfloat pitch, gain, positionX, positionY, velocityX, velocityY;
 		bool isLooping;
 		ALuint source, buffer;
 		std::unique_ptr<Clip> clip;
-		AudioSource(const std::string& path, ClipType type, float pitch=1.0f, float gain=1.0f,
+		AudioSource(const std::string& path, float pitch=1.0f, float gain=1.0f,
 					float positionX=0.0f, float positionY=0.0f, float velocityX=0.0f,
 					float velocityY=0.0f, bool isLooping=false);
 		~AudioSource();
