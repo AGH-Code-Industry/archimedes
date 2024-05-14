@@ -9,7 +9,8 @@
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config): _window(1, 1, {}), _engineConfig(config) {}
+Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
+	_window{1, 1, {}}, _engineConfig{config}, _application{application} {}
 
 Engine::~Engine() {
 	_terminate();

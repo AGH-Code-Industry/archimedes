@@ -2,6 +2,9 @@
 
 namespace arch {
 
-struct Application {};
+struct Application {
+	virtual void init() {}
+	virtual void update() {}
+};
 
 }

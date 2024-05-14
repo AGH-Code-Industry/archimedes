@@ -15,7 +15,6 @@ struct EngineConfig {
 	int window_height;
 	std::string window_title;
 	glm::vec4 background_color;
-	std::shared_ptr<Application> userApplication;
 };
 
 /**
@@ -23,7 +22,7 @@ struct EngineConfig {
  */
 class Engine {
 public:
-	Engine(const EngineConfig& config);
+	Engine(const EngineConfig& config, const Ref<Application>& application);
 	~Engine();
 
 	/**
@@ -35,6 +34,7 @@ private:
 	Window _window;
 	EngineConfig _engineConfig;
 	gfx::Renderer _renderer;
+	Ref<Application> _application;
 
 	FRIEND_TEST(EngineTest, ConfigWindowTest);
 
