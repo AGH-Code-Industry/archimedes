@@ -10,7 +10,7 @@ int main() {
 		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
 	};
 
-	std::shared_ptr<MyApp> myApp = std::make_shared<MyApp>();
+	arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 
 	arch::Engine engine { config, myApp };
 	engine.start();

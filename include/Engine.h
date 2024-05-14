@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Application.h"
+#include "Ref.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
 #include <gtest/gtest_prod.h>
