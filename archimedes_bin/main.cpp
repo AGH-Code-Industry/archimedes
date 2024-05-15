@@ -5,10 +5,6 @@ struct MyApp : arch::Application {
 	void init() override {
 		arch::Logger::info("Initializing user app!");
 	}
-
-	void update() override {
-		arch::Logger::info("Custom update");
-	}
 };
 
 int main() {
