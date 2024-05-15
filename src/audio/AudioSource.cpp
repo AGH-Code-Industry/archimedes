@@ -4,45 +4,94 @@
 
 namespace arch::audio{
 
-	void AudioSource::_updateSource(){
+	void AudioSource::_updateSoundAttributes() const{
 		alCall(alSourcef, source, AL_PITCH, pitch);
 		alCall(alSourcef, source, AL_GAIN, gain);
 		alCall(alSource3f, source, AL_POSITION, positionX, positionY, 0);
 		alCall(alSource3f, source, AL_VELOCITY, velocityX, velocityY, 0);
-		int loopingFlag = isLooping ? AL_TRUE : AL_FALSE;
-		alCall(alSourcei, source, AL_LOOPING, loopingFlag);
+		alCall(alSourcei, source, AL_LOOPING, AL_FALSE);
 	}
 
-	void AudioSource::_loadData(){
-		const ALshort* data = clip->getData();
+	bool AudioSource::_initiallyLoadSound() {
 		ALenum format = clip->getFormat();
-		ALint size = clip->getSize();
+		std::size_t bufferSize = clip->getBufferSize();
 		ALint sampleRate = clip->getSampleRate();
-		alCall(alBufferData, buffer, format, data, size, sampleRate);
+		bool isEndFound = false;
+		for(int i=0; i<4; i++) {
+			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
+			alCall(alBufferData, buffers[i], format, _loadingBuffer.data(), bufferSize * sizeof(short), sampleRate);
+		}
+		return isEndFound;
+	}
+
+	bool AudioSource::_loadSound() {
+		ALenum format = clip->getFormat();
+		std::size_t bufferSize = clip->getBufferSize();
+		ALint sampleRate = clip->getSampleRate();
+
+		ALint buffersProcessed = 0;
+		alCall(alGetSourcei, source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+
+		if(buffersProcessed <= 0) {
+			return false;
+		}
+
+		bool isEndFound = false;
+		for(int i=0; i<buffersProcessed; i++) {
+			ALuint buffer;
+			alCall(alSourceUnqueueBuffers, source, 1, &buffer);
+			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
+			alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferSize * sizeof(short), sampleRate);
+			alCall(alSourceQueueBuffers, source, 1, &buffer);
+		}
+		return isEndFound;
+	}
+
+	void AudioSource::_prepareLoadingBuffer() {
+		const std::size_t bufferSize = clip->getBufferSize();
+		_loadingBuffer.reserve(bufferSize);
+		for(int i=0; i<bufferSize; i++) {
+			_loadingBuffer.push_back(0);
+		}
 	}
 
 	AudioSource::AudioSource(const std::string& path, float pitch, float gain, float positionX,
-	float positionY, float velocityX, float velocityY, bool isLooping) : pitch(pitch), gain(gain),
-	positionX(positionX), positionY(positionY), velocityX(velocityX), velocityY(velocityY), isLooping(isLooping) {
+	float positionY, float velocityX, float velocityY, bool isLooped) : pitch(pitch), gain(gain),
+	positionX(positionX), positionY(positionY), velocityX(velocityX), velocityY(velocityY), isLooped(isLooped) {
 		clip = std::make_unique<Clip>(path);
 		clip->load();
-		alCall(alGenBuffers, 1, &buffer);
+		alCall(alGenBuffers, 4, &buffers[0]);
 		alCall(alGenSources, 1, &source);
-		loadData();
-		alCall(alSourcei, source, AL_BUFFER, buffer);
-		updateSource();
+		_prepareLoadingBuffer();
 	}
 
 	AudioSource::~AudioSource(){
 		alCall(alDeleteSources, 1, &source);
-		alCall(alDeleteBuffers, 1, &buffer);
+		alCall(alDeleteBuffers, 4, &buffers[0]);
 	}
 
 	void AudioSource::play(){
+		_updateSoundAttributes();
+		bool isEndFound = _initiallyLoadSound();
+		alCall(alSourceQueueBuffers, source, 4, &buffers[0]);
+
 		alCall(alSourcePlay, source);
 		ALint state = AL_PLAYING;
-		while(state == AL_PLAYING){
+		do {
 			alCall(alGetSourcei, source, AL_SOURCE_STATE, &state);
-		}
+			_updateSoundAttributes();
+			if(isLooped or not isEndFound) {
+				isEndFound = _loadSound();
+			}
+			if(isPaused) {
+				alCall(alSourcePause, source);
+				while(isPaused) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				}
+				alCall(alSourcePlay, source);
+			}
+
+		}while(state == AL_PLAYING);
+		alCall(alSourceStop, source);
 	}
 }
