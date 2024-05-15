@@ -3,12 +3,12 @@
 #include <Exception.h>
 
 namespace arch::audio {
-/// Exception thrown when an error occurs in the audio system.
+/// @brief Exception thrown when an error occurs in the audio system.
 /// @see Exception
 ///
 class AudioException final: public Exception {
 public:
-	/// Constructor.
+	/// @brief Constructor.
 	/// @param message Message of the exception.
 	/// @param location Source location of the exception.
 	///

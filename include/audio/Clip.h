@@ -1,31 +1,66 @@
 #pragma once
 
-#include <AL/alc.h>
 #include <AL/al.h>
 #include <string>
 #include <vector>
 
-
 namespace arch::audio{
+/// @brief Allows for loading audio files and streaming their data to AudioSources.
+class Clip{
+	/// @brief Sound's sample rate.
+	ALint _sampleRate{};
 
-	class Clip{
-		ALint _sampleRate{}, _dataSize{};
-		ALushort _channelsNumber{};
-		std::vector<ALshort> _soundData;
-		std::string _filePath;
-		const std::size_t _buffersItems = 16384;
+	/// @brief Size of all samples in bytes.
+	ALint _dataSize{};
 
-		public:
+	/// @brief Sound's number of channels.
+	ALushort _channelsNumber{};
 
-			Clip(const std::string& path) : _filePath(path) {}
-			void load();
-			void unload();
-			~Clip();
-			const ALshort* getData() const;
-			bool fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const;
-			std::size_t getBufferSize() const;
-			ALenum getFormat() const;
-			ALint getSize() const;
-			ALint getSampleRate() const;
-	};
+	/// @brief Sound's all samples.
+	std::vector<ALshort> _soundData;
+
+	/// @brief Path to the sound file.
+	std::string _filePath;
+
+	/// @brief Number of items per buffer.
+	/// An item is a block of samples, one for each channel.
+	const std::size_t _sampleItems = 16384;
+
+	/// @brief Tells if the Clip's data is loaded.
+	bool _isLoaded = false;
+
+	public:
+		/// @brief Constructor.
+		/// @param path Path to the sound file.
+		Clip(const std::string& path) : _filePath(path) {}
+
+		/// @brief Loads the sound file.
+		/// @throws AudioException If couldn't open the file.
+		void load();
+
+		/// @brief Unloads the sound file.
+		void unload();
+
+		/// @brief Destructor.
+		~Clip();
+
+		/// @brief Fill a buffer with samples from sound file.
+		/// @param buffer Buffer to be filled.
+		/// @param cursor Current position in the sound file.
+		/// Each object which uses the Clip should know its own position.
+		/// @param isLooped If the sound has to be looped, set it to true.
+		/// @throws AudioException If clip is not loaded.
+		bool fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const;
+
+		/// @brief Get number of all elements in a buffer.
+		/// The number depends on the number of channels, so it needs to be calculated by the Clip.
+		std::size_t getBufferElements() const;
+
+		/// @brief Get the sound's OpenAL format.
+		ALenum getFormat() const;
+
+		/// @brief Getter of the _sampleRate parameter.
+		/// @see _sampleRate
+		ALint getSampleRate() const;
+};
 }

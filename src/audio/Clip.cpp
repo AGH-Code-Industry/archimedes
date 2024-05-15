@@ -1,7 +1,6 @@
 #include <audio/Clip.h>
 #include <audio/AudioException.h>
 #include <sndfile.h>
-#include <iostream>
 
 namespace arch::audio{
 
@@ -12,26 +11,30 @@ namespace arch::audio{
 		if(_channelsNumber == 2){
 			return AL_FORMAT_STEREO16;
 		}
-		throw AudioException(_filePath + " - wrong format");
+		throw AudioException(_filePath + " - Wrong format");
 	}
 
-	std::size_t Clip::getBufferSize() const {
-		return _buffersItems * _channelsNumber;
+	std::size_t Clip::getBufferElements() const {
+		return _sampleItems * _channelsNumber;
 	}
 
 	bool Clip::fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const {
-		const std::size_t bufferSize = getBufferSize();
-		std::size_t sizeToCopy = bufferSize;
+		const std::size_t bufferElements = getBufferElements();
+		std::size_t sizeToCopy = bufferElements;
 
-		if(cursor + bufferSize > _soundData.size()) {
+		if(not _isLoaded) {
+			throw AudioException(_filePath + " - Clip not loaded");
+		}
+
+		if(cursor + bufferElements > _soundData.size()) {
 			sizeToCopy = _soundData.size() - cursor;
 		}
 
 		std::memcpy(buffer.data(), &_soundData.data()[cursor], sizeToCopy * sizeof(short));
 		cursor += sizeToCopy;
 
-		if(sizeToCopy < bufferSize) {
-			const std::size_t lastChunkSize = bufferSize - sizeToCopy;
+		if(sizeToCopy < bufferElements) {
+			const std::size_t lastChunkSize = bufferElements - sizeToCopy;
 			if(isLooped) {
 				cursor = 0;
 				std::memcpy(&buffer.data()[sizeToCopy], &_soundData.data()[cursor], lastChunkSize * sizeof(short));
@@ -45,14 +48,16 @@ namespace arch::audio{
 		return false;
 	}
 
-
-
 	void Clip::load(){
 		SF_INFO soundInfo;
 		SNDFILE *soundFile;  // TODO: can be wrapped to own class
 		ALint samples;
 		soundInfo.format = 0;
 		soundFile = sf_open(_filePath.c_str(), SFM_READ, &soundInfo);
+		if(soundFile == nullptr) {
+			std::string errorMessage = std::string(sf_strerror(soundFile));
+			throw AudioException(_filePath + " - " + errorMessage);
+		}
 		samples = soundInfo.channels * soundInfo.frames;
 		_soundData.reserve(samples);
 		for(int i=0; i<samples; i++) {
@@ -63,6 +68,7 @@ namespace arch::audio{
 		_channelsNumber = soundInfo.channels;
 		_dataSize = samples * sizeof(short);
 		_sampleRate = soundInfo.samplerate;
+		_isLoaded = true;
 	}
 
 	void Clip::unload(){
@@ -71,14 +77,7 @@ namespace arch::audio{
 
 	Clip::~Clip(){
 		unload();
-	}
-
-	const ALshort* Clip::getData() const {
-		return _soundData.data();
-	}
-
-	ALint Clip::getSize() const {
-		return _dataSize;
+		_isLoaded = false;
 	}
 
 	ALint Clip::getSampleRate() const {

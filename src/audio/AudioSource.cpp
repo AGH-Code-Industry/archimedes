@@ -1,6 +1,5 @@
 #include <audio/AudioSource.h>
 #include <audio/Calls.hpp>
-#include <iostream>
 
 namespace arch::audio{
 
@@ -14,19 +13,19 @@ namespace arch::audio{
 
 	bool AudioSource::_initiallyLoadSound() {
 		ALenum format = clip->getFormat();
-		std::size_t bufferSize = clip->getBufferSize();
+		std::size_t bufferElements = clip->getBufferElements();
 		ALint sampleRate = clip->getSampleRate();
 		bool isEndFound = false;
 		for(int i=0; i<4; i++) {
 			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
-			alCall(alBufferData, buffers[i], format, _loadingBuffer.data(), bufferSize * sizeof(short), sampleRate);
+			alCall(alBufferData, buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
 		}
 		return isEndFound;
 	}
 
 	bool AudioSource::_loadSound() {
 		ALenum format = clip->getFormat();
-		std::size_t bufferSize = clip->getBufferSize();
+		std::size_t bufferElements = clip->getBufferElements();
 		ALint sampleRate = clip->getSampleRate();
 
 		ALint buffersProcessed = 0;
@@ -41,16 +40,16 @@ namespace arch::audio{
 			ALuint buffer;
 			alCall(alSourceUnqueueBuffers, source, 1, &buffer);
 			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
-			alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferSize * sizeof(short), sampleRate);
+			alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
 			alCall(alSourceQueueBuffers, source, 1, &buffer);
 		}
 		return isEndFound;
 	}
 
 	void AudioSource::_prepareLoadingBuffer() {
-		const std::size_t bufferSize = clip->getBufferSize();
-		_loadingBuffer.reserve(bufferSize);
-		for(int i=0; i<bufferSize; i++) {
+		const std::size_t bufferElements = clip->getBufferElements();
+		_loadingBuffer.reserve(bufferElements);
+		for(int i=0; i<bufferElements; i++) {
 			_loadingBuffer.push_back(0);
 		}
 	}
