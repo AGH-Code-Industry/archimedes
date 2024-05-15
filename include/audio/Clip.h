@@ -50,17 +50,21 @@ class Clip{
 		/// Each object which uses the Clip should know its own position.
 		/// @param isLooped If the sound has to be looped, set it to true.
 		/// @throws AudioException If clip is not loaded.
+		/// @returns True if the end of sound was reached, false otherwise.
 		bool fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const;
 
 		/// @brief Get number of all elements in a buffer.
 		/// The number depends on the number of channels, so it needs to be calculated by the Clip.
+		/// @returns Number of buffer's element.
 		std::size_t getBufferElements() const;
 
 		/// @brief Get the sound's OpenAL format.
+		/// @returns OpenAL format value.
 		ALenum getFormat() const;
 
 		/// @brief Getter of the _sampleRate parameter.
 		/// @see _sampleRate
+		/// @returns Sound's sample rate.
 		ALint getSampleRate() const;
 };
 }

@@ -18,9 +18,11 @@ namespace arch::audio{
 		void _updateSoundAttributes() const;
 
 		/// @brief Load first 4 buffers with audio.
+		/// @returns True if the end of sound was reached, false otherwise.
 		bool _initiallyLoadSound();
 
 		/// @brief Replace buffers processed by OpenAL with ones with new data.
+		/// @returns True if the end of sound was reached, false otherwise.
 		bool _loadSound();
 
 		/// @brief Reserve enough data in the _loadingBuffer and fill it with zeroes.
