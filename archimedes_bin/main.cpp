@@ -1,7 +1,15 @@
 #include <Engine.h>
 #include <Logger.h>
 
-struct MyApp : arch::Application {};
+struct MyApp : arch::Application {
+	void init() override {
+		arch::Logger::info("Initializing user app!");
+	}
+
+	void update() override {
+		arch::Logger::info("Custom update");
+	}
+};
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);

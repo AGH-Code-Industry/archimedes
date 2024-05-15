@@ -78,6 +78,7 @@ void Engine::_mainLoop() {
 		_window.clear(_engineConfig.background_color);
 
 		// renderer.render();
+		_application->update();
 
 		_window.swapBuffers();
 		glfwPollEvents();
@@ -93,6 +94,8 @@ void Engine::_initialize() {
 	_window.setTitle(_engineConfig.window_title);
 
 	_renderer.init();
+
+	_application->init();
 
 	// if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 	//     throw GladException();
