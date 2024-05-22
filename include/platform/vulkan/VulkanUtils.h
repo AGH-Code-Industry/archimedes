@@ -3,6 +3,7 @@
 #include <string>
 
 #include "gfx/GraphicsFormat.h"
+#include "gfx/texture/TextureType.h"
 #include <volk.h>
 
 namespace arch::gfx::vulkan {
@@ -17,6 +18,9 @@ public:
 
 	static VkFormat getFormat(GraphicsFormat format);
 	static GraphicsFormat getFormat(VkFormat format);
+
+	static VkImageType getType(gfx::texture::TextureType type);
+	static VkImageViewType getImageViewType(gfx::texture::TextureType type);
 };
 
 } // namespace arch::gfx::vulkan

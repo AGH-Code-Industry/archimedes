@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Ref.h"
+#include <span>
+
 #include "TextureFilterMode.h"
 #include "TextureWrapMode.h"
 #include "gfx/GraphicsFormat.h"
@@ -10,29 +11,41 @@ namespace arch::gfx::texture {
 
 class Texture {
 protected:
-	Texture() = default;
+	Texture(GraphicsFormat format, TextureWrapMode wrapMode, TextureFilterMode filterMode, bool isReadable = false);
 	virtual ~Texture() = default;
 
 public:
-	static Ref<Texture> create();
-	static Ref<Texture> create(const void* data, u64 size);
+	TextureFilterMode getFilter() const;
+	virtual void setFilter(TextureFilterMode filterMode);
+
+	TextureWrapMode getWrap() const;
+	virtual void setWrap(TextureWrapMode wrapMode);
+
+	GraphicsFormat getFormat() const;
+
+	bool isReadable() const;
+
+	u32 getWidth() const;
+	u32 getHeight() const;
+	u32 getDepth() const;
+	u32 getSize(u32 axis) const;
 
 public:
-	TextureFilterMode getFilter() const { return _filterMode; }
+	virtual uint3 getSize() const = 0;
 
-	virtual void setFilter(TextureFilterMode filterMode) { _filterMode = filterMode; }
+	// virtual void setPixels(std::span<Color> pixels) = 0;
+	// virtual void setPixels(Color* pixels, u32 width, u32 height) = 0;
+	//
+	// virtual void setPixel(u32 x, u32 y, Color color) = 0;
+	//
+	// virtual void readPixels() = 0;
 
-	TextureWrapMode getWrap() const { return _wrapMode; }
+private:
+	bool _isReadable;
 
-	virtual void setWrap(TextureWrapMode wrapMode) { _wrapMode = wrapMode; }
-
-	GraphicsFormat getFormat() const { return _format; }
-
-protected:
+	GraphicsFormat _format;
 	TextureWrapMode _wrapMode;
 	TextureFilterMode _filterMode;
-	GraphicsFormat _format;
-	bool _isReadable = false;
 };
 
 } // namespace arch::gfx::texture

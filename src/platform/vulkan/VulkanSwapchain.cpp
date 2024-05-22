@@ -5,7 +5,6 @@
 #include "Window.h"
 #include "platform/vulkan/VulkanContext.h"
 #include "platform/vulkan/VulkanUtils.h"
-#include "platform/vulkan/texture/VulkanTexture2D.h"
 
 namespace arch::gfx::vulkan {
 
@@ -59,23 +58,24 @@ void VulkanSwapchain::_createSwapchain() {
 	}
 #endif
 
-	VkExtent2D extent;
+	_format = surfaceFormat.format;
+
 	if (_supportDetails.capabilities.currentExtent.width != std::numeric_limits<u32>::max()) {
-		extent = _supportDetails.capabilities.currentExtent;
+		_extent = _supportDetails.capabilities.currentExtent;
 	} else {
 		i32 width, height;
 		glfwGetFramebufferSize(_window->get(), &width, &height);
 
-		extent = { std::clamp(
-					   (u32)width,
-					   _supportDetails.capabilities.minImageExtent.width,
-					   _supportDetails.capabilities.maxImageExtent.width
-				   ),
-				   std::clamp(
-					   (u32)height,
-					   _supportDetails.capabilities.minImageExtent.height,
-					   _supportDetails.capabilities.maxImageExtent.height
-				   ) };
+		_extent = { std::clamp(
+						(u32)width,
+						_supportDetails.capabilities.minImageExtent.width,
+						_supportDetails.capabilities.maxImageExtent.width
+					),
+					std::clamp(
+						(u32)height,
+						_supportDetails.capabilities.minImageExtent.height,
+						_supportDetails.capabilities.maxImageExtent.height
+					) };
 	}
 
 	u32 imageCount = _supportDetails.capabilities.minImageCount + 1;
@@ -89,7 +89,7 @@ void VulkanSwapchain::_createSwapchain() {
 		.minImageCount = imageCount,
 		.imageFormat = surfaceFormat.format,
 		.imageColorSpace = surfaceFormat.colorSpace,
-		.imageExtent = extent,
+		.imageExtent = _extent,
 		.imageArrayLayers = 1,
 		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		.preTransform = _supportDetails.capabilities.currentTransform,
@@ -129,9 +129,6 @@ void VulkanSwapchain::_createSwapchain() {
 	for (u64 i = 0; i < _frames.size(); ++i) {
 		_frames[i].image = swapchainImages[i];
 	}
-
-	_extent = extent;
-	_format = surfaceFormat.format;
 
 	// Image Views
 	for (u64 i = 0; i < _frames.size(); i++) {

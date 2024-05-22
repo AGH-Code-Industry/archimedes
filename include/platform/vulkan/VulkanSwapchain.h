@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "Ref.h"
-#include "texture/VulkanTexture2D.h"
+#include "mmath.h"
 #include <volk.h>
 
 namespace arch {
@@ -41,6 +41,8 @@ public:
 
 public:
 	VkSurfaceKHR getSurface() const { return _surface; }
+
+	VkSwapchainKHR getSwapchain() const { return _swapchain; }
 
 	VkFormat getFormat() const { return _format; }
 

@@ -4,8 +4,17 @@
 #include "VulkanSwapchain.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
+#include "texture/VulkanTexture.h"
 
 namespace arch::gfx::vulkan {
+
+namespace buffer {
+class VulkanBufferManager;
+}
+
+namespace texture {
+class VulkanTextureManager;
+}
 
 class VulkanRenderer final: public Renderer {
 public:
@@ -15,28 +24,34 @@ public:
 	void init(const Ref<Window>& window) override;
 	void shutdown() override;
 
+	Ref<gfx::buffer::BufferManager> getBufferManager() override;
+
+	Ref<TextureManager> getTextureManager() override;
+
 	void render(const Ref<Mesh>& mesh, const Mat4x4& transform) override;
 
 private:
-	void _createRenderPass();
-	void _craeteDepthTexture();
-	void _createFramebuffers();
+	void _createDepthTexture();
+	void _createFrames();
 
 public:
-	VkAllocationCallbacks* allocator = nullptr;
-	VkInstance instance = nullptr;
-	VkDebugUtilsMessengerEXT debugMessenger = nullptr;
+	void prepareFrame() override;
+	void beginFrame() override;
+	void endFrame() override;
+	void present() override;
+	void setClearColor(Color color) override;
+	void setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+	void setScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
-	VkPhysicalDevice physicalDevice = nullptr;
-	VkDevice device = nullptr;
+public:
+	Ref<buffer::VulkanBufferManager> _bufferManager;
+	Ref<texture::VulkanTextureManager> _textureManager;
 
 	Ref<VulkanContext> context;
 	Ref<VulkanSwapchain> swapchain;
 
-	VkRenderPass renderPass;
-
 	struct FrameData {
-		VkFramebuffer framebuffers;
+		VkFramebuffer framebuffer;
 
 		VkCommandBuffer commandBuffer;
 		VkSemaphore imageAvailableSemaphore;
@@ -46,7 +61,7 @@ public:
 
 	std::vector<FrameData> frames;
 	std::uint32_t _frameIndex = 0;
-	Ref<texture::VulkanTexture2D> depthTexture;
+	Ref<texture::VulkanTexture> depthTexture;
 };
 
 } // namespace arch::gfx::vulkan

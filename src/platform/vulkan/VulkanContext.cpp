@@ -71,7 +71,7 @@ const VulkanContext::Queue& VulkanContext::getQueue(QueueType type) const {
 	}
 }
 
-u32 VulkanContext::findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) const {
+i32 VulkanContext::findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) const {
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(_physicalDevice, &memProperties);
 
@@ -81,7 +81,7 @@ u32 VulkanContext::findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properti
 		}
 	}
 
-	throw exceptions::VulkanException("Failed to find suitable memory type!");
+	return -1;
 }
 
 void VulkanContext::_createInstance() {

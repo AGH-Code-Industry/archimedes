@@ -67,7 +67,7 @@ public:
 
 	const Queue& getQueue(QueueType type) const;
 
-	u32 findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) const;
+	i32 findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) const;
 	VkFormat findSupportedFormat(
 		const std::vector<VkFormat>& candidates,
 		VkImageTiling tiling,

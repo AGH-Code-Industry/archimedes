@@ -57,4 +57,26 @@ GraphicsFormat VulkanUtils::getFormat(VkFormat format) {
 	}
 }
 
+VkImageType VulkanUtils::getType(texture::TextureType type) {
+	switch (type) {
+		case texture::TextureType::texture2D:
+			return VK_IMAGE_TYPE_2D;
+
+			// case texture::TextureType::texture3D: return VK_IMAGE_TYPE_3D;
+
+		default: return VK_IMAGE_TYPE_MAX_ENUM;
+	}
+}
+
+VkImageViewType VulkanUtils::getImageViewType(texture::TextureType type) {
+	switch (type) {
+		case texture::TextureType::texture2D:
+			return VK_IMAGE_VIEW_TYPE_2D;
+
+			// case texture::TextureType::texture3D: return VK_IMAGE_VIEW_TYPE_3D;
+
+		default: return VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+	}
+}
+
 } // namespace arch::gfx::vulkan
