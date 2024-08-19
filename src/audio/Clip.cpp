@@ -23,7 +23,7 @@ namespace arch::audio{
 		std::size_t sizeToCopy = bufferElements;
 
 		if(not _isLoaded) {
-			throw AudioException(_filePath + " - Clip not loaded");
+			throw AudioException(_filePath + " - clip not loaded");
 		}
 
 		if(cursor + bufferElements > _soundData.size()) {
@@ -52,6 +52,9 @@ namespace arch::audio{
 		SF_INFO soundInfo;
 		SNDFILE *soundFile;  // TODO: can be wrapped to own class
 		ALint samples;
+		if(_isLoaded) {
+			throw AudioException("Can't load clip: " + _filePath + " - it's already loaded");
+		}
 		soundInfo.format = 0;
 		soundFile = sf_open(_filePath.c_str(), SFM_READ, &soundInfo);
 		if(soundFile == nullptr) {
@@ -72,15 +75,25 @@ namespace arch::audio{
 	}
 
 	void Clip::unload(){
+		if(not _isLoaded) {
+			throw AudioException("Can't unload clip: " + _filePath + " - it's not loaded");
+		}
 		_soundData.clear();
 	}
 
 	Clip::~Clip(){
-		unload();
-		_isLoaded = false;
+		if(_isLoaded) {
+			unload();
+			_isLoaded = false;
+		}
 	}
 
 	ALint Clip::getSampleRate() const {
 		return _sampleRate;
 	}
+
+	bool Clip::getIsLoaded() const {
+		return _isLoaded;
+	}
+
 }

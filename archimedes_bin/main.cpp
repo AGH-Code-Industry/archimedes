@@ -26,7 +26,11 @@ int main() {
 
 	std::string cwd = "/home/anon/dev/archimedes-audio-system/archimedes/archimedes_bin/";
 	arch::audio::SoundDevice device;
-	arch::audio::AudioSource source(cwd + "rickroll.wav");
+	arch::audio::SoundBank soundBank;
+	soundBank.addClip(cwd + "rickroll.wav");
+	soundBank.addClip(cwd + "moonlight.mp3");
+	soundBank.loadInitialGroups();
+	arch::audio::AudioSource source(soundBank, cwd + "rickroll.wav");
 	std::thread audioThread(&arch::audio::AudioSource::play, &source);
 
 	int isPausing;

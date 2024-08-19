@@ -66,5 +66,7 @@ class Clip{
 		/// @see _sampleRate
 		/// @returns Sound's sample rate.
 		ALint getSampleRate() const;
+
+		bool getIsLoaded() const;
 };
 }

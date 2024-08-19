@@ -12,21 +12,23 @@ namespace arch::audio{
 	}
 
 	bool AudioSource::_initiallyLoadSound() {
-		ALenum format = clip->getFormat();
-		std::size_t bufferElements = clip->getBufferElements();
-		ALint sampleRate = clip->getSampleRate();
+		Clip& clip = _soundBank.getClip(clipPath);
+		ALenum format = clip.getFormat();
+		std::size_t bufferElements = clip.getBufferElements();
+		ALint sampleRate = clip.getSampleRate();
 		bool isEndFound = false;
 		for(int i=0; i<4; i++) {
-			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
+			isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, isLooped);
 			alCall(alBufferData, buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
 		}
 		return isEndFound;
 	}
 
 	bool AudioSource::_loadSound() {
-		ALenum format = clip->getFormat();
-		std::size_t bufferElements = clip->getBufferElements();
-		ALint sampleRate = clip->getSampleRate();
+		Clip& clip = _soundBank.getClip(clipPath);
+		ALenum format = clip.getFormat();
+		std::size_t bufferElements = clip.getBufferElements();
+		ALint sampleRate = clip.getSampleRate();
 
 		ALint buffersProcessed = 0;
 		alCall(alGetSourcei, source, AL_BUFFERS_PROCESSED, &buffersProcessed);
@@ -39,7 +41,7 @@ namespace arch::audio{
 		for(int i=0; i<buffersProcessed; i++) {
 			ALuint buffer;
 			alCall(alSourceUnqueueBuffers, source, 1, &buffer);
-			isEndFound |= clip->fillBuffer(_loadingBuffer, _cursor, isLooped);
+			isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, isLooped);
 			alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
 			alCall(alSourceQueueBuffers, source, 1, &buffer);
 		}
@@ -47,18 +49,18 @@ namespace arch::audio{
 	}
 
 	void AudioSource::_prepareLoadingBuffer() {
-		const std::size_t bufferElements = clip->getBufferElements();
+		Clip& clip = _soundBank.getClip(clipPath);
+		const std::size_t bufferElements = clip.getBufferElements();
 		_loadingBuffer.reserve(bufferElements);
 		for(int i=0; i<bufferElements; i++) {
 			_loadingBuffer.push_back(0);
 		}
 	}
 
-	AudioSource::AudioSource(const std::string& path, float pitch, float gain, float positionX,
-	float positionY, float velocityX, float velocityY, bool isLooped) : pitch(pitch), gain(gain),
-	positionX(positionX), positionY(positionY), velocityX(velocityX), velocityY(velocityY), isLooped(isLooped) {
-		clip = std::make_unique<Clip>(path);
-		clip->load();
+	AudioSource::AudioSource(SoundBank& soundBank, const std::string& path, float pitch, float gain, float positionX,
+	float positionY, float velocityX, float velocityY, bool isLooped) : _soundBank(soundBank), clipPath(path),
+	pitch(pitch), gain(gain), positionX(positionX), positionY(positionY), velocityX(velocityX), velocityY(velocityY),
+	isLooped(isLooped) {
 		alCall(alGenBuffers, 4, &buffers[0]);
 		alCall(alGenSources, 1, &source);
 		_prepareLoadingBuffer();
