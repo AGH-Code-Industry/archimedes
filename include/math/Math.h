@@ -7,6 +7,10 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include "math/QDiv.h"
+#include "math/QMod.h"
+#include "math/QMul.h"
+
 namespace arch::math {
 
 using Byte = std::byte;
