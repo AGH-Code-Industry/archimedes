@@ -1,28 +1,30 @@
 #pragma once
 
 #include "EntityPool.h"
+#include "utils/Assert.h"
 
 #define TEMPLATE template<class E>
 #define POOL EntityPool<E>
+
+// https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
+// ^ picture explanations
 
 namespace arch::ecs {
 
 TEMPLATE
 typename POOL::EntityT* POOL::_tryInitPage(const size_t n) noexcept {
-	if (_sparse.size() <= n) {
-		while (_sparse.size() != n + 1) {
-			_sparse.emplace_back();
-		}
-		//_sparse.resize(n + 1);
+	// virtually equal to _sparse.resize(n + 1), but resize() makes capacity == n + 1 (bad);
+	while (_sparse.size() != n + 1) {
+		_sparse.emplace_back();
 	}
 
 	auto& page = _sparse[n];
 	if (page == nullptr) {
-		page = std::make_unique<EntityT[]>(Traits::pageSize);
-		std::fill(page.get(), page.get() + Traits::pageSize, null);
+		page = std::make_unique<std::array<EntityT, Traits::pageSize>>();
+		page->fill(null);
 	}
 
-	return page.get();
+	return page->data();
 }
 
 TEMPLATE
@@ -47,12 +49,20 @@ const typename POOL::EntityT& POOL::_sparseGet(const EntityT entity) const noexc
 
 TEMPLATE
 typename POOL::EntityT& POOL::_sparseGet(const IdT id) noexcept {
-	return _sparse[qdiv<Traits::pageSize>(id)][qmod<Traits::pageSize>(id)];
+	ARCH_ASSERT(
+		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		"Page for given id does not exist"
+	);
+	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
 }
 
 TEMPLATE
 const typename POOL::EntityT& POOL::_sparseGet(const IdT id) const noexcept {
-	return _sparse[qdiv<Traits::pageSize>(id)][qmod<Traits::pageSize>(id)];
+	ARCH_ASSERT(
+		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		"Page for given id does not exist"
+	);
+	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
 }
 
 TEMPLATE POOL::Iterator POOL::begin() noexcept {
@@ -123,7 +133,7 @@ void POOL::swap(POOL& other) noexcept {
 
 TEMPLATE
 POOL::EntityT POOL::newEntity() noexcept {
-	if (_size == ((1 << Traits::Id::length) - 1)) { // entity limit achieved
+	if (_size == Traits::Id::max + 1) { // entity limit achieved
 		return null;
 	}
 	if (_size == _dense.size()) { // new entity
@@ -225,7 +235,7 @@ bool POOL::contains(const IdT id) const noexcept {
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
 	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-		not Traits::Version::hasNull(_sparse[pageNum][qmod<Traits::pageSize>(_id)]);
+		not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]);
 }
 
 TEMPLATE
@@ -234,7 +244,7 @@ bool POOL::alive(const EntityT entity) const noexcept {
 	const size_t pageNum = qdiv<Traits::pageSize>(id);
 
 	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-		Traits::Version::rawPart(_sparse[pageNum][qmod<Traits::pageSize>(id)]) == Traits::Version::rawPart(entity);
+		Traits::Version::equal((*_sparse[pageNum])[qmod<Traits::pageSize>(id)], entity);
 }
 
 TEMPLATE
@@ -257,8 +267,8 @@ POOL::Iterator POOL::find(const IdT id) noexcept {
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
 	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-			not Traits::Version::hasNull(_sparse[pageNum][qmod<Traits::pageSize>(_id)]) ?
-		begin() + Traits::Version::rawPart(_sparse[pageNum][qmod<Traits::pageSize>(_id)]) :
+			not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
+		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
 		end();
 }
 
@@ -272,8 +282,8 @@ POOL::ConstIterator POOL::find(const IdT id) const noexcept {
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
 	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-			not Traits::Version::hasNull(_sparse[pageNum][qmod<Traits::pageSize>(_id)]) ?
-		begin() + Traits::Version::rawPart(_sparse[pageNum][qmod<Traits::pageSize>(_id)]) :
+			not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
+		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
 		end();
 }
 

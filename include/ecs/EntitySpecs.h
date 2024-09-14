@@ -13,12 +13,17 @@ namespace arch::ecs {
 /// @tparam IdLen - bit length of id
 template<class E, class V, size_t IdLen, size_t PageSize = 1'024>
 struct AutoEntitySpecs {
+	/// @brief Type of entity
 	using EntityT = E;
 
+	/// @brief Type of id
 	using IdT = std::underlying_type_t<E>;
+	/// @brief Type of version
 	using VersionT = V;
 
+	/// @brief Bit length of id
 	static inline constexpr size_t idLength = IdLen;
+	/// @brief Size of sparse pages
 	static inline constexpr size_t pageSize = PageSize;
 };
 

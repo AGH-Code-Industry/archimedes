@@ -24,4 +24,4 @@ public:
 	size_t operator()(const arch::meta::rtti::TypeDescriptor& desc) const noexcept;
 };
 
-#include "TypeDesciptorHash.hpp"
+#include "TypeDescriptorHash.hpp"

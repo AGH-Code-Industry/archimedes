@@ -12,7 +12,7 @@ ITER::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
 	_offset{ qmod<Traits::pageSize>(i) },
 	_dense{ &pool->_dense },
 	_i{ i } {
-	if (_valid()) {
+	if (_valid()) { // initialize internal std::pair
 		new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
 	}
 }
@@ -76,8 +76,7 @@ ITER& ITER::operator--() noexcept {
 				} else {
 					--_offset;
 				}
-			} // --i: 0 -> (size_t)-1 PRZYPAŁ!!
-			while (--_i != 0 and ETraits::Version::hasNull((*_dense)[_i]));
+			} while (--_i != 0 and ETraits::Version::hasNull((*_dense)[_i]));
 		} else {
 			_i = (size_t)-1;
 		}
@@ -111,12 +110,12 @@ ITER::Reference ITER::operator*() const noexcept {
 
 TEMPLATE
 ITER::Pointer ITER::operator->() const noexcept {
-	return &_pair();
+	return &(_pair());
 }
 
 TEMPLATE
 bool ITER::operator==(const ITER& other) const noexcept {
-	return _dense == other._dense and _i == other._i;
+	return _i == other._i;
 }
 
 TEMPLATE

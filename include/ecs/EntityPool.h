@@ -14,7 +14,6 @@ namespace arch::ecs {
 /// @tparam E - entity type
 template<class E>
 class EntityPool {
-	using SparseContainer = std::vector<std::unique_ptr<E[]>>; // paged container
 	using DenseContainer = std::vector<E>;
 
 public:
@@ -32,16 +31,18 @@ public:
 
 	/// @brief Iterator type
 	using Iterator = typename DenseContainer::iterator;
-	/// @brief Readonly iterator type
+	/// @brief Const iterator type
 	using ConstIterator = typename DenseContainer::const_iterator;
 	/// @brief Reverse iterator type
 	using ReverseIterator = typename DenseContainer::reverse_iterator;
-	/// @brief Readonly reverse iterator type
+	/// @brief Const reverse iterator type
 	using ConstReverseIterator = typename DenseContainer::const_reverse_iterator;
 
 	/// @brief Null entity
 	static inline constexpr EntityT null = Traits::Entity::null;
 
+	/// @brief Swaps this pool with given pool
+	/// @param other - pool to swap with
 	void swap(EntityPool& other) noexcept;
 
 	/// @brief Creates new entity or recycles killed
@@ -134,9 +135,12 @@ public:
 	/// @brief Returns readonly reverse iterator to the past-the-last entity in reversed order
 	ConstReverseIterator crend() const noexcept;
 
-	std::tuple<SparseContainer*, DenseContainer*> debug() noexcept { return { &_sparse, &_dense }; }
-
 private:
+
+	using SparseContainer = std::vector<std::unique_ptr<std::array<E, Traits::pageSize>>>;
+
+	// for manual checks
+	std::tuple<SparseContainer*, DenseContainer*> _debug() noexcept { return { &_sparse, &_dense }; }
 
 	// returns n-th sparse page, initializes if not exists
 	EntityT* _tryInitPage(const size_t n) noexcept;

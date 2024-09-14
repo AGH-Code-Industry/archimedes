@@ -129,6 +129,7 @@ struct EntityTraits {
 		static inline EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps versions of two entities
 		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		/// @brief Compares versions of 2 given entities
 		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 };
