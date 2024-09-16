@@ -37,7 +37,7 @@ struct ComponentTraits {
 	static inline constexpr size_t alignment = alignof(ComponentT);
 
 	/// @brief Whether component is a flag component,
-	static inline constexpr bool flag = FlagComponent<ComponentT>;
+	static inline constexpr bool flag = Specs::flag;
 	static_assert(not(flag and not std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
 
 	/// @brief Creates new page of size pageSize
