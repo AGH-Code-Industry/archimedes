@@ -26,7 +26,7 @@ struct ComponentTraits {
 	static inline constexpr bool inPlace = Specs::inPlace;
 	/// @brief Whether component is movable
 	static inline constexpr bool movable = std::movable<ComponentT>;
-	static_assert(movable or inPlace, "Non-movable components cannot be marked as not-in-place");
+	static_assert(not(not movable and not inPlace), "Non-movable components cannot be marked as not-in-place");
 	/// @brief Component page size
 	static inline constexpr size_t pageSize = Specs::pageSize;
 	static_assert(std::popcount(pageSize) == 1, "pageSize must be a power of 2");
@@ -38,7 +38,7 @@ struct ComponentTraits {
 
 	/// @brief Whether component is a flag component,
 	static inline constexpr bool flag = FlagComponent<ComponentT>;
-	static_assert(not flag or std::is_empty_v<ComponentT>, "Non-empty type cannot be marked as flag-component");
+	static_assert(not(flag and not std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
 
 	/// @brief Creates new page of size pageSize
 	static inline ComponentT* newPage() noexcept;

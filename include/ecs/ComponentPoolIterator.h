@@ -19,6 +19,8 @@ namespace arch::ecs::_details {
 /// @tparam E - entity type
 template<class C, class E>
 class ComponentPoolIterator {
+	using Traits = _details::ComponentTraits<C, E>;
+
 public:
 
 	/// @brief Component type
@@ -26,7 +28,7 @@ public:
 	/// @brief Entity type
 	using EntityT = E;
 	/// @brief Return value
-	using ValueType = std::pair<const E&, C&>;
+	using ValueType = std::pair<const E&, std::conditional_t<Traits::flag, const bool, C&>>;
 	/// @brief Return value reference
 	using Reference = ValueType&;
 	/// @brief Return value Pointer
@@ -76,8 +78,8 @@ private:
 
 	// if iterator is valid
 	bool _valid() const noexcept;
+	void _update() noexcept;
 
-	using Traits = _details::ComponentTraits<C, E>;
 	using ETraits = _details::EntityTraits<E>;
 
 	// used by ComponentPool

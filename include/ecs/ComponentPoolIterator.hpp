@@ -7,14 +7,35 @@
 namespace arch::ecs::_details {
 
 TEMPLATE
+void ITER::_update() noexcept {
+	if (_valid()) { // update internal std::pair
+		if constexpr (Traits::flag) {
+			new (_value) ValueType((*_dense)[_i], true);
+		} else {
+			new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
+		}
+	}
+}
+
+TEMPLATE
 ITER::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
-	_componentPage{ pool->_components.data() + qdiv<Traits::pageSize>(i) },
-	_offset{ qmod<Traits::pageSize>(i) },
+	_componentPage{ [&]() {
+		if constexpr (Traits::flag) {
+			return nullptr;
+		} else {
+			return pool->_components.data() + qdiv<Traits::pageSize>(i);
+		}
+	}() },
+	_offset{ [&]() {
+		if constexpr (Traits::flag) {
+			return 0;
+		} else {
+			return qmod<Traits::pageSize>(i);
+		}
+	}() },
 	_dense{ &pool->_dense },
 	_i{ i } {
-	if (_valid()) { // initialize internal std::pair
-		new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
-	}
+	_update();
 }
 
 TEMPLATE
@@ -39,22 +60,24 @@ TEMPLATE
 ITER& ITER::operator++() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		do {
-			_offset = qmod<Traits::pageSize>(_offset + 1);
-			if (not _offset) {
-				++_componentPage;
+			if constexpr (not Traits::flag) {
+				_offset = qmod<Traits::pageSize>(_offset + 1);
+				if (not _offset) {
+					++_componentPage;
+				}
 			}
 		} while (++_i < _dense->size() and ETraits::Version::hasNull((*_dense)[_i]));
 	} else {
 		++_i;
-		_offset = qmod<Traits::pageSize>(_offset + 1);
-		if (not _offset) {
-			++_componentPage;
+		if constexpr (not Traits::flag) {
+			_offset = qmod<Traits::pageSize>(_offset + 1);
+			if (not _offset) {
+				++_componentPage;
+			}
 		}
 	}
 
-	if (_valid()) {
-		new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
-	}
+	_update();
 	return *this;
 }
 
@@ -70,29 +93,31 @@ ITER& ITER::operator--() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		if (_i != 0 and _i != (size_t)-1) {
 			do {
-				if (not _offset) {
-					--_componentPage;
-					_offset = Traits::pageSize - 1;
-				} else {
-					--_offset;
+				if constexpr (not Traits::flag) {
+					if (not _offset) {
+						--_componentPage;
+						_offset = Traits::pageSize - 1;
+					} else {
+						--_offset;
+					}
 				}
 			} while (--_i != 0 and ETraits::Version::hasNull((*_dense)[_i]));
 		} else {
 			_i = (size_t)-1;
 		}
 	} else {
-		if (not _offset) {
-			--_componentPage;
-			_offset = Traits::pageSize - 1;
-		} else {
-			--_offset;
+		if constexpr (not Traits::flag) {
+			if (not _offset) {
+				--_componentPage;
+				_offset = Traits::pageSize - 1;
+			} else {
+				--_offset;
+			}
 		}
 		--_i;
 	}
 
-	if (_valid()) {
-		new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
-	}
+	_update();
 	return *this;
 }
 

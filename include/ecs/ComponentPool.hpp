@@ -3,6 +3,7 @@
 
 #define TEMPLATE template<class C, class E>
 #define POOL ComponentPool<C, E>
+#define TRAITS _details::ComponentTraits<C, E>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
@@ -11,8 +12,10 @@ namespace arch::ecs {
 
 TEMPLATE
 POOL::~ComponentPool() noexcept {
-	for (size_t i = 0; i != _components.size(); ++i) {
-		Traits::deletePage(_components.data(), i, _dense);
+	if constexpr (Traits::flag) {
+		for (size_t i = 0; i != _components.size(); ++i) {
+			Traits::deletePage(_components.data(), i, _dense);
+		}
 	}
 }
 
@@ -128,13 +131,17 @@ size_t POOL::_findLast() const noexcept {
 
 TEMPLATE
 template<class... Args>
-POOL::Reference POOL::addComponent(const EntityT entity, Args&&... args) noexcept {
+POOL::GetReference POOL::addComponent(const EntityT entity, Args&&... args) noexcept {
 	const auto id = ETraits::Id::part(entity);
 
 	auto&& sparseEntity = _sparseAssure(id);
 	if (sparseEntity != ETraits::Entity::null) {
-		const size_t idx = ETraits::Id::part(sparseEntity);
-		return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+		if constexpr (Traits::flag) {
+			return false;
+		} else {
+			const size_t idx = ETraits::Id::part(sparseEntity);
+			return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+		}
 	}
 
 	auto&& [denseEntity, denseIdx] = _denseNew();
@@ -142,14 +149,15 @@ POOL::Reference POOL::addComponent(const EntityT entity, Args&&... args) noexcep
 	sparseEntity = ETraits::Entity::fromParts(denseIdx, ETraits::Version::part(entity));
 	denseEntity = entity;
 
-	return Traits::constructAt(_componentAssure(id), std::forward<Args>(args)...);
+	if constexpr (Traits::flag) {
+		return true;
+	} else {
+		return Traits::constructAt(_componentAssure(id), std::forward<Args>(args)...);
+	}
 }
 
 TEMPLATE
-C POOL::removeComponent(
-	const EntityT entity,
-	MoveFlag
-) noexcept requires std::movable<C>
+C POOL::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> and not TRAITS::flag)
 { // user must assume that component exists
 	const size_t id = ETraits::Id::part(entity);
 
@@ -208,7 +216,9 @@ bool POOL::removeComponent(const EntityT entity) noexcept {
 	if constexpr (Traits::inPlace) {
 		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
 		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
-		Traits::destroyAt(_components[qdiv<Traits::pageSize>(idx)] + qmod<Traits::pageSize>(idx));
+		if constexpr (not Traits::flag) {
+			Traits::destroyAt(_components[qdiv<Traits::pageSize>(idx)] + qmod<Traits::pageSize>(idx));
+		}
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
@@ -225,14 +235,16 @@ bool POOL::removeComponent(const EntityT entity) noexcept {
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
 
-		auto&& atListHead = _components[qdiv<Traits::pageSize>(_listHead)][qmod<Traits::pageSize>(_listHead)];
+		if constexpr (not Traits::flag) {
+			auto&& atListHead = _components[qdiv<Traits::pageSize>(_listHead)][qmod<Traits::pageSize>(_listHead)];
 
-		_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)] = std::move(atListHead);
+			_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)] = std::move(atListHead);
 
-		// swap probably unnecesary
-		// move-assignment should take care of component's resources
+			// swap probably unnecesary
+			// move-assignment should take care of component's resources
 
-		Traits::destroyAt(&atListHead);
+			Traits::destroyAt(&atListHead);
+		}
 	}
 
 	return true;
@@ -253,25 +265,29 @@ bool POOL::contains(const IdT id) const noexcept {
 }
 
 TEMPLATE
-POOL::Reference POOL::get(const EntityT entity) noexcept {
+POOL::GetReference POOL::get(const EntityT entity) noexcept {
 	// assumed existence of component
+	if constexpr (Traits::flag) {
+		return contains(entity);
+	} else {
+		const size_t id = ETraits::Id::part(entity);
 
-	const size_t id = ETraits::Id::part(entity);
+		ARCH_ASSERT(contains(entity), "Component for entity not found");
 
-	ARCH_ASSERT(contains(entity), "Component for entity not found");
+		const size_t idx = ETraits::Id::part(_sparseGet(id));
 
-	const size_t idx = ETraits::Id::part(_sparseGet(id));
-
-	return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+		return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+	}
 }
 
 TEMPLATE
-POOL::ConstReference POOL::get(const EntityT entity) const noexcept {
+POOL::ConstGetReference POOL::get(const EntityT entity) const noexcept {
 	return const_cast<POOL*>(*this)->get(entity);
 }
 
 TEMPLATE
-std::optional<std::reference_wrapper<C>> POOL::tryGet(const EntityT entity) noexcept {
+std::optional<std::reference_wrapper<C>> POOL::tryGet(const EntityT entity) noexcept requires(not TRAITS::flag)
+{
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseGetPtr(id);
@@ -285,7 +301,9 @@ std::optional<std::reference_wrapper<C>> POOL::tryGet(const EntityT entity) noex
 }
 
 TEMPLATE
-std::optional<std::reference_wrapper<const C>> POOL::tryGet(const EntityT entity) const noexcept {
+std::optional<std::reference_wrapper<const C>> POOL::tryGet(const EntityT entity) const noexcept
+	requires(not TRAITS::flag)
+{
 	return const_cast<POOL*>(this)->tryGet(entity);
 }
 
@@ -353,3 +371,4 @@ POOL::ConstReverseIterator POOL::crend() const noexcept {
 
 #undef TEMPLATE
 #undef POOL
+#undef TRAITS

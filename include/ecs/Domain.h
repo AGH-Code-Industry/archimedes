@@ -32,6 +32,10 @@ public:
 	using ReverseIterator = typename EntityPool<E>::ReverseIterator;
 	/// @brief Const reverse iterator type
 	using ConstReverseIterator = typename EntityPool<E>::ConstReverseIterator;
+	template<class C>
+	using GetReference = std::conditional_t<_details::ComponentTraits<C, E>::flag, bool, C&>;
+	template<class C>
+	using ConstGetReference = std::conditional_t<_details::ComponentTraits<C, E>::flag, bool, const C&>;
 
 	/// @brief Default constructor
 	Domain() noexcept = default;
@@ -103,29 +107,31 @@ public:
 	/// @param ...args - arguments to constructor
 	/// @return Reference to new entity or old one
 	template<class C, class... Args>
-	C& addComponent(const EntityT entity, Args&&... args) noexcept;
+	GetReference<C> addComponent(const EntityT entity, Args&&... args) noexcept;
 	/// @brief Obtains reference to existing component of given entity
 	/// @details If entity does not contain component, behavior is undefined
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	C& getComponent(const EntityT entity) noexcept;
+	GetReference<C> getComponent(const EntityT entity) noexcept;
 	/// @brief Obtains readonly reference to existing component of given entity
 	/// @details If entity does not contain component, behavior is undefined
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	const C& getComponent(const EntityT entity) const noexcept;
+	ConstGetReference<C> getComponent(const EntityT entity) const noexcept;
 	/// @brief Obtains optional with reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	std::optional<std::reference_wrapper<C>> tryGetComponent(const EntityT entity) noexcept;
+	std::optional<std::reference_wrapper<C>> tryGetComponent(const EntityT entity) noexcept
+		requires(not _details::ComponentTraits<C, E>::flag);
 	/// @brief Obtains optional with readonly reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	std::optional<std::reference_wrapper<const C>> tryGetComponent(const EntityT entity) noexcept;
+	std::optional<std::reference_wrapper<const C>> tryGetComponent(const EntityT entity) noexcept
+		requires(not _details::ComponentTraits<C, E>::flag);
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
@@ -136,7 +142,8 @@ public:
 	/// @param entity - entity to remove component from
 	/// @return Removed component
 	template<class C>
-	C removeComponent(const EntityT entity, MoveFlag) noexcept requires std::movable<C>;
+	C removeComponent(const EntityT entity, MoveFlag) noexcept
+		requires(std::movable<C> and not _details::ComponentTraits<C, E>::flag);
 	/// @brief Checks if entity has component
 	/// @tparam C - component type
 	/// @param entity - entity to check
