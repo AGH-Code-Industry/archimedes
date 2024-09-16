@@ -7,7 +7,7 @@
 namespace arch::math {
 
 inline auto qmul(std::unsigned_integral auto value, std::unsigned_integral auto mul) noexcept {
-	return value << std::countr_zero(div);
+	return value << std::countr_zero(mul);
 }
 
 template<std::unsigned_integral auto Mul>
