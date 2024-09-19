@@ -10,7 +10,7 @@ namespace arch::ecs {
 TEMPLATE
 template<class C>
 ComponentPool<C, E>& TEMP_DOMAIN::_assureCPool() noexcept {
-	const auto type = typedesc(C).wrap(); // custom RTTI gets a use
+	const auto type = staticTypedesc(C).wrap(); // custom RTTI gets a use
 
 	auto found = _componentPools.find(type);
 	if (found == _componentPools.end()) {
@@ -24,33 +24,35 @@ ComponentPool<C, E>& TEMP_DOMAIN::_assureCPool() noexcept {
 TEMPLATE
 template<class C>
 void TEMP_DOMAIN::_destroyCPool(CPoolsT& cpools) noexcept {
-	reinterpret_cast<ComponentPool<C, E>*>(cpools[typedesc(C).wrap()].storage.data())->~ComponentPool();
+	reinterpret_cast<ComponentPool<C, E>*>(cpools[staticTypedesc(C).wrap()].storage.data())->~ComponentPool();
 }
 
 TEMPLATE
 template<class C>
 ComponentPool<C, E>& TEMP_DOMAIN::_getCPool() noexcept {
-	return *reinterpret_cast<ComponentPool<C, E>*>(_componentPools.find(typedesc(C).wrap())->second.storage.data());
+	return *reinterpret_cast<ComponentPool<C, E>*>(_componentPools.find(staticTypedesc(C).wrap())->second.storage.data()
+	);
 }
 
 TEMPLATE
 template<class C>
 const ComponentPool<C, E>& TEMP_DOMAIN::_getCPool() const noexcept {
-	return *reinterpret_cast<const ComponentPool<C, E>*>(_componentPools.find(typedesc(C).wrap())->second.storage.data()
+	return *reinterpret_cast<const ComponentPool<C, E>*>(
+		_componentPools.find(staticTypedesc(C).wrap())->second.storage.data()
 	);
 }
 
 TEMPLATE
 template<class C>
 ComponentPool<C, E>* TEMP_DOMAIN::_tryGetCPool() noexcept {
-	const auto found = _componentPools.find(typedesc(C).wrap());
+	const auto found = _componentPools.find(staticTypedesc(C).wrap());
 	return found != _componentPools.end() ? reinterpret_cast<ComponentPool<C, E>*>(found->second.storage.data()) :
 											nullptr;
 }
 
 TEMPLATE template<class C>
 const ComponentPool<C, E>* TEMP_DOMAIN::_tryGetCPool() const noexcept {
-	const auto found = _componentPools.find(typedesc(C).wrap());
+	const auto found = _componentPools.find(staticTypedesc(C).wrap());
 	return found != _componentPools.end() ? reinterpret_cast<const ComponentPool<C, E>*>(found->second.storage.data()) :
 											nullptr;
 }
@@ -111,12 +113,11 @@ TEMP_DOMAIN::EntityT TEMP_DOMAIN::recycleId(const IdT id) noexcept {
 
 TEMPLATE
 void TEMP_DOMAIN::kill(const EntityT entity) noexcept {
-	_entityPool.kill(entity);
-}
+	for (auto&& [type, poolStorage] : _componentPools) {
+		reinterpret_cast<ErasableComponentPool<EntityT>*>(&poolStorage)->removeComponent(entity);
+	}
 
-TEMPLATE
-void TEMP_DOMAIN::kill(const IdT id) noexcept {
-	_entityPool.kill(id);
+	_entityPool.kill(entity);
 }
 
 TEMPLATE
@@ -127,11 +128,6 @@ void TEMP_DOMAIN::kill(std::input_iterator auto first, std::input_iterator auto 
 TEMPLATE
 void TEMP_DOMAIN::kill(std::initializer_list<EntityT> entities) noexcept {
 	_entityPool.kill(entities);
-}
-
-TEMPLATE
-void TEMP_DOMAIN::kill(std::initializer_list<IdT> ids) noexcept {
-	_entityPool.kill(ids);
 }
 
 TEMPLATE
