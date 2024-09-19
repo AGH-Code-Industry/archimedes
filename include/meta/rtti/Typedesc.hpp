@@ -15,7 +15,7 @@ Helper::operator const T*() const noexcept {
 }
 
 template<class T>
-requires(not std::default_initializable<T>)
+requires(not std::default_initializable<T> and std::copy_constructible<T> and not std::move_constructible<T>)
 Helper::operator const T&() const noexcept {
 	// this used to avoid null-reference
 	return (const T&)*(const T*)(this);
