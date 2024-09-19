@@ -11,12 +11,18 @@
 
 namespace arch::ecs {
 
+template<class E>
+class ErasableComponentPool {
+public:
+	virtual bool removeComponent(const E entity) noexcept = 0;
+};
+
 /// @brief Pool for creating and destroying components
 /// @details Uses sparse set data structure
 /// @tparam C - component type
 /// @tparam E - entity type
 template<class C, class E>
-class ComponentPool {
+class ComponentPool: public ErasableComponentPool<E> {
 public:
 
 	/// @brief ComponentTraits of component
@@ -61,7 +67,7 @@ public:
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
-	bool removeComponent(const EntityT entity) noexcept;
+	bool removeComponent(const EntityT entity) noexcept override;
 	/// @brief Removes and returns component from given entity, component must exist
 	/// @details If component does not exist, the behavior is undefined
 	/// @param entity - entity to remove component from

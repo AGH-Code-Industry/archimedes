@@ -12,7 +12,7 @@ namespace arch::ecs {
 
 TEMPLATE
 POOL::~ComponentPool() noexcept {
-	if constexpr (Traits::flag) {
+	if constexpr (not Traits::flag) {
 		for (size_t i = 0; i != _components.size(); ++i) {
 			Traits::deletePage(_components.data(), i, _dense);
 		}
