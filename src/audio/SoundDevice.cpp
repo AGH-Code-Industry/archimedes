@@ -19,11 +19,11 @@ SoundDevice::SoundDevice() {
 
 	alcCall(alcMakeContextCurrent, alcDevice, alcContext);
 
-	arch::Logger::info("Audio system: opened device");
+	Logger::info("Audio system: opened device");
 }
 SoundDevice::~SoundDevice() {
 	alcCall(alcMakeContextCurrent, alcDevice, nullptr);
 	alcCall(alcCloseDevice, alcDevice, alcDevice);
-	arch::Logger::info("Audio system: closed device");
+	Logger::info("Audio system: closed device");
 }
 }  // namespace arch::audio

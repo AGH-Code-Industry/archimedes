@@ -1,10 +1,21 @@
 #pragma once
+#include <array>
+#include <memory>
+
 #include <AL/al.h>
 #include <audio/Clip.h>
 #include <audio/SoundBank.h>
-#include <memory>
 
 namespace arch::audio{
+
+	/// @brief An enum used to tell what the AudioSource is now doing.
+	enum class SourceState {
+		waiting, ///< waiting to play a sound
+		playing, ///< playing a sound
+		stopped, ///< stopped permanently
+		paused ///< stopped until continuation
+	};
+
 	/// @brief Each sound played on the game's scene has its own AudioSource.
 	/// The sound can be modified as needed.
 	class AudioSource{
@@ -16,10 +27,29 @@ namespace arch::audio{
 		std::vector<ALshort> _loadingBuffer;
 
 		/// @brief SoundBank responsible for loading audio data from files.
-		SoundBank& _soundBank;
+		SoundBank* _soundBank;
+
+		/// @brief OpenAL source index.
+		/// Value returned by alGenSources().
+		ALuint _source{};
+
+		/// @brief OpenAL buffers' indexes.
+		/// Values returned by alGenBuffers().
+		ALuint _buffers[4] = {};
+		// TODO: one day this number of buffers might be not sufficient
+		// (because now all AudioSources have one common thread)
+
+		/// @brief Path to the audio file.
+		std::string _clipPath;
+
+		/// @brief Tells what the AudioSource is now doing.
+		SourceState _state = SourceState::waiting;
+
+		/// @brief True if end of the sound file was reached
+		bool _isEndFound = false;
 
 		/// @brief Pass all the sound's parameters to OpenAL.
-		void _updateSoundAttributes() const;
+		void _updateSoundAttributes();
 
 		/// @brief Load first 4 buffers with audio.
 		/// @returns True if the end of sound was reached, false otherwise.
@@ -52,20 +82,6 @@ namespace arch::audio{
 		/// @brief Tells if the sound's playback has to be looped.
 		bool isLooped;
 
-		/// @brief OpenAL source index.
-		/// Value returned by alGenSources().
-		ALuint source;
-
-		/// @brief OpenAL buffers' indexes.
-		/// Values returned by alGenBuffers().
-		ALuint buffers[4];
-
-		/// @brief Path to the audio file.
-		std::string clipPath;
-
-		/// @brief Tells if the playback is currently paused.
-		bool isPaused = false;
-
 		/// @brief Constructor.
 		/// @param soundBank SoundBank responsible for loading audio data from files.
 		/// @param path Path of the sound file.
@@ -76,16 +92,47 @@ namespace arch::audio{
 		/// @param velocityX Source's velocity on the X axis.
 		/// @param velocityY Source's velocity on the Y axis.
 		/// @param isLooped Tells if the sound's playback has to be looped.
-		AudioSource(SoundBank& soundBank, const std::string& path, float pitch=1.0f, float gain=1.0f,
-					float positionX=0.0f, float positionY=0.0f, float velocityX=0.0f,
-					float velocityY=0.0f, bool isLooped=false);
+		AudioSource(SoundBank* soundBank, const std::string& path,float pitch = 1.0f,float gain = 1.0f,
+			float positionX = 0.0f,float positionY = 0.0f,float velocityX = 0.0f,float velocityY = 0.0f,
+			bool isLooped = false) : _soundBank(soundBank),_clipPath(path),pitch(pitch),gain(gain),
+			positionX(positionX),positionY(positionY),velocityX(velocityX),velocityY(velocityY),
+			isLooped(isLooped) {}
 
-		/// @brief Destructor.
-		~AudioSource();
+		///@brief Initialize OpenAL buffers and the source, initially load the sound.
+		///Should be always used before playing.
+		void activate();
 
-		/// @brief Start the playback.
-		/// It's a blocking function, so it should be called in a separate thread.
+		///@brief Clear OpenAL buffers and the source.
+		///Should be used when the AudioSource is destroyed.
+		void deactivate();
+
+		///@brief Getter for the _state property.
+		///@see _state
+		SourceState getState();
+
+		///@brief Starts the playback.
+		///@throws AudioException if the AudioSource is not waiting.
 		void play();
+
+		///@brief Sends all sound data to the OpenAL context.
+		///Should be called each audio frame.
+		///@throws AudioException if the AudioSource is not playing.
+		void update();
+
+		///@brief Permanently stops playing the sound.
+		///@throws AudioException if the AudioSource is not playing.
+		void stop();
+
+		///@brief Pauses the AudioSource until you use continuePlaying().
+		///@see continuePlaying
+		///@throws AudioException if the AudioSource is not playing.
+		void pausePlaying();
+
+		///@brief Continues playing the sound, if the AudioSource is paused.
+		///@see pausePlaying
+		///@throws AudioException if the AudioSource is not paused.
+		void continuePlaying();
+
 	};
 
 }

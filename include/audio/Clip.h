@@ -32,7 +32,7 @@ class Clip{
 	public:
 		/// @brief Constructor.
 		/// @param path Path to the sound file.
-		Clip(const std::string& path) : _filePath(path) {}
+		explicit Clip(const std::string& path) : _filePath(path) {}
 
 		/// @brief Loads the sound file.
 		/// @throws AudioException If couldn't open the file.
@@ -67,6 +67,9 @@ class Clip{
 		/// @returns Sound's sample rate.
 		ALint getSampleRate() const;
 
+		/// @brief Getter of the _isLoaded property.
+		/// @see _isLoaded
+		/// @return True if clip is now loaded, false otherwise.
 		bool getIsLoaded() const;
 };
 }

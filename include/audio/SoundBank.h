@@ -48,12 +48,14 @@ namespace arch::audio{
 
 		/// @brief Loads all clips in a group.
 		/// @param group Number of the group.
-		/// @throws AudioException if the group doesn't exist or it's already loaded.
+		/// @throws AudioException if the group doesn't exist, it's already loaded,
+		/// or a clip from the group doesn't exist.
 		void loadGroup(int group);
 
 		/// @brief Loads all clips in a group.
 		/// @param group Number of the group.
-		/// @throws AudioException if the group doesn't exist or it's not loaded
+		/// @throws AudioException if the group doesn't exist, it's not loaded
+		/// or a clip from the group doesn't exist.
 		void unloadGroup(int group);
 
 		/// @brief Loads all groups marked to load at the game's startup.
@@ -80,7 +82,7 @@ namespace arch::audio{
 		/// @throws AudioException if the Clip doesn't belong to any group (so it doesn't exist).
 		int findClipGroup(const std::string& path);
 
-		/// @brief Moves a Clip to an another group.
+		/// @brief Moves a Clip to a group.
 		/// Creates the destination group if it doesn't exist.
 		/// @param path Path to the sound file.
 		/// @param destinationGroup The group you want to insert the Clip into.
@@ -113,7 +115,8 @@ namespace arch::audio{
 		/// @brief Removes a group from the bank.
 		/// Moves all its Clips to the default group (id=0).
 		/// @param group The group to remove.
-		/// @throws AudioException if you try to remove the default group, the group is loaded or it doesn't exist.
+		/// @throws AudioException if you try to remove the default group, the group is loaded,
+		/// or it doesn't exist.
 		void removeGroup(int group);
 	};
 }
