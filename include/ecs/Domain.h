@@ -84,9 +84,6 @@ public:
 	/// @brief Kills given entity
 	/// @param entity - entity to kill
 	void kill(const EntityT entity) noexcept;
-	/// @brief Kills entity of given id
-	/// @param id - id of entity to kill
-	void kill(const IdT id) noexcept;
 	/// @brief Kills entities in range
 	/// @param first - beginning of range
 	/// @param last - end of range
@@ -94,9 +91,6 @@ public:
 	/// @brief Kills all entites in list
 	/// @param entities - entities to kill
 	void kill(std::initializer_list<EntityT> entities) noexcept;
-	/// @brief Kills all entites of ids in list
-	/// @param entities - entities to kill
-	void kill(std::initializer_list<IdT> ids) noexcept;
 
 	/// @brief Returns readonly std::view of entities
 	auto entities() const noexcept;
