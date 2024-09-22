@@ -3,16 +3,16 @@
 #include "EntityPool.h"
 #include "utils/Assert.h"
 
-#define TEMPLATE template<class E>
-#define POOL EntityPool<E>
+#define TEMPLATE_E template<class E>
+#define POOL_E EntityPool<E>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
 
 namespace arch::ecs {
 
-TEMPLATE
-typename POOL::EntityT* POOL::_tryInitPage(const size_t n) noexcept {
+TEMPLATE_E
+typename POOL_E::EntityT* POOL_E::_tryInitPage(const size_t n) noexcept {
 	// virtually equal to _sparse.resize(n + 1), but resize() makes capacity == n + 1 (bad);
 	while (_sparse.size() != n + 1) {
 		_sparse.emplace_back();
@@ -27,28 +27,28 @@ typename POOL::EntityT* POOL::_tryInitPage(const size_t n) noexcept {
 	return page->data();
 }
 
-TEMPLATE
-typename POOL::EntityT& POOL::_sparseAssure(const EntityT entity) noexcept {
+TEMPLATE_E
+typename POOL_E::EntityT& POOL_E::_sparseAssure(const EntityT entity) noexcept {
 	return _sparseAssure(Traits::Id::part(entity));
 }
 
-TEMPLATE
-typename POOL::EntityT& POOL::_sparseAssure(const IdT id) noexcept {
+TEMPLATE_E
+typename POOL_E::EntityT& POOL_E::_sparseAssure(const IdT id) noexcept {
 	return _tryInitPage(qdiv<Traits::pageSize>(id))[qmod<Traits::pageSize>(id)];
 }
 
-TEMPLATE
-typename POOL::EntityT& POOL::_sparseGet(const EntityT entity) noexcept {
+TEMPLATE_E
+typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) noexcept {
 	return _sparseGet(Traits::Id::part(entity));
 }
 
-TEMPLATE
-const typename POOL::EntityT& POOL::_sparseGet(const EntityT entity) const noexcept {
+TEMPLATE_E
+const typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) const noexcept {
 	return _sparseGet(Traits::Id::part(entity));
 }
 
-TEMPLATE
-typename POOL::EntityT& POOL::_sparseGet(const IdT id) noexcept {
+TEMPLATE_E
+typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) noexcept {
 	ARCH_ASSERT(
 		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
 		"Page for given id does not exist"
@@ -56,8 +56,8 @@ typename POOL::EntityT& POOL::_sparseGet(const IdT id) noexcept {
 	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
 }
 
-TEMPLATE
-const typename POOL::EntityT& POOL::_sparseGet(const IdT id) const noexcept {
+TEMPLATE_E
+const typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) const noexcept {
 	ARCH_ASSERT(
 		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
 		"Page for given id does not exist"
@@ -65,74 +65,74 @@ const typename POOL::EntityT& POOL::_sparseGet(const IdT id) const noexcept {
 	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
 }
 
-TEMPLATE POOL::Iterator POOL::begin() noexcept {
+TEMPLATE_E POOL_E::Iterator POOL_E::begin() noexcept {
 	return _dense.begin();
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::begin() const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::begin() const noexcept {
 	return _dense.begin();
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::cbegin() const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::cbegin() const noexcept {
 	return _dense.cbegin();
 }
 
-TEMPLATE
-POOL::Iterator POOL::end() noexcept {
+TEMPLATE_E
+POOL_E::Iterator POOL_E::end() noexcept {
 	return _dense.begin() + _size;
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::end() const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::end() const noexcept {
 	return _dense.begin() + _size;
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::cend() const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::cend() const noexcept {
 	return _dense.cbegin() + _size;
 }
 
-TEMPLATE
-POOL::ReverseIterator POOL::rbegin() noexcept {
+TEMPLATE_E
+POOL_E::ReverseIterator POOL_E::rbegin() noexcept {
 	return std::make_reverse_iterator(end());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::rbegin() const noexcept {
+TEMPLATE_E
+POOL_E::ConstReverseIterator POOL_E::rbegin() const noexcept {
 	return std::make_reverse_iterator(end());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::crbegin() const noexcept {
+TEMPLATE_E
+POOL_E::ConstReverseIterator POOL_E::crbegin() const noexcept {
 	return std::make_reverse_iterator(cend());
 }
 
-TEMPLATE
-POOL::ReverseIterator POOL::rend() noexcept {
+TEMPLATE_E
+POOL_E::ReverseIterator POOL_E::rend() noexcept {
 	return std::make_reverse_iterator(begin());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::rend() const noexcept {
+TEMPLATE_E
+POOL_E::ConstReverseIterator POOL_E::rend() const noexcept {
 	return std::make_reverse_iterator(begin());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::crend() const noexcept {
+TEMPLATE_E
+POOL_E::ConstReverseIterator POOL_E::crend() const noexcept {
 	return std::make_reverse_iterator(cbegin());
 }
 
-TEMPLATE
-void POOL::swap(POOL& other) noexcept {
+TEMPLATE_E
+void POOL_E::swap(POOL_E& other) noexcept {
 	std::swap(_sparse, other._sparse);
 	std::swap(_dense, other._dense);
 	std::swap(_size, other._size);
 }
 
-TEMPLATE
-POOL::EntityT POOL::newEntity() noexcept {
+TEMPLATE_E
+POOL_E::EntityT POOL_E::newEntity() noexcept {
 	if (_size == Traits::Id::max + 1) { // entity limit achieved
 		return null;
 	}
@@ -151,8 +151,8 @@ POOL::EntityT POOL::newEntity() noexcept {
 	}
 }
 
-TEMPLATE
-POOL::EntityT POOL::recycleEntity(const EntityT entity) noexcept {
+TEMPLATE_E
+POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
 	if (not contains(Traits::Id::part(entity)) /*and _size <= Traits::Id::max*/) {
 		auto& wantedSparse = _sparseGet(entity);
 		auto& toSwapDense = _dense[_size++];
@@ -168,8 +168,8 @@ POOL::EntityT POOL::recycleEntity(const EntityT entity) noexcept {
 	return null;
 }
 
-TEMPLATE
-POOL::EntityT POOL::recycleId(const IdT id) noexcept {
+TEMPLATE_E
+POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
 	if (not contains(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[_size++];
@@ -184,8 +184,8 @@ POOL::EntityT POOL::recycleId(const IdT id) noexcept {
 	return null;
 }
 
-TEMPLATE
-void POOL::kill(const EntityT entity) noexcept {
+TEMPLATE_E
+void POOL_E::kill(const EntityT entity) noexcept {
 	if (alive(entity)) {
 		auto& wantedSparse = _sparseGet(entity);
 		auto& toSwapDense = _dense[--_size];
@@ -198,8 +198,8 @@ void POOL::kill(const EntityT entity) noexcept {
 	}
 }
 
-TEMPLATE
-void POOL::kill(const IdT id) noexcept {
+TEMPLATE_E
+void POOL_E::kill(const IdT id) noexcept {
 	if (contains(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[--_size];
@@ -212,25 +212,25 @@ void POOL::kill(const IdT id) noexcept {
 	}
 }
 
-TEMPLATE
-void POOL::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
+TEMPLATE_E
+void POOL_E::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
 	for (; first != last; ++first) {
 		kill(*first);
 	}
 }
 
-TEMPLATE
-void POOL::kill(std::initializer_list<EntityT> entities) noexcept {
+TEMPLATE_E
+void POOL_E::kill(std::initializer_list<EntityT> entities) noexcept {
 	return kill(entities.begin(), entities.end());
 }
 
-TEMPLATE
-void POOL::kill(std::initializer_list<IdT> ids) noexcept {
+TEMPLATE_E
+void POOL_E::kill(std::initializer_list<IdT> ids) noexcept {
 	return kill(ids.begin(), ids.end());
 }
 
-TEMPLATE
-bool POOL::contains(const IdT id) const noexcept {
+TEMPLATE_E
+bool POOL_E::contains(const IdT id) const noexcept {
 	const size_t _id = id;
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
@@ -238,8 +238,8 @@ bool POOL::contains(const IdT id) const noexcept {
 		not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]);
 }
 
-TEMPLATE
-bool POOL::alive(const EntityT entity) const noexcept {
+TEMPLATE_E
+bool POOL_E::alive(const EntityT entity) const noexcept {
 	const size_t id = Traits::Id::part(entity);
 	const size_t pageNum = qdiv<Traits::pageSize>(id);
 
@@ -247,18 +247,18 @@ bool POOL::alive(const EntityT entity) const noexcept {
 		Traits::Version::equal((*_sparse[pageNum])[qmod<Traits::pageSize>(id)], entity);
 }
 
-TEMPLATE
-POOL::Iterator POOL::find(const EntityT entity) noexcept {
+TEMPLATE_E
+POOL_E::Iterator POOL_E::find(const EntityT entity) noexcept {
 	return find(Traits::Id::part(entity));
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::find(const EntityT entity) const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::find(const EntityT entity) const noexcept {
 	return find(Traits::Id::part(entity));
 }
 
-TEMPLATE
-POOL::Iterator POOL::find(const IdT id) noexcept {
+TEMPLATE_E
+POOL_E::Iterator POOL_E::find(const IdT id) noexcept {
 	if (id == Traits::Id::null) {
 		return end();
 	}
@@ -272,8 +272,8 @@ POOL::Iterator POOL::find(const IdT id) noexcept {
 		end();
 }
 
-TEMPLATE
-POOL::ConstIterator POOL::find(const IdT id) const noexcept {
+TEMPLATE_E
+POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
 	if (id == Traits::Id::null) {
 		return end();
 	}
@@ -287,22 +287,22 @@ POOL::ConstIterator POOL::find(const IdT id) const noexcept {
 		end();
 }
 
-TEMPLATE
-POOL::VersionT POOL::version(const EntityT entity) const noexcept {
+TEMPLATE_E
+POOL_E::VersionT POOL_E::version(const EntityT entity) const noexcept {
 	return version(Traits::Id::part(entity));
 }
 
-TEMPLATE
-POOL::VersionT POOL::version(const IdT id) const noexcept {
+TEMPLATE_E
+POOL_E::VersionT POOL_E::version(const IdT id) const noexcept {
 	return Traits::Version::part(contains(id) ? _sparseGet(id) : null);
 }
 
-TEMPLATE
-size_t POOL::size() const noexcept {
+TEMPLATE_E
+size_t POOL_E::size() const noexcept {
 	return _size;
 }
 
 } // namespace arch::ecs
 
-#undef TEMPLATE
-#undef POOL
+#undef TEMPLATE_E
+#undef POOL_E

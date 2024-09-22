@@ -1,13 +1,13 @@
 #include "ComponentPool.h"
 #include "ComponentPoolIterator.h"
 
-#define TEMPLATE template<class C, class E>
-#define ITER ComponentPoolIterator<C, E>
+#define TEMPLATE_CE template<class C, class E>
+#define ITER_CE ComponentPoolIterator<C, E>
 
 namespace arch::ecs::_details {
 
-TEMPLATE
-void ITER::_update() noexcept {
+TEMPLATE_CE
+void ITER_CE::_update() noexcept {
 	if (_valid()) { // update internal std::pair
 		if constexpr (Traits::flag) {
 			new (_value) ValueType((*_dense)[_i], true);
@@ -17,8 +17,8 @@ void ITER::_update() noexcept {
 	}
 }
 
-TEMPLATE
-ITER::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
+TEMPLATE_CE
+ITER_CE::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
 	_componentPage{ [&]() {
 		if constexpr (Traits::flag) {
 			return nullptr;
@@ -38,12 +38,12 @@ ITER::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
 	_update();
 }
 
-TEMPLATE
-ITER::Reference ITER::_pair() const noexcept {
-	return *reinterpret_cast<Pointer>(&const_cast<ITER*>(this)->_value);
+TEMPLATE_CE
+ITER_CE::Reference ITER_CE::_pair() const noexcept {
+	return *reinterpret_cast<Pointer>(&const_cast<ITER_CE*>(this)->_value);
 }
 
-TEMPLATE void ITER::swap(ITER& other) noexcept {
+TEMPLATE_CE void ITER_CE::swap(ITER_CE& other) noexcept {
 	std::swap(this->_componentPage, other._componentPage);
 	std::swap(this->_offset, other._offset);
 	std::swap(this->_dense, other._dense);
@@ -51,13 +51,13 @@ TEMPLATE void ITER::swap(ITER& other) noexcept {
 	std::swap(this->_pair(), other._pair());
 }
 
-TEMPLATE
-bool ITER::_valid() const noexcept {
+TEMPLATE_CE
+bool ITER_CE::_valid() const noexcept {
 	return _i < _dense->size() and not ETraits::Version::hasNull((*_dense)[_i]);
 }
 
-TEMPLATE
-ITER& ITER::operator++() noexcept {
+TEMPLATE_CE
+ITER_CE& ITER_CE::operator++() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		do {
 			if constexpr (not Traits::flag) {
@@ -81,15 +81,15 @@ ITER& ITER::operator++() noexcept {
 	return *this;
 }
 
-TEMPLATE
-ITER ITER::operator++(int) noexcept {
+TEMPLATE_CE
+ITER_CE ITER_CE::operator++(int) noexcept {
 	auto temp = *this;
 	++(*this);
 	return temp;
 }
 
-TEMPLATE
-ITER& ITER::operator--() noexcept {
+TEMPLATE_CE
+ITER_CE& ITER_CE::operator--() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		if (_i != 0 and _i != (size_t)-1) {
 			do {
@@ -121,34 +121,34 @@ ITER& ITER::operator--() noexcept {
 	return *this;
 }
 
-TEMPLATE
-ITER ITER::operator--(int) noexcept {
+TEMPLATE_CE
+ITER_CE ITER_CE::operator--(int) noexcept {
 	auto temp = *this;
 	--(*this);
 	return temp;
 }
 
-TEMPLATE
-ITER::Reference ITER::operator*() const noexcept {
+TEMPLATE_CE
+ITER_CE::Reference ITER_CE::operator*() const noexcept {
 	return _pair();
 }
 
-TEMPLATE
-ITER::Pointer ITER::operator->() const noexcept {
+TEMPLATE_CE
+ITER_CE::Pointer ITER_CE::operator->() const noexcept {
 	return &(_pair());
 }
 
-TEMPLATE
-bool ITER::operator==(const ITER& other) const noexcept {
+TEMPLATE_CE
+bool ITER_CE::operator==(const ITER_CE& other) const noexcept {
 	return _i == other._i;
 }
 
-TEMPLATE
-std::strong_ordering ITER::operator<=>(const ITER& other) const noexcept {
+TEMPLATE_CE
+std::strong_ordering ITER_CE::operator<=>(const ITER_CE& other) const noexcept {
 	return _i <=> other._i;
 }
 
 } // namespace arch::ecs::_details
 
-#undef TEMPLATE
-#undef ITER
+#undef TEMPLATE_CE
+#undef ITER_CE

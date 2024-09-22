@@ -1,17 +1,17 @@
 #include "ComponentPool.h"
 #include <utils/Assert.h>
 
-#define TEMPLATE template<class C, class E>
-#define POOL ComponentPool<C, E>
-#define TRAITS _details::ComponentTraits<C, E>
+#define TEMPLATE_CE template<class C, class E>
+#define POOL_CE ComponentPool<C, E>
+#define TRAITS_CE _details::ComponentTraits<C, E>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
 
 namespace arch::ecs {
 
-TEMPLATE
-POOL::~ComponentPool() noexcept {
+TEMPLATE_CE
+POOL_CE::~ComponentPool() noexcept {
 	if constexpr (not Traits::flag) {
 		for (size_t i = 0; i != _components.size(); ++i) {
 			Traits::deletePage(_components.data(), i, _dense);
@@ -19,8 +19,8 @@ POOL::~ComponentPool() noexcept {
 	}
 }
 
-TEMPLATE
-E& POOL::_sparseAssure(const IdT id) noexcept {
+TEMPLATE_CE
+E& POOL_CE::_sparseAssure(const IdT id) noexcept {
 	const size_t sparsePageNum = qdiv<ETraits::pageSize>(id);
 	// virtually equal to _sparse.resize(sparsePageNum + 1), but capacity >= sparsePageNum + 1
 	while (_sparse.size() != sparsePageNum + 1) {
@@ -36,8 +36,8 @@ E& POOL::_sparseAssure(const IdT id) noexcept {
 	return (*sparsePagePtr)[qmod<ETraits::pageSize>(id)];
 }
 
-TEMPLATE
-std::tuple<E&, size_t> POOL::_denseNew() noexcept {
+TEMPLATE_CE
+std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
 	if (_listHead == _dense.size()) { // dense is full
 		return { _dense.emplace_back(ETraits::Entity::null), _listHead++ };
 	}
@@ -51,8 +51,8 @@ std::tuple<E&, size_t> POOL::_denseNew() noexcept {
 	}
 }
 
-TEMPLATE
-C* POOL::_componentAssure(const IdT id) noexcept {
+TEMPLATE_CE
+C* POOL_CE::_componentAssure(const IdT id) noexcept {
 	const size_t pageNum = qdiv<Traits::pageSize>(id);
 	// virtually equal to __components.resize(pageNum + 1), but capacity >= pageNum + 1
 	while (_components.size() != pageNum + 1) {
@@ -67,8 +67,8 @@ C* POOL::_componentAssure(const IdT id) noexcept {
 	return pagePtr + qmod<Traits::pageSize>(id);
 }
 
-TEMPLATE
-E* POOL::_sparseGetPtr(const IdT _id) noexcept {
+TEMPLATE_CE
+E* POOL_CE::_sparseGetPtr(const IdT _id) noexcept {
 	const size_t id = _id;
 	const size_t pageNum = qdiv<ETraits::pageSize>(id);
 
@@ -81,13 +81,13 @@ E* POOL::_sparseGetPtr(const IdT _id) noexcept {
 	return page ? page->data() + qmod<ETraits::pageSize>(id) : nullptr;
 }
 
-TEMPLATE
-const E* POOL::_sparseGetPtr(const IdT _id) const noexcept {
-	return const_cast<POOL*>(this)->_sparseGetPtr(_id);
+TEMPLATE_CE
+const E* POOL_CE::_sparseGetPtr(const IdT _id) const noexcept {
+	return const_cast<POOL_CE*>(this)->_sparseGetPtr(_id);
 }
 
-TEMPLATE
-E& POOL::_sparseGet(const IdT _id) noexcept {
+TEMPLATE_CE
+E& POOL_CE::_sparseGet(const IdT _id) noexcept {
 	const size_t id = _id;
 
 	ARCH_ASSERT(
@@ -98,13 +98,13 @@ E& POOL::_sparseGet(const IdT _id) noexcept {
 	return (*_sparse[qdiv<ETraits::pageSize>(id)])[qmod<ETraits::pageSize>(id)];
 }
 
-TEMPLATE
-const E& POOL::_sparseGet(const IdT _id) const noexcept {
-	return const_cast<POOL*>(this)->_sparseGet(_id);
+TEMPLATE_CE
+const E& POOL_CE::_sparseGet(const IdT _id) const noexcept {
+	return const_cast<POOL_CE*>(this)->_sparseGet(_id);
 }
 
-TEMPLATE
-size_t POOL::_findFirst() const noexcept {
+TEMPLATE_CE
+size_t POOL_CE::_findFirst() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = 0; i != _dense.size(); ++i) {
 			if (not ETraits::Version::hasNull(_dense[i])) {
@@ -116,8 +116,8 @@ size_t POOL::_findFirst() const noexcept {
 	return 0;
 }
 
-TEMPLATE
-size_t POOL::_findLast() const noexcept {
+TEMPLATE_CE
+size_t POOL_CE::_findLast() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = _dense.size() - 1; i != (size_t)-1; --i) {
 			if (not ETraits::Version::hasNull(_dense[i - 1])) {
@@ -129,9 +129,9 @@ size_t POOL::_findLast() const noexcept {
 	return _listHead - 1;
 }
 
-TEMPLATE
+TEMPLATE_CE
 template<class... Args>
-POOL::GetReference POOL::addComponent(const EntityT entity, Args&&... args) noexcept {
+POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args) noexcept {
 	const auto id = ETraits::Id::part(entity);
 
 	auto&& sparseEntity = _sparseAssure(id);
@@ -156,8 +156,8 @@ POOL::GetReference POOL::addComponent(const EntityT entity, Args&&... args) noex
 	}
 }
 
-TEMPLATE
-C POOL::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> and not TRAITS::flag)
+TEMPLATE_CE
+C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> and not TRAITS_CE::flag)
 { // user must assume that component exists
 	const size_t id = ETraits::Id::part(entity);
 
@@ -204,8 +204,8 @@ C POOL::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::m
 	}
 }
 
-TEMPLATE
-bool POOL::removeComponent(const EntityT entity) noexcept {
+TEMPLATE_CE
+bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseGetPtr(id);
@@ -250,22 +250,22 @@ bool POOL::removeComponent(const EntityT entity) noexcept {
 	return true;
 }
 
-TEMPLATE
-bool POOL::contains(const EntityT entity) const noexcept {
+TEMPLATE_CE
+bool POOL_CE::contains(const EntityT entity) const noexcept {
 	const auto sparsePtr = _sparseGetPtr(ETraits::Id::part(entity));
 
 	return sparsePtr and ETraits::Version::equal(*sparsePtr, entity);
 }
 
-TEMPLATE
-bool POOL::contains(const IdT id) const noexcept {
+TEMPLATE_CE
+bool POOL_CE::contains(const IdT id) const noexcept {
 	const auto sparsePtr = _sparseGetPtr(id);
 
 	return sparsePtr and not ETraits::Version::hasNull(*sparsePtr);
 }
 
-TEMPLATE
-POOL::GetReference POOL::get(const EntityT entity) noexcept {
+TEMPLATE_CE
+POOL_CE::GetReference POOL_CE::get(const EntityT entity) noexcept {
 	// assumed existence of component
 	if constexpr (Traits::flag) {
 		return contains(entity);
@@ -280,13 +280,13 @@ POOL::GetReference POOL::get(const EntityT entity) noexcept {
 	}
 }
 
-TEMPLATE
-POOL::ConstGetReference POOL::get(const EntityT entity) const noexcept {
-	return const_cast<POOL*>(*this)->get(entity);
+TEMPLATE_CE
+POOL_CE::ConstGetReference POOL_CE::get(const EntityT entity) const noexcept {
+	return const_cast<POOL_CE*>(*this)->get(entity);
 }
 
-TEMPLATE
-std::optional<std::reference_wrapper<C>> POOL::tryGet(const EntityT entity) noexcept requires(not TRAITS::flag)
+TEMPLATE_CE
+std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) noexcept requires(not TRAITS_CE::flag)
 {
 	const size_t id = ETraits::Id::part(entity);
 
@@ -300,75 +300,75 @@ std::optional<std::reference_wrapper<C>> POOL::tryGet(const EntityT entity) noex
 	return std::optional{ std::ref(_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)]) };
 }
 
-TEMPLATE
-std::optional<std::reference_wrapper<const C>> POOL::tryGet(const EntityT entity) const noexcept
-	requires(not TRAITS::flag)
+TEMPLATE_CE
+std::optional<std::reference_wrapper<const C>> POOL_CE::tryGet(const EntityT entity) const noexcept
+	requires(not TRAITS_CE::flag)
 {
-	return const_cast<POOL*>(this)->tryGet(entity);
+	return const_cast<POOL_CE*>(this)->tryGet(entity);
 }
 
-TEMPLATE
-POOL::Iterator POOL::begin() noexcept {
+TEMPLATE_CE
+POOL_CE::Iterator POOL_CE::begin() noexcept {
 	return Iterator(this, _findFirst());
 }
 
-TEMPLATE
-const POOL::Iterator POOL::begin() const noexcept {
-	return const_cast<POOL*>(this)->begin();
+TEMPLATE_CE
+const POOL_CE::Iterator POOL_CE::begin() const noexcept {
+	return const_cast<POOL_CE*>(this)->begin();
 }
 
-TEMPLATE
-const POOL::Iterator POOL::cbegin() const noexcept {
+TEMPLATE_CE
+const POOL_CE::Iterator POOL_CE::cbegin() const noexcept {
 	return begin();
 }
 
-TEMPLATE
-POOL::Iterator POOL::end() noexcept {
+TEMPLATE_CE
+POOL_CE::Iterator POOL_CE::end() noexcept {
 	return Iterator(this, _findLast() + 1);
 }
 
-TEMPLATE
-const POOL::Iterator POOL::end() const noexcept {
-	return const_cast<POOL*>(this)->end();
+TEMPLATE_CE
+const POOL_CE::Iterator POOL_CE::end() const noexcept {
+	return const_cast<POOL_CE*>(this)->end();
 }
 
-TEMPLATE
-const POOL::Iterator POOL::cend() const noexcept {
+TEMPLATE_CE
+const POOL_CE::Iterator POOL_CE::cend() const noexcept {
 	return end();
 }
 
-TEMPLATE
-POOL::ReverseIterator POOL::rbegin() noexcept {
+TEMPLATE_CE
+POOL_CE::ReverseIterator POOL_CE::rbegin() noexcept {
 	return std::reverse_iterator(end());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::rbegin() const noexcept {
+TEMPLATE_CE
+POOL_CE::ConstReverseIterator POOL_CE::rbegin() const noexcept {
 	return std::reverse_iterator(end());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::crbegin() const noexcept {
+TEMPLATE_CE
+POOL_CE::ConstReverseIterator POOL_CE::crbegin() const noexcept {
 	return std::reverse_iterator(cend());
 }
 
-TEMPLATE
-POOL::ReverseIterator POOL::rend() noexcept {
+TEMPLATE_CE
+POOL_CE::ReverseIterator POOL_CE::rend() noexcept {
 	return std::reverse_iterator(begin());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::rend() const noexcept {
+TEMPLATE_CE
+POOL_CE::ConstReverseIterator POOL_CE::rend() const noexcept {
 	return std::reverse_iterator(begin());
 }
 
-TEMPLATE
-POOL::ConstReverseIterator POOL::crend() const noexcept {
+TEMPLATE_CE
+POOL_CE::ConstReverseIterator POOL_CE::crend() const noexcept {
 	return std::reverse_iterator(cbegin());
 }
 
 } // namespace arch::ecs
 
-#undef TEMPLATE
-#undef POOL
-#undef TRAITS
+#undef TEMPLATE_CE
+#undef POOL_CE
+#undef TRAITS_CE
