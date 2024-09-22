@@ -12,8 +12,7 @@
 namespace arch::ecs {
 
 template<class E>
-class ErasableComponentPool {
-public:
+struct ErasableComponentPool {
 	virtual bool removeComponent(const E entity) noexcept = 0;
 };
 
