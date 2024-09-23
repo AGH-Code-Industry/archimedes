@@ -21,7 +21,7 @@ POOL_CE::~ComponentPool() noexcept {
 
 TEMPLATE_CE
 E& POOL_CE::_sparseAssure(const IdT id) noexcept {
-	const size_t sparsePageNum = qdiv<ETraits::pageSize>(id);
+	const size_t sparsePageNum = id / ETraits::pageSize;
 	// virtually equal to _sparse.resize(sparsePageNum + 1), but capacity >= sparsePageNum + 1
 	while (_sparse.size() != sparsePageNum + 1) {
 		_sparse.emplace_back();
@@ -33,7 +33,7 @@ E& POOL_CE::_sparseAssure(const IdT id) noexcept {
 		sparsePagePtr->fill(ETraits::Entity::null);
 	}
 
-	return (*sparsePagePtr)[qmod<ETraits::pageSize>(id)];
+	return (*sparsePagePtr)[id % ETraits::pageSize];
 }
 
 TEMPLATE_CE
@@ -53,7 +53,7 @@ std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
 
 TEMPLATE_CE
 C* POOL_CE::_componentAssure(const IdT id) noexcept {
-	const size_t pageNum = qdiv<Traits::pageSize>(id);
+	const size_t pageNum = id / Traits::pageSize;
 	// virtually equal to __components.resize(pageNum + 1), but capacity >= pageNum + 1
 	while (_components.size() != pageNum + 1) {
 		_components.emplace_back();
@@ -64,13 +64,13 @@ C* POOL_CE::_componentAssure(const IdT id) noexcept {
 		pagePtr = Traits::newPage();
 	}
 
-	return pagePtr + qmod<Traits::pageSize>(id);
+	return pagePtr + id % Traits::pageSize;
 }
 
 TEMPLATE_CE
 E* POOL_CE::_sparseGetPtr(const IdT _id) noexcept {
 	const size_t id = _id;
-	const size_t pageNum = qdiv<ETraits::pageSize>(id);
+	const size_t pageNum = id / ETraits::pageSize;
 
 	if (_sparse.size() <= pageNum) {
 		return nullptr;
@@ -78,7 +78,7 @@ E* POOL_CE::_sparseGetPtr(const IdT _id) noexcept {
 
 	auto page = _sparse[pageNum].get();
 
-	return page ? page->data() + qmod<ETraits::pageSize>(id) : nullptr;
+	return page ? page->data() + id % ETraits::pageSize : nullptr;
 }
 
 TEMPLATE_CE
@@ -91,11 +91,11 @@ E& POOL_CE::_sparseGet(const IdT _id) noexcept {
 	const size_t id = _id;
 
 	ARCH_ASSERT(
-		qdiv<ETraits::pageSize>(id) < _sparse.size() && _sparse[qdiv<ETraits::pageSize>(id)].get(),
+		id / ETraits::pageSize < _sparse.size() && _sparse[id / ETraits::pageSize].get(),
 		"Sparse page for given id does not exist"
 	);
 
-	return (*_sparse[qdiv<ETraits::pageSize>(id)])[qmod<ETraits::pageSize>(id)];
+	return (*_sparse[id / ETraits::pageSize])[id % ETraits::pageSize];
 }
 
 TEMPLATE_CE
@@ -140,7 +140,7 @@ POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args
 			return false;
 		} else {
 			const size_t idx = ETraits::Id::part(sparseEntity);
-			return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+			return _components[idx / Traits::pageSize][idx % Traits::pageSize];
 		}
 	}
 
@@ -168,15 +168,14 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 	if constexpr (Traits::inPlace) {
 		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
 		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
-		auto&& component = (*_components[qdiv<Traits::pageSize>(idx)])[qmod<Traits::pageSize>(idx)];
+		auto&& component = (*_components[idx / Traits::pageSize])[idx % Traits::pageSize];
 		auto toMove = std::move(component);
 		Traits::destroyAt(&component);
 		return toMove;
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
-		EntityT& sparseSwap =
-			_sparse[qdiv<ETraits::pageSize>(sparseSwapIdx)]->data()[qmod<ETraits::pageSize>(sparseSwapIdx)];
+		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
 
 		// first sparse swap, id at listHead = id of given entity
 		sparseSwap = ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
@@ -187,8 +186,8 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
 
-		auto&& atIdx = _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
-		auto&& atListHead = _components[qdiv<Traits::pageSize>(_listHead)][qmod<Traits::pageSize>(_listHead)];
+		auto&& atIdx = _components[idx / Traits::pageSize][idx % Traits::pageSize];
+		auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
 
 		auto toMove = std::move(atIdx);
 
@@ -217,13 +216,12 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
 		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
 		if constexpr (!Traits::flag) {
-			Traits::destroyAt(_components[qdiv<Traits::pageSize>(idx)] + qmod<Traits::pageSize>(idx));
+			Traits::destroyAt(_components[idx / Traits::pageSize] + idx % Traits::pageSize);
 		}
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
-		EntityT& sparseSwap =
-			_sparse[qdiv<ETraits::pageSize>(sparseSwapIdx)]->data()[qmod<ETraits::pageSize>(sparseSwapIdx)];
+		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
 
 		// first sparse swap, id at listHead = id of given entity
 		sparseSwap = ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
@@ -236,9 +234,9 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
 
 		if constexpr (!Traits::flag) {
-			auto&& atListHead = _components[qdiv<Traits::pageSize>(_listHead)][qmod<Traits::pageSize>(_listHead)];
+			auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
 
-			_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)] = std::move(atListHead);
+			_components[idx / Traits::pageSize][idx % Traits::pageSize] = std::move(atListHead);
 
 			// swap probably unnecesary
 			// move-assignment should take care of component's resources
@@ -276,7 +274,7 @@ POOL_CE::GetReference POOL_CE::get(const EntityT entity) noexcept {
 
 		const size_t idx = ETraits::Id::part(_sparseGet(id));
 
-		return _components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)];
+		return _components[idx / Traits::pageSize][idx % Traits::pageSize];
 	}
 }
 
@@ -297,7 +295,7 @@ std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) n
 
 	const size_t idx = ETraits::Id::part(*sparsePtr);
 
-	return std::optional{ std::ref(_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)]) };
+	return std::optional{ std::ref(_components[idx / Traits::pageSize][idx % Traits::pageSize]) };
 }
 
 TEMPLATE_CE

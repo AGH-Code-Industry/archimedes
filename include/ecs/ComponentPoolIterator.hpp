@@ -23,14 +23,14 @@ ITER_CE::ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i) noexcept:
 		if constexpr (Traits::flag) {
 			return nullptr;
 		} else {
-			return pool->_components.data() + qdiv<Traits::pageSize>(i);
+			return pool->_components.data() + i / Traits::pageSize;
 		}
 	}() },
 	_offset{ [&]() {
 		if constexpr (Traits::flag) {
 			return 0;
 		} else {
-			return qmod<Traits::pageSize>(i);
+			return i % Traits::pageSize;
 		}
 	}() },
 	_dense{ &pool->_dense },
@@ -61,7 +61,7 @@ ITER_CE& ITER_CE::operator++() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		do {
 			if constexpr (!Traits::flag) {
-				_offset = qmod<Traits::pageSize>(_offset + 1);
+				_offset = (_offset + 1) % Traits::pageSize;
 				if (!_offset) {
 					++_componentPage;
 				}
@@ -70,7 +70,7 @@ ITER_CE& ITER_CE::operator++() noexcept {
 	} else {
 		++_i;
 		if constexpr (!Traits::flag) {
-			_offset = qmod<Traits::pageSize>(_offset + 1);
+			_offset = (_offset + 1) % Traits::pageSize;
 			if (!_offset) {
 				++_componentPage;
 			}

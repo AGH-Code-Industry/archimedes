@@ -34,7 +34,7 @@ typename POOL_E::EntityT& POOL_E::_sparseAssure(const EntityT entity) noexcept {
 
 TEMPLATE_E
 typename POOL_E::EntityT& POOL_E::_sparseAssure(const IdT id) noexcept {
-	return _tryInitPage(qdiv<Traits::pageSize>(id))[qmod<Traits::pageSize>(id)];
+	return _tryInitPage(id / Traits::pageSize)[id % Traits::pageSize];
 }
 
 TEMPLATE_E
@@ -50,19 +50,19 @@ const typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) const n
 TEMPLATE_E
 typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) noexcept {
 	ARCH_ASSERT(
-		qdiv<Traits::pageSize>(id) < _sparse.size() && _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		id / Traits::pageSize < _sparse.size() && _sparse[id / Traits::pageSize] != nullptr,
 		"Page for given id does not exist"
 	);
-	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
+	return (*_sparse[id / Traits::pageSize])[id % Traits::pageSize];
 }
 
 TEMPLATE_E
 const typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) const noexcept {
 	ARCH_ASSERT(
-		qdiv<Traits::pageSize>(id) < _sparse.size() && _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		id / Traits::pageSize < _sparse.size() && _sparse[id / Traits::pageSize] != nullptr,
 		"Page for given id does not exist"
 	);
-	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
+	return (*_sparse[id / Traits::pageSize])[id % Traits::pageSize];
 }
 
 TEMPLATE_E POOL_E::Iterator POOL_E::begin() noexcept {
@@ -232,19 +232,19 @@ void POOL_E::kill(std::initializer_list<IdT> ids) noexcept {
 TEMPLATE_E
 bool POOL_E::contains(const IdT id) const noexcept {
 	const size_t _id = id;
-	const size_t pageNum = qdiv<Traits::pageSize>(_id);
+	const size_t pageNum = _id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-		!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]);
+		!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]);
 }
 
 TEMPLATE_E
 bool POOL_E::alive(const EntityT entity) const noexcept {
 	const size_t id = Traits::Id::part(entity);
-	const size_t pageNum = qdiv<Traits::pageSize>(id);
+	const size_t pageNum = id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-		Traits::Version::equal((*_sparse[pageNum])[qmod<Traits::pageSize>(id)], entity);
+		Traits::Version::equal((*_sparse[pageNum])[id % Traits::pageSize], entity);
 }
 
 TEMPLATE_E
@@ -264,11 +264,11 @@ POOL_E::Iterator POOL_E::find(const IdT id) noexcept {
 	}
 
 	const size_t _id = id;
-	const size_t pageNum = qdiv<Traits::pageSize>(_id);
+	const size_t pageNum = _id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-			!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
-		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
+			!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]) ?
+		begin() + Traits::Version::rawPart((*_sparse[pageNum])[_id % Traits::pageSize]) :
 		end();
 }
 
@@ -279,11 +279,11 @@ POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
 	}
 
 	const size_t _id = id;
-	const size_t pageNum = qdiv<Traits::pageSize>(_id);
+	const size_t pageNum = _id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-			!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
-		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
+			!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]) ?
+		begin() + Traits::Version::rawPart((*_sparse[pageNum])[_id % Traits::pageSize]) :
 		end();
 }
 
