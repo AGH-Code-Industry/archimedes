@@ -72,7 +72,7 @@ public:
 	/// @param entity - entity to remove component from
 	/// @return Removed component
 	C removeComponent(const EntityT entity, MoveFlag) noexcept
-		requires(std::movable<C> and not _details::ComponentTraits<C, E>::flag);
+		requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag);
 	/// @brief Checks if pool contains component for given entity
 	/// @param entity - entity to check for
 	bool contains(const EntityT entity) const noexcept;
@@ -90,11 +90,11 @@ public:
 	/// @brief Returns optional with reference to component of given entity
 	/// @param entity - entity to get component of
 	std::optional<std::reference_wrapper<C>> tryGet(const EntityT entity) noexcept
-		requires(not _details::ComponentTraits<C, E>::flag);
+		requires(!_details::ComponentTraits<C, E>::flag);
 	/// @brief Returns optional with readonly reference to component of given entity
 	/// @param entity - entity to get component of
 	std::optional<std::reference_wrapper<const C>> tryGet(const EntityT entity) const noexcept
-		requires(not _details::ComponentTraits<C, E>::flag);
+		requires(!_details::ComponentTraits<C, E>::flag);
 
 	/// @brief Returns iterator to first (const entity, component) contained
 	Iterator begin() noexcept;

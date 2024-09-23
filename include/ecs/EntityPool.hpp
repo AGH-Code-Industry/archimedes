@@ -50,7 +50,7 @@ const typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) const n
 TEMPLATE_E
 typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) noexcept {
 	ARCH_ASSERT(
-		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		qdiv<Traits::pageSize>(id) < _sparse.size() && _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
 		"Page for given id does not exist"
 	);
 	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
@@ -59,7 +59,7 @@ typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) noexcept {
 TEMPLATE_E
 const typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) const noexcept {
 	ARCH_ASSERT(
-		qdiv<Traits::pageSize>(id) < _sparse.size() and _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
+		qdiv<Traits::pageSize>(id) < _sparse.size() && _sparse[qdiv<Traits::pageSize>(id)] != nullptr,
 		"Page for given id does not exist"
 	);
 	return (*_sparse[qdiv<Traits::pageSize>(id)])[qmod<Traits::pageSize>(id)];
@@ -153,7 +153,7 @@ POOL_E::EntityT POOL_E::newEntity() noexcept {
 
 TEMPLATE_E
 POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
-	if (not contains(Traits::Id::part(entity)) /*and _size <= Traits::Id::max*/) {
+	if (!contains(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
 		auto& wantedSparse = _sparseGet(entity);
 		auto& toSwapDense = _dense[_size++];
 
@@ -170,7 +170,7 @@ POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
 
 TEMPLATE_E
 POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
-	if (not contains(id)) {
+	if (!contains(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[_size++];
 
@@ -234,8 +234,8 @@ bool POOL_E::contains(const IdT id) const noexcept {
 	const size_t _id = id;
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
-	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-		not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]);
+	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
+		!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]);
 }
 
 TEMPLATE_E
@@ -243,7 +243,7 @@ bool POOL_E::alive(const EntityT entity) const noexcept {
 	const size_t id = Traits::Id::part(entity);
 	const size_t pageNum = qdiv<Traits::pageSize>(id);
 
-	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
+	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
 		Traits::Version::equal((*_sparse[pageNum])[qmod<Traits::pageSize>(id)], entity);
 }
 
@@ -266,8 +266,8 @@ POOL_E::Iterator POOL_E::find(const IdT id) noexcept {
 	const size_t _id = id;
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
-	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-			not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
+	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
+			!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
 		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
 		end();
 }
@@ -281,8 +281,8 @@ POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
 	const size_t _id = id;
 	const size_t pageNum = qdiv<Traits::pageSize>(_id);
 
-	return pageNum < _sparse.size() and _sparse[pageNum] != nullptr and
-			not Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
+	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
+			!Traits::Version::hasNull((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) ?
 		begin() + Traits::Version::rawPart((*_sparse[pageNum])[qmod<Traits::pageSize>(_id)]) :
 		end();
 }

@@ -15,7 +15,7 @@ Helper::operator const T*() const noexcept {
 }
 
 template<class T>
-requires(not std::default_initializable<T> and std::copy_constructible<T> and not std::move_constructible<T>)
+requires(!std::default_initializable<T> && std::copy_constructible<T> && !std::move_constructible<T>)
 Helper::operator const T&() const noexcept {
 	// this used to avoid null-reference
 	return (const T&)*(const T*)(this);
@@ -28,7 +28,7 @@ Helper::operator T() const noexcept {
 
 template<class T>
 const TypeDescriptor& operator*(const T& lhs, const Helper& rhs) noexcept {
-	if constexpr (std::is_polymorphic_v<T> and RTTIEnabled<T>) {
+	if constexpr (std::is_polymorphic_v<T> && RTTIEnabled<T>) {
 		const TypeDescriptor& td = lhs._getTypeDescriptor();
 		if (td != typeid(lhs)) {
 			arch::Logger::error(
@@ -43,7 +43,7 @@ const TypeDescriptor& operator*(const T& lhs, const Helper& rhs) noexcept {
 
 		return td;
 	} else {
-		if constexpr (not RTTIEnabled<T>) {
+		if constexpr (!RTTIEnabled<T>) {
 			arch::Logger::warn("typedesc(): type '{}' is polymorphic, but not RTTIEnabled", staticTypedesc(T).name);
 		}
 		return staticTypedesc(T);

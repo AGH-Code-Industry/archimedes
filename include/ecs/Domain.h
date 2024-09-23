@@ -119,13 +119,13 @@ public:
 	/// @param entity - entity to get component from
 	template<class C>
 	std::optional<std::reference_wrapper<C>> tryGetComponent(const EntityT entity) noexcept
-		requires(not _details::ComponentTraits<C, E>::flag);
+		requires(!_details::ComponentTraits<C, E>::flag);
 	/// @brief Obtains optional with readonly reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
 	std::optional<std::reference_wrapper<const C>> tryGetComponent(const EntityT entity) noexcept
-		requires(not _details::ComponentTraits<C, E>::flag);
+		requires(!_details::ComponentTraits<C, E>::flag);
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
@@ -137,7 +137,7 @@ public:
 	/// @return Removed component
 	template<class C>
 	C removeComponent(const EntityT entity, MoveFlag) noexcept
-		requires(std::movable<C> and not _details::ComponentTraits<C, E>::flag);
+		requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag);
 	/// @brief Checks if entity has component
 	/// @tparam C - component type
 	/// @param entity - entity to check
@@ -146,7 +146,7 @@ public:
 	/// @brief Returns std::view of components of given type
 	/// @tparam C - component type
 	template<class C>
-	requires(not std::is_const_v<C>)
+	requires(!std::is_const_v<C>)
 	auto components() noexcept;
 	/// @brief Returns std::view of readonly components of given type
 	/// @tparam C - component type

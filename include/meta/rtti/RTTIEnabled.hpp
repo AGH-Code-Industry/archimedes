@@ -11,7 +11,7 @@ template<class T>
 concept RTTIEnabled =
 	(std::is_polymorphic_v<T> ? std::same_as<
 									typename T::template _ARCH_RTTI_UNIQUE<T>::Unique,
-									typename T::template _ARCH_RTTI_UNIQUE<T>::Unique> and
+									typename T::template _ARCH_RTTI_UNIQUE<T>::Unique> &&
 			 std::same_as<typename arch::meta::thisT::UniqueGetter<T>::type,
 						  typename T::template _ARCH_RTTI_UNIQUE<T>::Unique> :
 								true);

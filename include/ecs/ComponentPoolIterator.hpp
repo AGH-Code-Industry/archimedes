@@ -53,25 +53,25 @@ TEMPLATE_CE void ITER_CE::swap(ITER_CE& other) noexcept {
 
 TEMPLATE_CE
 bool ITER_CE::_valid() const noexcept {
-	return _i < _dense->size() and not ETraits::Version::hasNull((*_dense)[_i]);
+	return _i < _dense->size() && !ETraits::Version::hasNull((*_dense)[_i]);
 }
 
 TEMPLATE_CE
 ITER_CE& ITER_CE::operator++() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
 		do {
-			if constexpr (not Traits::flag) {
+			if constexpr (!Traits::flag) {
 				_offset = qmod<Traits::pageSize>(_offset + 1);
-				if (not _offset) {
+				if (!_offset) {
 					++_componentPage;
 				}
 			}
-		} while (++_i < _dense->size() and ETraits::Version::hasNull((*_dense)[_i]));
+		} while (++_i < _dense->size() && ETraits::Version::hasNull((*_dense)[_i]));
 	} else {
 		++_i;
-		if constexpr (not Traits::flag) {
+		if constexpr (!Traits::flag) {
 			_offset = qmod<Traits::pageSize>(_offset + 1);
-			if (not _offset) {
+			if (!_offset) {
 				++_componentPage;
 			}
 		}
@@ -91,23 +91,23 @@ ITER_CE ITER_CE::operator++(int) noexcept {
 TEMPLATE_CE
 ITER_CE& ITER_CE::operator--() noexcept {
 	if constexpr (Traits::inPlace) { // need to search for next valid
-		if (_i != 0 and _i != (size_t)-1) {
+		if (_i != 0 && _i != (size_t)-1) {
 			do {
-				if constexpr (not Traits::flag) {
-					if (not _offset) {
+				if constexpr (!Traits::flag) {
+					if (!_offset) {
 						--_componentPage;
 						_offset = Traits::pageSize - 1;
 					} else {
 						--_offset;
 					}
 				}
-			} while (--_i != 0 and ETraits::Version::hasNull((*_dense)[_i]));
+			} while (--_i != 0 && ETraits::Version::hasNull((*_dense)[_i]));
 		} else {
 			_i = (size_t)-1;
 		}
 	} else {
-		if constexpr (not Traits::flag) {
-			if (not _offset) {
+		if constexpr (!Traits::flag) {
+			if (!_offset) {
 				--_componentPage;
 				_offset = Traits::pageSize - 1;
 			} else {

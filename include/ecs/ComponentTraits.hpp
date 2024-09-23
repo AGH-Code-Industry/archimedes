@@ -16,14 +16,14 @@ void TRAITS_CE::deletePage(ComponentT** pages, size_t pageNum, const std::vector
 	using ETraits = EntityTraits<E>;
 
 	ComponentT*& componentPage = pages[pageNum];
-	if (not componentPage) {
+	if (!componentPage) {
 		return;
 	}
 
 	const size_t offset = pageNum * pageSize;
-	for (size_t i = 0; i != pageSize and offset + i < dense.size(); ++i) {
+	for (size_t i = 0; i != pageSize && offset + i < dense.size(); ++i) {
 		auto&& entity = dense[offset + i];
-		if (not ETraits::Version::hasNull(entity)) {
+		if (!ETraits::Version::hasNull(entity)) {
 			destroyAt(componentPage + i);
 		}
 	}

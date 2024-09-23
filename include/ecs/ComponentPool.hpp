@@ -12,7 +12,7 @@ namespace arch::ecs {
 
 TEMPLATE_CE
 POOL_CE::~ComponentPool() noexcept {
-	if constexpr (not Traits::flag) {
+	if constexpr (!Traits::flag) {
 		for (size_t i = 0; i != _components.size(); ++i) {
 			Traits::deletePage(_components.data(), i, _dense);
 		}
@@ -91,7 +91,7 @@ E& POOL_CE::_sparseGet(const IdT _id) noexcept {
 	const size_t id = _id;
 
 	ARCH_ASSERT(
-		qdiv<ETraits::pageSize>(id) < _sparse.size() and _sparse[qdiv<ETraits::pageSize>(id)].get(),
+		qdiv<ETraits::pageSize>(id) < _sparse.size() && _sparse[qdiv<ETraits::pageSize>(id)].get(),
 		"Sparse page for given id does not exist"
 	);
 
@@ -107,7 +107,7 @@ TEMPLATE_CE
 size_t POOL_CE::_findFirst() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = 0; i != _dense.size(); ++i) {
-			if (not ETraits::Version::hasNull(_dense[i])) {
+			if (!ETraits::Version::hasNull(_dense[i])) {
 				return i;
 			}
 		}
@@ -120,7 +120,7 @@ TEMPLATE_CE
 size_t POOL_CE::_findLast() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = _dense.size() - 1; i != (size_t)-1; --i) {
-			if (not ETraits::Version::hasNull(_dense[i - 1])) {
+			if (!ETraits::Version::hasNull(_dense[i - 1])) {
 				return i;
 			}
 		}
@@ -157,7 +157,7 @@ POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args
 }
 
 TEMPLATE_CE
-C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> and not TRAITS_CE::flag)
+C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> && !TRAITS_CE::flag)
 { // user must assume that component exists
 	const size_t id = ETraits::Id::part(entity);
 
@@ -209,14 +209,14 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseGetPtr(id);
-	if (not sparsePtr or *sparsePtr == ETraits::Entity::null) {
+	if (!sparsePtr || *sparsePtr == ETraits::Entity::null) {
 		return false;
 	}
 
 	if constexpr (Traits::inPlace) {
 		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
 		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
-		if constexpr (not Traits::flag) {
+		if constexpr (!Traits::flag) {
 			Traits::destroyAt(_components[qdiv<Traits::pageSize>(idx)] + qmod<Traits::pageSize>(idx));
 		}
 	} else {
@@ -235,7 +235,7 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
 
-		if constexpr (not Traits::flag) {
+		if constexpr (!Traits::flag) {
 			auto&& atListHead = _components[qdiv<Traits::pageSize>(_listHead)][qmod<Traits::pageSize>(_listHead)];
 
 			_components[qdiv<Traits::pageSize>(idx)][qmod<Traits::pageSize>(idx)] = std::move(atListHead);
@@ -254,14 +254,14 @@ TEMPLATE_CE
 bool POOL_CE::contains(const EntityT entity) const noexcept {
 	const auto sparsePtr = _sparseGetPtr(ETraits::Id::part(entity));
 
-	return sparsePtr and ETraits::Version::equal(*sparsePtr, entity);
+	return sparsePtr && ETraits::Version::equal(*sparsePtr, entity);
 }
 
 TEMPLATE_CE
 bool POOL_CE::contains(const IdT id) const noexcept {
 	const auto sparsePtr = _sparseGetPtr(id);
 
-	return sparsePtr and not ETraits::Version::hasNull(*sparsePtr);
+	return sparsePtr && !ETraits::Version::hasNull(*sparsePtr);
 }
 
 TEMPLATE_CE
@@ -286,12 +286,12 @@ POOL_CE::ConstGetReference POOL_CE::get(const EntityT entity) const noexcept {
 }
 
 TEMPLATE_CE
-std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) noexcept requires(not TRAITS_CE::flag)
+std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) noexcept requires(!TRAITS_CE::flag)
 {
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseGetPtr(id);
-	if (not(sparsePtr and ETraits::Version::equal(*sparsePtr, entity))) {
+	if (!(sparsePtr && ETraits::Version::equal(*sparsePtr, entity))) {
 		return std::nullopt;
 	}
 
@@ -302,7 +302,7 @@ std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) n
 
 TEMPLATE_CE
 std::optional<std::reference_wrapper<const C>> POOL_CE::tryGet(const EntityT entity) const noexcept
-	requires(not TRAITS_CE::flag)
+	requires(!TRAITS_CE::flag)
 {
 	return const_cast<POOL_CE*>(this)->tryGet(entity);
 }

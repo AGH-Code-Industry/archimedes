@@ -18,7 +18,7 @@ struct Helper {
 	/// @tparam T - type to which refernce cast to
 	/// @return Casted (*this)
 	template<class T>
-	requires(not std::default_initializable<T> and std::copy_constructible<T> and not std::move_constructible<T>)
+	requires(!std::default_initializable<T> && std::copy_constructible<T> && !std::move_constructible<T>)
 	operator const T&() const noexcept;
 	// #ifndef _MSC_VER // works without it on MSVC
 	/// @brief Casting operator, used only for type deduction

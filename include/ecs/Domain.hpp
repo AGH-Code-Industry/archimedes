@@ -156,7 +156,7 @@ DOMAIN_E::ConstGetReference<C> DOMAIN_E::getComponent(const EntityT entity) cons
 TEMPLATE_E
 template<class C>
 std::optional<std::reference_wrapper<C>> DOMAIN_E::tryGetComponent(const EntityT entity) noexcept
-	requires(not _details::ComponentTraits<C, E>::flag)
+	requires(!_details::ComponentTraits<C, E>::flag)
 {
 	return _getCPool<C>().tryGet(entity);
 }
@@ -164,7 +164,7 @@ std::optional<std::reference_wrapper<C>> DOMAIN_E::tryGetComponent(const EntityT
 TEMPLATE_E
 template<class C>
 std::optional<std::reference_wrapper<const C>> DOMAIN_E::tryGetComponent(const EntityT entity) noexcept
-	requires(not _details::ComponentTraits<C, E>::flag)
+	requires(!_details::ComponentTraits<C, E>::flag)
 {
 	return _getCPool<C>().tryGet(entity);
 }
@@ -178,14 +178,14 @@ bool DOMAIN_E::removeComponent(const EntityT entity) noexcept {
 TEMPLATE_E
 template<class C>
 C DOMAIN_E::removeComponent(const EntityT entity, MoveFlag) noexcept
-	requires(std::movable<C> and not _details::ComponentTraits<C, E>::flag)
+	requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag)
 {
 	return _assureCPool<C>().removeComponent(entity, moveFlag);
 }
 
 TEMPLATE_E
 template<class C>
-requires(not std::is_const_v<C>)
+requires(!std::is_const_v<C>)
 auto DOMAIN_E::components() noexcept {
 	return std::views::all(_assureCPool<C>());
 }

@@ -7,7 +7,7 @@ namespace arch::meta::typeOf::_details {
 /// @brief (does nothing)
 struct Helper {
 	template<class T>
-	requires(not std::default_initializable<T> and std::copy_constructible<T> and not std::move_constructible<T>)
+	requires(!std::default_initializable<T> && std::copy_constructible<T> && !std::move_constructible<T>)
 	operator const T&() const noexcept;
 	/// @brief Helper casting operator
 	/// @brief (does nothing)

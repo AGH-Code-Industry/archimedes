@@ -9,7 +9,7 @@
 
 /// @brief Macro for creating debug-only asserts, logs and calls std::abort() on fail
 #define ARCH_ASSERT(cond, msg)                                              \
-	if (not(cond)) {                                                        \
+	if (!(cond)) {                                                          \
 		::arch::Logger::error("Assertion `{}` failed: \"{}\"", #cond, msg); \
 		::std::abort();                                                     \
 	}
@@ -23,7 +23,7 @@
 
 /// @brief Macro for creating asserts, logs and calls std::abort() on fail
 #define ARCH_FORCE_ASSERT(cond, msg)                                        \
-	if (not(cond)) {                                                        \
+	if (!(cond)) {                                                          \
 		::arch::Logger::error("Assertion `{}` failed: \"{}\"", #cond, msg); \
 		::std::abort();                                                     \
 	}
