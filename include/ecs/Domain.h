@@ -5,7 +5,10 @@
 
 #include "ComponentPool.h"
 #include "EntityPool.h"
+#include "ExcludeT.h"
+#include "View.h"
 #include "meta/Rtti.h"
+#include "tUtils/TypeString.h"
 
 namespace arch::ecs {
 
@@ -33,9 +36,10 @@ public:
 	/// @brief Const reverse iterator type
 	using ConstReverseIterator = typename EntityPool<E>::ConstReverseIterator;
 	template<class C>
-	using GetReference = std::conditional_t<_details::ComponentTraits<C, E>::flag, bool, C&>;
+	using GetReference = std::conditional_t<_details::ComponentTraits<std::remove_const_t<C>, E>::flag, bool, C&>;
 	template<class C>
-	using ConstGetReference = std::conditional_t<_details::ComponentTraits<C, E>::flag, bool, const C&>;
+	using ConstGetReference = std::
+		conditional_t<_details::ComponentTraits<std::remove_const_t<C>, E>::flag, bool, const std::remove_const_t<C>&>;
 
 	/// @brief Default constructor
 	Domain() noexcept = default;
@@ -101,31 +105,40 @@ public:
 	/// @param ...args - arguments to constructor
 	/// @return Reference to new entity or old one
 	template<class C, class... Args>
-	GetReference<C> addComponent(const EntityT entity, Args&&... args) noexcept;
+	GetReference<std::remove_const_t<C>> addComponent(const EntityT entity, Args&&... args) noexcept;
 	/// @brief Obtains reference to existing component of given entity
 	/// @details If entity does not contain component, behavior is undefined
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
+	requires(!std::is_const_v<C>)
 	GetReference<C> getComponent(const EntityT entity) noexcept;
 	/// @brief Obtains readonly reference to existing component of given entity
 	/// @details If entity does not contain component, behavior is undefined
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	ConstGetReference<C> getComponent(const EntityT entity) const noexcept;
+	ConstGetReference<std::remove_const_t<C>> getComponent(const EntityT entity) const noexcept;
+	/// @brief Obtains readonly reference to existing component of given entity
+	/// @details If entity does not contain component, behavior is undefined
+	/// @tparam C - component type
+	/// @param entity - entity to get component from
+	template<class C>
+	requires(std::is_const_v<C>)
+	ConstGetReference<std::remove_const_t<C>> getComponent(const EntityT entity) const noexcept;
 	/// @brief Obtains optional with reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	std::optional<std::reference_wrapper<C>> tryGetComponent(const EntityT entity) noexcept
-		requires(!_details::ComponentTraits<C, E>::flag);
+	requires(!_details::ComponentTraits<C, E>::flag && !std::is_const_v<C>)
+	std::optional<std::reference_wrapper<C>> tryGetComponent(const EntityT entity) noexcept;
 	/// @brief Obtains optional with readonly reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
-	std::optional<std::reference_wrapper<const C>> tryGetComponent(const EntityT entity) noexcept
-		requires(!_details::ComponentTraits<C, E>::flag);
+	requires(!_details::ComponentTraits<std::remove_const_t<C>, E>::flag)
+	std::optional<std::reference_wrapper<const std::remove_const_t<C>>> tryGetComponent(const EntityT entity
+	) const noexcept;
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
@@ -136,13 +149,18 @@ public:
 	/// @param entity - entity to remove component from
 	/// @return Removed component
 	template<class C>
-	C removeComponent(const EntityT entity, MoveFlag) noexcept
-		requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag);
+	requires(std::movable<std::remove_const_t<C>> && !_details::ComponentTraits<std::remove_const_t<C>, E>::flag)
+	std::remove_const_t<C> removeComponent(const EntityT entity, MoveFlag) noexcept;
+
 	/// @brief Checks if entity has component
 	/// @tparam C - component type
 	/// @param entity - entity to check
 	template<class C>
 	bool hasComponent(const EntityT entity) const noexcept;
+	/// @brief Returns count of given component type
+	/// @tparam C - component to count
+	template<class C>
+	size_t count() const noexcept;
 	/// @brief Returns std::view of components of given type
 	/// @tparam C - component type
 	template<class C>
@@ -151,12 +169,25 @@ public:
 	/// @brief Returns std::view of readonly components of given type
 	/// @tparam C - component type
 	template<class C>
-	requires(std::is_const_v<C>)
-	auto components() noexcept;
-	/// @brief Returns std::view of readonly components of given type
-	/// @tparam C - component type
-	template<class C>
 	auto components() const noexcept;
+
+	/// @brief Returns view of given components
+	/// @tparam Includes - components included in view
+	/// @param <unnamed> - instance of ExcludeT<Excludes...>, where Excludes are components to be excluded from view
+	template<class... Includes, class... Excludes>
+	auto view(ExcludeT<Excludes...> = ExcludeT{}) noexcept;
+	/// @brief Returns readonly view of given components
+	/// @tparam Includes - components included in view
+	/// @param <unnamed> (optional) - instance of ExcludeT<Excludes...>, where Excludes are components to be excluded
+	/// from view
+	template<class... Includes, class... Excludes>
+	auto view(ExcludeT<Excludes...> = ExcludeT{}) const noexcept;
+	/// @brief Explicitly returns readonly view of given components
+	/// @tparam Includes - components included in view
+	/// @param <unnamed> (optional) - instance of ExcludeT<Excludes...>, where Excludes are components to be excluded
+	/// from view
+	template<class... Includes, class... Excludes>
+	auto readonlyView(ExcludeT<Excludes...> = ExcludeT{}) const noexcept;
 
 private:
 
@@ -165,26 +196,30 @@ private:
 
 	// returns ComponentPool for given type, initializes if not exists
 	template<class C>
-	ComponentPool<C, E>& _assureCPool() noexcept;
+	ComponentPool<std::remove_const_t<C>, E>& _assureCPool() noexcept;
 	// returns ComponentPool for given type
 	template<class C>
+	requires(!std::is_const_v<C>)
 	ComponentPool<C, E>& _getCPool() noexcept;
 	template<class C>
-	const ComponentPool<C, E>& _getCPool() const noexcept;
+	const ComponentPool<std::remove_const_t<C>, E>& _getCPool() const noexcept;
 	// same as ComponentPool, but nullptr if does not exist
 	template<class C>
+	requires(!std::is_const_v<C>)
 	ComponentPool<C, E>* _tryGetCPool() noexcept;
 	template<class C>
-	const ComponentPool<C, E>* _tryGetCPool() const noexcept;
+	const ComponentPool<std::remove_const_t<C>, E>* _tryGetCPool() const noexcept;
 	// destroying function for ComponentPool of given type
 	template<class C>
 	static inline void _destroyCPool(CPoolsT& cpools) noexcept;
 
 	EntityPool<E> _entityPool;
 	CPoolsT _componentPools;
-	std::unordered_map<TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers; // mapped destroying functions
+	// mapped destroying functions
+	std::unordered_map<TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
 };
 
 } // namespace arch::ecs
 
 #include "Domain.hpp"
+

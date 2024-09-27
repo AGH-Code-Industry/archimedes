@@ -9,26 +9,29 @@ namespace arch::ecs {
 
 TEMPLATE_E
 template<class C>
-ComponentPool<C, E>& DOMAIN_E::_assureCPool() noexcept {
-	const auto type = staticTypedesc(C).wrap(); // custom RTTI gets a use
+ComponentPool<std::remove_const_t<C>, E>& DOMAIN_E::_assureCPool() noexcept {
+	using Comp = std::remove_const_t<C>;
+	const auto type = staticTypedesc(Comp).wrap(); // custom RTTI gets a use
 
 	auto found = _componentPools.find(type);
 	if (found == _componentPools.end()) {
-		_cpoolDestroyers[type] = _destroyCPool<C>;
-		return *(new (_componentPools[type].storage.data()) ComponentPool<C, E>);
+		_cpoolDestroyers[type] = _destroyCPool<Comp>;
+		return *(new (_componentPools[type].storage.data()) ComponentPool<Comp, E>);
 	}
 
-	return *reinterpret_cast<ComponentPool<C, E>*>(found->second.storage.data());
+	return *reinterpret_cast<ComponentPool<Comp, E>*>(found->second.storage.data());
 }
 
 TEMPLATE_E
 template<class C>
 void DOMAIN_E::_destroyCPool(CPoolsT& cpools) noexcept {
-	reinterpret_cast<ComponentPool<C, E>*>(cpools[staticTypedesc(C).wrap()].storage.data())->~ComponentPool();
+	using Comp = std::remove_const_t<C>;
+	reinterpret_cast<ComponentPool<Comp, E>*>(cpools[staticTypedesc(Comp).wrap()].storage.data())->~ComponentPool();
 }
 
 TEMPLATE_E
 template<class C>
+requires(!std::is_const_v<C>)
 ComponentPool<C, E>& DOMAIN_E::_getCPool() noexcept {
 	return *reinterpret_cast<ComponentPool<C, E>*>(_componentPools.find(staticTypedesc(C).wrap())->second.storage.data()
 	);
@@ -36,25 +39,30 @@ ComponentPool<C, E>& DOMAIN_E::_getCPool() noexcept {
 
 TEMPLATE_E
 template<class C>
-const ComponentPool<C, E>& DOMAIN_E::_getCPool() const noexcept {
-	return *reinterpret_cast<const ComponentPool<C, E>*>(
-		_componentPools.find(staticTypedesc(C).wrap())->second.storage.data()
+const ComponentPool<std::remove_const_t<C>, E>& DOMAIN_E::_getCPool() const noexcept {
+	using Comp = std::remove_const_t<C>;
+	return *reinterpret_cast<const ComponentPool<Comp, E>*>(
+		_componentPools.find(staticTypedesc(Comp).wrap())->second.storage.data()
 	);
 }
 
 TEMPLATE_E
 template<class C>
+requires(!std::is_const_v<C>)
 ComponentPool<C, E>* DOMAIN_E::_tryGetCPool() noexcept {
 	const auto found = _componentPools.find(staticTypedesc(C).wrap());
 	return found != _componentPools.end() ? reinterpret_cast<ComponentPool<C, E>*>(found->second.storage.data()) :
 											nullptr;
 }
 
-TEMPLATE_E template<class C>
-const ComponentPool<C, E>* DOMAIN_E::_tryGetCPool() const noexcept {
-	const auto found = _componentPools.find(staticTypedesc(C).wrap());
-	return found != _componentPools.end() ? reinterpret_cast<const ComponentPool<C, E>*>(found->second.storage.data()) :
-											nullptr;
+TEMPLATE_E
+template<class C>
+const ComponentPool<std::remove_const_t<C>, E>* DOMAIN_E::_tryGetCPool() const noexcept {
+	using Comp = std::remove_const_t<C>;
+	const auto found = _componentPools.find(staticTypedesc(Comp).wrap());
+	return found != _componentPools.end() ?
+		reinterpret_cast<const ComponentPool<Comp, E>*>(found->second.storage.data()) :
+		nullptr;
 }
 
 TEMPLATE_E
@@ -114,7 +122,7 @@ DOMAIN_E::EntityT DOMAIN_E::recycleId(const IdT id) noexcept {
 TEMPLATE_E
 void DOMAIN_E::kill(const EntityT entity) noexcept {
 	for (auto&& [type, poolStorage] : _componentPools) {
-		reinterpret_cast<ErasableComponentPool<EntityT>*>(&poolStorage)->removeComponent(entity);
+		reinterpret_cast<_details::CommonComponentPool<EntityT>*>(&poolStorage)->removeComponent(entity);
 	}
 
 	_entityPool.kill(entity);
@@ -137,49 +145,48 @@ auto DOMAIN_E::entities() const noexcept {
 
 TEMPLATE_E
 template<class C, class... Args>
-DOMAIN_E::GetReference<C> DOMAIN_E::addComponent(const EntityT entity, Args&&... args) noexcept {
-	return _assureCPool<C>().addComponent(entity, std::forward<Args>(args)...);
+DOMAIN_E::GetReference<std::remove_const_t<C>> DOMAIN_E::addComponent(const EntityT entity, Args&&... args) noexcept {
+	return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<Args>(args)...);
 }
 
 TEMPLATE_E
 template<class C>
+requires(!std::is_const_v<C>)
 DOMAIN_E::GetReference<C> DOMAIN_E::getComponent(const EntityT entity) noexcept {
 	return _getCPool<C>().get(entity);
 }
 
 TEMPLATE_E
 template<class C>
-DOMAIN_E::ConstGetReference<C> DOMAIN_E::getComponent(const EntityT entity) const noexcept {
-	return _getCPool<C>().get(entity);
+DOMAIN_E::ConstGetReference<std::remove_const_t<C>> DOMAIN_E::getComponent(const EntityT entity) const noexcept {
+	return _getCPool<std::remove_const_t<C>>().get(entity);
 }
 
 TEMPLATE_E
 template<class C>
-std::optional<std::reference_wrapper<C>> DOMAIN_E::tryGetComponent(const EntityT entity) noexcept
-	requires(!_details::ComponentTraits<C, E>::flag)
-{
+requires(!_details::ComponentTraits<C, E>::flag && !std::is_const_v<C>)
+std::optional<std::reference_wrapper<C>> DOMAIN_E::tryGetComponent(const EntityT entity) noexcept {
 	return _getCPool<C>().tryGet(entity);
 }
 
 TEMPLATE_E
 template<class C>
-std::optional<std::reference_wrapper<const C>> DOMAIN_E::tryGetComponent(const EntityT entity) noexcept
-	requires(!_details::ComponentTraits<C, E>::flag)
-{
-	return _getCPool<C>().tryGet(entity);
+requires(!_details::ComponentTraits<std::remove_const_t<C>, E>::flag)
+std::optional<std::reference_wrapper<const std::remove_const_t<C>>> DOMAIN_E::tryGetComponent(const EntityT entity
+) const noexcept {
+	return _getCPool<std::remove_const_t<C>>().tryGet(entity);
 }
 
 TEMPLATE_E
 template<class C>
 bool DOMAIN_E::removeComponent(const EntityT entity) noexcept {
-	return _assureCPool<C>().removeComponent(entity);
+	return _assureCPool<std::remove_const_t<C>>().removeComponent(entity);
 }
 
 TEMPLATE_E
 template<class C>
-C DOMAIN_E::removeComponent(const EntityT entity, MoveFlag) noexcept
-	requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag)
-{
+requires(std::movable<std::remove_const_t<C>> && !_details::ComponentTraits<std::remove_const_t<C>, E>::flag)
+std::remove_const_t<C> DOMAIN_E::removeComponent(const EntityT entity, MoveFlag) noexcept {
 	return _assureCPool<C>().removeComponent(entity, moveFlag);
 }
 
@@ -188,15 +195,6 @@ template<class C>
 requires(!std::is_const_v<C>)
 auto DOMAIN_E::components() noexcept {
 	return std::views::all(_assureCPool<C>());
-}
-
-TEMPLATE_E
-template<class C>
-requires(std::is_const_v<C>)
-auto DOMAIN_E::components() noexcept {
-	return std::views::all(
-		const_cast<const decltype(_assureCPool<std::remove_const_t<C>>())>(_assureCPool<std::remove_const_t<C>>())
-	);
 }
 
 TEMPLATE_E
@@ -210,8 +208,57 @@ auto DOMAIN_E::components() const noexcept {
 TEMPLATE_E
 template<class C>
 bool DOMAIN_E::hasComponent(const EntityT entity) const noexcept {
-	auto cpool = _tryGetCPool<C>();
+	auto cpool = _tryGetCPool<std::remove_const_t<C>>();
 	return cpool ? cpool->contains(entity) : false;
+}
+
+TEMPLATE_E
+template<class C>
+size_t DOMAIN_E::count() const noexcept {
+	auto cpool = _tryGetCPool<std::remove_const_t<C>>();
+	return cpool ? cpool->count() : 0;
+}
+
+TEMPLATE_E
+template<class... Includes, class... Excludes>
+auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
+	if constexpr (sizeof...(Includes) != 0) {
+		return View<E, false, TypeString<Includes...>, TypeString<Excludes...>>(
+			this,
+			// the less entities, the easier filtering
+			*std::min(
+				{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_getCPool<std::remove_const_t<Includes>>()
+				)... },
+				[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
+			)
+		);
+	} else {
+		return View<E, false, TypeString<>, TypeString<Excludes...>>(this);
+	}
+}
+
+TEMPLATE_E
+template<class... Includes, class... Excludes>
+auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
+	if constexpr (sizeof...(Includes) != 0) {
+		return View<E, true, TypeString<Includes...>, TypeString<Excludes...>>(
+			this,
+			// the less entities, the easier filtering
+			*std::min(
+				{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_getCPool<std::remove_const_t<Includes>>()
+				)... },
+				[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
+			)
+		);
+	} else {
+		return View<E, true, TypeString<>, TypeString<Excludes...>>(this);
+	}
+}
+
+TEMPLATE_E
+template<class... Includes, class... Excludes>
+auto DOMAIN_E::readonlyView(ExcludeT<Excludes...>) const noexcept {
+	return view<Includes...>(exclude<Excludes...>);
 }
 
 } // namespace arch::ecs
