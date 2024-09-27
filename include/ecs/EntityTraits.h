@@ -6,11 +6,6 @@
 
 namespace arch::ecs::_details { /* NOLINT */
 
-// template<class ES>
-// struct EntityTraits {
-//	using Specs = ES;
-// };
-
 /// @brief Contains info, constants and operations on entities, their ids and versions
 /// @details All data extracted from EntitySpecs
 /// @details 'part' of entity - abstract value describing part of entity
@@ -32,6 +27,7 @@ struct EntityTraits {
 
 	/// @brief Size of sparse pages
 	static inline constexpr size_t pageSize = Specs::pageSize;
+	static_assert(std::popcount(pageSize) == 1, "pageSize must be a power of 2");
 
 	/// @brief Entity section
 	struct Entity {
@@ -92,6 +88,7 @@ struct EntityTraits {
 		static inline EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps ids of two entities
 		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		/// @brief Compares ids of 2 given entities
 		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 
