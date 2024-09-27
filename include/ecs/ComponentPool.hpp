@@ -20,23 +20,6 @@ POOL_CE::~ComponentPool() noexcept {
 }
 
 TEMPLATE_CE
-E& POOL_CE::_sparseAssure(const IdT id) noexcept {
-	const size_t sparsePageNum = id / ETraits::pageSize;
-	// virtually equal to _sparse.resize(sparsePageNum + 1), but capacity >= sparsePageNum + 1
-	while (_sparse.size() != sparsePageNum + 1) {
-		_sparse.emplace_back();
-	}
-
-	auto&& sparsePagePtr = _sparse[sparsePageNum];
-	if (sparsePagePtr == nullptr) {
-		sparsePagePtr = std::make_unique<std::array<E, ETraits::pageSize>>();
-		sparsePagePtr->fill(ETraits::Entity::null);
-	}
-
-	return (*sparsePagePtr)[id % ETraits::pageSize];
-}
-
-TEMPLATE_CE
 std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
 	if (_listHead == _dense.size()) { // dense is full
 		return { _dense.emplace_back(ETraits::Entity::null), _listHead++ };
@@ -54,9 +37,11 @@ std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
 TEMPLATE_CE
 C* POOL_CE::_componentAssure(const IdT id) noexcept {
 	const size_t pageNum = id / Traits::pageSize;
-	// virtually equal to __components.resize(pageNum + 1), but capacity >= pageNum + 1
-	while (_components.size() != pageNum + 1) {
-		_components.emplace_back();
+
+	// resize(n) makes capacity == n (bad)
+	if (_components.size() < pageNum + 1) {
+		_components.reserve(std::bit_ceil(pageNum + 1));
+		_components.resize(pageNum + 1);
 	}
 
 	auto&& pagePtr = _components[pageNum];
@@ -65,42 +50,6 @@ C* POOL_CE::_componentAssure(const IdT id) noexcept {
 	}
 
 	return pagePtr + id % Traits::pageSize;
-}
-
-TEMPLATE_CE
-E* POOL_CE::_sparseGetPtr(const IdT _id) noexcept {
-	const size_t id = _id;
-	const size_t pageNum = id / ETraits::pageSize;
-
-	if (_sparse.size() <= pageNum) {
-		return nullptr;
-	}
-
-	auto page = _sparse[pageNum].get();
-
-	return page ? page->data() + id % ETraits::pageSize : nullptr;
-}
-
-TEMPLATE_CE
-const E* POOL_CE::_sparseGetPtr(const IdT _id) const noexcept {
-	return const_cast<POOL_CE*>(this)->_sparseGetPtr(_id);
-}
-
-TEMPLATE_CE
-E& POOL_CE::_sparseGet(const IdT _id) noexcept {
-	const size_t id = _id;
-
-	ARCH_ASSERT(
-		id / ETraits::pageSize < _sparse.size() && _sparse[id / ETraits::pageSize].get(),
-		"Sparse page for given id does not exist"
-	);
-
-	return (*_sparse[id / ETraits::pageSize])[id % ETraits::pageSize];
-}
-
-TEMPLATE_CE
-const E& POOL_CE::_sparseGet(const IdT _id) const noexcept {
-	return const_cast<POOL_CE*>(this)->_sparseGet(_id);
 }
 
 TEMPLATE_CE
@@ -148,6 +97,7 @@ POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args
 
 	sparseEntity = ETraits::Entity::fromParts(denseIdx, ETraits::Version::part(entity));
 	denseEntity = entity;
+	++_counter;
 
 	if constexpr (Traits::flag) {
 		return true;
@@ -171,6 +121,7 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 		auto&& component = (*_components[idx / Traits::pageSize])[idx % Traits::pageSize];
 		auto toMove = std::move(component);
 		Traits::destroyAt(&component);
+		--_counter;
 		return toMove;
 	} else {
 		--_listHead;
@@ -197,6 +148,7 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 		// move-assignment should take care of component's resources
 
 		Traits::destroyAt(&atListHead);
+		--_counter;
 
 		// copy elision
 		return toMove;
@@ -207,7 +159,7 @@ TEMPLATE_CE
 bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
 
-	auto sparsePtr = _sparseGetPtr(id);
+	auto sparsePtr = _sparseTryGet(id);
 	if (!sparsePtr || *sparsePtr == ETraits::Entity::null) {
 		return false;
 	}
@@ -232,6 +184,7 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
+		--_counter;
 
 		if constexpr (!Traits::flag) {
 			auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
@@ -246,20 +199,6 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 	}
 
 	return true;
-}
-
-TEMPLATE_CE
-bool POOL_CE::contains(const EntityT entity) const noexcept {
-	const auto sparsePtr = _sparseGetPtr(ETraits::Id::part(entity));
-
-	return sparsePtr && ETraits::Version::equal(*sparsePtr, entity);
-}
-
-TEMPLATE_CE
-bool POOL_CE::contains(const IdT id) const noexcept {
-	const auto sparsePtr = _sparseGetPtr(id);
-
-	return sparsePtr && !ETraits::Version::hasNull(*sparsePtr);
 }
 
 TEMPLATE_CE
@@ -280,7 +219,7 @@ POOL_CE::GetReference POOL_CE::get(const EntityT entity) noexcept {
 
 TEMPLATE_CE
 POOL_CE::ConstGetReference POOL_CE::get(const EntityT entity) const noexcept {
-	return const_cast<POOL_CE*>(*this)->get(entity);
+	return const_cast<POOL_CE*>(this)->get(entity);
 }
 
 TEMPLATE_CE
