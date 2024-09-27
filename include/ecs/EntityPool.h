@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "EntityTraits.h"
+#include "SparseSet.h"
 
 namespace arch::ecs {
 
@@ -13,8 +14,8 @@ namespace arch::ecs {
 /// @details Uses sparse set data structure
 /// @tparam E - entity type
 template<class E>
-class EntityPool {
-	using DenseContainer = std::vector<E>;
+class EntityPool: public _details::SparseSet<E> {
+	using Base = _details::SparseSet<E>;
 
 public:
 
@@ -30,13 +31,13 @@ public:
 	static_assert(std::popcount(Traits::pageSize) == 1, "pageSize for entity must be a power of 2");
 
 	/// @brief Iterator type
-	using Iterator = typename DenseContainer::iterator;
+	using Iterator = typename Base::DenseContainer::iterator;
 	/// @brief Const iterator type
-	using ConstIterator = typename DenseContainer::const_iterator;
+	using ConstIterator = typename Base::DenseContainer::const_iterator;
 	/// @brief Reverse iterator type
-	using ReverseIterator = typename DenseContainer::reverse_iterator;
+	using ReverseIterator = typename Base::DenseContainer::reverse_iterator;
 	/// @brief Const reverse iterator type
-	using ConstReverseIterator = typename DenseContainer::const_reverse_iterator;
+	using ConstReverseIterator = typename Base::DenseContainer::const_reverse_iterator;
 
 	/// @brief Null entity
 	static inline constexpr EntityT null = Traits::Entity::null;
@@ -74,12 +75,7 @@ public:
 	/// @param entities - entities to kill
 	void kill(std::initializer_list<IdT> ids) noexcept;
 
-	/// @brief Checks if entity of given id is alive
-	/// @param id - id of entity to check
-	bool contains(const IdT id) const noexcept;
-	/// @brief Checks if given entity is alive
-	/// @param entity - entity to check
-	bool alive(const EntityT entity) const noexcept;
+	using Base::contains;
 
 	/// @brief Finds given entity
 	/// @param entity - entity to find
@@ -98,14 +94,7 @@ public:
 	/// @return Iterator to found entity, end() otherwise
 	ConstIterator find(IdT id) const noexcept;
 
-	/// @brief Gets version of entity with the same id as given entity
-	/// @param entity - entity to extract id from
-	/// @return Version of entity, null version otherwise
-	VersionT version(const EntityT entity) const noexcept;
-	/// @brief Gets version of entity with given id
-	/// @param id - id of entity to get version of
-	/// @return Version of entity, null version otherwise
-	VersionT version(const IdT id) const noexcept;
+	using Base::version;
 
 	/// @brief Returns amount of entities alive
 	size_t size() const noexcept;
@@ -137,26 +126,18 @@ public:
 
 private:
 
-	using SparseContainer = std::vector<std::unique_ptr<std::array<E, Traits::pageSize>>>;
+	using Base::_sparseAssure;
+	using Base::_sparseAssurePage;
+	using Base::_sparseGet;
+	using Base::_sparseTryGet;
 
 	// for manual checks
-	std::tuple<SparseContainer*, DenseContainer*> _debug() noexcept { return { &_sparse, &_dense }; }
+	std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> _debug() noexcept {
+		return { &_sparse, &_dense };
+	}
 
-	// returns n-th sparse page, initializes if not exists
-	EntityT* _tryInitPage(const size_t n) noexcept;
-
-	// _tryInitPage(), but n is computed from id
-	EntityT& _sparseAssure(const EntityT entity) noexcept;
-	EntityT& _sparseAssure(const IdT id) noexcept;
-
-	// obtains reference to entity in _sparse
-	EntityT& _sparseGet(const EntityT entity) noexcept;
-	const EntityT& _sparseGet(const EntityT entity) const noexcept;
-	EntityT& _sparseGet(const IdT id) noexcept;
-	const EntityT& _sparseGet(const IdT id) const noexcept;
-
-	SparseContainer _sparse;
-	DenseContainer _dense;
+	using Base::_dense;
+	using Base::_sparse;
 	size_t _size = 0;
 };
 
