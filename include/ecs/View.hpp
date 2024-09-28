@@ -1,7 +1,7 @@
 #include "View.h"
 //
 #include "Domain.h"
-#include "tUtils/Functions/IsInvocable.h"
+#include "tUtils/Functions/IsApplicable.h"
 
 #define TEMPLATE_ECIE template<class E, bool Const, class... Includes, class... Excludes>
 #define TEMPLATE_ECE template<class E, bool Const, class... Excludes>
@@ -15,18 +15,18 @@ namespace _details {
 template<class E, class C>
 inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
-		return std::make_tuple(domain.getComponent<C>(entity));
+		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
-		return std::tie(domain.getComponent<C>(entity));
+		return std::tie(domain.template getComponent<C>(entity));
 	}
 }
 
 template<class E, class C>
 inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
-		return std::make_tuple(domain.getComponent<C>(entity));
+		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
-		return std::tie(domain.getComponent<C>(entity));
+		return std::tie(domain.template getComponent<C>(entity));
 	}
 }
 
@@ -49,8 +49,8 @@ VIEW_ECIE::View(DomainT* domain, const _details::CommonComponentPool<E>& minCPoo
 
 TEMPLATE_ECIE
 bool VIEW_ECIE::_filterFn(const Domain<E>& domain, const E entity) noexcept {
-	return (domain.hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
-		!(domain.hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
+	return (domain.template hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
+		!(domain.template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
 }
 
 TEMPLATE_ECE
@@ -60,18 +60,18 @@ VIEW_ECE::View(DomainT* domain) noexcept:
 
 TEMPLATE_ECE
 bool VIEW_ECE::_filterFn(const Domain<E>& domain, const E entity) noexcept {
-	return !(domain.hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
+	return !(domain.template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
 }
 
 TEMPLATE_ECIE
 bool VIEW_ECIE::contains(const EntityT entity) const noexcept {
-	return (_domain->hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
-		!(_domain->hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
+	return (_domain->template hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
+		!(_domain->template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
 }
 
 TEMPLATE_ECE
 bool VIEW_ECE::contains(const EntityT entity) const noexcept {
-	return _domain.alive(entity) && !(_domain->hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
+	return _domain.alive(entity) && !(_domain->template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
 }
 
 TEMPLATE_ECIE

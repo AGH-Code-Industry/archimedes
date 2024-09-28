@@ -227,7 +227,7 @@ std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) n
 {
 	const size_t id = ETraits::Id::part(entity);
 
-	auto sparsePtr = _sparseGetPtr(id);
+	auto sparsePtr = _sparseTryGet(id);
 	if (!(sparsePtr && ETraits::Version::equal(*sparsePtr, entity))) {
 		return std::nullopt;
 	}

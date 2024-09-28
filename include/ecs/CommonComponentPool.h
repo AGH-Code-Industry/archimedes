@@ -27,7 +27,7 @@ public:
 	using utils::ReadonlyCounter<size_t>::count;
 
 protected:
-	template<class E, bool Const, class I, class Ex>
+	template<class E2, bool Const, class I, class Ex>
 	friend class ::arch::ecs::View;
 
 	using _details::SparseSet<E>::_sparseAssure;

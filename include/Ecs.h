@@ -11,5 +11,5 @@
 #include "ecs/EntityPool.h"
 #include "ecs/EntitySpecs.h"
 #include "ecs/EntityTraits.h"
-#include "ecs/InclassComponentSpecs.h"
+#include "ecs/InClassComponentSpecs.h"
 #include "ecs/SparseSet.h"

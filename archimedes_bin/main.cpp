@@ -1,5 +1,5 @@
 #include <bitset>
-#include <entt/entt.hpp>
+//#include <entt/entt.hpp>
 #include <format>
 #include <fstream>
 #include <iostream>
@@ -11,8 +11,8 @@
 #include <Engine.h>
 #include <Logger.h>
 #include <TUtils.h>
-#include <meta.h>
-#include <net.h>
+#include <Meta.h>
+#include <Net.h>
 
 #pragma region iter_tests
 

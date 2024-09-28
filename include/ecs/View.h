@@ -4,7 +4,7 @@
 #include <type_traits>
 
 #include "ComponentPool.h"
-#include "ContainChecks.h"
+//#include "ContainChecks.h"
 #include "ExcludeT.h"
 
 namespace arch::ecs {
@@ -52,7 +52,7 @@ struct IsFlagComponent {
 	/// @brief Actual predicate
 	/// @tparam C - component type
 	template<class C>
-	using Pred = std::bool_constant<_details::ComponentTraits<C, E>::flag>;
+	struct Pred: public std::bool_constant<_details::ComponentTraits<C, E>::flag>{};
 };
 } // namespace _details
 
@@ -85,7 +85,7 @@ public:
 	/// @brief TypeString with components excluded in view
 	using Exclude = TypeString<Excludes...>;
 	/// @brief Include without flag-components
-	using NoFlags = typename Include::template eraseIf<typename _details::IsFlagComponent<EntityT>::Pred>;
+	using NoFlags = typename Include::eraseIf<_details::IsFlagComponent<EntityT>::template Pred>;
 
 	/// @brief Count of included component types
 	static inline constexpr size_t includeCount = Include::length;
