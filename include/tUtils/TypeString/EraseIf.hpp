@@ -4,12 +4,12 @@
 #include "Placeholder.hpp"
 
 namespace arch::tUtils::typeString {
-template<class Ph, template<class PT> class Pred, size_t Pos>
+template<class Ph, template<class> class Pred, size_t Pos>
 struct PhEraseIf {
 	using type = Ph;
 };
 
-template<template<class PT> class Pred, class T, class... Ts>
+template<template<class> class Pred, class T, class... Ts>
 struct PhEraseIf<_Ph<T, Ts...>, Pred, 0> {
 	using head = CondT<Pred<T>::value, _Ph<>, _Ph<T>>;
 	using tail = PhEraseIf<_Ph<Ts...>, Pred, 0>::type;
@@ -22,7 +22,7 @@ struct xd {
 	static inline constexpr bool value = false;
 };
 
-template<template<class PT> class Pred, class T, class... Ts, size_t Pos>
+template<template<class> class Pred, class T, class... Ts, size_t Pos>
 struct PhEraseIf<_Ph<T, Ts...>, Pred, Pos> {
 	template<class T2>
 	struct pred {
