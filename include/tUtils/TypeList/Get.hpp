@@ -1,9 +1,13 @@
 #pragma once
 
 #include "Placeholder.hpp"
-#include "Substr.hpp"
+#include "SubList.hpp"
 
-namespace arch::tUtils::typeString {
+namespace arch::tUtils::typeList {
+
+/// @brief Gets type at given index
+/// @tparam Ph - placeholder type
+/// @tparam I - index of type to get
 template<class Ph, size_t I>
 struct PhGet {
 	using type = Ph;
@@ -18,9 +22,10 @@ template<class... Ts, size_t I>
 struct PhGet<_Ph<Ts...>, I> {
 	static inline constexpr bool outOfBounds = (I >= sizeof...(Ts));
 
-	using type = CondT<
+	using type = std::conditional_t<
 		outOfBounds,
-		typeStringNoneType,
-		typename PhGet<typename PhSubstr<not outOfBounds, _Ph<Ts...>, I, 1>::type, 0>::type>;
+		NoneT,
+		typename PhGet<typename PhSubList<!outOfBounds, _Ph<Ts...>, I, 1>::type, 0>::type>;
 };
-} // namespace arch::tUtils::typeString
+
+} // namespace arch::tUtils::typeList
