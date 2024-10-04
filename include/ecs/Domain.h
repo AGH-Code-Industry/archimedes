@@ -8,7 +8,7 @@
 #include "ExcludeT.h"
 #include "View.h"
 #include "meta/Rtti.h"
-#include "tUtils/TypeString.h"
+#include "tUtils/TypeList.h"
 
 namespace arch::ecs {
 
@@ -190,6 +190,9 @@ public:
 	auto readonlyView(ExcludeT<Excludes...> = ExcludeT{}) const noexcept;
 
 private:
+
+	template<class, bool, class, class>
+	friend class View;
 
 	// ComponentPools mapped by type
 	using CPoolsT = std::unordered_map<TypeDescriptorWrapper, ComponentPoolStorage<E>>;

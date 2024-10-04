@@ -223,7 +223,7 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
-		return View<E, false, TypeString<Includes...>, TypeString<Excludes...>>(
+		return View<E, false, TypeList<Includes...>, TypeList<Excludes...>>(
 			this,
 			// the less entities, the easier filtering
 			*std::min(
@@ -233,7 +233,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 			)
 		);
 	} else {
-		return View<E, false, TypeString<>, TypeString<Excludes...>>(this);
+		return View<E, false, TypeList<>, TypeList<Excludes...>>(this);
 	}
 }
 
@@ -241,7 +241,7 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
-		return View<E, true, TypeString<Includes...>, TypeString<Excludes...>>(
+		return View<E, true, TypeList<Includes...>, TypeList<Excludes...>>(
 			this,
 			// the less entities, the easier filtering
 			*std::min(
@@ -251,7 +251,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 			)
 		);
 	} else {
-		return View<E, true, TypeString<>, TypeString<Excludes...>>(this);
+		return View<E, true, TypeList<>, TypeList<Excludes...>>(this);
 	}
 }
 

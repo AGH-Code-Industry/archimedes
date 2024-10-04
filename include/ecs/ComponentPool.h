@@ -70,7 +70,7 @@ public:
 	/// @param entity - entity to remove component from
 	/// @return Removed component
 	C removeComponent(const EntityT entity, MoveFlag) noexcept
-		requires(std::movable<C> and not _details::ComponentTraits<C, E>::flag);
+		requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag);
 
 	using Base::contains;
 	using Base::count;

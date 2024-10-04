@@ -1,13 +1,13 @@
 #pragma once
 
-#include <tUtils/TypeString.h>
+#include <tUtils/TypeList.h>
 
 namespace arch::ecs {
 
 /// @brief Type indicating exclusion of components from views
 /// @tparam Ts - components to exclude
 template<class... Ts>
-struct ExcludeT: public TypeString<Ts...> {};
+struct ExcludeT: public TypeList<Ts...> {};
 
 /// @brief Instance of ExcludeT
 /// @tparam Ts - components to exclude
