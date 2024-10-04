@@ -118,6 +118,8 @@ struct EntityTraits {
 		static inline EntityRawT rawPart(const EntityT entity) noexcept;
 		/// @brief Checks if entity has null version
 		static inline bool hasNull(const EntityT entity) noexcept;
+		/// @brief Checks if entity has != null version
+		static inline bool hasNotNull(const EntityT entity) noexcept;
 		/// @brief Creates entity with next version and id of given entity
 		static inline EntityT withNext(const EntityT entity) noexcept;
 		/// @brief Gets next version of given entity

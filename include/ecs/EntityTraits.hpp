@@ -87,6 +87,11 @@ bool VERSION::hasNull(const EntityT entity) noexcept {
 }
 
 TEMPLATE_E
+bool VERSION::hasNotNull(const EntityT entity) noexcept {
+	return (Entity::toRaw(entity) & mask) != nullRaw;
+}
+
+TEMPLATE_E
 TRAITS_E::EntityT VERSION::withNext(const EntityT entity) noexcept {
 	return Entity::fromParts(Id::part(entity), next(entity));
 }
