@@ -128,8 +128,11 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
 		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
 
-		// first sparse swap, id at listHead = id of given entity
-		sparseSwap = ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+		if (&sparseSwap != &fromSparse) {
+			// first sparse swap, id at listHead = id of given entity
+			sparseSwap =
+				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
 		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
@@ -175,9 +178,11 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
 		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
 
-		// first sparse swap, id at listHead = id of given entity
-		sparseSwap = ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
-
+		if (&sparseSwap != sparsePtr) {
+			// first sparse swap, id at listHead = id of given entity
+			sparseSwap =
+				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
 		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));

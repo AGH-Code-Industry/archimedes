@@ -39,7 +39,7 @@ struct PhContainsAny<Ph> {
 
 template<class Ph, class T, class... Ts>
 struct PhContainsAny<Ph, T, Ts...> {
-	static inline constexpr bool value = PhContains<Ph, T>::value or PhContainsAny<Ph, Ts...>::value;
+	static inline constexpr bool value = PhContains<Ph, T>::value || PhContainsAny<Ph, Ts...>::value;
 };
 
 /// @brief Checks if placeholder contains any of types from sublist

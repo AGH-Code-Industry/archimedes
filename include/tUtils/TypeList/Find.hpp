@@ -116,7 +116,7 @@ public:
 
 	static inline constexpr size_t value =
 		(foundFirst ? PhFindAt<true, _Ph<Ts...>, Pos, T>::value :
-					  PhFindAnyAt<not foundFirst, _Ph<Ts...>, Pos, Ts2...>::value);
+					  PhFindAnyAt<!foundFirst, _Ph<Ts...>, Pos, Ts2...>::value);
 };
 
 /// @brief Finds any type from sequence from the beginning
