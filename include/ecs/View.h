@@ -33,19 +33,19 @@ inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
 /// @tparam Includes - component types
 /// @param domain - domain to get components from
 /// @param entity - entity to get components from
-/// @param <unnamed> - TypeString instance to help in deduction
+/// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-inline auto getByTS(Domain<E>& domain, const E entity, TypeString<Includes...>) noexcept;
+inline auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
 /// @tparam E - entity type
 /// @tparam Includes - component types
 /// @param domain - domain to get components from
 /// @param entity - entity to get components from
-/// @param <unnamed> - TypeString instance to help in deduction
+/// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-inline auto getByTS(const Domain<E>& domain, const E entity, TypeString<Includes...>) noexcept;
+inline auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 
-/// @brief Predicate wrapper for TypeString to filter out flag-components
+/// @brief Predicate wrapper for TypeList to filter out flag-components
 /// @tparam E - entity type
 template<class E>
 struct IsFlagComponent {
@@ -61,8 +61,8 @@ struct IsFlagComponent {
 /// @brief Domain view
 /// @tparam E - entity type
 /// @tparam Const - whether view is readonly
-/// @tparam Include - TypeString with components included in view
-/// @tparam Exclude - TypeString with components excluded in view
+/// @tparam Include - TypeList with components included in view
+/// @tparam Exclude - TypeList with components excluded in view
 template<class E, bool Const, class Include, class Exclude>
 class View;
 
@@ -72,7 +72,7 @@ class View;
 /// @tparam Includes - components included in view
 /// @tparam Excludes - components excluded in view
 template<class E, bool Const, class... Includes, class... Excludes>
-class View<E, Const, TypeString<Includes...>, TypeString<Excludes...>> {
+class View<E, Const, TypeList<Includes...>, TypeList<Excludes...>> {
 public:
 
 	/// @brief Entity traits
@@ -82,10 +82,10 @@ public:
 	/// @brief Actual domain type used
 	using DomainT = std::conditional_t<Const, const Domain<E>, Domain<E>>;
 
-	/// @brief TypeString with components included in view
-	using Include = TypeString<Includes...>;
-	/// @brief TypeString with components excluded in view
-	using Exclude = TypeString<Excludes...>;
+	/// @brief TypeList with components included in view
+	using Include = TypeList<Includes...>;
+	/// @brief TypeList with components excluded in view
+	using Exclude = TypeList<Excludes...>;
 	/// @brief Include without flag-components
 	using NoFlags = typename Include::template eraseIf<_details::IsFlagComponent<EntityT>::template Pred>;
 
@@ -100,12 +100,22 @@ public:
 	/// @param entity - entity to check
 	bool contains(const EntityT entity) const noexcept;
 
-	/// @brief Returns std::tuple with included components
+	/// @brief Recomputes entities in view
+	/// @brief Needed if at least one component is in-place
+	View& refresh() noexcept;
+
+	/// @brief Returns std::tuple with included components, excluding flag-components
 	/// @param entity - entity to get components from
 	auto get(const EntityT entity) noexcept requires(!Const);
-	/// @brief Returns std::tuple with readonly included components
+	/// @brief Returns std::tuple with readonly included components, excluding flag-components
 	/// @param entity - entity to get components from
 	auto get(const EntityT entity) const noexcept;
+	/// @brief Returns std::tuple with included components, including flag-components
+	/// @param entity - entity to get components from
+	auto getAll(const EntityT entity) noexcept requires(!Const);
+	/// @brief Returns std::tuple with readonly included components, including flag-components
+	/// @param entity - entity to get components from
+	auto getAll(const EntityT entity) const noexcept;
 	/// @brief Returns std::tuple with given components (may be out of view)
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
@@ -185,11 +195,14 @@ private:
 	// filtering function
 	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
 
+public:
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		((const _details::CommonComponentPool<E>*)nullptr)->_entitiesForView(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
+
+private:
 
 	View(DomainT* domain, const _details::CommonComponentPool<E>& minCPool) noexcept;
 
@@ -202,7 +215,7 @@ private:
 /// @tparam Const - whether view is readonly
 /// @tparam Excludes - components excluded in view
 template<class E, bool Const, class... Excludes>
-class View<E, Const, TypeString<>, TypeString<Excludes...>> {
+class View<E, Const, TypeList<>, TypeList<Excludes...>> {
 public:
 
 	/// @brief Entity traits
@@ -211,23 +224,27 @@ public:
 	using EntityT = Traits::EntityT;
 	/// @brief Actual domain type used
 
-	/// @brief TypeString with components included in view
-	using Include = TypeString<>;
-	/// @brief TypeString with components excluded in view
-	using Exclude = TypeString<Excludes...>;
+	/// @brief TypeList with components included in view
+	using Include = TypeList<>;
+	/// @brief TypeList with components excluded in view
+	using Exclude = TypeList<Excludes...>;
 	/// @brief Include without flag-components
 	using DomainT = std::conditional_t<Const, const Domain<E>, Domain<E>>;
 
 	/// @brief Count of included component types
-	static inline constexpr size_t includeCount = TypeString<>::length;
+	static inline constexpr size_t includeCount = TypeList<>::length;
 	/// @brief Count of excluded component types
-	static inline constexpr size_t excludeCount = TypeString<Excludes...>::length;
+	static inline constexpr size_t excludeCount = TypeList<Excludes...>::length;
 	/// @brief Whether view is readonly
 	static inline constexpr bool readonly = Const;
 
 	/// @brief Checks if entity is contained by view
 	/// @param entity - entity to check
 	bool contains(const EntityT entity) const noexcept;
+
+	/// @brief Recomputes entities in view
+	/// @brief Needed if at least one component is in-place
+	View& refresh() noexcept;
 
 	/// @brief Returns std::tuple with given components (may be out of view)
 	/// @tparam Cs - components to get
@@ -271,11 +288,14 @@ private:
 	// filtering function
 	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
 
+public:
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		((const Domain<E>*)nullptr)->entities(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
+
+private:
 
 	View(DomainT* domain) noexcept;
 

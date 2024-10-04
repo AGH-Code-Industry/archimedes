@@ -5,8 +5,8 @@
 
 #define TEMPLATE_ECIE template<class E, bool Const, class... Includes, class... Excludes>
 #define TEMPLATE_ECE template<class E, bool Const, class... Excludes>
-#define VIEW_ECIE View<E, Const, TypeString<Includes...>, TypeString<Excludes...>>
-#define VIEW_ECE View<E, Const, TypeString<>, TypeString<Excludes...>>
+#define VIEW_ECIE View<E, Const, TypeList<Includes...>, TypeList<Excludes...>>
+#define VIEW_ECE View<E, Const, TypeList<>, TypeList<Excludes...>>
 
 namespace arch::ecs {
 
@@ -31,12 +31,12 @@ inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
 }
 
 template<class E, class... Includes>
-inline auto getByTS(Domain<E>& domain, const E entity, TypeString<Includes...>) noexcept {
+inline auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
 	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
 }
 
 template<class E, class... Includes>
-inline auto getByTS(const Domain<E>& domain, const E entity, TypeString<Includes...>) noexcept {
+inline auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
 	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
 }
 
@@ -45,6 +45,7 @@ inline auto getByTS(const Domain<E>& domain, const E entity, TypeString<Includes
 TEMPLATE_ECIE
 VIEW_ECIE::View(DomainT* domain, const _details::CommonComponentPool<E>& minCPool) noexcept:
 	_domain{ domain },
+	// can't just call refresh(), _entities is not default_initializable
 	_entities(minCPool._entitiesForView(), std::bind(_filterFn, std::cref(*domain), std::placeholders::_1)) {}
 
 TEMPLATE_ECIE
@@ -56,6 +57,7 @@ bool VIEW_ECIE::_filterFn(const Domain<E>& domain, const E entity) noexcept {
 TEMPLATE_ECE
 VIEW_ECE::View(DomainT* domain) noexcept:
 	_domain{ domain },
+	// can't just call refresh(), _entities is not default_initializable
 	_entities(domain->entities(), std::bind(_filterFn, std::cref(*domain), std::placeholders::_1)) {}
 
 TEMPLATE_ECE
@@ -75,6 +77,29 @@ bool VIEW_ECE::contains(const EntityT entity) const noexcept {
 }
 
 TEMPLATE_ECIE
+VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
+	_entities.~EntitesViewT();
+	const auto minCPool = std::min(
+		{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_domain->_getCPool<std::remove_const_t<Includes>>()
+		)... },
+		[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
+	);
+	new (&_entities)
+		EntitesViewT(minCPool->_entitiesForView(), std::bind(_filterFn, std::cref(*_domain), std::placeholders::_1));
+
+	return *this;
+}
+
+TEMPLATE_ECE
+VIEW_ECE& VIEW_ECE::refresh() noexcept {
+	_entities.~EntitesViewT();
+	new (&_entities)
+		EntitesViewT(_domain->entities(), std::bind(_filterFn, std::cref(*_domain), std::placeholders::_1));
+
+	return *this;
+}
+
+TEMPLATE_ECIE
 auto VIEW_ECIE::get(const EntityT entity) noexcept requires(!Const)
 {
 	return _details::getByTS(*_domain, entity, NoFlags());
@@ -89,26 +114,37 @@ TEMPLATE_ECIE
 template<class... Cs>
 auto VIEW_ECIE::get(const EntityT entity) noexcept requires(!Const)
 {
-	return _details::getByTS(*_domain, entity, TypeString<Cs...>());
+	return _details::getByTS(*_domain, entity, TypeList<Cs...>());
 }
 
 TEMPLATE_ECIE
 template<class... Cs>
 auto VIEW_ECIE::get(const EntityT entity) const noexcept {
-	return _details::getByTS(*_domain, entity, TypeString<Cs...>());
+	return _details::getByTS(*_domain, entity, TypeList<Cs...>());
+}
+
+TEMPLATE_ECIE
+auto VIEW_ECIE::getAll(const EntityT entity) noexcept requires(!Const)
+{
+	return get<Includes...>(entity);
+}
+
+TEMPLATE_ECIE
+auto VIEW_ECIE::getAll(const EntityT entity) const noexcept {
+	return get<Includes...>(entity);
 }
 
 TEMPLATE_ECE
 template<class... Cs>
 auto VIEW_ECE::get(const EntityT entity) noexcept requires(!Const)
 {
-	return _details::getByTS(*_domain, entity, TypeString<Cs...>());
+	return _details::getByTS(*_domain, entity, TypeList<Cs...>());
 }
 
 TEMPLATE_ECE
 template<class... Cs>
 auto VIEW_ECE::get(const EntityT entity) const noexcept {
-	return _details::getByTS(*_domain, entity, TypeString<Cs...>());
+	return _details::getByTS(*_domain, entity, TypeList<Cs...>());
 }
 
 TEMPLATE_ECIE
@@ -146,12 +182,12 @@ template<class... Cs>
 auto VIEW_ECIE::components() noexcept requires(!Const)
 {
 	static_assert(
-		TypeString<Includes...>::template containsAll<Cs...>,
+		TypeList<Includes...>::template containsAll<Cs...>,
 		"One or more specified components is not contained in this view"
 	);
 
 	return std::views::transform(_entities, [domain = _domain](const EntityT entity) {
-		return _details::getByTS(*domain, entity, TypeString<Cs...>());
+		return _details::getByTS(*domain, entity, TypeList<Cs...>());
 	});
 }
 
@@ -159,12 +195,12 @@ TEMPLATE_ECIE
 template<class... Cs>
 auto VIEW_ECIE::components() const noexcept {
 	static_assert(
-		TypeString<Includes...>::template containsAll<Cs...>,
+		TypeList<Includes...>::template containsAll<Cs...>,
 		"One or more specified components is not contained in this view"
 	);
 
 	return std::views::transform(_entities, [domain = _domain](const EntityT entity) {
-		return _details::getByTS(*domain, entity, TypeString<Cs...>());
+		return _details::getByTS(*domain, entity, TypeList<Cs...>());
 	});
 }
 
@@ -198,7 +234,7 @@ void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 		} else if constexpr (tUtils::isApplicableV<Fn, ComponentsTuple>) {
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, Include()));
 		} else {
-			static_assert(false, "Given function is not invocable in any mode");
+			static_assert(false, "Given function is not invocable in any forEach mode");
 		}
 	}
 }
@@ -238,7 +274,7 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 			// [...](comp1&, comp2&, ...){ ... }
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, Include()));
 		} else {
-			static_assert(false, "Given function is not invocable in any mode");
+			static_assert(false, "Given function is not invocable in any forEach mode");
 		}
 	}
 }
