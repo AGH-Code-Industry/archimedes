@@ -13,7 +13,7 @@ namespace arch::ecs {
 namespace _details {
 
 template<class E, class C>
-inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
+auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
 	// make_tuple - by values, tie - by references
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
@@ -23,7 +23,7 @@ inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
 }
 
 template<class E, class C>
-inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
+auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
 	// make_tuple - by values, tie - by references
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
@@ -33,12 +33,12 @@ inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
 }
 
 template<class E, class... Includes>
-inline auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
+auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
 	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
 }
 
 template<class E, class... Includes>
-inline auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
+auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
 	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
 }
 
@@ -82,6 +82,8 @@ TEMPLATE_ECIE
 VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
 	ARCH_ASSERT(
 		std::ranges::none_of(
+			// compilers when	     { cast<T>(...) }: (x_x)
+			// compilers when list<T>{ cast<T>(...) }: (*o*)
 			std::initializer_list<const _details::CommonComponentPool<E>*>{
 				dynamic_cast<const _details::CommonComponentPool<E>*>(
 					_domain->_tryGetCPool<std::remove_const_t<Includes>>()
@@ -274,7 +276,6 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 	using ComponentsTuple = decltype(_details::getByTS(*_domain, EntityT(), Include()));
 
 	for (const auto entity : _entities) {
-		((void)0);
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
 			// [...](entity){ ... }
 			std::apply(std::forward<Fn>(fn), std::make_tuple(entity));

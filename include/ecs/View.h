@@ -20,14 +20,14 @@ namespace _details {
 /// @param domain - domain to get component from
 /// @param entity - entity to get component from
 template<class E, class C>
-inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept;
+auto getAsTuple(Domain<E>& domain, const E entity) noexcept;
 /// @brief Returns given readonly component wrapped in std::tuple
 /// @tparam E - entity type
 /// @tparam C - component type
 /// @param domain - domain to get component from
 /// @param entity - entity to get component from
 template<class E, class C>
-inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
+auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
 /// @tparam E - entity type
 /// @tparam Includes - component types
@@ -35,7 +35,7 @@ inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-inline auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
 /// @tparam E - entity type
 /// @tparam Includes - component types
@@ -43,7 +43,7 @@ inline auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) no
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-inline auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 
 /// @brief Predicate wrapper for TypeList to filter out flag-components
 /// @tparam E - entity type
@@ -197,7 +197,7 @@ private:
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
-		((const _details::CommonComponentPool<E>*)nullptr)->_entitiesForView(),
+		std::declval<const _details::CommonComponentPool<E>>()._entitiesForView(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
 
@@ -287,7 +287,7 @@ private:
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
-		((const Domain<E>*)nullptr)->entities(),
+		std::declval<const Domain<E>>().entities(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
 
