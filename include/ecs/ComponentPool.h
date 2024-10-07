@@ -5,23 +5,21 @@
 #include <optional>
 #include <vector>
 
+#include "CommonComponentPool.h"
 #include "ComponentPoolIterator.h"
 #include "ComponentTraits.h"
 #include <utils/MoveFlag.h>
 
 namespace arch::ecs {
 
-template<class E>
-struct ErasableComponentPool {
-	virtual bool removeComponent(const E entity) noexcept = 0;
-};
-
 /// @brief Pool for creating and destroying components
 /// @details Uses sparse set data structure
 /// @tparam C - component type
 /// @tparam E - entity type
 template<class C, class E>
-class ComponentPool: public ErasableComponentPool<E> {
+class ComponentPool: public _details::CommonComponentPool<E> {
+	using Base = _details::CommonComponentPool<E>;
+
 public:
 
 	/// @brief ComponentTraits of component
@@ -73,12 +71,10 @@ public:
 	/// @return Removed component
 	C removeComponent(const EntityT entity, MoveFlag) noexcept
 		requires(std::movable<C> && !_details::ComponentTraits<C, E>::flag);
-	/// @brief Checks if pool contains component for given entity
-	/// @param entity - entity to check for
-	bool contains(const EntityT entity) const noexcept;
-	/// @brief Checks if pool contains component for given id
-	/// @param id - id to check for
-	bool contains(const IdT id) const noexcept;
+
+	using Base::contains;
+	using Base::count;
+
 	/// @brief Returns component of given entity
 	/// @details If component is non-flag and does not exist, the behavior is undefined
 	/// @param entity - entity to get component of
@@ -121,36 +117,45 @@ public:
 	/// @brief Returns reverse iterator to past-the-last (const entity, const component) contained in a reverse order
 	ConstReverseIterator crend() const noexcept;
 
+	using Base::_entitiesForView;
+
 private:
+
+	using Base::_sparseAssure;
+	using Base::_sparseAssurePage;
+	using Base::_sparseGet;
+	using Base::_sparseTryGet;
 
 	friend arch::ecs::_details::ComponentPoolIterator<C, E>;
 
-	// returns entity of given id from sparse, assuring it's page exists
-	E& _sparseAssure(const IdT id) noexcept;
-	// returns new entity from dense, along with it's index
+	//// returns entity of given id from sparse, assuring it's page exists
+	// E& _sparseAssure(const IdT id) noexcept;
+	//  returns new entity from dense, along with it's index
 	std::tuple<E&, size_t> _denseNew() noexcept;
 	// returns pointer (likely invalid) to component of given id, can be used for placement-new or Traits::constructAt()
 	C* _componentAssure(const IdT id) noexcept;
-	// returns pointer to sparse entity or nullptr if does not exist
-	E* _sparseGetPtr(const IdT _id) noexcept;
-	const E* _sparseGetPtr(const IdT _id) const noexcept;
-	// returns reference to sparse entity, UB if does not exist
-	E& _sparseGet(const IdT _id) noexcept;
-	const E& _sparseGet(const IdT _id) const noexcept;
 
 	// finds index of first valid component, 0 if none
 	size_t _findFirst() const noexcept;
 	// finds index of last valid component, 0 if none
 	size_t _findLast() const noexcept;
 
-	std::vector<std::unique_ptr<std::array<E, ETraits::pageSize>>> _sparse; // paged
-	std::vector<E> _dense;
+	// std::vector<std::unique_ptr<std::array<E, ETraits::pageSize>>> _sparse; // paged
+	// std::vector<E> _dense;
+	using Base::_counter;
+	using Base::_dense;
+	using Base::_sparse;
 	std::vector<C*> _components; // paged
 	size_t _listHead = 0;
 
 	// for manual checks
-	std::tuple<decltype(_sparse)*, decltype(_dense)*, decltype(_components)*, decltype(_listHead)*> _debug() noexcept {
-		return { &_sparse, &_dense, &_components, &_listHead };
+	std::tuple<
+		typename Base::SparseContainer*,
+		typename Base::DenseContainer*,
+		decltype(_components)*,
+		decltype(_listHead)*>
+	_debug() noexcept {
+		return { &this->_sparse, &this->_dense, &_components, &_listHead };
 	}
 };
 
