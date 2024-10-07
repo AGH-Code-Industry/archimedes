@@ -10,7 +10,7 @@ namespace arch::ecs::_details {
 
 TEMPLATE
 typename SET::EntityT* SET::_sparseAssurePage(const size_t n) noexcept {
-	// resize(n) makes capacity == n (bad)
+	// resize(n) only would make capacity == n (bad)
 	if (_sparse.size() < n + 1) {
 		_sparse.reserve(std::bit_ceil(n + 1));
 		_sparse.resize(n + 1);

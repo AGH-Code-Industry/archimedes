@@ -38,7 +38,7 @@ TEMPLATE_CE
 C* POOL_CE::_componentAssure(const IdT id) noexcept {
 	const size_t pageNum = id / Traits::pageSize;
 
-	// resize(n) makes capacity == n (bad)
+	// resize(n) only would make capacity == n (bad)
 	if (_components.size() < pageNum + 1) {
 		_components.reserve(std::bit_ceil(pageNum + 1));
 		_components.resize(pageNum + 1);
