@@ -33,7 +33,7 @@ IndentRequiresClause: true
 IndentWrappedFunctionNames: false
 LambdaBodyIndentation: Signature
 RequiresClausePosition: WithPreceding
-RequiresExpressionIndentation: Keyword
+RequiresExpressionIndentation: OuterScope
 
 InsertBraces: true
 InsertTrailingCommas: Wrapped

@@ -9,7 +9,8 @@
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config): _window(1, 1, {}), _engineConfig(config) {}
+Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
+	_window{1, 1, {}}, _engineConfig{config}, _application{application} {}
 
 Engine::~Engine() {
 	_terminate();
@@ -77,6 +78,7 @@ void Engine::_mainLoop() {
 		_window.clear(_engineConfig.background_color);
 
 		// renderer.render();
+		_application->update();
 
 		_window.swapBuffers();
 		glfwPollEvents();
@@ -92,6 +94,8 @@ void Engine::_initialize() {
 	_window.setTitle(_engineConfig.window_title);
 
 	_renderer.init();
+
+	_application->init();
 
 	// if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 	//     throw GladException();

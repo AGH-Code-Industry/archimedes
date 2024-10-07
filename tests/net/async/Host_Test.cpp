@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <gtest/gtest.h>
-#include <net.h>
+#include <Net.h>
 
 TEST(AsyncHost, LocalHost) {
 	namespace net = arch::net;

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <gtest/gtest.h>
-#include <net.h>
+#include <Net.h>
 
 TEST(Host, LocalHost) { // ~15ms
 	arch::net::Init::init();

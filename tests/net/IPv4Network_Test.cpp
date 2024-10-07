@@ -1,7 +1,7 @@
 #include <bitset>
 
 #include <gtest/gtest.h>
-#include <net.h>
+#include <Net.h>
 
 TEST(IPv4Mask, Get) {
 	arch::net::IPv4Mask mask(23);

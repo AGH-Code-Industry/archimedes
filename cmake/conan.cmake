@@ -2,24 +2,41 @@ include_guard()
 
 include("${PROJECT_SOURCE_DIR}/cmake/os.cmake")
 
-# check if conan is installed
-execute_process(
-	COMMAND "conan" "--version"
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	OUTPUT_VARIABLE CONAN_CHECK_OUT
-)
-if(NOT CONAN_CHECK_OUT MATCHES ".?Conan.?")
-	message(FATAL_ERROR "Conan not found")
-else()
-	message(STATUS "Conan present")
+SET(ARCHIMEDES_CONAN_TOOLCHAIN_PATH "${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
+SET(ARCHIMEDES_CONAN_INSTALL_HASH_PATH "${PROJECT_SOURCE_DIR}/cmake/conanfile.hash")
+
+file(SHA256 "${PROJECT_SOURCE_DIR}/conanfile.py" ARCHIMEDES_CONANFILE_HASH)
+if(EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
+	file(STRINGS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH} ARCHIMEDES_CONAN_INSTALL_HASH_LIST LIMIT_COUNT 1)
+	list(GET ARCHIMEDES_CONAN_INSTALL_HASH_LIST 0 ARCHIMEDES_CONAN_INSTALL_HASH)
+
+	if(${ARCHIMEDES_CONAN_INSTALL_HASH} STREQUAL ${ARCHIMEDES_CONANFILE_HASH})
+		SET(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ FALSE)
+	else()
+		SET(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ TRUE)
+	endif()
 endif()
 
 # check for conan files
-if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
+if(ARCHIMEDES_FORCE_CONAN_INSTALL OR ARCHIMEDES_CONAN_INSTALL_HASH_NEQ OR NOT EXISTS ${ARCHIMEDES_CONAN_TOOLCHAIN_PATH} OR NOT EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
 	if(ARCHIMEDES_FORCE_CONAN_INSTALL)
 		message(STATUS "Forced Conan configuration for ${ARCHIMEDES_BUILD_TYPE} mode")
+	elseif(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ)
+		message(STATUS "conanfile.py was edited, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
 	else()
 		message(STATUS "Conan files not found for ${ARCHIMEDES_BUILD_TYPE} mode, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
+	endif()
+
+	# check if conan is installed
+	execute_process(
+		COMMAND "conan" "--version"
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		OUTPUT_VARIABLE CONAN_CHECK_OUT
+	)
+	if(NOT CONAN_CHECK_OUT MATCHES ".?Conan.?")
+		message(FATAL_ERROR "Conan not found")
+	else()
+		message(STATUS "Conan present")
 	endif()
 
 	execute_process(
@@ -52,6 +69,8 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/con
 		file(REMOVE_RECURSE "${PROJECT_SOURCE_DIR}/cmake/conan_files/${ARCHIMEDES_BUILD_TYPE}/")
 		message(FATAL_ERROR "Conan installation failed")
 	else()
+		file(WRITE ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH} ${ARCHIMEDES_CONANFILE_HASH})
+
 		message(STATUS "Conan installation succeded")
 	endif()
 else()

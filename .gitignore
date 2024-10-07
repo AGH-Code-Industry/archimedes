@@ -25,3 +25,4 @@ CMakeSettings.json
 cmake-build-*
 archimedes_bin/*.wav
 venv/*
+cmake/conanfile.hash
