@@ -223,6 +223,15 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
+		ARCH_ASSERT(
+			std::ranges::none_of(
+				std::initializer_list<const _details::CommonComponentPool<E>*>{
+					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
+					)... },
+				[](const auto ptr) { return ptr == nullptr; }
+			),
+			"One of requested ComponentPools does not exist"
+		);
 		return View<E, false, TypeList<Includes...>, TypeList<Excludes...>>(
 			this,
 			// the less entities, the easier filtering
@@ -241,6 +250,15 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
+		ARCH_ASSERT(
+			std::ranges::none_of(
+				std::initializer_list<const _details::CommonComponentPool<E>*>{
+					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
+					)... },
+				[](const auto ptr) { return ptr == nullptr; }
+			),
+			"One of requested ComponentPools does not exist"
+		);
 		return View<E, true, TypeList<Includes...>, TypeList<Excludes...>>(
 			this,
 			// the less entities, the easier filtering
