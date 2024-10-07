@@ -14,6 +14,7 @@ namespace _details {
 
 template<class E, class C>
 inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
+	// make_tuple - by values, tie - by references
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
@@ -23,6 +24,7 @@ inline auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
 
 template<class E, class C>
 inline auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
+	// make_tuple - by values, tie - by references
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
@@ -78,12 +80,24 @@ bool VIEW_ECE::contains(const EntityT entity) const noexcept {
 
 TEMPLATE_ECIE
 VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
+	ARCH_ASSERT(
+		std::ranges::none_of(
+			std::initializer_list<const _details::CommonComponentPool<E>*>{
+				dynamic_cast<const _details::CommonComponentPool<E>*>(
+					_domain->_tryGetCPool<std::remove_const_t<Includes>>()
+				)... },
+			[](const auto ptr) { return ptr == nullptr; }
+		),
+		"One of requested ComponentPools does not exist"
+	);
+	// destroy _entities
 	_entities.~EntitesViewT();
 	const auto minCPool = std::min(
 		{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_domain->_getCPool<std::remove_const_t<Includes>>()
 		)... },
 		[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
 	);
+	// create new _entites in place of deleted
 	new (&_entities)
 		EntitesViewT(minCPool->_entitiesForView(), std::bind(_filterFn, std::cref(*_domain), std::placeholders::_1));
 
@@ -208,6 +222,7 @@ TEMPLATE_ECIE
 template<class Fn>
 void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 {
+	// call modes
 	using EntityTuple = decltype(std::tuple<EntityT>());
 	using EntityNoFlagsTuple =
 		decltype(std::tuple_cat(std::tuple<EntityT>(), _details::getByTS(*_domain, EntityT(), NoFlags())));
@@ -218,20 +233,27 @@ void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
+			// [...](entity){ ... }
 			std::apply(std::forward<Fn>(fn), std::make_tuple(entity));
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityNoFlagsTuple>) {
+			// [...](entity, comp1&, comp2&, ...){ ... }
+			// non-flags ------ ^ ----- ^ ...
 			std::apply(
 				std::forward<Fn>(fn),
 				std::tuple_cat(std::tuple<EntityT>(entity), _details::getByTS(*_domain, entity, NoFlags()))
 			);
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityComponentsTuple>) {
+			// [...](entity, comp1&, comp2&, ...){ ... }
 			std::apply(
 				std::forward<Fn>(fn),
 				std::tuple_cat(std::tuple<EntityT>(entity), _details::getByTS(*_domain, entity, Include()))
 			);
 		} else if constexpr (tUtils::isApplicableV<Fn, NoFlagsTuple>) {
+			// [...](      comp1&, comp2&, ...){ ... }
+			// non-flags ---- ^ ----- ^ ...
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, NoFlags()));
 		} else if constexpr (tUtils::isApplicableV<Fn, ComponentsTuple>) {
+			// [...](comp1&, comp2&, ...){ ... }
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, Include()));
 		} else {
 			static_assert(false, "Given function is not invocable in any forEach mode");
@@ -242,6 +264,7 @@ void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 TEMPLATE_ECIE
 template<class Fn>
 void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
+	// call modes
 	using EntityTuple = decltype(std::tuple<EntityT>());
 	using EntityNoFlagsTuple =
 		decltype(std::tuple_cat(std::tuple<EntityT>(), _details::getByTS(*_domain, EntityT(), NoFlags())));
@@ -257,6 +280,7 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 			std::apply(std::forward<Fn>(fn), std::make_tuple(entity));
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityNoFlagsTuple>) {
 			// [...](entity, comp1&, comp2&, ...){ ... }
+			// non-flags ------ ^ ----- ^ ...
 			std::apply(
 				std::forward<Fn>(fn),
 				std::tuple_cat(std::tuple<EntityT>(entity), _details::getByTS(*_domain, entity, NoFlags()))
@@ -268,13 +292,14 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 				std::tuple_cat(std::tuple<EntityT>(entity), _details::getByTS(*_domain, entity, Include()))
 			);
 		} else if constexpr (tUtils::isApplicableV<Fn, NoFlagsTuple>) {
-			// [...](comp1&, comp2&, ...){ ... }
+			// [...](      comp1&, comp2&, ...){ ... }
+			// non-flags ---- ^ ----- ^ ...
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, NoFlags()));
 		} else if constexpr (tUtils::isApplicableV<Fn, ComponentsTuple>) {
 			// [...](comp1&, comp2&, ...){ ... }
 			std::apply(std::forward<Fn>(fn), _details::getByTS(*_domain, entity, Include()));
 		} else {
-			static_assert(false, "Given function is not invocable in any forEach mode");
+			static_assert(false, "Given function is not invocable in any forEach mode, check if argument counts match");
 		}
 	}
 }
@@ -283,13 +308,15 @@ TEMPLATE_ECE
 template<class Fn>
 void VIEW_ECE::forEach(Fn&& fn) noexcept requires(!Const)
 {
+	// only one call mode for excluding views
 	using EntityTuple = decltype(std::tuple<EntityT>());
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
+			// [...](entity){ ... }
 			std::apply(std::forward<Fn>(fn), std::make_tuple(entity));
 		} else {
-			static_assert(false, "Given function is not invocable in any mode");
+			static_assert(false, "Given function is not invocable in any mode, check if argument count == 1");
 		}
 	}
 }
@@ -297,13 +324,15 @@ void VIEW_ECE::forEach(Fn&& fn) noexcept requires(!Const)
 TEMPLATE_ECE
 template<class Fn>
 void VIEW_ECE::forEach(Fn&& fn) const noexcept {
+	// only one call mode for excluding views
 	using EntityTuple = decltype(std::tuple<EntityT>());
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
+			// [...](entity){ ... }
 			std::apply(std::forward<Fn>(fn), std::make_tuple(entity));
 		} else {
-			static_assert(false, "Given function is not invocable in any mode");
+			static_assert(false, "Given function is not invocable in any mode, check if argument count == 1");
 		}
 	}
 }
