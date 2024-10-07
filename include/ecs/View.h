@@ -195,14 +195,11 @@ private:
 	// filtering function
 	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
 
-public:
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		((const _details::CommonComponentPool<E>*)nullptr)->_entitiesForView(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
-
-private:
 
 	View(DomainT* domain, const _details::CommonComponentPool<E>& minCPool) noexcept;
 
@@ -288,14 +285,11 @@ private:
 	// filtering function
 	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
 
-public:
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		((const Domain<E>*)nullptr)->entities(),
 		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
 	));
-
-private:
 
 	View(DomainT* domain) noexcept;
 

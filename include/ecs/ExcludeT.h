@@ -17,5 +17,8 @@ static inline constexpr ExcludeT<Ts...> exclude{};
 } // namespace arch::ecs
 
 namespace arch {
+
+// expose exclude as arch::exclude
 using ecs::exclude;
-}
+
+} // namespace arch
