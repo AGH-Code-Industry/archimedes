@@ -35,7 +35,7 @@ auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+auto getByTL(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
 /// @tparam E - entity type
 /// @tparam Includes - component types
@@ -43,7 +43,7 @@ auto getByTS(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
 template<class E, class... Includes>
-auto getByTS(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+auto getByTL(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
 
 /// @brief Predicate wrapper for TypeList to filter out flag-components
 /// @tparam E - entity type
@@ -116,12 +116,12 @@ public:
 	/// @brief Returns std::tuple with readonly included components, including flag-components
 	/// @param entity - entity to get components from
 	auto getAll(const EntityT entity) const noexcept;
-	/// @brief Returns std::tuple with given components (may be out of view)
+	/// @brief Returns std::tuple with given components
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
 	auto get(const EntityT entity) noexcept requires(!Const);
-	/// @brief Returns std::tuple with given readonly components (may be out of view)
+	/// @brief Returns std::tuple with given readonly components
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
@@ -192,18 +192,36 @@ private:
 
 	friend Domain<E>;
 
-	// filtering function
-	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
+	using CCPoolPtr =
+		std::conditional_t<Const, const _details::CommonComponentPool<E>*, _details::CommonComponentPool<E>*>;
+	template<class C>
+	using CPoolPtr = std::conditional_t<
+		Const,
+		const ComponentPool<std::remove_const_t<C>, E>*,
+		ComponentPool<std::remove_const_t<C>, E>*>;
+
+	size_t _minInclude() const noexcept;
+
+	template<class C>
+	auto getAsTuple(const E entity) noexcept requires(!Const);
+	template<class C>
+	auto getAsTuple(const E entity) const noexcept;
+	template<class... Cs>
+	auto getByTL(const E entity, TypeList<Cs...>) noexcept requires(!Const);
+	template<class... Cs>
+	auto getByTL(const E entity, TypeList<Cs...>) const noexcept;
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		std::declval<const _details::CommonComponentPool<E>>()._entitiesForView(),
-		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
+		std::bind(&View::contains, std::declval<const View*>(), std::placeholders::_1)
 	));
 
-	View(DomainT* domain, const _details::CommonComponentPool<E>& minCPool) noexcept;
+	View(DomainT* domain) noexcept;
 
-	DomainT* _domain;
+	std::array<CCPoolPtr, includeCount> _includedCPools;
+	std::array<CCPoolPtr, excludeCount> _excludedCPools;
+	size_t _minIdx;
 	EntitesViewT _entities;
 };
 
@@ -283,18 +301,27 @@ private:
 	friend Domain<E>;
 
 	// filtering function
-	static bool _filterFn(const Domain<E>& domain, const E entity) noexcept;
+	bool _containsNoCheck(const E entity) const noexcept;
+
+	using CCPoolPtr =
+		std::conditional_t<Const, const _details::CommonComponentPool<E>*, _details::CommonComponentPool<E>*>;
+	template<class C>
+	using CPoolPtr = std::conditional_t<
+		Const,
+		const ComponentPool<std::remove_const_t<C>, E>*,
+		ComponentPool<std::remove_const_t<C>, E>*>;
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
 		std::declval<const Domain<E>>().entities(),
-		std::bind(_filterFn, std::cref(*((const Domain<E>*)nullptr)), std::placeholders::_1)
+		std::bind(&View::_containsNoCheck, std::declval<const View*>(), std::placeholders::_1)
 	));
 
 	View(DomainT* domain) noexcept;
 
-	DomainT* _domain;
+	std::array<CCPoolPtr, excludeCount> _excludedCPools;
 	EntitesViewT _entities;
+	DomainT* _domain;
 };
 
 } // namespace arch::ecs
