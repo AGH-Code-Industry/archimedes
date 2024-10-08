@@ -232,15 +232,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 			),
 			"One of requested ComponentPools does not exist"
 		);
-		return View<E, false, TypeList<Includes...>, TypeList<Excludes...>>(
-			this,
-			// the less entities, the easier filtering
-			*std::min(
-				{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_getCPool<std::remove_const_t<Includes>>()
-				)... },
-				[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
-			)
-		);
+		return View<E, false, TypeList<Includes...>, TypeList<Excludes...>>(this);
 	} else {
 		return View<E, false, TypeList<>, TypeList<Excludes...>>(this);
 	}
@@ -259,15 +251,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 			),
 			"One of requested ComponentPools does not exist"
 		);
-		return View<E, true, TypeList<Includes...>, TypeList<Excludes...>>(
-			this,
-			// the less entities, the easier filtering
-			*std::min(
-				{ dynamic_cast<const _details::CommonComponentPool<E>*>(&_getCPool<std::remove_const_t<Includes>>()
-				)... },
-				[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
-			)
-		);
+		return View<E, true, TypeList<Includes...>, TypeList<Excludes...>>(this);
 	} else {
 		return View<E, true, TypeList<>, TypeList<Excludes...>>(this);
 	}
