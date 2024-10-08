@@ -105,8 +105,8 @@ auto VIEW_ECIE::getByTL(const E entity, TypeList<Cs...>) const noexcept {
 
 TEMPLATE_ECIE
 VIEW_ECIE::View(DomainT* domain) noexcept:
-	_includedCPools{ dynamic_cast<CCPoolPtr>(domain->_tryGetCPool<Includes>())... },
-	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->_tryGetCPool<Excludes>())... },
+	_includedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Includes>())... },
+	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
 	_minIdx{ _minInclude() },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(
@@ -122,7 +122,7 @@ VIEW_ECIE::View(DomainT* domain) noexcept:
 
 TEMPLATE_ECE
 VIEW_ECE::View(DomainT* domain) noexcept:
-	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->_tryGetCPool<Excludes>())... },
+	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(domain->entities(), std::bind(&View::_containsNoCheck, this, std::placeholders::_1)),
 	_domain{ domain } {
