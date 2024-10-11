@@ -4,7 +4,6 @@
 #include <type_traits>
 
 #include "ComponentPool.h"
-// #include "ContainChecks.h"
 #include "ExcludeT.h"
 
 namespace arch::ecs {
@@ -192,11 +191,11 @@ private:
 
 	friend Domain<E>;
 
-	using CCPoolPtr =
-		std::conditional_t<Const, const _details::CommonComponentPool<E>*, _details::CommonComponentPool<E>*>;
+	using CCPoolPtr = const _details::CommonComponentPool<E>*;
+	//, _details::CommonComponentPool<E>* > ;
 	template<class C>
 	using CPoolPtr = std::conditional_t<
-		Const,
+		Const || std::is_const_v<C>,
 		const ComponentPool<std::remove_const_t<C>, E>*,
 		ComponentPool<std::remove_const_t<C>, E>*>;
 
@@ -307,7 +306,7 @@ private:
 		std::conditional_t<Const, const _details::CommonComponentPool<E>*, _details::CommonComponentPool<E>*>;
 	template<class C>
 	using CPoolPtr = std::conditional_t<
-		Const,
+		Const || std::is_const_v<C>,
 		const ComponentPool<std::remove_const_t<C>, E>*,
 		ComponentPool<std::remove_const_t<C>, E>*>;
 

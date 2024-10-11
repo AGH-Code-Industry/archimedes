@@ -81,7 +81,7 @@ void DOMAIN_E::swap(DOMAIN_E& other) noexcept {
 
 TEMPLATE_E
 bool DOMAIN_E::alive(const EntityT entity) const noexcept {
-	return _entityPool.alive(entity);
+	return _entityPool.contains(entity);
 }
 
 TEMPLATE_E
@@ -147,6 +147,12 @@ TEMPLATE_E
 template<class C, class... Args>
 DOMAIN_E::GetReference<std::remove_const_t<C>> DOMAIN_E::addComponent(const EntityT entity, Args&&... args) noexcept {
 	return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<Args>(args)...);
+}
+
+TEMPLATE_E
+template<class C>
+DOMAIN_E::GetReference<std::remove_const_t<C>> DOMAIN_E::addComponent(const EntityT entity, C&& component) noexcept {
+	return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<C>(component));
 }
 
 TEMPLATE_E
@@ -223,7 +229,7 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
-		ARCH_ASSERT(
+		/*ARCH_ASSERT(
 			std::ranges::none_of(
 				std::initializer_list<const _details::CommonComponentPool<E>*>{
 					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
@@ -231,7 +237,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) noexcept {
 				[](const auto ptr) { return ptr == nullptr; }
 			),
 			"One of requested ComponentPools does not exist"
-		);
+		);*/
 		return View<E, false, TypeList<Includes...>, TypeList<Excludes...>>(this);
 	} else {
 		return View<E, false, TypeList<>, TypeList<Excludes...>>(this);
@@ -242,7 +248,7 @@ TEMPLATE_E
 template<class... Includes, class... Excludes>
 auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 	if constexpr (sizeof...(Includes) != 0) {
-		ARCH_ASSERT(
+		/*ARCH_ASSERT(
 			std::ranges::none_of(
 				std::initializer_list<const _details::CommonComponentPool<E>*>{
 					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
@@ -250,7 +256,7 @@ auto DOMAIN_E::view(ExcludeT<Excludes...>) const noexcept {
 				[](const auto ptr) { return ptr == nullptr; }
 			),
 			"One of requested ComponentPools does not exist"
-		);
+		);*/
 		return View<E, true, TypeList<Includes...>, TypeList<Excludes...>>(this);
 	} else {
 		return View<E, true, TypeList<>, TypeList<Excludes...>>(this);

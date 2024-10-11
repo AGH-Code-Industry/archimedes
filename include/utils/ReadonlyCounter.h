@@ -13,6 +13,7 @@ public:
 protected:
 	T _counter{};
 };
+extern template class ReadonlyCounter<size_t>;
 
 } // namespace arch::utils
 

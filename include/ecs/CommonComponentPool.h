@@ -41,6 +41,7 @@ protected:
 
 	// range with all valid entities in _dense
 	auto _entitiesForView() const noexcept;
+	static auto _emptyEntitiesForView() noexcept;
 };
 
 } // namespace arch::ecs::_details

@@ -22,8 +22,12 @@ struct ComponentTraits {
 	/// @brief Type of component
 	using ComponentT = C;
 
+	/// @brief Whether component is a flag component,
+	static inline constexpr bool flag = Specs::flag;
+	static_assert(!(flag && !std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
+
 	/// @brief Whether component is marked as in-place
-	static inline constexpr bool inPlace = Specs::inPlace;
+	static inline constexpr bool inPlace = Specs::inPlace && !flag;
 	/// @brief Whether component is movable
 	static inline constexpr bool movable = std::movable<ComponentT>;
 	static_assert(!(!movable && !inPlace), "Non-movable components cannot be marked as not-in-place");
@@ -35,10 +39,6 @@ struct ComponentTraits {
 	static inline constexpr size_t size = sizeof(ComponentT);
 	/// @brief Alignment of component
 	static inline constexpr size_t alignment = alignof(ComponentT);
-
-	/// @brief Whether component is a flag component,
-	static inline constexpr bool flag = Specs::flag;
-	static_assert(!(flag && !std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
 
 	/// @brief Creates new page of size pageSize
 	static inline ComponentT* newPage() noexcept;

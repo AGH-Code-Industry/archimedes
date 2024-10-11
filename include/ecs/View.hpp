@@ -46,22 +46,23 @@ auto getByTL(const Domain<E>& domain, const E entity, TypeList<Includes...>) noe
 
 TEMPLATE_ECIE
 size_t VIEW_ECIE::_minInclude() const noexcept {
-	ARCH_ASSERT(
+	/*ARCH_ASSERT(
 		std::ranges::none_of(_includedCPools, [](const auto ptr) { return ptr == nullptr; }),
 		"At least one ComponentPool does not exist"
-	);
+	);*/
 
 	if constexpr (includeCount != 1) {
-		auto dist = std::ranges::distance(
-			_includedCPools.begin(),
-			std::ranges::min_element(
-				_includedCPools,
-				[](const auto lhs, const auto rks) { return lhs->count() < rks->count(); }
-			)
-		);
+		const auto min = std::ranges::min_element(_includedCPools, [](const auto lhs, const auto rks) {
+			return !lhs ? true : (!rks ? true : lhs->count() < rks->count());
+		});
+		if (!(*min)) { // at least one cpool is empty
+			return (size_t)-1;
+		}
+
+		auto dist = std::ranges::distance(_includedCPools.begin(), min);
 		return dist;
 	} else {
-		return 0;
+		return _includedCPools[0] ? 0 : (size_t)-1;
 	}
 }
 
@@ -74,7 +75,14 @@ auto VIEW_ECIE::getAsTuple(const E entity) noexcept requires(!Const)
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
 		return std::make_tuple(dynamic_cast<CPoolPtr<C>>(_includedCPools[idx])->get(entity));
 	} else {
-		return std::tie(dynamic_cast<CPoolPtr<C>>(_includedCPools[idx])->get(entity));
+		return std::tie(
+			dynamic_cast<CPoolPtr<C>>(
+				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool<E>*>>(
+					_includedCPools[idx]
+				)
+			)
+				->get(entity)
+		);
 	}
 }
 
@@ -110,15 +118,10 @@ VIEW_ECIE::View(DomainT* domain) noexcept:
 	_minIdx{ _minInclude() },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(
-		_includedCPools[_minIdx]->_entitiesForView(),
+		_minIdx == (size_t)-1 ? _details::CommonComponentPool<E>::_emptyEntitiesForView() :
+								_includedCPools[_minIdx]->_entitiesForView(),
 		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
 	) {}
-
-// TEMPLATE_ECIE bool VIEW_ECIE::_filterFn(const Domain<E>& domain, const E entity) noexcept {
-//	// PRZEROBIC
-//	return (domain.template hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
-//		!(domain.template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);
-// }
 
 TEMPLATE_ECE
 VIEW_ECE::View(DomainT* domain) noexcept:
@@ -135,7 +138,6 @@ VIEW_ECE::View(DomainT* domain) noexcept:
 TEMPLATE_ECE
 bool VIEW_ECE::_containsNoCheck(const E entity) const noexcept {
 	return std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
-	/*return !(domain.template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);*/
 }
 
 TEMPLATE_ECIE bool VIEW_ECIE::contains(const EntityT entity) const noexcept {
@@ -150,14 +152,11 @@ TEMPLATE_ECIE bool VIEW_ECIE::contains(const EntityT entity) const noexcept {
 			   [entity](const auto cpool) { return cpool->contains(entity); }
 		) &&
 		std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
-	/*return (_domain->template hasComponent<std::remove_const_t<Includes>>(entity) && ...) &&
-		!(_domain->template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);*/
 }
 
 TEMPLATE_ECE
 bool VIEW_ECE::contains(const EntityT entity) const noexcept {
 	return _domain.alive(entity) && _containsNoCheck(entity);
-	/*return _domain.alive(entity) && !(_domain->template hasComponent<std::remove_const_t<Excludes>>(entity) || ...);*/
 }
 
 TEMPLATE_ECIE VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
