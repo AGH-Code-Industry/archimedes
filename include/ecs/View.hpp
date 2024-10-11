@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include "View.h"
 //
 #include "Domain.h"
