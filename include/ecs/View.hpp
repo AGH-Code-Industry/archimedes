@@ -75,7 +75,14 @@ auto VIEW_ECIE::getAsTuple(const E entity) noexcept requires(!Const)
 	constexpr auto idx = Include::template find<C>;
 
 	if constexpr (_details::ComponentTraits<C, E>::flag) {
-		return std::make_tuple(dynamic_cast<CPoolPtr<C>>(_includedCPools[idx])->get(entity));
+		return std::make_tuple(
+			dynamic_cast<CPoolPtr<C>>(
+				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool<E>*>>(
+					_includedCPools[idx]
+				)
+			)
+				->get(entity)
+		);
 	} else {
 		return std::tie(
 			dynamic_cast<CPoolPtr<C>>(
