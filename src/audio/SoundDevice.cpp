@@ -11,7 +11,7 @@ namespace arch::audio {
 
 SoundDevice::SoundDevice() {
 	alcDevice = alcOpenDevice(nullptr);
-	if(not alcDevice) {
+	if(!alcDevice) {
 		throw AudioException("Failed to open device");
 	}
 

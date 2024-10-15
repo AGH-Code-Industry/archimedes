@@ -1,7 +1,6 @@
 #pragma once
 #include <AL/al.h>
 
-
 namespace arch::audio {
 	class AudioListener {
 

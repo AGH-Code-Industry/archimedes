@@ -22,7 +22,7 @@ namespace arch::audio{
 		const std::size_t bufferElements = getBufferElements();
 		std::size_t sizeToCopy = bufferElements;
 
-		if(not _isLoaded) {
+		if(!_isLoaded) {
 			throw AudioException(_filePath + " - clip not loaded");
 		}
 
@@ -75,7 +75,7 @@ namespace arch::audio{
 	}
 
 	void Clip::unload(){
-		if(not _isLoaded) {
+		if(!_isLoaded) {
 			throw AudioException("Can't unload clip: " + _filePath + " - it's not loaded");
 		}
 		_soundData.clear();

@@ -97,5 +97,15 @@ namespace arch::audio {
 		///@param index Index of the AudioSource.
 		///@throws AudioException if the index is not valid.
 		void continueSource(int index);
+
+		void changePitch(int index, ALfloat pitch);
+
+		void changeGain(int index, ALfloat gain);
+
+		void changePosition(int index, ALfloat positionX, ALfloat positionY);
+
+		void changeVelocity(int index, ALfloat velocityX, ALfloat velocityY);
+
+		void changeIsLooped(int index);
 	};
 }

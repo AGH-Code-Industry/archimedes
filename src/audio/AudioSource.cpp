@@ -79,7 +79,7 @@ namespace arch::audio{
 		ALenum alState;
 		alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 		_updateSoundAttributes();
-		if(isLooped or not _isEndFound) {
+		if(isLooped || !_isEndFound) {
 			_isEndFound = _loadSound();
 		}
 		if(alState != AL_PLAYING) {

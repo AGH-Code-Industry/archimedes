@@ -28,7 +28,7 @@ namespace arch::audio{
 		if(entryFound == _groups.end()){
 			throw AudioException("Can't find sound bank group with id " + std::to_string(group));
 		}
-		if(not _isLoaded[group]){
+		if(!_isLoaded[group]){
 			throw AudioException("Can't unload sound bank group: " + std::to_string(group) + " - it's not loaded");
 		}
 
@@ -60,7 +60,7 @@ namespace arch::audio{
 
 	void SoundBank::loadAllUnloadedGroups() {
 		for(auto& group : std::views::keys(_groups)){
-			if(not _isLoaded[group]) {
+			if(!_isLoaded[group]) {
 				loadGroup(group);
 			}
 		}

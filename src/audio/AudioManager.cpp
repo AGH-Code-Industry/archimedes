@@ -56,6 +56,16 @@ void AudioManager::play() {
 			_mutex.unlock();
 		}
 	}
+
+	while(true) {
+		_mutex.lock();
+		int size = _audioSources.size();
+		_mutex.unlock();
+		if (size == 0) {
+			break;
+		}
+		removeSource(0);
+	}
 	Logger::info("Audio system: audio manager stopped playing");
 }
 
@@ -124,6 +134,60 @@ void AudioManager::_updateSource(int index) {
 	_audioSources[index].update();
 	_mutex.unlock();
 }
+
+void AudioManager::changePitch(int index, ALfloat pitch) {
+	_mutex.lock();
+	if(index < 0 || index >= _audioSources.size()) {
+		throw AudioException("Audio system: invalid index");
+	}
+	if(pitch < 0.0f) {
+		throw AudioException("Audio system: pitch should be positive");
+	}
+	_audioSources[index].pitch = pitch;
+	_mutex.unlock();
+}
+
+void AudioManager::changeGain(int index, ALfloat gain) {
+	_mutex.lock();
+	if(index < 0 || index >= _audioSources.size()) {
+		throw AudioException("Audio system: invalid index");
+	}
+	if(gain < 0.0f) {
+		throw AudioException("Audio system: gain should be positive");
+	}
+	_audioSources[index].gain = gain;
+	_mutex.unlock();
+}
+
+void AudioManager::changePosition(int index, ALfloat positionX, ALfloat positionY) {
+	_mutex.lock();
+	if(index < 0 || index >= _audioSources.size()) {
+		throw AudioException("Audio system: invalid index");
+	}
+	_audioSources[index].positionX = positionX;
+	_audioSources[index].positionY = positionY;
+	_mutex.unlock();
+}
+
+void AudioManager::changeVelocity(int index, ALfloat velocityX, ALfloat velocityY) {
+	_mutex.lock();
+	if(index < 0 || index >= _audioSources.size()) {
+		throw AudioException("Audio system: invalid index");
+	}
+	_audioSources[index].velocityX = velocityX;
+	_audioSources[index].velocityY = velocityY;
+	_mutex.unlock();
+}
+
+void AudioManager::changeIsLooped(int index) {
+	_mutex.lock();
+	if(index < 0 || index >= _audioSources.size()) {
+		throw AudioException("Audio system: invalid index");
+	}
+	_audioSources[index].isLooped = !_audioSources[index].isLooped;
+	_mutex.unlock();
+}
+
 
 } // namespace arch::audio
 
