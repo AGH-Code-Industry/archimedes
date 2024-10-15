@@ -19,16 +19,16 @@ int main() {
 		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
 	};
 
-	std::string cwd = "/home/anon/dev/archimedes/archimedes_bin/";
+	std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds";
 	arch::audio::SoundDevice device;
 	arch::audio::SoundBank soundBank;
-	soundBank.addClip(cwd + "rickroll.wav");
-	soundBank.addClip(cwd + "moonlight.mp3");
+	soundBank.addClip(sounds + "rickroll.wav");
+	soundBank.addClip(sounds + "moonlight.mp3");
 	soundBank.loadInitialGroups();
 
 	arch::audio::AudioManager audioManager(&soundBank);
-	audioManager.addSource(cwd + "moonlight.mp3");
-	audioManager.addSource(cwd + "rickroll.wav");
+	audioManager.addSource(sounds + "moonlight.mp3");
+	audioManager.addSource(sounds + "rickroll.wav");
 
 	//arch::audio::AudioSource source(soundBank, cwd + "rickroll.wav");
 	//std::thread audioThread(&arch::audio::AudioSource::play, &source);
