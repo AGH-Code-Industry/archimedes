@@ -5,6 +5,7 @@
 #include <audio/AudioManager.h>
 #include <thread>
 #include <unistd.h>
+#include <iostream>
 
 
 struct MyApp : arch::Application {
@@ -24,24 +25,31 @@ int main() {
 	arch::audio::SoundDevice device;
 	arch::audio::SoundBank soundBank;
 	soundBank.addClip(sounds + "wind.mp3");
+	soundBank.addClip(sounds + "rickroll.wav");
 	soundBank.loadInitialGroups();
 
 	arch::audio::AudioManager audioManager(&soundBank);
-	audioManager.addSource(sounds + "wind.mp3");
+	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
+	audioManager.addSource(sounds + "rickroll.wav", 1.0f, 0.1f);
 
-	//arch::audio::AudioSource source(soundBank, cwd + "rickroll.wav");
-	//std::thread audioThread(&arch::audio::AudioSource::play, &source);
 	std::thread audioThread(&arch::audio::AudioManager::play, &audioManager);
 
 	int gainModifier = 0;
 	for(int i=0; i < 5; i++) {
-		gainModifier += 4;
-		ALfloat pitch = gainModifier / 10.0f;
-		audioManager.changePitch(0, pitch);
-		arch::Logger::debug("pitch: {}", pitch);
-		sleep(5);
+		sleep(3);
+		gainModifier += 2;
+		ALfloat gain = gainModifier / 10.0f;
+		arch::audio::AudioSource* windSource = &audioManager.audioSources[1];
+		arch::audio::AudioSource* rickrollSource = &audioManager.audioSources[1];
+		std::mutex* mutex = &audioManager.mutex;
+		windSource->changeGain(1.0f - gain, mutex);
+		rickrollSource->changeGain(gain, mutex);
 	}
-	audioManager.isListening = false;
+
+    audioManager.isListening = false;
+	sleep(2);
+
+
 
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//

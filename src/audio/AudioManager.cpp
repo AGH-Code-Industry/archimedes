@@ -13,28 +13,29 @@ AudioManager::~AudioManager() {
 }
 
 SourceState AudioManager::_getState(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	SourceState state = _audioSources[index].getState();
-	_mutex.unlock();
+	SourceState state = audioSources[index].getState();
+	mutex.unlock();
 	return state;
 }
 
 bool AudioManager::_vectorEndReached() {
-	_mutex.lock();
-	bool endReached = _currentIndex >= _audioSources.size();
-	_mutex.unlock();
+	mutex.lock();
+	bool endReached = _currentIndex >= audioSources.size();
+	mutex.unlock();
 	return endReached;
 }
 
 void AudioManager::play() {
 	Logger::info("Audio system: audio manager started playing");
 	while (isListening) {
-		_mutex.lock();
+		_updateListener();
+		mutex.lock();
 		_currentIndex = 0;
-		_mutex.unlock();
+		mutex.unlock();
 		while (true) {
 			if(_vectorEndReached()) {
 				break;
@@ -51,16 +52,16 @@ void AudioManager::play() {
 				case SourceState::paused:
 					continue;
 			}
-			_mutex.lock();
+			mutex.lock();
 			_currentIndex++;
-			_mutex.unlock();
+			mutex.unlock();
 		}
 	}
 
 	while(true) {
-		_mutex.lock();
-		int size = _audioSources.size();
-		_mutex.unlock();
+		mutex.lock();
+		int size = audioSources.size();
+		mutex.unlock();
 		if (size == 0) {
 			break;
 		}
@@ -72,122 +73,74 @@ void AudioManager::play() {
 void AudioManager::addSource(const std::string& path,float pitch,float gain,float positionX,
 							float positionY,float velocityX,float velocityY,bool isLooped
 ) {
-	_mutex.lock();
-	if(_audioSources.size() == maxSources) {
+	mutex.lock();
+	if(audioSources.size() == maxSources) {
 		throw AudioException("Too many audio sources");
 	}
-	_audioSources.emplace_back(_soundBank, path, pitch, gain, positionX, positionY, velocityX, velocityY, isLooped);
-	int index = _audioSources.size() - 1;
-	_audioSources[index].activate();
+	audioSources.emplace_back(_soundBank, path, pitch, gain, positionX, positionY, velocityX, velocityY, isLooped);
+	int index = audioSources.size() - 1;
+	audioSources[index].activate();
 	Logger::info("Audio system: added AudioSource with path {} and index {}", path, std::to_string(index));
-	_mutex.unlock();
+	mutex.unlock();
 }
 
 void AudioManager::removeSource(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	_audioSources[index].deactivate();
-	_audioSources.erase(_audioSources.begin() + index);
+	audioSources[index].deactivate();
+	audioSources.erase(audioSources.begin() + index);
 	if (index < _currentIndex) {
 		_currentIndex--;
 	}
-	_mutex.unlock();
+	mutex.unlock();
 	Logger::info("Audio system: removed AudioSource with index {}", std::to_string(index));
 }
 
 void AudioManager::pauseSource(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	_audioSources[index].pausePlaying();
-	_mutex.unlock();
+	audioSources[index].pausePlaying();
+	mutex.unlock();
 	Logger::info("Audio system: paused AudioSource with index {}", std::to_string(index));
 }
 
 void AudioManager::continueSource(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	_audioSources[index].continuePlaying();
-	_mutex.unlock();
+	audioSources[index].continuePlaying();
+	mutex.unlock();
 	Logger::info("Audio system: continued AudioSource with index {}", std::to_string(index));
 }
 
 void AudioManager::_playSource(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	_audioSources[index].play();
-	_mutex.unlock();
+	audioSources[index].play();
+	mutex.unlock();
 }
 
 void AudioManager::_updateSource(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
+	mutex.lock();
+	if(index < 0 || index >= audioSources.size()) {
+		throw AudioException("Invalid index");
 	}
-	_audioSources[index].update();
-	_mutex.unlock();
+	audioSources[index].update();
+	mutex.unlock();
 }
 
-void AudioManager::changePitch(int index, ALfloat pitch) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
-	}
-	if(pitch < 0.0f) {
-		throw AudioException("Audio system: pitch should be positive");
-	}
-	_audioSources[index].pitch = pitch;
-	_mutex.unlock();
+void AudioManager::_updateListener() {
+	mutex.lock();
+	_listener.update();
+	mutex.unlock();
 }
-
-void AudioManager::changeGain(int index, ALfloat gain) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
-	}
-	if(gain < 0.0f) {
-		throw AudioException("Audio system: gain should be positive");
-	}
-	_audioSources[index].gain = gain;
-	_mutex.unlock();
-}
-
-void AudioManager::changePosition(int index, ALfloat positionX, ALfloat positionY) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
-	}
-	_audioSources[index].positionX = positionX;
-	_audioSources[index].positionY = positionY;
-	_mutex.unlock();
-}
-
-void AudioManager::changeVelocity(int index, ALfloat velocityX, ALfloat velocityY) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
-	}
-	_audioSources[index].velocityX = velocityX;
-	_audioSources[index].velocityY = velocityY;
-	_mutex.unlock();
-}
-
-void AudioManager::changeIsLooped(int index) {
-	_mutex.lock();
-	if(index < 0 || index >= _audioSources.size()) {
-		throw AudioException("Audio system: invalid index");
-	}
-	_audioSources[index].isLooped = !_audioSources[index].isLooped;
-	_mutex.unlock();
-}
-
 
 } // namespace arch::audio
 

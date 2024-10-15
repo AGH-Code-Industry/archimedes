@@ -1,20 +1,17 @@
 #pragma once
+#include <mutex>
+#include <vector>
+
+#include "AudioListener.h"
 #include <audio/AudioSource.h>
 #include <audio/SoundBank.h>
-#include <vector>
-#include <mutex>
-
 
 namespace arch::audio {
 
 	/// @brief Stores all AudioSources on the scene and synchronizes their work.
 	class AudioManager {
 
-		///@brief All AudioSources on the scene.
-		std::vector<AudioSource> _audioSources;
-
-		///@brief Mutex to ensure that only current data will be sent to OpenAL.
-		std::mutex _mutex;
+		AudioListener _listener;
 
 		///@brief Index of currently watched AudioSource.
 		int _currentIndex = 0;
@@ -45,7 +42,15 @@ namespace arch::audio {
 		///@return True if the end was reached, false otherwise.
 		bool _vectorEndReached();
 
+		void _updateListener();
+
 		public:
+
+		///@brief Mutex to ensure that only current data will be sent to OpenAL.
+		std::mutex mutex;
+
+		///@brief All AudioSources on the scene.
+		std::vector<AudioSource> audioSources;
 
 		///@brief Max number of stored AudioSources.
 		const int maxSources = 16;
@@ -97,15 +102,5 @@ namespace arch::audio {
 		///@param index Index of the AudioSource.
 		///@throws AudioException if the index is not valid.
 		void continueSource(int index);
-
-		void changePitch(int index, ALfloat pitch);
-
-		void changeGain(int index, ALfloat gain);
-
-		void changePosition(int index, ALfloat positionX, ALfloat positionY);
-
-		void changeVelocity(int index, ALfloat velocityX, ALfloat velocityY);
-
-		void changeIsLooped(int index);
 	};
 }
