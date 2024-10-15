@@ -100,11 +100,11 @@ POOL_E::EntityT POOL_E::newEntity() noexcept {
 TEMPLATE_E
 POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
 	if (!contains(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
-		auto& wantedSparse = _sparseGet(entity);
+		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[_size++];
 
-		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(toSwapDense));
+		// std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
+		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
 
 		toSwapDense = Traits::Entity::fromOthers(toSwapDense, entity);
 		wantedSparse = Traits::Entity::fromOthers(wantedSparse, toSwapDense);
@@ -121,7 +121,7 @@ POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
 		auto& toSwapDense = _dense[_size++];
 
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(toSwapDense));
+		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
 
 		wantedSparse = Traits::Entity::fromOthers(wantedSparse, toSwapDense);
 
@@ -136,8 +136,9 @@ void POOL_E::kill(const EntityT entity) noexcept {
 		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[--_size];
 
+		const auto temp = toSwapDense;
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
+		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(temp)));
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
@@ -150,8 +151,9 @@ void POOL_E::kill(const IdT id) noexcept {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[--_size];
 
+		const auto temp = toSwapDense;
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(toSwapDense));
+		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(temp)));
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);

@@ -66,6 +66,9 @@ protected:
 	DenseContainer _dense;
 };
 
+extern template class SparseSet<e32>;
+extern template class SparseSet<e64>;
+
 } // namespace arch::ecs::_details
 
 #include "SparseSet.hpp"

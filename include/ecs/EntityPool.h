@@ -141,6 +141,9 @@ private:
 	size_t _size = 0;
 };
 
+extern template class EntityPool<e32>;
+extern template class EntityPool<e64>;
+
 } // namespace arch::ecs
 
 #include "EntityPool.hpp"

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bit>
 #include <limits>
 
 #include "EntitySpecs.h"
@@ -133,6 +134,10 @@ struct EntityTraits {
 	};
 };
 
+extern template class EntityTraits<e32>;
+extern template class EntityTraits<e64>;
+
 } // namespace arch::ecs::_details
 
 #include "EntityTraits.hpp"
+

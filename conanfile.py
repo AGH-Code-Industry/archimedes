@@ -14,6 +14,7 @@ class Archimedes(ConanFile):
         self.requires("gtest/1.13.0")
         self.requires("stb/cci.20230920", override=True)
         self.requires("draco/1.5.6", override=True)
+        self.requires("entt/3.13.2")
 
         # Vulkan SDK
         self.requires("volk/1.3.268.0")

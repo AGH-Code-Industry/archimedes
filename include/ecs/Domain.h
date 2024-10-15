@@ -41,6 +41,8 @@ public:
 	using ConstGetReference = std::
 		conditional_t<_details::ComponentTraits<std::remove_const_t<C>, E>::flag, bool, const std::remove_const_t<C>&>;
 
+	static inline constexpr EntityT null = Traits::Entity::null;
+
 	/// @brief Default constructor
 	Domain() noexcept = default;
 	/// @brief Destructor
@@ -106,6 +108,13 @@ public:
 	/// @return Reference to new entity or old one
 	template<class C, class... Args>
 	GetReference<std::remove_const_t<C>> addComponent(const EntityT entity, Args&&... args) noexcept;
+	/// @brief Adds component to entity or returns existing one
+	/// @tparam C - component type
+	/// @param entity - entity to add component to
+	/// @param ...args - arguments to constructor
+	/// @return Reference to new entity or old one
+	template<class C>
+	GetReference<std::remove_const_t<C>> addComponent(const EntityT entity, C&& component) noexcept;
 	/// @brief Obtains reference to existing component of given entity
 	/// @details If entity does not contain component, behavior is undefined
 	/// @tparam C - component type
@@ -221,6 +230,9 @@ private:
 	// mapped destroying functions
 	std::unordered_map<TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
 };
+
+extern template class Domain<e32>;
+extern template class Domain<e64>;
 
 } // namespace arch::ecs
 
