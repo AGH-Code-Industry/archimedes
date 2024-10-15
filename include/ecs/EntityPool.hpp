@@ -11,60 +11,6 @@
 
 namespace arch::ecs {
 
-TEMPLATE_E
-typename POOL_E::EntityT* POOL_E::_tryInitPage(const size_t n) noexcept {
-	// virtually equal to _sparse.resize(n + 1), but resize() makes capacity == n + 1 (bad);
-	while (_sparse.size() != n + 1) {
-		_sparse.emplace_back();
-	}
-
-	auto& page = _sparse[n];
-	if (page == nullptr) {
-		page = std::make_unique<std::array<EntityT, Traits::pageSize>>();
-		page->fill(null);
-	}
-
-	return page->data();
-}
-
-TEMPLATE_E
-typename POOL_E::EntityT& POOL_E::_sparseAssure(const EntityT entity) noexcept {
-	return _sparseAssure(Traits::Id::part(entity));
-}
-
-TEMPLATE_E
-typename POOL_E::EntityT& POOL_E::_sparseAssure(const IdT id) noexcept {
-	return _tryInitPage(id / Traits::pageSize)[id % Traits::pageSize];
-}
-
-TEMPLATE_E
-typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) noexcept {
-	return _sparseGet(Traits::Id::part(entity));
-}
-
-TEMPLATE_E
-const typename POOL_E::EntityT& POOL_E::_sparseGet(const EntityT entity) const noexcept {
-	return _sparseGet(Traits::Id::part(entity));
-}
-
-TEMPLATE_E
-typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) noexcept {
-	ARCH_ASSERT(
-		id / Traits::pageSize < _sparse.size() && _sparse[id / Traits::pageSize] != nullptr,
-		"Page for given id does not exist"
-	);
-	return (*_sparse[id / Traits::pageSize])[id % Traits::pageSize];
-}
-
-TEMPLATE_E
-const typename POOL_E::EntityT& POOL_E::_sparseGet(const IdT id) const noexcept {
-	ARCH_ASSERT(
-		id / Traits::pageSize < _sparse.size() && _sparse[id / Traits::pageSize] != nullptr,
-		"Page for given id does not exist"
-	);
-	return (*_sparse[id / Traits::pageSize])[id % Traits::pageSize];
-}
-
 TEMPLATE_E POOL_E::Iterator POOL_E::begin() noexcept {
 	return _dense.begin();
 }
@@ -140,12 +86,12 @@ POOL_E::EntityT POOL_E::newEntity() noexcept {
 		const auto entity = Traits::Entity::fromParts(_size++, 0);
 
 		_dense.push_back(entity);
-		_sparseAssure(entity) = entity;
+		_sparseAssure(Traits::Id::part(entity)) = entity;
 
 		return entity;
 	} else { // recycle
 		const auto entity = _dense[_size++];
-		_sparseGet(entity) = entity;
+		_sparseGet(Traits::Id::part(entity)) = entity;
 
 		return entity;
 	}
@@ -186,12 +132,12 @@ POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
 
 TEMPLATE_E
 void POOL_E::kill(const EntityT entity) noexcept {
-	if (alive(entity)) {
-		auto& wantedSparse = _sparseGet(entity);
+	if (contains(entity)) {
+		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[--_size];
 
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(toSwapDense));
+		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
@@ -227,24 +173,6 @@ void POOL_E::kill(std::initializer_list<EntityT> entities) noexcept {
 TEMPLATE_E
 void POOL_E::kill(std::initializer_list<IdT> ids) noexcept {
 	return kill(ids.begin(), ids.end());
-}
-
-TEMPLATE_E
-bool POOL_E::contains(const IdT id) const noexcept {
-	const size_t _id = id;
-	const size_t pageNum = _id / Traits::pageSize;
-
-	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-		!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]);
-}
-
-TEMPLATE_E
-bool POOL_E::alive(const EntityT entity) const noexcept {
-	const size_t id = Traits::Id::part(entity);
-	const size_t pageNum = id / Traits::pageSize;
-
-	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-		Traits::Version::equal((*_sparse[pageNum])[id % Traits::pageSize], entity);
 }
 
 TEMPLATE_E
@@ -285,16 +213,6 @@ POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
 			!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]) ?
 		begin() + Traits::Version::rawPart((*_sparse[pageNum])[_id % Traits::pageSize]) :
 		end();
-}
-
-TEMPLATE_E
-POOL_E::VersionT POOL_E::version(const EntityT entity) const noexcept {
-	return version(Traits::Id::part(entity));
-}
-
-TEMPLATE_E
-POOL_E::VersionT POOL_E::version(const IdT id) const noexcept {
-	return Traits::Version::part(contains(id) ? _sparseGet(id) : null);
 }
 
 TEMPLATE_E

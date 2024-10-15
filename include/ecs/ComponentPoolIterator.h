@@ -14,7 +14,7 @@ class ComponentPool;
 namespace arch::ecs::_details {
 
 /// @brief Iterator for ComponentPool
-/// @details Satisfies std::bidirectional_iterator
+/// @details Models std::bidirectional_iterator
 /// @tparam C - component type
 /// @tparam E - entity type
 template<class C, class E>

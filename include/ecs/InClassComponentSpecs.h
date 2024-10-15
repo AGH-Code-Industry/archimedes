@@ -5,42 +5,42 @@
 
 namespace arch::ecs::_details { // NOLINT
 
-/// @brief Concept satisfied by types flaged as 'InPlaceComponent' in their definition
+/// @brief Concept modeled by types flaged as 'InPlaceComponent' in their definition
 template<class C>
 concept PascalCaseInClassInPlaceComponent = requires { typename C::InPlaceComponent; } || C::InPlaceComponent;
 
-/// @brief Concept satisfied by types flaged as 'inPlaceComponent' in their definition
+/// @brief Concept modeled by types flaged as 'inPlaceComponent' in their definition
 template<class C>
 concept CamelCaseInClassInPlaceComponent = requires { typename C::inPlaceComponent; } || C::inPlaceComponent;
 
-/// @brief Concept satisfied by types flaged as 'in_place_component' in their definition
+/// @brief Concept modeled by types flaged as 'in_place_component' in their definition
 template<class C>
 concept SnakeCaseInClassInPlaceComponent = requires { typename C::in_place_component; } || C::in_place_component;
 
-/// @brief Concept satisfied by types flaged as 'in place component' in their definition
+/// @brief Concept modeled by types flaged as 'in place component' in their definition
 template<class C>
 concept AnyInClassInPlaceComponent =
 	PascalCaseInClassInPlaceComponent<C> || CamelCaseInClassInPlaceComponent<C> || SnakeCaseInClassInPlaceComponent<C>;
 
-/// @brief Concept satisfied by types that specify 'ComponentPageSize' in their definition
+/// @brief Concept modeled by types that specify 'ComponentPageSize' in their definition
 template<class C>
 concept PascalCaseInClassComponentPageSize = requires {
 	{ C::ComponentPageSize } -> std::convertible_to<size_t>;
 };
 
-/// @brief Concept satisfied by types that specify 'componentPageSize' in their definition
+/// @brief Concept modeled by types that specify 'componentPageSize' in their definition
 template<class C>
 concept CamelCaseInClassComponentPageSize = requires {
 	{ C::componentPageSize } -> std::convertible_to<size_t>;
 };
 
-/// @brief Concept satisfied by types that specify 'component_page_size' in their definition
+/// @brief Concept modeled by types that specify 'component_page_size' in their definition
 template<class C>
 concept SnakeCaseInClassComponentPageSize = requires {
 	{ C::component_page_size } -> std::convertible_to<size_t>;
 };
 
-/// @brief Concept satisfied by types that specify 'component page size' in their definition
+/// @brief Concept modeled by types that specify 'component page size' in their definition
 template<class C>
 concept AnyInClassComponentPageSize = PascalCaseInClassComponentPageSize<C> || CamelCaseInClassComponentPageSize<C> ||
 	SnakeCaseInClassComponentPageSize<C>;
