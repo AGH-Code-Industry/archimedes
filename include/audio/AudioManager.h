@@ -2,7 +2,7 @@
 #include <mutex>
 #include <vector>
 
-#include "AudioListener.h"
+#include <audio/AudioListener.h>
 #include <audio/AudioSource.h>
 #include <audio/SoundBank.h>
 

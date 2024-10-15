@@ -1,6 +1,5 @@
 #pragma once
 #include <mutex>
-
 #include <AL/al.h>
 
 namespace arch::audio {

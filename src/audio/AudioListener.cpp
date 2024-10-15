@@ -37,8 +37,4 @@ void AudioListener::_changeVelocity(ALfloat velocityX, ALfloat velocityY, std::m
 	_velocityY = velocityY;
 	mutex->unlock();
 }
-
-
-
-
 }
