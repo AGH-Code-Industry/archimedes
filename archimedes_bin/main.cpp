@@ -4,8 +4,6 @@
 #include <audio/AudioSource.h>
 #include <audio/AudioManager.h>
 #include <thread>
-#include <unistd.h>
-#include <iostream>
 
 
 struct MyApp : arch::Application {
@@ -32,11 +30,11 @@ int main() {
 	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
 	audioManager.addSource(sounds + "rickroll.wav", 1.0f, 0.1f);
 
-	std::thread audioThread(&arch::audio::AudioManager::play, &audioManager);
+	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
 
 	int gainModifier = 0;
 	for(int i=0; i < 5; i++) {
-		sleep(3);
+		std::this_thread::sleep_for(std::chrono::seconds(3));
 		gainModifier += 2;
 		ALfloat gain = gainModifier / 10.0f;
 		arch::audio::AudioSource* windSource = &audioManager.audioSources[1];
@@ -47,6 +45,7 @@ int main() {
 	}
 
     audioManager.isListening = false;
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	sleep(2);
 
 
