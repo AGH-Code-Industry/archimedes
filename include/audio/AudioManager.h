@@ -11,8 +11,6 @@ namespace arch::audio {
 	/// @brief Stores all AudioSources on the scene and synchronizes their work.
 	class AudioManager {
 
-		AudioListener _listener;
-
 		///@brief Index of currently watched AudioSource.
 		int _currentIndex = 0;
 
@@ -51,6 +49,8 @@ namespace arch::audio {
 
 		///@brief All AudioSources on the scene.
 		std::vector<AudioSource> audioSources;
+
+		AudioListener listener;
 
 		///@brief Max number of stored AudioSources.
 		const int maxSources = 16;

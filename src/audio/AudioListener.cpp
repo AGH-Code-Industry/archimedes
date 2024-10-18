@@ -15,7 +15,7 @@ void AudioListener::update() {
 	alCall(alListener3f, AL_VELOCITY, _velocityX, _velocityY, 0);
 }
 
-void AudioListener::_changeMasterGain(ALfloat masterGain, std::mutex* mutex) {
+void AudioListener::changeMasterGain(ALfloat masterGain, std::mutex* mutex) {
 	mutex->lock();
 	if(masterGain < 0.0f) {
 		throw AudioException("Master gain shouldn't be negative");
@@ -24,14 +24,14 @@ void AudioListener::_changeMasterGain(ALfloat masterGain, std::mutex* mutex) {
 	mutex->unlock();
 }
 
-void AudioListener::_changePosition(ALfloat positionX, ALfloat positionY, std::mutex* mutex) {
+void AudioListener::changePosition(ALfloat positionX, ALfloat positionY, std::mutex* mutex) {
 	mutex->lock();
 	_positionX = positionX;
 	_positionY = positionY;
 	mutex->unlock();
 }
 
-void AudioListener::_changeVelocity(ALfloat velocityX, ALfloat velocityY, std::mutex* mutex) {
+void AudioListener::changeVelocity(ALfloat velocityX, ALfloat velocityY, std::mutex* mutex) {
 	mutex->lock();
 	_velocityX = velocityX;
 	_velocityY = velocityY;

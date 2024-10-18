@@ -138,7 +138,7 @@ void AudioManager::_updateSource(int index) {
 
 void AudioManager::_updateListener() {
 	mutex.lock();
-	_listener.update();
+	listener.update();
 	mutex.unlock();
 }
 

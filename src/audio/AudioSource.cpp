@@ -99,6 +99,7 @@ namespace arch::audio{
 		if(_state != SourceState::playing) {
 			throw AudioException("Can't pause AudioSource: it's not playing");
 		}
+		_state = SourceState::paused;
 		alCall(alSourcePause, _source);
 	}
 
@@ -106,6 +107,7 @@ namespace arch::audio{
 		if(_state != SourceState::paused) {
 			throw AudioException("Can't continue AudioSource: it's not paused");
 		}
+		_state = SourceState::playing;
 		alCall(alSourcePlay, _source);
 	}
 

@@ -4,7 +4,9 @@
 #include <audio/AudioSource.h>
 #include <audio/AudioManager.h>
 #include <thread>
+#include <cmath>
 
+const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
 
 struct MyApp : arch::Application {
 	void init() override {
@@ -12,26 +14,11 @@ struct MyApp : arch::Application {
 	}
 };
 
-int main() {
-	arch::Logger::init(arch::LogLevel::trace);
-
-	arch::EngineConfig config {
-		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
-	};
-
-	std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
-	arch::audio::SoundDevice device;
-	arch::audio::SoundBank soundBank;
-	soundBank.addClip(sounds + "wind.mp3");
-	soundBank.addClip(sounds + "rickroll.wav");
-	soundBank.loadInitialGroups();
-
-	arch::audio::AudioManager audioManager(&soundBank);
+void testGainChange(arch::audio::AudioManager& audioManager) {
 	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
 	audioManager.addSource(sounds + "rickroll.wav", 1.0f, 0.1f);
 
 	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
-
 	int gainModifier = 0;
 	for(int i=0; i < 5; i++) {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -44,9 +31,51 @@ int main() {
 		rickrollSource->changeGain(gain, mutex);
 	}
 
-    audioManager.isListening = false;
+	audioManager.isListening = false;
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	sleep(2);
+}
+
+void testDistanceChange(arch::audio::AudioManager& audioManager) {
+	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
+	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
+	float radius = 1.0f;
+	std::mutex* mutex = &audioManager.mutex;
+	audioManager.listener.changePosition(0.0f, 0.0f, mutex);
+	arch::audio::AudioSource* windSource = &audioManager.audioSources[0];
+	windSource->changePosition(1.0f, 0.0f, mutex);
+	int steps = 30;
+	for(int i=0; i < steps; i++) {
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		windSource->changePosition(radius * std::cos(i * 6.28 / steps), radius * std::sin(i * 6.28 / steps), mutex);
+		if(i == 10) {
+			windSource->pausePlaying();
+		}
+		else if(i == 20) {
+			windSource->continuePlaying();
+		}
+	}
+	audioManager.isListening = false;
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	sleep(2);
+}
+
+int main() {
+	arch::Logger::init(arch::LogLevel::trace);
+
+	arch::EngineConfig config {
+		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
+	};
+
+	arch::audio::SoundDevice device;
+	arch::audio::SoundBank soundBank;
+	soundBank.addClip(sounds + "wind.mp3");
+	soundBank.addClip(sounds + "rickroll.wav");
+	soundBank.loadInitialGroups();
+
+	arch::audio::AudioManager audioManager(&soundBank);
+
+	testDistanceChange(audioManager);
 
 
 
