@@ -1,6 +1,4 @@
 #pragma once
-#include <array>
-#include <memory>
 
 #include <AL/al.h>
 #include <audio/Clip.h>
@@ -99,11 +97,11 @@ namespace arch::audio{
 			isLooped(isLooped) {}
 
 		///@brief Initialize OpenAL buffers and the source, initially load the sound.
-		///Should be always used before playing.
+		///@warning Should be always used before playing.
 		void activate();
 
 		///@brief Clear OpenAL buffers and the source.
-		///Should be used when the AudioSource is destroyed.
+		///@warning Should be used when the AudioSource is destroyed.
 		void deactivate();
 
 		///@brief Getter for the _state property.
@@ -115,7 +113,7 @@ namespace arch::audio{
 		void play();
 
 		///@brief Sends all sound data to the OpenAL context.
-		///Should be called each audio frame.
+		///@warning Should be called each audio frame.
 		///@throws AudioException if the AudioSource is not playing.
 		void update();
 

@@ -17,6 +17,8 @@ namespace arch::audio {
 		///@brief All AudioSources on the scene.
 		std::vector<AudioSource> _audioSources;
 
+		///@brief AudioListener object used for calculating relative distance and velocity.
+		///Also controls loudness of all played sounds.
 		AudioListener _listener;
 
 		///@brief Index of currently watched AudioSource.
@@ -48,10 +50,15 @@ namespace arch::audio {
 		///@return True if the end was reached, false otherwise.
 		bool _vectorEndReached();
 
+		///@brief Send current parameters of the AudioListener to OpenAL.
 		void _updateListener();
 
 		public:
 
+		///@brief AudioMixer object used for applying effects to played sounds.
+		///All modifications of the AudioSources and the Listener should be applied using the Mixer.
+		///It's because modifying their parameters is a critical section and is prone to data races.
+		///It is initialized by the AudioManager's constructor.
 		AudioMixer mixer;
 
 		///@brief Max number of stored AudioSources.

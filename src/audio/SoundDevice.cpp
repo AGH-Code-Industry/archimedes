@@ -4,8 +4,6 @@
 #include <audio/AudioException.h>
 #include <audio/SoundDevice.h>
 
-#include <iostream>
-
 namespace arch::audio {
 
 
