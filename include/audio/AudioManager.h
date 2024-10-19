@@ -5,11 +5,19 @@
 #include <audio/AudioListener.h>
 #include <audio/AudioSource.h>
 #include <audio/SoundBank.h>
+#include <audio/AudioMixer.h>
 
 namespace arch::audio {
 
 	/// @brief Stores all AudioSources on the scene and synchronizes their work.
 	class AudioManager {
+		///@brief Mutex to ensure that only current data will be sent to OpenAL.
+		std::mutex _mutex;
+
+		///@brief All AudioSources on the scene.
+		std::vector<AudioSource> _audioSources;
+
+		AudioListener _listener;
 
 		///@brief Index of currently watched AudioSource.
 		int _currentIndex = 0;
@@ -44,13 +52,7 @@ namespace arch::audio {
 
 		public:
 
-		///@brief Mutex to ensure that only current data will be sent to OpenAL.
-		std::mutex mutex;
-
-		///@brief All AudioSources on the scene.
-		std::vector<AudioSource> audioSources;
-
-		AudioListener listener;
+		AudioMixer mixer;
 
 		///@brief Max number of stored AudioSources.
 		const int maxSources = 16;

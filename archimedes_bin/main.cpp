@@ -24,11 +24,8 @@ void testGainChange(arch::audio::AudioManager& audioManager) {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		gainModifier += 2;
 		ALfloat gain = gainModifier / 10.0f;
-		arch::audio::AudioSource* windSource = &audioManager.audioSources[1];
-		arch::audio::AudioSource* rickrollSource = &audioManager.audioSources[1];
-		std::mutex* mutex = &audioManager.mutex;
-		windSource->changeGain(1.0f - gain, mutex);
-		rickrollSource->changeGain(gain, mutex);
+		audioManager.mixer.changeSourceGain(0, 1.0f - gain);
+		audioManager.mixer.changeSourceGain(1, gain);
 	}
 
 	audioManager.isListening = false;
@@ -40,19 +37,18 @@ void testDistanceChange(arch::audio::AudioManager& audioManager) {
 	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
 	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
 	float radius = 1.0f;
-	std::mutex* mutex = &audioManager.mutex;
-	audioManager.listener.changePosition(0.0f, 0.0f, mutex);
-	arch::audio::AudioSource* windSource = &audioManager.audioSources[0];
-	windSource->changePosition(1.0f, 0.0f, mutex);
+	audioManager.mixer.changeSourcePosition(0, 1.0f, 0.0f);
 	int steps = 30;
 	for(int i=0; i < steps; i++) {
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		windSource->changePosition(radius * std::cos(i * 6.28 / steps), radius * std::sin(i * 6.28 / steps), mutex);
+		float x = radius * std::cos(i * 6.28 / steps);
+		float y = radius * std::sin(i * 6.28 / steps);
+		audioManager.mixer.changeSourcePosition(0, x, y);
 		if(i == 10) {
-			windSource->pausePlaying();
+			audioManager.pauseSource(0);
 		}
 		else if(i == 20) {
-			windSource->continuePlaying();
+			audioManager.continueSource(0);
 		}
 	}
 	audioManager.isListening = false;
@@ -76,8 +72,6 @@ int main() {
 	arch::audio::AudioManager audioManager(&soundBank);
 
 	testDistanceChange(audioManager);
-
-
 
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//

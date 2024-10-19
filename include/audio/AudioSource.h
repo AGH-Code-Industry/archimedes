@@ -48,23 +48,6 @@ namespace arch::audio{
 		/// @brief True if end of the sound file was reached
 		bool _isEndFound = false;
 
-		/// @brief Pitch modifier of the sound.
-		ALfloat _pitch;
-
-		/// @brief Gain modifier of the sound.
-		ALfloat _gain;
-
-		/// @brief Position of the AudioSource on the map.
-		/// Used for spatial effects.
-		ALfloat _positionX, _positionY;
-
-		/// @brief Velocity of the AudioSource on the map.
-		/// Used for calculating the Doppler Effect.
-		ALfloat _velocityX, _velocityY;
-
-		/// @brief Tells if the sound's playback has to be looped.
-		bool _isLooped;
-
 		/// @brief Pass all the sound's parameters to OpenAL.
 		void _updateSoundAttributes();
 
@@ -82,6 +65,23 @@ namespace arch::audio{
 
 		public:
 
+		/// @brief Pitch modifier of the sound.
+		ALfloat pitch;
+
+		/// @brief Gain modifier of the sound.
+		ALfloat gain;
+
+		/// @brief Position of the AudioSource on the map.
+		/// Used for spatial effects.
+		ALfloat positionX, positionY;
+
+		/// @brief Velocity of the AudioSource on the map.
+		/// Used for calculating the Doppler Effect.
+		ALfloat velocityX, velocityY;
+
+		/// @brief Tells if the sound's playback has to be looped.
+		bool isLooped;
+
 		/// @brief Constructor.
 		/// @param soundBank SoundBank responsible for loading audio data from files.
 		/// @param path Path of the sound file.
@@ -94,9 +94,9 @@ namespace arch::audio{
 		/// @param isLooped Tells if the sound's playback has to be looped.
 		AudioSource(SoundBank* soundBank, const std::string& path,float pitch = 1.0f,float gain = 1.0f,
 			float positionX = 0.0f,float positionY = 0.0f,float velocityX = 0.0f,float velocityY = 0.0f,
-			bool isLooped = false) : _soundBank(soundBank),_clipPath(path),_pitch(pitch),_gain(gain),
-			_positionX(positionX),_positionY(positionY),_velocityX(velocityX),_velocityY(velocityY),
-			_isLooped(isLooped) {}
+			bool isLooped = false) : _soundBank(soundBank),_clipPath(path),pitch(pitch),gain(gain),
+			positionX(positionX),positionY(positionY),velocityX(velocityX),velocityY(velocityY),
+			isLooped(isLooped) {}
 
 		///@brief Initialize OpenAL buffers and the source, initially load the sound.
 		///Should be always used before playing.
@@ -132,16 +132,6 @@ namespace arch::audio{
 		///@see pausePlaying
 		///@throws AudioException if the AudioSource is not paused.
 		void continuePlaying();
-
-		void changePitch(ALfloat pitch, std::mutex* mutex);
-
-		void changeGain(ALfloat gain, std::mutex* mutex);
-
-		void changePosition(ALfloat positionX, ALfloat positionY, std::mutex* mutex);
-
-		void changeVelocity(ALfloat velocityX, ALfloat velocityY, std::mutex* mutex);
-
-		void changeIsLooped(bool isLooped, std::mutex* mutex);
 	};
 
 }
