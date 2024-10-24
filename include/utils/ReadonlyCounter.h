@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace arch::utils {
 
 /// @brief Readonly counter of given type, derived class manages _counter field.
