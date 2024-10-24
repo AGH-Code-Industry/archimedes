@@ -1,84 +1,70 @@
 #pragma once
 
-#include "EntityPool.h"
 #include "utils/Assert.h"
+#include <ecs/EntityPool.h>
 
-#define TEMPLATE_E template<class E>
-#define POOL_E EntityPool<E>
+#define POOL EntityPool
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
 
 namespace arch::ecs {
 
-TEMPLATE_E POOL_E::Iterator POOL_E::begin() noexcept {
+POOL::Iterator POOL::begin() noexcept {
 	return _dense.begin();
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::begin() const noexcept {
+POOL::ConstIterator POOL::begin() const noexcept {
 	return _dense.begin();
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::cbegin() const noexcept {
+POOL::ConstIterator POOL::cbegin() const noexcept {
 	return _dense.cbegin();
 }
 
-TEMPLATE_E
-POOL_E::Iterator POOL_E::end() noexcept {
+POOL::Iterator POOL::end() noexcept {
 	return _dense.begin() + _size;
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::end() const noexcept {
+POOL::ConstIterator POOL::end() const noexcept {
 	return _dense.begin() + _size;
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::cend() const noexcept {
+POOL::ConstIterator POOL::cend() const noexcept {
 	return _dense.cbegin() + _size;
 }
 
-TEMPLATE_E
-POOL_E::ReverseIterator POOL_E::rbegin() noexcept {
+POOL::ReverseIterator POOL::rbegin() noexcept {
 	return std::make_reverse_iterator(end());
 }
 
-TEMPLATE_E
-POOL_E::ConstReverseIterator POOL_E::rbegin() const noexcept {
+POOL::ConstReverseIterator POOL::rbegin() const noexcept {
 	return std::make_reverse_iterator(end());
 }
 
-TEMPLATE_E
-POOL_E::ConstReverseIterator POOL_E::crbegin() const noexcept {
+POOL::ConstReverseIterator POOL::crbegin() const noexcept {
 	return std::make_reverse_iterator(cend());
 }
 
-TEMPLATE_E
-POOL_E::ReverseIterator POOL_E::rend() noexcept {
+POOL::ReverseIterator POOL::rend() noexcept {
 	return std::make_reverse_iterator(begin());
 }
 
-TEMPLATE_E
-POOL_E::ConstReverseIterator POOL_E::rend() const noexcept {
+POOL::ConstReverseIterator POOL::rend() const noexcept {
 	return std::make_reverse_iterator(begin());
 }
 
-TEMPLATE_E
-POOL_E::ConstReverseIterator POOL_E::crend() const noexcept {
+POOL::ConstReverseIterator POOL::crend() const noexcept {
 	return std::make_reverse_iterator(cbegin());
 }
 
-TEMPLATE_E
-void POOL_E::swap(POOL_E& other) noexcept {
+void POOL::swap(POOL& other) noexcept {
 	std::swap(_sparse, other._sparse);
 	std::swap(_dense, other._dense);
 	std::swap(_size, other._size);
 }
 
-TEMPLATE_E
-POOL_E::EntityT POOL_E::newEntity() noexcept {
+POOL::EntityT POOL::newEntity() noexcept {
 	if (_size == Traits::Id::max + 1) { // entity limit achieved
 		return null;
 	}
@@ -97,8 +83,7 @@ POOL_E::EntityT POOL_E::newEntity() noexcept {
 	}
 }
 
-TEMPLATE_E
-POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
+POOL::EntityT POOL::recycleEntity(const EntityT entity) noexcept {
 	if (!contains(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
 		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[_size++];
@@ -114,8 +99,7 @@ POOL_E::EntityT POOL_E::recycleEntity(const EntityT entity) noexcept {
 	return null;
 }
 
-TEMPLATE_E
-POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
+POOL::EntityT POOL::recycleId(const IdT id) noexcept {
 	if (!contains(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[_size++];
@@ -130,8 +114,7 @@ POOL_E::EntityT POOL_E::recycleId(const IdT id) noexcept {
 	return null;
 }
 
-TEMPLATE_E
-void POOL_E::kill(const EntityT entity) noexcept {
+void POOL::kill(const EntityT entity) noexcept {
 	if (contains(entity)) {
 		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[--_size];
@@ -145,8 +128,7 @@ void POOL_E::kill(const EntityT entity) noexcept {
 	}
 }
 
-TEMPLATE_E
-void POOL_E::kill(const IdT id) noexcept {
+void POOL::kill(const IdT id) noexcept {
 	if (contains(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[--_size];
@@ -160,35 +142,29 @@ void POOL_E::kill(const IdT id) noexcept {
 	}
 }
 
-TEMPLATE_E
-void POOL_E::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
+void POOL::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
 	for (; first != last; ++first) {
 		kill(*first);
 	}
 }
 
-TEMPLATE_E
-void POOL_E::kill(std::initializer_list<EntityT> entities) noexcept {
+void POOL::kill(std::initializer_list<EntityT> entities) noexcept {
 	return kill(entities.begin(), entities.end());
 }
 
-TEMPLATE_E
-void POOL_E::kill(std::initializer_list<IdT> ids) noexcept {
+void POOL::kill(std::initializer_list<IdT> ids) noexcept {
 	return kill(ids.begin(), ids.end());
 }
 
-TEMPLATE_E
-POOL_E::Iterator POOL_E::find(const EntityT entity) noexcept {
+POOL::Iterator POOL::find(const EntityT entity) noexcept {
 	return find(Traits::Id::part(entity));
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::find(const EntityT entity) const noexcept {
+POOL::ConstIterator POOL::find(const EntityT entity) const noexcept {
 	return find(Traits::Id::part(entity));
 }
 
-TEMPLATE_E
-POOL_E::Iterator POOL_E::find(const IdT id) noexcept {
+POOL::Iterator POOL::find(const IdT id) noexcept {
 	if (id == Traits::Id::null) {
 		return end();
 	}
@@ -202,8 +178,7 @@ POOL_E::Iterator POOL_E::find(const IdT id) noexcept {
 		end();
 }
 
-TEMPLATE_E
-POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
+POOL::ConstIterator POOL::find(const IdT id) const noexcept {
 	if (id == Traits::Id::null) {
 		return end();
 	}
@@ -217,12 +192,14 @@ POOL_E::ConstIterator POOL_E::find(const IdT id) const noexcept {
 		end();
 }
 
-TEMPLATE_E
-size_t POOL_E::size() const noexcept {
+size_t POOL::size() const noexcept {
 	return _size;
+}
+
+auto POOL::_debug() noexcept -> std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> {
+	return { &_sparse, &_dense };
 }
 
 } // namespace arch::ecs
 
-#undef TEMPLATE_E
-#undef POOL_E
+#undef POOL

@@ -25,7 +25,7 @@ TEST(ECS, ComponentSimple) {
 	// the above components are the simplest that can be
 	// plain structs like those model many crucial concepts (on them later)
 
-	ecs::Domain<ecs::e32> domain;
+	ecs::Domain domain;
 
 	// components can be then added to entites:
 	auto e0 = domain.newEntity();
@@ -124,7 +124,7 @@ struct EnemyFlag {
 // flag-components are never instantiated, therefore occupy less space
 
 TEST(ECS, ComponentFlag) {
-	ecs::Domain<ecs::e32> domain;
+	ecs::Domain domain;
 
 	auto e0 = domain.newEntity();
 	auto e1 = domain.newEntity();
@@ -225,9 +225,9 @@ struct arch::ecs::ComponentSpecs<Ship> {
 // let's now check if our settings acually work
 
 TEST(ECS, ComponentInPlaceCustomPageSize) {
-	ecs::Domain<ecs::e32> domain;
+	ecs::Domain domain;
 
-	std::array<ecs::e32, 32 * 3> entities;
+	std::array<ecs::Entity, 32 * 3> entities;
 	for (size_t i = 0; i != 32 * 3; ++i) {
 		entities[i] = domain.newEntity();
 

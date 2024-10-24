@@ -6,7 +6,7 @@
 
 namespace arch::ecs {
 
-template<class C, class E>
+template<class C>
 class ComponentPool;
 
 }
@@ -17,18 +17,16 @@ namespace arch::ecs::_details {
 /// @details Models std::bidirectional_iterator
 /// @tparam C - component type
 /// @tparam E - entity type
-template<class C, class E>
+template<class C>
 class ComponentPoolIterator {
-	using Traits = _details::ComponentTraits<C, E>;
+	using Traits = _details::ComponentTraits<C>;
 
 public:
 
 	/// @brief Component type
 	using ComponentT = C;
-	/// @brief Entity type
-	using EntityT = E;
 	/// @brief Return value
-	using ValueType = std::pair<const E&, std::conditional_t<Traits::flag, const bool, C&>>;
+	using ValueType = std::pair<const Entity&, std::conditional_t<Traits::flag, const bool, C&>>;
 	/// @brief Return value reference
 	using Reference = ValueType&;
 	/// @brief Return value Pointer
@@ -74,16 +72,16 @@ public:
 	std::strong_ordering operator<=>(const ComponentPoolIterator& other) const noexcept;
 
 private:
-	friend arch::ecs::ComponentPool<C, E>;
+	friend arch::ecs::ComponentPool<C>;
 
 	// if iterator is valid
 	bool _valid() const noexcept;
 	void _update() noexcept;
 
-	using ETraits = _details::EntityTraits<E>;
+	using ETraits = _details::EntityTraits;
 
 	// used by ComponentPool
-	ComponentPoolIterator(ComponentPool<C, E>* pool, size_t i = 0) noexcept;
+	ComponentPoolIterator(ComponentPool<C>* pool, size_t i = 0) noexcept;
 
 	Reference _pair() const noexcept;
 
@@ -94,7 +92,7 @@ private:
 	// iterating through pages with offset was tested to be the fastest
 	C** _componentPage;
 	size_t _offset;
-	std::vector<E>* _dense;
+	std::vector<Entity>* _dense;
 	size_t _i;
 };
 
@@ -104,11 +102,11 @@ namespace std {
 /// @brief std::iterator_traits' specialization for ComponentPoolIterator
 /// @tparam C - component type
 /// @tparam E - entity type
-template<class C, class E>
-struct iterator_traits<arch::ecs::_details::ComponentPoolIterator<C, E>> {
+template<class C>
+struct iterator_traits<arch::ecs::_details::ComponentPoolIterator<C>> {
 private:
 
-	using Iter = arch::ecs::_details::ComponentPoolIterator<C, E>;
+	using Iter = arch::ecs::_details::ComponentPoolIterator<C>;
 
 public:
 
@@ -119,7 +117,5 @@ public:
 	using iterator_category = Iter::IteratorCategory;
 };
 } // namespace std
-
-static_assert(std::bidirectional_iterator<arch::ecs::_details::ComponentPoolIterator<int, arch::ecs::e64>>);
 
 #include "ComponentPoolIterator.hpp"
