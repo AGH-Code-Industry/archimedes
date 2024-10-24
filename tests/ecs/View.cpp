@@ -16,7 +16,7 @@ TEST(ECS, ViewsSimple) {
 		float y;
 	};
 
-	ecs::Domain<ecs::e32> domain;
+	ecs::Domain domain;
 
 	// let's create some entities with some components
 
@@ -49,7 +49,7 @@ TEST(ECS, ViewsSimple) {
 	// now you have to choose how you update all positions
 
 	// option 1. manually obtain components
-	for (ecs::e32 entity : viewPosVel) {
+	for (ecs::Entity entity : viewPosVel) {
 		{
 			// get tuple with references
 			auto posVelTuple = viewPosVel.get(entity);
@@ -76,7 +76,7 @@ TEST(ECS, ViewsSimple) {
 	}
 
 	// option 3. use view.forEach(entity)
-	viewPosVel.forEach([&viewPosVel /* capture view */](ecs::e32 entity) {
+	viewPosVel.forEach([&viewPosVel /* capture view */](ecs::Entity entity) {
 		// auto&& [pos, vel] = viewPosVel.get(entity);
 
 		// pos.x += vel.x;
@@ -84,7 +84,7 @@ TEST(ECS, ViewsSimple) {
 	});
 
 	// option 4. use view.forEach(entity, &pos, const &vel)
-	viewPosVel.forEach([&viewPosVel /* capture view */](ecs::e32 entity, Pos& pos, const Vel& vel) {
+	viewPosVel.forEach([&viewPosVel /* capture view */](ecs::Entity entity, Pos& pos, const Vel& vel) {
 		// pos.x += vel.x;
 		// pos.y += vel.y;
 	});

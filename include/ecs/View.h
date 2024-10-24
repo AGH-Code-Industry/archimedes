@@ -8,85 +8,77 @@
 
 namespace arch::ecs {
 
-template<class E>
 class Domain;
 
 namespace _details {
 
 /// @brief Returns given component wrapped in std::tuple
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam C - component type
 /// @param domain - domain to get component from
 /// @param entity - entity to get component from
-template<class E, class C>
-auto getAsTuple(Domain<E>& domain, const E entity) noexcept;
+template<class C>
+auto getAsTuple(Domain& domain, const Entity entity) noexcept;
 /// @brief Returns given readonly component wrapped in std::tuple
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam C - component type
 /// @param domain - domain to get component from
 /// @param entity - entity to get component from
-template<class E, class C>
-auto getAsTuple(const Domain<E>& domain, const E entity) noexcept;
+template<class C>
+auto getAsTuple(const Domain& domain, const Entity entity) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam Includes - component types
 /// @param domain - domain to get components from
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
-template<class E, class... Includes>
-auto getByTL(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+template<class... Includes>
+auto getByTL(Domain& domain, const Entity entity, TypeList<Includes...>) noexcept;
 /// @brief Returns std::tuple with specified components from given entity
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam Includes - component types
 /// @param domain - domain to get components from
 /// @param entity - entity to get components from
 /// @param <unnamed> - TypeList instance to help in deduction
-template<class E, class... Includes>
-auto getByTL(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept;
+template<class... Includes>
+auto getByTL(const Domain& domain, const Entity entity, TypeList<Includes...>) noexcept;
 
-/// @brief Predicate wrapper for TypeList to filter out flag-components
-/// @tparam E - entity type
-template<class E>
+/// @brief Predicate for TypeList to filter out flag-components
+/// @tparam C - component type
+template<class C>
 struct IsFlagComponent {
-	/// @brief Actual predicate
-	/// @tparam C - component type
-	template<class C>
-	struct Pred {
-		static inline constexpr bool value = _details::ComponentTraits<C, E>::flag;
-	};
+	static inline constexpr bool value = _details::ComponentTraits<C>::flag;
 };
 } // namespace _details
 
 /// @brief Domain view
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam Const - whether view is readonly
 /// @tparam Include - TypeList with components included in view
 /// @tparam Exclude - TypeList with components excluded in view
-template<class E, bool Const, class Include, class Exclude>
+template<bool Const, class Include, class Exclude>
 class View;
 
 /// @brief Domain's view
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam Const - whether view is readonly
 /// @tparam Includes - components included in view
 /// @tparam Excludes - components excluded in view
-template<class E, bool Const, class... Includes, class... Excludes>
-class View<E, Const, TypeList<Includes...>, TypeList<Excludes...>> {
+template<bool Const, class... Includes, class... Excludes>
+class View<Const, TypeList<Includes...>, TypeList<Excludes...>> {
 public:
 
 	/// @brief Entity traits
-	using Traits = _details::EntityTraits<E>;
-	/// @brief Entity type
-	using EntityT = Traits::EntityT;
+	using Traits = _details::EntityTraits;
 	/// @brief Actual domain type used
-	using DomainT = std::conditional_t<Const, const Domain<E>, Domain<E>>;
+	using DomainT = std::conditional_t<Const, const Domain, Domain>;
 
 	/// @brief TypeList with components included in view
 	using Include = TypeList<Includes...>;
 	/// @brief TypeList with components excluded in view
 	using Exclude = TypeList<Excludes...>;
 	/// @brief Include without flag-components
-	using NoFlags = typename Include::template eraseIf<_details::IsFlagComponent<EntityT>::template Pred>;
+	using NoFlags = typename Include::template eraseIf<_details::IsFlagComponent>;
 
 	/// @brief Count of included component types
 	static inline constexpr size_t includeCount = Include::length;
@@ -97,7 +89,7 @@ public:
 
 	/// @brief Checks if entity is contained by view
 	/// @param entity - entity to check
-	bool contains(const EntityT entity) const noexcept;
+	bool contains(const Entity entity) const noexcept;
 
 	/// @brief Recomputes entities in view
 	/// @brief Needed if at least one component is in-place
@@ -105,26 +97,26 @@ public:
 
 	/// @brief Returns std::tuple with included components, excluding flag-components
 	/// @param entity - entity to get components from
-	auto get(const EntityT entity) noexcept requires(!Const);
+	auto get(const Entity entity) noexcept requires(!Const);
 	/// @brief Returns std::tuple with readonly included components, excluding flag-components
 	/// @param entity - entity to get components from
-	auto get(const EntityT entity) const noexcept;
+	auto get(const Entity entity) const noexcept;
 	/// @brief Returns std::tuple with included components, including flag-components
 	/// @param entity - entity to get components from
-	auto getAll(const EntityT entity) noexcept requires(!Const);
+	auto getAll(const Entity entity) noexcept requires(!Const);
 	/// @brief Returns std::tuple with readonly included components, including flag-components
 	/// @param entity - entity to get components from
-	auto getAll(const EntityT entity) const noexcept;
+	auto getAll(const Entity entity) const noexcept;
 	/// @brief Returns std::tuple with given components
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
-	auto get(const EntityT entity) noexcept requires(!Const);
+	auto get(const Entity entity) noexcept requires(!Const);
 	/// @brief Returns std::tuple with given readonly components
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
-	auto get(const EntityT entity) const noexcept;
+	auto get(const Entity entity) const noexcept;
 
 	/// @brief Returns std::view of std::tuples
 	/// @brief First element is the entity
@@ -189,30 +181,30 @@ public:
 
 private:
 
-	friend Domain<E>;
+	friend Domain;
 
-	using CCPoolPtr = const _details::CommonComponentPool<E>*;
-	//, _details::CommonComponentPool<E>* > ;
+	using CCPoolPtr = const _details::CommonComponentPool*;
+	//, _details::CommonComponentPool<Entity>* > ;
 	template<class C>
 	using CPoolPtr = std::conditional_t<
 		Const || std::is_const_v<C>,
-		const ComponentPool<std::remove_const_t<C>, E>*,
-		ComponentPool<std::remove_const_t<C>, E>*>;
+		const ComponentPool<std::remove_const_t<C>>*,
+		ComponentPool<std::remove_const_t<C>>*>;
 
 	size_t _minInclude() const noexcept;
 
 	template<class C>
-	auto getAsTuple(const E entity) noexcept requires(!Const);
+	auto getAsTuple(const Entity entity) noexcept requires(!Const);
 	template<class C>
-	auto getAsTuple(const E entity) const noexcept;
+	auto getAsTuple(const Entity entity) const noexcept;
 	template<class... Cs>
-	auto getByTL(const E entity, TypeList<Cs...>) noexcept requires(!Const);
+	auto getByTL(const Entity entity, TypeList<Cs...>) noexcept requires(!Const);
 	template<class... Cs>
-	auto getByTL(const E entity, TypeList<Cs...>) const noexcept;
+	auto getByTL(const Entity entity, TypeList<Cs...>) const noexcept;
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
-		std::declval<const _details::CommonComponentPool<E>>()._entitiesForView(),
+		std::declval<const _details::CommonComponentPool>()._entitiesForView(),
 		std::bind(&View::contains, std::declval<const View*>(), std::placeholders::_1)
 	));
 
@@ -225,25 +217,22 @@ private:
 };
 
 /// @brief Domain's exclude-only view
-/// @tparam E - entity type
+/// @tparam Entity - entity type
 /// @tparam Const - whether view is readonly
 /// @tparam Excludes - components excluded in view
-template<class E, bool Const, class... Excludes>
-class View<E, Const, TypeList<>, TypeList<Excludes...>> {
+template<bool Const, class... Excludes>
+class View<Const, TypeList<>, TypeList<Excludes...>> {
 public:
 
 	/// @brief Entity traits
-	using Traits = _details::EntityTraits<E>;
-	/// @brief Entity type
-	using EntityT = Traits::EntityT;
-	/// @brief Actual domain type used
+	using Traits = _details::EntityTraits;
 
 	/// @brief TypeList with components included in view
 	using Include = TypeList<>;
 	/// @brief TypeList with components excluded in view
 	using Exclude = TypeList<Excludes...>;
-	/// @brief Include without flag-components
-	using DomainT = std::conditional_t<Const, const Domain<E>, Domain<E>>;
+	/// @brief Actual domain type used
+	using DomainT = std::conditional_t<Const, const Domain, Domain>;
 
 	/// @brief Count of included component types
 	static inline constexpr size_t includeCount = TypeList<>::length;
@@ -254,7 +243,7 @@ public:
 
 	/// @brief Checks if entity is contained by view
 	/// @param entity - entity to check
-	bool contains(const EntityT entity) const noexcept;
+	bool contains(const Entity entity) const noexcept;
 
 	/// @brief Recomputes entities in view
 	/// @brief Needed if at least one component is in-place
@@ -264,12 +253,12 @@ public:
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
-	auto get(const EntityT entity) noexcept requires(!Const);
+	auto get(const Entity entity) noexcept requires(!Const);
 	/// @brief Returns std::tuple with given readonly components (may be out of view)
 	/// @tparam Cs - components to get
 	/// @param entity - entity to get components from
 	template<class... Cs>
-	auto get(const EntityT entity) const noexcept;
+	auto get(const Entity entity) const noexcept;
 
 	/// @brief Executes given function with entities in view as arguments
 	/// @tparam Fn - function type
@@ -297,22 +286,21 @@ public:
 
 private:
 
-	friend Domain<E>;
+	friend Domain;
 
 	// filtering function
-	bool _containsNoCheck(const E entity) const noexcept;
+	bool _containsNoCheck(const Entity entity) const noexcept;
 
-	using CCPoolPtr =
-		std::conditional_t<Const, const _details::CommonComponentPool<E>*, _details::CommonComponentPool<E>*>;
+	using CCPoolPtr = std::conditional_t<Const, const _details::CommonComponentPool*, _details::CommonComponentPool*>;
 	template<class C>
 	using CPoolPtr = std::conditional_t<
 		Const || std::is_const_v<C>,
-		const ComponentPool<std::remove_const_t<C>, E>*,
-		ComponentPool<std::remove_const_t<C>, E>*>;
+		const ComponentPool<std::remove_const_t<C>>*,
+		ComponentPool<std::remove_const_t<C>>*>;
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
-		std::declval<const Domain<E>>().entities(),
+		std::declval<const Domain>().entities(),
 		std::bind(&View::_containsNoCheck, std::declval<const View*>(), std::placeholders::_1)
 	));
 

@@ -12,23 +12,20 @@ namespace arch::ecs {
 
 /// @brief Pool for creating and killing entities
 /// @details Uses sparse set data structure
-/// @tparam E - entity type
-template<class E>
-class EntityPool: public _details::SparseSet<E> {
-	using Base = _details::SparseSet<E>;
+/// @tparam Entity - entity type
+class EntityPool: public _details::SparseSet {
+	using Base = _details::SparseSet;
 
 public:
 
 	/// @brief EntityTraits of entity
-	using Traits = _details::EntityTraits<E>;
+	using Traits = _details::EntityTraits;
 	/// @brief Entity type
 	using EntityT = typename Traits::EntityT;
 	/// @brief Entity id type
 	using IdT = typename Traits::IdT;
 	/// @brief Entity version type
 	using VersionT = typename Traits::VersionT;
-
-	static_assert(std::popcount(Traits::pageSize) == 1, "pageSize for entity must be a power of 2");
 
 	/// @brief Iterator type
 	using Iterator = typename Base::DenseContainer::iterator;
@@ -40,7 +37,7 @@ public:
 	using ConstReverseIterator = typename Base::DenseContainer::const_reverse_iterator;
 
 	/// @brief Null entity
-	static inline constexpr EntityT null = Traits::Entity::null;
+	static inline constexpr EntityT null = Traits::Ent::null;
 
 	/// @brief Swaps this pool with given pool
 	/// @param other - pool to swap with
@@ -75,8 +72,6 @@ public:
 	/// @param entities - entities to kill
 	void kill(std::initializer_list<IdT> ids) noexcept;
 
-	using Base::contains;
-
 	/// @brief Finds given entity
 	/// @param entity - entity to find
 	/// @return Iterator to found entity, end() otherwise
@@ -93,8 +88,6 @@ public:
 	/// @param id - id of entity to find
 	/// @return Iterator to found entity, end() otherwise
 	ConstIterator find(IdT id) const noexcept;
-
-	using Base::version;
 
 	/// @brief Returns amount of entities alive
 	size_t size() const noexcept;
@@ -126,24 +119,10 @@ public:
 
 private:
 
-	using Base::_sparseAssure;
-	using Base::_sparseAssurePage;
-	using Base::_sparseGet;
-	using Base::_sparseTryGet;
-
 	// for manual checks
-	std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> _debug() noexcept {
-		return { &_sparse, &_dense };
-	}
+	std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> _debug() noexcept;
 
-	using Base::_dense;
-	using Base::_sparse;
 	size_t _size = 0;
 };
 
-extern template class EntityPool<e32>;
-extern template class EntityPool<e64>;
-
 } // namespace arch::ecs
-
-#include "EntityPool.hpp"

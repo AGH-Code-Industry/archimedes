@@ -1,59 +1,54 @@
 #include <algorithm>
 #include <ranges>
 
-#include "View.h"
-//
 #include "Domain.h"
+//
+#include "View.h"
 #include "tUtils/Functions/IsApplicable.h"
 
-#define TEMPLATE_ECIE template<class E, bool Const, class... Includes, class... Excludes>
-#define TEMPLATE_ECE template<class E, bool Const, class... Excludes>
-#define VIEW_ECIE View<E, Const, TypeList<Includes...>, TypeList<Excludes...>>
-#define VIEW_ECE View<E, Const, TypeList<>, TypeList<Excludes...>>
+#define TEMPLATE_CIE template<bool Const, class... Includes, class... Excludes>
+#define TEMPLATE_CE template<bool Const, class... Excludes>
+#define VIEW_CIE View<Const, TypeList<Includes...>, TypeList<Excludes...>>
+#define VIEW_CE View<Const, TypeList<>, TypeList<Excludes...>>
 
 namespace arch::ecs {
 
 namespace _details {
 
-template<class E, class C>
-auto getAsTuple(Domain<E>& domain, const E entity) noexcept {
+template<class C>
+auto getAsTuple(Domain& domain, const Entity entity) noexcept {
 	// make_tuple - by values, tie - by references
-	if constexpr (_details::ComponentTraits<C, E>::flag) {
+	if constexpr (_details::ComponentTraits<C>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
 		return std::tie(domain.template getComponent<C>(entity));
 	}
 }
 
-template<class E, class C>
-auto getAsTuple(const Domain<E>& domain, const E entity) noexcept {
+template<class C>
+auto getAsTuple(const Domain& domain, const Entity entity) noexcept {
 	// make_tuple - by values, tie - by references
-	if constexpr (_details::ComponentTraits<C, E>::flag) {
+	if constexpr (_details::ComponentTraits<C>::flag) {
 		return std::make_tuple(domain.template getComponent<C>(entity));
 	} else {
 		return std::tie(domain.template getComponent<C>(entity));
 	}
 }
 
-template<class E, class... Includes>
-auto getByTL(Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
-	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
+template<class... Includes>
+auto getByTL(Domain& domain, const Entity entity, TypeList<Includes...>) noexcept {
+	return std::tuple_cat(getAsTuple<Includes>(domain, entity)...);
 }
 
-template<class E, class... Includes>
-auto getByTL(const Domain<E>& domain, const E entity, TypeList<Includes...>) noexcept {
-	return std::tuple_cat(getAsTuple<E, Includes>(domain, entity)...);
+template<class... Includes>
+auto getByTL(const Domain& domain, const Entity entity, TypeList<Includes...>) noexcept {
+	return std::tuple_cat(getAsTuple<Includes>(domain, entity)...);
 }
 
 } // namespace _details
 
-TEMPLATE_ECIE
-size_t VIEW_ECIE::_minInclude() const noexcept {
-	/*ARCH_ASSERT(
-		std::ranges::none_of(_includedCPools, [](const auto ptr) { return ptr == nullptr; }),
-		"At least one ComponentPool does not exist"
-	);*/
-
+TEMPLATE_CIE
+size_t VIEW_CIE::_minInclude() const noexcept {
 	if constexpr (includeCount != 1) {
 		const auto min = std::ranges::min_element(_includedCPools, [](const auto lhs, const auto rks) {
 			return !lhs ? true : (!rks ? true : lhs->count() < rks->count());
@@ -69,16 +64,16 @@ size_t VIEW_ECIE::_minInclude() const noexcept {
 	}
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class C>
-auto VIEW_ECIE::getAsTuple(const E entity) noexcept requires(!Const)
+auto VIEW_CIE::getAsTuple(const Entity entity) noexcept requires(!Const)
 {
 	constexpr auto idx = Include::template find<C>;
 
-	if constexpr (_details::ComponentTraits<C, E>::flag) {
+	if constexpr (_details::ComponentTraits<C>::flag) {
 		return std::make_tuple(
 			dynamic_cast<CPoolPtr<C>>(
-				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool<E>*>>(
+				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool*>>(
 					_includedCPools[idx]
 				)
 			)
@@ -87,7 +82,7 @@ auto VIEW_ECIE::getAsTuple(const E entity) noexcept requires(!Const)
 	} else {
 		return std::tie(
 			dynamic_cast<CPoolPtr<C>>(
-				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool<E>*>>(
+				const_cast<std::conditional_t<std::is_const_v<C>, CCPoolPtr, _details::CommonComponentPool*>>(
 					_includedCPools[idx]
 				)
 			)
@@ -96,45 +91,45 @@ auto VIEW_ECIE::getAsTuple(const E entity) noexcept requires(!Const)
 	}
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class C>
-auto VIEW_ECIE::getAsTuple(const E entity) const noexcept {
+auto VIEW_CIE::getAsTuple(const Entity entity) const noexcept {
 	constexpr auto idx = Include::template find<C>;
 
-	if constexpr (_details::ComponentTraits<C, E>::flag) {
+	if constexpr (_details::ComponentTraits<C>::flag) {
 		return std::make_tuple(dynamic_cast<CPoolPtr<C>>(_includedCPools[idx])->get(entity));
 	} else {
 		return std::tie(dynamic_cast<CPoolPtr<C>>(_includedCPools[idx])->get(entity));
 	}
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::getByTL(const E entity, TypeList<Cs...>) noexcept requires(!Const)
+auto VIEW_CIE::getByTL(const Entity entity, TypeList<Cs...>) noexcept requires(!Const)
 {
 	return std::tuple_cat(getAsTuple<Cs>(entity)...);
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::getByTL(const E entity, TypeList<Cs...>) const noexcept {
+auto VIEW_CIE::getByTL(const Entity entity, TypeList<Cs...>) const noexcept {
 	return std::tuple_cat(getAsTuple<Cs>(entity)...);
 }
 
-TEMPLATE_ECIE
-VIEW_ECIE::View(DomainT* domain) noexcept:
+TEMPLATE_CIE
+VIEW_CIE::View(DomainT* domain) noexcept:
 	_includedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Includes>())... },
 	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
 	_minIdx{ _minInclude() },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(
-		_minIdx == (size_t)-1 ? _details::CommonComponentPool<E>::_emptyEntitiesForView() :
+		_minIdx == (size_t)-1 ? _details::CommonComponentPool::_emptyEntitiesForView() :
 								_includedCPools[_minIdx]->_entitiesForView(),
 		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
 	) {}
 
-TEMPLATE_ECE
-VIEW_ECE::View(DomainT* domain) noexcept:
+TEMPLATE_CE
+VIEW_CE::View(DomainT* domain) noexcept:
 	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(domain->entities(), std::bind(&View::_containsNoCheck, this, std::placeholders::_1)),
@@ -145,12 +140,13 @@ VIEW_ECE::View(DomainT* domain) noexcept:
 	);
 }
 
-TEMPLATE_ECE
-bool VIEW_ECE::_containsNoCheck(const E entity) const noexcept {
+TEMPLATE_CE
+bool VIEW_CE::_containsNoCheck(const Entity entity) const noexcept {
 	return std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
 }
 
-TEMPLATE_ECIE bool VIEW_ECIE::contains(const EntityT entity) const noexcept {
+TEMPLATE_CIE
+bool VIEW_CIE::contains(const Entity entity) const noexcept {
 	return std::all_of(
 			   _includedCPools.begin(),
 			   _includedCPools.begin() + _minIdx,
@@ -164,12 +160,12 @@ TEMPLATE_ECIE bool VIEW_ECIE::contains(const EntityT entity) const noexcept {
 		std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
 }
 
-TEMPLATE_ECE
-bool VIEW_ECE::contains(const EntityT entity) const noexcept {
+TEMPLATE_CE
+bool VIEW_CE::contains(const Entity entity) const noexcept {
 	return _domain.alive(entity) && _containsNoCheck(entity);
 }
 
-TEMPLATE_ECIE VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
+TEMPLATE_CIE VIEW_CIE& VIEW_CIE::refresh() noexcept {
 	// destroy _entities
 	_entities.~EntitesViewT();
 	_minIdx = _minInclude();
@@ -182,28 +178,28 @@ TEMPLATE_ECIE VIEW_ECIE& VIEW_ECIE::refresh() noexcept {
 	return *this;
 }
 
-TEMPLATE_ECE
-VIEW_ECE& VIEW_ECE::refresh() noexcept {
+TEMPLATE_CE
+VIEW_CE& VIEW_CE::refresh() noexcept {
 	_entities.~EntitesViewT();
 	new (&_entities) EntitesViewT(_domain->entities(), std::bind(&View::_containsNoCheck, this, std::placeholders::_1));
 
 	return *this;
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::get(const EntityT entity) noexcept requires(!Const)
+TEMPLATE_CIE
+auto VIEW_CIE::get(const Entity entity) noexcept requires(!Const)
 {
 	return getByTL(entity, NoFlags());
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::get(const EntityT entity) const noexcept {
+TEMPLATE_CIE
+auto VIEW_CIE::get(const Entity entity) const noexcept {
 	return getByTL(entity, NoFlags());
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::get(const EntityT entity) noexcept requires(!Const)
+auto VIEW_CIE::get(const Entity entity) noexcept requires(!Const)
 {
 	static_assert(
 		TypeList<Includes...>::template containsAll<Cs...>,
@@ -212,9 +208,9 @@ auto VIEW_ECIE::get(const EntityT entity) noexcept requires(!Const)
 	return getByTL(entity, TypeList<Cs...>());
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::get(const EntityT entity) const noexcept {
+auto VIEW_CIE::get(const Entity entity) const noexcept {
 	static_assert(
 		TypeList<Includes...>::template containsAll<Cs...>,
 		"One or more specified components is not contained in this view"
@@ -222,79 +218,79 @@ auto VIEW_ECIE::get(const EntityT entity) const noexcept {
 	return getByTL(entity, TypeList<Cs...>());
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::getAll(const EntityT entity) noexcept requires(!Const)
+TEMPLATE_CIE
+auto VIEW_CIE::getAll(const Entity entity) noexcept requires(!Const)
 {
 	return get<Includes...>(entity);
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::getAll(const EntityT entity) const noexcept {
+TEMPLATE_CIE
+auto VIEW_CIE::getAll(const Entity entity) const noexcept {
 	return get<Includes...>(entity);
 }
 
-TEMPLATE_ECE
+TEMPLATE_CE
 template<class... Cs>
-auto VIEW_ECE::get(const EntityT entity) noexcept requires(!Const)
+auto VIEW_CE::get(const Entity entity) noexcept requires(!Const)
 {
 	return _details::getByTL(*_domain, entity, TypeList<Cs...>());
 }
 
-TEMPLATE_ECE
+TEMPLATE_CE
 template<class... Cs>
-auto VIEW_ECE::get(const EntityT entity) const noexcept {
+auto VIEW_CE::get(const Entity entity) const noexcept {
 	return _details::getByTL(*_domain, entity, TypeList<Cs...>());
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::all() noexcept requires(!Const)
+TEMPLATE_CIE
+auto VIEW_CIE::all() noexcept requires(!Const)
 {
-	return std::views::transform(_entities, [this](const EntityT entity) {
+	return std::views::transform(_entities, [this](const Entity entity) {
 		return std::tuple_cat(std::make_tuple(entity), get(entity));
 	});
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::all() const noexcept {
-	return std::views::transform(_entities, [this](const EntityT entity) {
+TEMPLATE_CIE
+auto VIEW_CIE::all() const noexcept {
+	return std::views::transform(_entities, [this](const Entity entity) {
 		return std::tuple_cat(std::make_tuple(entity), get(entity));
 	});
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::components() noexcept requires(!Const)
+TEMPLATE_CIE
+auto VIEW_CIE::components() noexcept requires(!Const)
 {
-	return std::views::transform(_entities, [this](const EntityT entity) { return getAll(entity); });
+	return std::views::transform(_entities, [this](const Entity entity) { return getAll(entity); });
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::components() const noexcept {
-	return std::views::transform(_entities, [this](const EntityT entity) { return getAll(entity); });
+TEMPLATE_CIE
+auto VIEW_CIE::components() const noexcept {
+	return std::views::transform(_entities, [this](const Entity entity) { return getAll(entity); });
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::components() noexcept requires(!Const)
+auto VIEW_CIE::components() noexcept requires(!Const)
 {
-	return std::views::transform(_entities, [this](const EntityT entity) { return get<Cs...>(entity); });
+	return std::views::transform(_entities, [this](const Entity entity) { return get<Cs...>(entity); });
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class... Cs>
-auto VIEW_ECIE::components() const noexcept {
-	return std::views::transform(_entities, [this](const EntityT entity) { return get<Cs...>(entity); });
+auto VIEW_CIE::components() const noexcept {
+	return std::views::transform(_entities, [this](const Entity entity) { return get<Cs...>(entity); });
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class Fn>
-void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
+void VIEW_CIE::forEach(Fn&& fn) noexcept requires(!Const)
 {
 	// call modes
-	using EntityTuple = decltype(std::tuple<EntityT>());
-	using EntityNoFlagsTuple = decltype(std::tuple_cat(std::tuple<EntityT>(), get(EntityT())));
-	using EntityComponentsTuple = decltype(std::tuple_cat(std::tuple<EntityT>(), getAll(EntityT())));
-	using NoFlagsTuple = decltype(get(EntityT()));
-	using ComponentsTuple = decltype(getAll(EntityT()));
+	using EntityTuple = decltype(std::tuple<Entity>());
+	using EntityNoFlagsTuple = decltype(std::tuple_cat(std::tuple<Entity>(), get(Entity())));
+	using EntityComponentsTuple = decltype(std::tuple_cat(std::tuple<Entity>(), getAll(Entity())));
+	using NoFlagsTuple = decltype(get(Entity()));
+	using ComponentsTuple = decltype(getAll(Entity()));
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
@@ -303,10 +299,10 @@ void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityNoFlagsTuple>) {
 			// [...](entity, comp1&, comp2&, ...){ ... }
 			// non-flags ------ ^ ----- ^ ...
-			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<EntityT>(entity), get(entity)));
+			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<Entity>(entity), get(entity)));
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityComponentsTuple>) {
 			// [...](entity, comp1&, comp2&, ...){ ... }
-			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<EntityT>(entity), getAll(entity)));
+			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<Entity>(entity), getAll(entity)));
 		} else if constexpr (tUtils::isApplicableV<Fn, NoFlagsTuple>) {
 			// [...](      comp1&, comp2&, ...){ ... }
 			// non-flags ---- ^ ----- ^ ...
@@ -320,15 +316,15 @@ void VIEW_ECIE::forEach(Fn&& fn) noexcept requires(!Const)
 	}
 }
 
-TEMPLATE_ECIE
+TEMPLATE_CIE
 template<class Fn>
-void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
+void VIEW_CIE::forEach(Fn&& fn) const noexcept {
 	// call modes
-	using EntityTuple = decltype(std::tuple<EntityT>());
-	using EntityNoFlagsTuple = decltype(std::tuple_cat(std::tuple<EntityT>(), get(EntityT())));
-	using EntityComponentsTuple = decltype(std::tuple_cat(std::tuple<EntityT>(), getAll(EntityT())));
-	using NoFlagsTuple = decltype(get(EntityT()));
-	using ComponentsTuple = decltype(getAll(EntityT()));
+	using EntityTuple = decltype(std::tuple<Entity>());
+	using EntityNoFlagsTuple = decltype(std::tuple_cat(std::tuple<Entity>(), get(Entity())));
+	using EntityComponentsTuple = decltype(std::tuple_cat(std::tuple<Entity>(), getAll(Entity())));
+	using NoFlagsTuple = decltype(get(Entity()));
+	using ComponentsTuple = decltype(getAll(Entity()));
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
@@ -337,10 +333,10 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityNoFlagsTuple>) {
 			// [...](entity, comp1&, comp2&, ...){ ... }
 			// non-flags ------ ^ ----- ^ ...
-			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<EntityT>(entity), get(entity)));
+			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<Entity>(entity), get(entity)));
 		} else if constexpr (tUtils::isApplicableV<Fn, EntityComponentsTuple>) {
 			// [...](entity, comp1&, comp2&, ...){ ... }
-			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<EntityT>(entity), getAll(entity)));
+			std::apply(std::forward<Fn>(fn), std::tuple_cat(std::tuple<Entity>(entity), getAll(entity)));
 		} else if constexpr (tUtils::isApplicableV<Fn, NoFlagsTuple>) {
 			// [...](      comp1&, comp2&, ...){ ... }
 			// non-flags ---- ^ ----- ^ ...
@@ -354,12 +350,12 @@ void VIEW_ECIE::forEach(Fn&& fn) const noexcept {
 	}
 }
 
-TEMPLATE_ECE
+TEMPLATE_CE
 template<class Fn>
-void VIEW_ECE::forEach(Fn&& fn) noexcept requires(!Const)
+void VIEW_CE::forEach(Fn&& fn) noexcept requires(!Const)
 {
 	// only one call mode for excluding views
-	using EntityTuple = decltype(std::tuple<EntityT>());
+	using EntityTuple = decltype(std::tuple<Entity>());
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
@@ -371,11 +367,11 @@ void VIEW_ECE::forEach(Fn&& fn) noexcept requires(!Const)
 	}
 }
 
-TEMPLATE_ECE
+TEMPLATE_CE
 template<class Fn>
-void VIEW_ECE::forEach(Fn&& fn) const noexcept {
+void VIEW_CE::forEach(Fn&& fn) const noexcept {
 	// only one call mode for excluding views
-	using EntityTuple = decltype(std::tuple<EntityT>());
+	using EntityTuple = decltype(std::tuple<Entity>());
 
 	for (const auto entity : _entities) {
 		if constexpr (tUtils::isApplicableV<Fn, EntityTuple>) {
@@ -387,72 +383,72 @@ void VIEW_ECE::forEach(Fn&& fn) const noexcept {
 	}
 }
 
-TEMPLATE_ECE
-auto VIEW_ECE::begin() noexcept requires(!Const)
+TEMPLATE_CE
+auto VIEW_CE::begin() noexcept requires(!Const)
 {
 	return _entities.begin();
 }
 
-TEMPLATE_ECE
-const auto VIEW_ECE::begin() const noexcept {
+TEMPLATE_CE
+const auto VIEW_CE::begin() const noexcept {
 	return _entities.begin();
 }
 
-TEMPLATE_ECE
-const auto VIEW_ECE::cbegin() const noexcept {
+TEMPLATE_CE
+const auto VIEW_CE::cbegin() const noexcept {
 	return _entities.begin();
 }
 
-TEMPLATE_ECE
-auto VIEW_ECE::end() noexcept requires(!Const)
+TEMPLATE_CE
+auto VIEW_CE::end() noexcept requires(!Const)
 {
 	return _entities.end();
 }
 
-TEMPLATE_ECE
-const auto VIEW_ECE::end() const noexcept {
+TEMPLATE_CE
+const auto VIEW_CE::end() const noexcept {
 	return _entities.end();
 }
 
-TEMPLATE_ECE
-const auto VIEW_ECE::cend() const noexcept {
+TEMPLATE_CE
+const auto VIEW_CE::cend() const noexcept {
 	return _entities.end();
 }
 
-TEMPLATE_ECIE auto VIEW_ECIE::begin() noexcept requires(!Const)
+TEMPLATE_CIE auto VIEW_CIE::begin() noexcept requires(!Const)
 {
 	return _entities.begin();
 }
 
-TEMPLATE_ECIE
-const auto VIEW_ECIE::begin() const noexcept {
+TEMPLATE_CIE
+const auto VIEW_CIE::begin() const noexcept {
 	return _entities.begin();
 }
 
-TEMPLATE_ECIE
-const auto VIEW_ECIE::cbegin() const noexcept {
+TEMPLATE_CIE
+const auto VIEW_CIE::cbegin() const noexcept {
 	return _entities.begin();
 }
 
-TEMPLATE_ECIE
-auto VIEW_ECIE::end() noexcept requires(!Const)
+TEMPLATE_CIE
+auto VIEW_CIE::end() noexcept requires(!Const)
 {
 	return _entities.end();
 }
 
-TEMPLATE_ECIE
-const auto VIEW_ECIE::end() const noexcept {
+TEMPLATE_CIE
+const auto VIEW_CIE::end() const noexcept {
 	return _entities.end();
 }
 
-TEMPLATE_ECIE
-const auto VIEW_ECIE::cend() const noexcept {
+TEMPLATE_CIE
+const auto VIEW_CIE::cend() const noexcept {
 	return _entities.end();
 }
 
 } // namespace arch::ecs
 
-#undef TEMPLATE_ECIE
-#undef TEMPLATE_ECE
-#undef VIEW_ECIE
-#undef VIEW_ECE
+#undef TEMPLATE_CIE
+#undef TEMPLATE_CE
+#undef VIEW_CIE
+#undef VIEW_CE

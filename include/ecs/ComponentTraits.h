@@ -13,8 +13,7 @@ namespace arch::ecs::_details { // NOLINT
 /// @brief Contains info, constants and operations on components and their pages
 /// @details All data extracted from ComponentSpecs
 /// @tparam C - component type
-/// @tparam E - entity type
-template<class C, class E>
+template<class C>
 struct ComponentTraits {
 	/// @brief Component Specifications
 	using Specs = ComponentSpecs<C>;
@@ -46,7 +45,7 @@ struct ComponentTraits {
 	/// @param pages - pointer to all pages
 	/// @param pageNum - index of page in pages
 	/// @param dense - dense vector of entities
-	static inline void deletePage(ComponentT** pages, size_t pageNum, const std::vector<E>& dense) noexcept;
+	static inline void deletePage(ComponentT** pages, size_t pageNum, const std::vector<Entity>& dense) noexcept;
 	/// @brief Destroys component at given location
 	/// @param component - component to destroy
 	static inline void destroyAt(ComponentT* component) noexcept;
