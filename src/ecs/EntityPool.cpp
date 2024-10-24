@@ -1,5 +1,3 @@
-#pragma once
-
 #include "utils/Assert.h"
 #include <ecs/EntityPool.h>
 
