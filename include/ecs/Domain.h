@@ -36,7 +36,7 @@ public:
 	using ConstGetReference = std::
 		conditional_t<_details::ComponentTraits<std::remove_const_t<C>>::flag, bool, const std::remove_const_t<C>&>;
 
-	static inline constexpr Entity null = Traits::Entity::null;
+	static inline constexpr Entity null = Traits::Ent::null;
 
 	/// @brief Default constructor
 	Domain() noexcept = default;

@@ -37,7 +37,7 @@ public:
 	using ConstReverseIterator = typename Base::DenseContainer::const_reverse_iterator;
 
 	/// @brief Null entity
-	static inline constexpr EntityT null = Traits::Entity::null;
+	static inline constexpr EntityT null = Traits::Ent::null;
 
 	/// @brief Swaps this pool with given pool
 	/// @param other - pool to swap with

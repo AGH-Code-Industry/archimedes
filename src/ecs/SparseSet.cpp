@@ -17,7 +17,7 @@ typename SET::EntityT* SET::_sparseAssurePage(const size_t n) noexcept {
 	auto& page = _sparse[n];
 	if (page == nullptr) {
 		page = std::make_unique<std::array<EntityT, Traits::pageSize>>();
-		page->fill(Traits::Entity::null);
+		page->fill(Traits::Ent::null);
 	}
 
 	return page->data();

@@ -15,7 +15,7 @@ struct EntityTraits {
 	// Entity specification
 	using Specs = EntitySpecs;
 	/// @brief Entity type
-	using EntityT = typename Entity;
+	using EntityT = typename ::arch::ecs::Entity;
 	/// @brief Entity underlying type
 	using EntityRawT = std::underlying_type_t<Entity>;
 	/// @brief Entity id type
@@ -27,7 +27,7 @@ struct EntityTraits {
 	static inline constexpr size_t pageSize = 1'024;
 
 	/// @brief Entity section
-	struct Entity {
+	struct Ent {
 		/// @brief Entity type
 		using Type = Specs::EntityT;
 		/// @brief Entity underlying type
@@ -95,13 +95,13 @@ struct EntityTraits {
 		using Type = VersionT;
 
 		/// @brief Bit length of version
-		static inline constexpr size_t length = Entity::length - Specs::idLength;
+		static inline constexpr size_t length = Ent::length - Specs::idLength;
 		/// @brief Bit mask of version
 		static inline constexpr EntityRawT mask = ~(std::numeric_limits<EntityRawT>::max() >> length);
 		/// @brief Max value of version as raw part
 		static inline constexpr EntityRawT maxRaw = ((mask - 1) & mask);
 		/// @brief Max value of version as part
-		static inline constexpr Type max = (Type)(maxRaw >> (Entity::length - length));
+		static inline constexpr Type max = (Type)(maxRaw >> (Ent::length - length));
 		/// @brief Null version (part)
 		static inline constexpr Type null = max + 1;
 		/// @brief Null version (raw part)

@@ -69,7 +69,7 @@ POOL::EntityT POOL::newEntity() noexcept {
 		return null;
 	}
 	if (_size == _dense.size()) { // new entity
-		const auto entity = Traits::Entity::fromParts(_size++, 0);
+		const auto entity = Traits::Ent::fromParts(_size++, 0);
 
 		_dense.push_back(entity);
 		_sparseAssure(Traits::Id::part(entity)) = entity;
@@ -91,8 +91,8 @@ POOL::EntityT POOL::recycleEntity(const EntityT entity) noexcept {
 		// std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
 
-		toSwapDense = Traits::Entity::fromOthers(toSwapDense, entity);
-		wantedSparse = Traits::Entity::fromOthers(wantedSparse, toSwapDense);
+		toSwapDense = Traits::Ent::fromOthers(toSwapDense, entity);
+		wantedSparse = Traits::Ent::fromOthers(wantedSparse, toSwapDense);
 
 		return toSwapDense;
 	}
@@ -107,7 +107,7 @@ POOL::EntityT POOL::recycleId(const IdT id) noexcept {
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
 
-		wantedSparse = Traits::Entity::fromOthers(wantedSparse, toSwapDense);
+		wantedSparse = Traits::Ent::fromOthers(wantedSparse, toSwapDense);
 
 		return toSwapDense;
 	}

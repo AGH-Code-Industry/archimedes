@@ -22,7 +22,7 @@ POOL_C::~ComponentPool() noexcept {
 TEMPLATE_C
 std::tuple<Entity&, size_t> POOL_C::_denseNew() noexcept {
 	if (_listHead == _dense.size()) { // dense is full
-		return { _dense.emplace_back(ETraits::Entity::null), _listHead++ };
+		return { _dense.emplace_back(ETraits::Ent::null), _listHead++ };
 	}
 
 	if constexpr (Traits::inPlace) {
@@ -84,7 +84,7 @@ POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) 
 	const auto id = ETraits::Id::part(entity);
 
 	auto&& sparseEntity = _sparseAssure(id);
-	if (sparseEntity != ETraits::Entity::null) {
+	if (sparseEntity != ETraits::Ent::null) {
 		if constexpr (Traits::flag) {
 			return false;
 		} else {
@@ -95,7 +95,7 @@ POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) 
 
 	auto&& [denseEntity, denseIdx] = _denseNew();
 
-	sparseEntity = ETraits::Entity::fromParts(denseIdx, ETraits::Version::part(entity));
+	sparseEntity = ETraits::Ent::fromParts(denseIdx, ETraits::Version::part(entity));
 	denseEntity = entity;
 	++_counter;
 
@@ -116,8 +116,8 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 	auto&& fromSparse = _sparseGet(id);
 
 	if constexpr (Traits::inPlace) {
-		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
-		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
+		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Ent::null));
+		_dense[idx] = ETraits::Ent::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
 		auto&& component = (*_components[idx / Traits::pageSize])[idx % Traits::pageSize];
 		auto toMove = std::move(component);
 		Traits::destroyAt(&component);
@@ -131,14 +131,14 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 		if (&sparseSwap != &fromSparse) {
 			// first sparse swap, id at listHead = id of given entity
 			sparseSwap =
-				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
-		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
+		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Ent::null));
 
 		_dense[idx] = _dense[_listHead];
-		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
+		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
 
 		auto&& atIdx = _components[idx / Traits::pageSize][idx % Traits::pageSize];
 		auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
@@ -163,13 +163,13 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseTryGet(id);
-	if (!sparsePtr || *sparsePtr == ETraits::Entity::null) {
+	if (!sparsePtr || *sparsePtr == ETraits::Ent::null) {
 		return false;
 	}
 
 	if constexpr (Traits::inPlace) {
-		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
-		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
+		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Ent::null));
+		_dense[idx] = ETraits::Ent::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
 		if constexpr (!Traits::flag) {
 			Traits::destroyAt(_components[idx / Traits::pageSize] + idx % Traits::pageSize);
 		}
@@ -181,14 +181,14 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
 			sparseSwap =
-				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
-		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
+		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Ent::null));
 
 		_dense[idx] = _dense[_listHead];
-		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
+		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
 		--_counter;
 
 		if constexpr (!Traits::flag) {

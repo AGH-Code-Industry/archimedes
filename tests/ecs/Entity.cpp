@@ -48,7 +48,7 @@ TEST(ECS, EntityKillAlive) {
 	}
 
 	// discouraged usage vvv
-	// EXPECT_FALSE(domain.alive(Traits::Entity::fromParts(10, 0)));
+	// EXPECT_FALSE(domain.alive(Traits::Ent::fromParts(10, 0)));
 	// only handles aquired by interactions with domain are guaranteed to give valid results
 	// but since its C++ you can do whatever you want
 }
