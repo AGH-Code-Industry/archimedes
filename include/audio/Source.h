@@ -6,7 +6,7 @@
 
 namespace arch::audio{
 
-	/// @brief An enum used to tell what the AudioSource is now doing.
+	/// @brief An enum used to tell what the Source is now doing.
 	enum class SourceState {
 		waiting, ///< waiting to play a sound
 		playing, ///< playing a sound
@@ -14,14 +14,14 @@ namespace arch::audio{
 		paused ///< stopped until continuation
 	};
 
-	/// @brief Each sound played on the game's scene has its own AudioSource.
+	/// @brief Each sound played on the game's scene has its own Source.
 	/// The sound can be modified as needed.
-	class AudioSource{
+	class Source{
 
 		/// @brief Position in the audio file.
 		std::size_t _cursor = 0;
 
-		/// @brief Buffer loaded by Clip when AudioSource is streaming the sound.
+		/// @brief Buffer loaded by Clip when Source is streaming the sound.
 		std::vector<ALshort> _loadingBuffer;
 
 		/// @brief SoundBank responsible for loading audio data from files.
@@ -35,12 +35,12 @@ namespace arch::audio{
 		/// Values returned by alGenBuffers().
 		ALuint _buffers[4] = {};
 		// TODO: one day this number of buffers might be not sufficient
-		// (because now all AudioSources have one common thread)
+		// (because now all Sources have one common thread)
 
 		/// @brief Path to the audio file.
 		std::string _clipPath;
 
-		/// @brief Tells what the AudioSource is now doing.
+		/// @brief Tells what the Source is now doing.
 		SourceState _state = SourceState::waiting;
 
 		/// @brief True if end of the sound file was reached
@@ -69,11 +69,11 @@ namespace arch::audio{
 		/// @brief Gain modifier of the sound.
 		ALfloat gain;
 
-		/// @brief Position of the AudioSource on the map.
+		/// @brief Position of the Source on the map.
 		/// Used for spatial effects.
 		ALfloat positionX, positionY;
 
-		/// @brief Velocity of the AudioSource on the map.
+		/// @brief Velocity of the Source on the map.
 		/// Used for calculating the Doppler Effect.
 		ALfloat velocityX, velocityY;
 
@@ -90,7 +90,7 @@ namespace arch::audio{
 		/// @param velocityX Source's velocity on the X axis.
 		/// @param velocityY Source's velocity on the Y axis.
 		/// @param isLooped Tells if the sound's playback has to be looped.
-		AudioSource(SoundBank* soundBank, const std::string& path,float pitch = 1.0f,float gain = 1.0f,
+		Source(SoundBank* soundBank, const std::string& path,float pitch = 1.0f,float gain = 1.0f,
 			float positionX = 0.0f,float positionY = 0.0f,float velocityX = 0.0f,float velocityY = 0.0f,
 			bool isLooped = false) : _soundBank(soundBank),_clipPath(path),pitch(pitch),gain(gain),
 			positionX(positionX),positionY(positionY),velocityX(velocityX),velocityY(velocityY),
@@ -101,7 +101,7 @@ namespace arch::audio{
 		void activate();
 
 		///@brief Clear OpenAL buffers and the source.
-		///@warning Should be used when the AudioSource is destroyed.
+		///@warning Should be used when the Source is destroyed.
 		void deactivate();
 
 		///@brief Getter for the _state property.
@@ -109,26 +109,26 @@ namespace arch::audio{
 		SourceState getState();
 
 		///@brief Starts the playback.
-		///@throws AudioException if the AudioSource is not waiting.
+		///@throws AudioException if the Source is not waiting.
 		void play();
 
 		///@brief Sends all sound data to the OpenAL context.
 		///@warning Should be called each audio frame.
-		///@throws AudioException if the AudioSource is not playing.
+		///@throws AudioException if the Source is not playing.
 		void update();
 
 		///@brief Permanently stops playing the sound.
-		///@throws AudioException if the AudioSource is not playing.
+		///@throws AudioException if the Source is not playing.
 		void stop();
 
-		///@brief Pauses the AudioSource until you use continuePlaying().
+		///@brief Pauses the Source until you use continuePlaying().
 		///@see continuePlaying
-		///@throws AudioException if the AudioSource is not playing.
+		///@throws AudioException if the Source is not playing.
 		void pausePlaying();
 
-		///@brief Continues playing the sound, if the AudioSource is paused.
+		///@brief Continues playing the sound, if the Source is paused.
 		///@see pausePlaying
-		///@throws AudioException if the AudioSource is not paused.
+		///@throws AudioException if the Source is not paused.
 		void continuePlaying();
 	};
 

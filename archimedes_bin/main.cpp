@@ -1,8 +1,7 @@
 #include <Engine.h>
 #include <Logger.h>
 #include <audio/SoundDevice.h>
-#include <audio/AudioSource.h>
-#include <audio/AudioManager.h>
+#include <audio/SourceManager.h>
 #include <thread>
 #include <cmath>
 
@@ -14,11 +13,11 @@ struct MyApp : arch::Application {
 	}
 };
 
-void testGainChange(arch::audio::AudioManager& audioManager) {
+void testGainChange(arch::audio::SourceManager& audioManager) {
 	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
 	audioManager.addSource(sounds + "rickroll.wav", 1.0f, 0.1f);
 
-	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
+	std::jthread audioThread(&arch::audio::SourceManager::play, &audioManager);
 	int gainModifier = 0;
 	for(int i=0; i < 5; i++) {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -33,9 +32,9 @@ void testGainChange(arch::audio::AudioManager& audioManager) {
 	sleep(2);
 }
 
-void testDistanceChange(arch::audio::AudioManager& audioManager) {
+void testDistanceChange(arch::audio::SourceManager& audioManager) {
 	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
-	std::jthread audioThread(&arch::audio::AudioManager::play, &audioManager);
+	std::jthread audioThread(&arch::audio::SourceManager::play, &audioManager);
 	float radius = 1.0f;
 	audioManager.mixer.changeSourcePosition(0, 1.0f, 0.0f);
 	int steps = 30;
@@ -69,7 +68,7 @@ int main() {
 	soundBank.addClip(sounds + "rickroll.wav");
 	soundBank.loadInitialGroups();
 
-	arch::audio::AudioManager audioManager(&soundBank);
+	arch::audio::SourceManager audioManager(&soundBank);
 
 	testDistanceChange(audioManager);
 

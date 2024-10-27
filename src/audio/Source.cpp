@@ -1,8 +1,8 @@
-#include <audio/AudioSource.h>
+#include <audio/Source.h>
 #include <audio/Calls.hpp>
 
 namespace arch::audio {
-void AudioSource::_updateSoundAttributes(){
+void Source::_updateSoundAttributes(){
 	alCall(alSourcef, _source, AL_PITCH, pitch);
 	alCall(alSourcef, _source, AL_GAIN, gain);
 	alCall(alSource3f, _source, AL_POSITION, positionX, positionY, 0);
@@ -10,7 +10,7 @@ void AudioSource::_updateSoundAttributes(){
 	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
 }
 
-bool AudioSource::_initiallyLoadSound() {
+bool Source::_initiallyLoadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format = clip.getFormat();
 	std::size_t bufferElements = clip.getBufferElements();
@@ -23,7 +23,7 @@ bool AudioSource::_initiallyLoadSound() {
 	return isEndFound;
 }
 
-bool AudioSource::_loadSound() {
+bool Source::_loadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format = clip.getFormat();
 	std::size_t bufferElements = clip.getBufferElements();
@@ -47,7 +47,7 @@ bool AudioSource::_loadSound() {
 	return isEndFound;
 }
 
-void AudioSource::_prepareLoadingBuffer() {
+void Source::_prepareLoadingBuffer() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	const std::size_t bufferElements = clip.getBufferElements();
 	_loadingBuffer.reserve(bufferElements);
@@ -56,13 +56,13 @@ void AudioSource::_prepareLoadingBuffer() {
 	}
 }
 
-SourceState AudioSource::getState() {
+SourceState Source::getState() {
 	return _state;
 }
 
-void AudioSource::play(){
+void Source::play(){
 	if(_state != SourceState::waiting) {
-		throw AudioException("Can't play AudioSource: it's not waiting");
+		throw AudioException("Can't play Source: it's not waiting");
 	}
 	_state = SourceState::playing;
 	_updateSoundAttributes();
@@ -71,9 +71,9 @@ void AudioSource::play(){
 	alCall(alSourcePlay, _source);
 }
 
-void AudioSource::update(){
+void Source::update(){
 	if(_state != SourceState::playing) {
-		throw AudioException("Can't update AudioSource: it's not playing");
+		throw AudioException("Can't update Source: it's not playing");
 	}
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
@@ -86,37 +86,37 @@ void AudioSource::update(){
 	}
 }
 
-void AudioSource::stop() {
+void Source::stop() {
 	if(_state != SourceState::playing) {
-		throw AudioException("Can't stop AudioSource: it's not playing");
+		throw AudioException("Can't stop Source: it's not playing");
 	}
 	_state = SourceState::stopped;
 	alCall(alSourceStop, _source);
 }
 
-void AudioSource::pausePlaying(){
+void Source::pausePlaying(){
 	if(_state != SourceState::playing) {
-		throw AudioException("Can't pause AudioSource: it's not playing");
+		throw AudioException("Can't pause Source: it's not playing");
 	}
 	_state = SourceState::paused;
 	alCall(alSourcePause, _source);
 }
 
-void AudioSource::continuePlaying() {
+void Source::continuePlaying() {
 	if(_state != SourceState::paused) {
-		throw AudioException("Can't continue AudioSource: it's not paused");
+		throw AudioException("Can't continue Source: it's not paused");
 	}
 	_state = SourceState::playing;
 	alCall(alSourcePlay, _source);
 }
 
-void AudioSource::activate(){
+void Source::activate(){
 	alCall(alGenBuffers, 4, &_buffers[0]);
 	alCall(alGenSources, 1, &_source);
 	_prepareLoadingBuffer();
 }
 
-void AudioSource::deactivate() {
+void Source::deactivate() {
 	alCall(alDeleteSources, 1, &_source);
 	alCall(alDeleteBuffers, 4, &_buffers[0]);
 }

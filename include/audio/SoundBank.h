@@ -6,7 +6,7 @@
 
 namespace arch::audio{
 	/// @brief SoundBank stores a map of Clip objects.
-	/// Thanks to this, you can save each audio file just once for all AudioSources,
+	/// Thanks to this, you can save each audio file just once for all Sources,
 	/// even if some play the same sound.
 	class SoundBank{
 

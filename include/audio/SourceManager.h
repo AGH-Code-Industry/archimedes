@@ -2,87 +2,87 @@
 #include <mutex>
 #include <vector>
 
-#include <audio/AudioListener.h>
-#include <audio/AudioSource.h>
+#include <audio/Listener.h>
+#include <audio/Source.h>
 #include <audio/SoundBank.h>
-#include <audio/AudioMixer.h>
+#include <audio/Mixer.h>
 
 namespace arch::audio {
 
-	/// @brief Stores all AudioSources on the scene and synchronizes their work.
-	class AudioManager {
+	/// @brief Stores all Sources on the scene and synchronizes their work.
+	class SourceManager {
 		///@brief Mutex to ensure that only current data will be sent to OpenAL.
 		std::mutex _mutex;
 
-		///@brief All AudioSources on the scene.
-		std::vector<AudioSource> _audioSources;
+		///@brief All Sources on the scene.
+		std::vector<Source> _sources;
 
-		///@brief AudioListener object used for calculating relative distance and velocity.
+		///@brief Listener object used for calculating relative distance and velocity.
 		///Also controls loudness of all played sounds.
-		AudioListener _listener;
+		Listener _listener;
 
-		///@brief Index of currently watched AudioSource.
+		///@brief Index of currently watched Source.
 		int _currentIndex = 0;
 
 		///@brief Sound bank storing all clips.
 		SoundBank* _soundBank;
 
-		///@brief Check what the specified AudioSource is doing.
-		///@param index Index of the AudioSource.
-		///@returns SourceState element indicating the state of the AudioSource.
+		///@brief Check what the specified Source is doing.
+		///@param index Index of the Source.
+		///@returns SourceState element indicating the state of the Source.
 		///@throws AudioException if the index is not valid.
 		SourceState _getState(int index);
 
-		///@brief Start playback of specified AudioSource.
-		///@param index Index of the AudioSource.
+		///@brief Start playback of specified Source.
+		///@param index Index of the Source.
 		///@throws AudioException if the index is not valid
-		///or the AudioSource is not waiting.
+		///or the Source is not waiting.
 		void _playSource(int index);
 
-		///@brief Send current parameters of the AudioSource to OpenAL.
+		///@brief Send current parameters of the Source to OpenAL.
 		///Also load new sound data to buffers. This should be used every audio frame.
-		///@param index Index of the AudioSource.
+		///@param index Index of the Source.
 		///@throws AudioException if the index is not valid
-		///or the AudioSource is not playing.
+		///or the Source is not playing.
 		void _updateSource(int index);
 
-		///@brief Check if current iteration reached the end of the AudioSources' vector.
+		///@brief Check if current iteration reached the end of the Sources' vector.
 		///@return True if the end was reached, false otherwise.
 		bool _vectorEndReached();
 
-		///@brief Send current parameters of the AudioListener to OpenAL.
+		///@brief Send current parameters of the Listener to OpenAL.
 		void _updateListener();
 
 		public:
 
-		///@brief AudioMixer object used for applying effects to played sounds.
-		///All modifications of the AudioSources and the Listener should be applied using the Mixer.
+		///@brief Mixer object used for applying effects to played sounds.
+		///All modifications of the Sources and the Listener should be applied using the Mixer.
 		///It's because modifying their parameters is a critical section and is prone to data races.
-		///It is initialized by the AudioManager's constructor.
-		AudioMixer mixer;
+		///It is initialized by the SourceManager's constructor.
+		Mixer mixer;
 
-		///@brief Max number of stored AudioSources.
+		///@brief Max number of stored Sources.
 		const int maxSources = 16;
 
-		///@brief If you want to stop the AudioManager during playing, set it to false.
+		///@brief If you want to stop the SourceManager during playing, set it to false.
 		//TODO: there should be a better way (a new method maybe?)
 		bool isListening = true;
 
 		///@brief Constructor.
 		///@param soundBank Sound bank storing all the clips.
-		AudioManager(SoundBank* soundBank);
+		SourceManager(SoundBank* soundBank);
 
 		///@brief Destructor.
 		///Currently, it does almost nothing (apart from logging).
-		~AudioManager();
+		~SourceManager();
 
-		///@brief Play all the AudioSources.
-		///Every frame, each playing AudioSource will be updated.
-		///AudioSources that stopped playing will be removed from the AudioManager.
+		///@brief Play all the Sources.
+		///Every frame, each playing Source will be updated.
+		///Sources that stopped playing will be removed from the SourceManager.
 		///@warning This is a blocking function, and it should be used in a separate thread.
 		void play();
 
-		///@brief Add a new AudioSource.
+		///@brief Add a new Source.
 		/// @param path Path of the sound file.
 		/// @param pitch Pitch modifier of the sound.
 		/// @param gain Gain modifier of the sound.
@@ -91,24 +91,24 @@ namespace arch::audio {
 		/// @param velocityX Source's velocity on the X axis.
 		/// @param velocityY Source's velocity on the Y axis.
 		/// @param isLooped Tells if the sound's playback has to be looped.
-		/// @throws AudioException if the number of AudioSources is equal to maxSources.
+		/// @throws AudioException if the number of Sources is equal to maxSources.
 		/// @see maxSources
 		void addSource(const std::string& path, float pitch = 1.0f, float gain = 1.0f,
 					float positionX = 0.0f,float positionY = 0.0f,float velocityX = 0.0f,
 					float velocityY = 0.0f,bool isLooped = false);
 
-		///@brief Remove an AudioSource.
-		///@param index Index of the AudioSource.
+		///@brief Remove an Source.
+		///@param index Index of the Source.
 		///@throws AudioException if the index is not valid.
 		void removeSource(int index);
 
-		///@brief Pause playing the sound by an AudioSource.
-		///@param index Index of the AudioSource.
+		///@brief Pause playing the sound by an Source.
+		///@param index Index of the Source.
 		///@throws AudioException if the index is not valid.
 		void pauseSource(int index);
 
-		///@brief Continue playing the sound by an AudioSource.
-		///@param index Index of the AudioSource.
+		///@brief Continue playing the sound by an Source.
+		///@param index Index of the Source.
 		///@throws AudioException if the index is not valid.
 		void continueSource(int index);
 	};
