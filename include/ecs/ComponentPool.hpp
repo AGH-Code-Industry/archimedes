@@ -102,7 +102,7 @@ POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) 
 	if constexpr (Traits::flag) {
 		return true;
 	} else {
-		return Traits::constructAt(_componentAssure(id), std::forward<Args>(args)...);
+		return Traits::constructAt(_componentAssure(ETraits::Id::part(sparseEntity)), std::forward<Args>(args)...);
 	}
 }
 

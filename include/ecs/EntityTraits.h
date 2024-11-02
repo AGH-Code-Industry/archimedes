@@ -131,3 +131,9 @@ struct EntityTraits {
 };
 
 } // namespace arch::ecs::_details
+
+namespace arch::ecs {
+
+static inline constexpr Entity nullEntity = _details::EntityTraits::Ent::null;
+
+}
