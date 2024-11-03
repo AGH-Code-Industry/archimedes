@@ -2,10 +2,10 @@
 
 namespace arch::hier {
 
-ChildrenIterator::ChildrenIterator(const ChildNode* node) noexcept: _current{ node } {}
+ChildrenIterator::ChildrenIterator(const Siblings* node) noexcept: _current{ node } {}
 
 ecs::Entity ChildrenIterator::operator*() const noexcept {
-	return _current->entity;
+	return _current->node().entity;
 }
 
 ChildrenIterator& ChildrenIterator::operator++() noexcept {

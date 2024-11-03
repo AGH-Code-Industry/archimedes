@@ -3,7 +3,7 @@
 namespace arch::hier {
 
 Children::Iterator Children::begin() const noexcept {
-	return ChildrenIterator(count ? first : &endSentinel);
+	return ChildrenIterator(count ? first : &sentinel);
 }
 
 Children::Iterator Children::cbegin() const noexcept {
@@ -11,7 +11,7 @@ Children::Iterator Children::cbegin() const noexcept {
 }
 
 Children::Iterator Children::end() const noexcept {
-	return ChildrenIterator(&endSentinel);
+	return ChildrenIterator(&sentinel);
 }
 
 Children::Iterator Children::cend() const noexcept {

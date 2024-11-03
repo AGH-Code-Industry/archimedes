@@ -1,15 +1,12 @@
 #pragma once
 
-#include <ecs/Entity.h>
+#include "Siblings.h"
+#include <ecs/EntityTraits.h>
 
 namespace arch::hier {
 
-struct ChildNode {
-	static constexpr bool inPlaceComponent = true;
-
-	ecs::Entity entity;
-	const ChildNode* prev;
-	const ChildNode* next;
+struct ChildNode: public Siblings {
+	ecs::Entity entity = ecs::nullEntity;
 };
 
 } // namespace arch::hier

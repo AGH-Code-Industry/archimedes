@@ -14,11 +14,10 @@ struct Children {
 	using Iterator = ChildrenIterator;
 	using ReverseIterator = std::reverse_iterator<ChildrenIterator>;
 
-	ChildNode beginSentinel{ ecs::nullEntity, nullptr, &endSentinel };
-	ChildNode endSentinel{ ecs::nullEntity, &beginSentinel, nullptr };
+	Siblings sentinel{ &sentinel, &sentinel };
 	size_t count = 0;
-	ChildNode* first = &endSentinel;
-	ChildNode* last = &endSentinel;
+	ChildNode* first = nullptr;
+	ChildNode* last = nullptr;
 
 	Iterator begin() const noexcept;
 	Iterator cbegin() const noexcept;

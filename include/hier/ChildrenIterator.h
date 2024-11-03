@@ -10,7 +10,7 @@ namespace arch::hier {
 class ChildrenIterator {
 public:
 
-	ChildrenIterator(const ChildNode* node) noexcept;
+	ChildrenIterator(const Siblings* node) noexcept;
 	ChildrenIterator() noexcept = default;
 	ChildrenIterator(const ChildrenIterator&) noexcept = default;
 	ChildrenIterator(ChildrenIterator&&) noexcept = default;
@@ -30,7 +30,7 @@ public:
 
 private:
 
-	const ChildNode* _current;
+	const Siblings* _current;
 };
 
 } // namespace arch::hier
