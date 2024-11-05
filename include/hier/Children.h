@@ -14,7 +14,7 @@ struct Children {
 	using Iterator = ChildrenIterator;
 	using ReverseIterator = std::reverse_iterator<ChildrenIterator>;
 
-	Siblings sentinel{ &sentinel, &sentinel };
+	ChildNode sentinel{ &sentinel, &sentinel, ecs::nullEntity };
 	size_t count = 0;
 	ChildNode* first = nullptr;
 	ChildNode* last = nullptr;

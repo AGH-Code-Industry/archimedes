@@ -1,11 +1,15 @@
 #pragma once
 
-#include "Siblings.h"
 #include <ecs/EntityTraits.h>
 
 namespace arch::hier {
 
-struct ChildNode: public Siblings {
+struct HierarchyNode;
+
+struct ChildNode {
+	const ChildNode* prev;
+	const ChildNode* next;
+
 	ecs::Entity entity = ecs::nullEntity;
 };
 
