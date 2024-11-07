@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace arch::utils {
 
 /// @brief Readonly counter of given type, derived class manages _counter field.
@@ -13,6 +15,8 @@ public:
 protected:
 	T _counter{};
 };
+
+extern template class ReadonlyCounter<size_t>;
 
 } // namespace arch::utils
 

@@ -1,19 +1,19 @@
 #include "ComponentTraits.h"
 
-#define TEMPLATE_CE template<class C, class E>
-#define TRAITS_CE ComponentTraits<C, E>
+#define TEMPLATE_C template<class C>
+#define TRAITS_C ComponentTraits<C>
 
 namespace arch::ecs::_details {
 
-TEMPLATE_CE
-typename TRAITS_CE::ComponentT* TRAITS_CE::newPage() noexcept {
+TEMPLATE_C
+typename TRAITS_C::ComponentT* TRAITS_C::newPage() noexcept {
 	return (ComponentT*)
 	operator new[](pageSize * sizeof(ComponentT), (std::align_val_t)alignof(C[pageSize]), std::nothrow);
 }
 
-TEMPLATE_CE
-void TRAITS_CE::deletePage(ComponentT** pages, size_t pageNum, const std::vector<E>& dense) noexcept {
-	using ETraits = EntityTraits<E>;
+TEMPLATE_C
+void TRAITS_C::deletePage(ComponentT** pages, size_t pageNum, const std::vector<Entity>& dense) noexcept {
+	using ETraits = EntityTraits;
 
 	ComponentT*& componentPage = pages[pageNum];
 	if (!componentPage) {
@@ -32,18 +32,18 @@ void TRAITS_CE::deletePage(ComponentT** pages, size_t pageNum, const std::vector
 	componentPage = nullptr;
 }
 
-TEMPLATE_CE
-void TRAITS_CE::destroyAt(ComponentT* component) noexcept {
+TEMPLATE_C
+void TRAITS_C::destroyAt(ComponentT* component) noexcept {
 	component->~ComponentT();
 }
 
-TEMPLATE_CE
+TEMPLATE_C
 template<class... Args>
-TRAITS_CE::ComponentT& TRAITS_CE::constructAt(ComponentT* component, Args&&... args) noexcept {
+TRAITS_C::ComponentT& TRAITS_C::constructAt(ComponentT* component, Args&&... args) noexcept {
 	return *new (component) ComponentT(std::forward<Args>(args)...);
 }
 
 } // namespace arch::ecs::_details
 
-#undef TEMPLATE_CE
-#undef TRAITS_CE
+#undef TEMPLATE_C
+#undef TRAITS_C

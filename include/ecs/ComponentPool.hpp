@@ -1,17 +1,17 @@
 #include "ComponentPool.h"
 #include <utils/Assert.h>
 
-#define TEMPLATE_CE template<class C, class E>
-#define POOL_CE ComponentPool<C, E>
-#define TRAITS_CE _details::ComponentTraits<C, E>
+#define TEMPLATE_C template<class C>
+#define POOL_C ComponentPool<C>
+#define TRAITS_C _details::ComponentTraits<C>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
 
 namespace arch::ecs {
 
-TEMPLATE_CE
-POOL_CE::~ComponentPool() noexcept {
+TEMPLATE_C
+POOL_C::~ComponentPool() noexcept {
 	if constexpr (!Traits::flag) {
 		for (size_t i = 0; i != _components.size(); ++i) {
 			Traits::deletePage(_components.data(), i, _dense);
@@ -19,10 +19,10 @@ POOL_CE::~ComponentPool() noexcept {
 	}
 }
 
-TEMPLATE_CE
-std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
+TEMPLATE_C
+std::tuple<Entity&, size_t> POOL_C::_denseNew() noexcept {
 	if (_listHead == _dense.size()) { // dense is full
-		return { _dense.emplace_back(ETraits::Entity::null), _listHead++ };
+		return { _dense.emplace_back(ETraits::Ent::null), _listHead++ };
 	}
 
 	if constexpr (Traits::inPlace) {
@@ -34,8 +34,8 @@ std::tuple<E&, size_t> POOL_CE::_denseNew() noexcept {
 	}
 }
 
-TEMPLATE_CE
-C* POOL_CE::_componentAssure(const IdT id) noexcept {
+TEMPLATE_C
+C* POOL_C::_componentAssure(const IdT id) noexcept {
 	const size_t pageNum = id / Traits::pageSize;
 
 	// resize(n) only would make capacity == n (bad)
@@ -52,8 +52,8 @@ C* POOL_CE::_componentAssure(const IdT id) noexcept {
 	return pagePtr + id % Traits::pageSize;
 }
 
-TEMPLATE_CE
-size_t POOL_CE::_findFirst() const noexcept {
+TEMPLATE_C
+size_t POOL_C::_findFirst() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = 0; i != _dense.size(); ++i) {
 			if (!ETraits::Version::hasNull(_dense[i])) {
@@ -65,8 +65,8 @@ size_t POOL_CE::_findFirst() const noexcept {
 	return 0;
 }
 
-TEMPLATE_CE
-size_t POOL_CE::_findLast() const noexcept {
+TEMPLATE_C
+size_t POOL_C::_findLast() const noexcept {
 	if constexpr (Traits::inPlace) {
 		for (size_t i = _dense.size() - 1; i != (size_t)-1; --i) {
 			if (!ETraits::Version::hasNull(_dense[i - 1])) {
@@ -78,13 +78,13 @@ size_t POOL_CE::_findLast() const noexcept {
 	return _listHead - 1;
 }
 
-TEMPLATE_CE
+TEMPLATE_C
 template<class... Args>
-POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args) noexcept {
+POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) noexcept {
 	const auto id = ETraits::Id::part(entity);
 
 	auto&& sparseEntity = _sparseAssure(id);
-	if (sparseEntity != ETraits::Entity::null) {
+	if (sparseEntity != ETraits::Ent::null) {
 		if constexpr (Traits::flag) {
 			return false;
 		} else {
@@ -95,7 +95,7 @@ POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args
 
 	auto&& [denseEntity, denseIdx] = _denseNew();
 
-	sparseEntity = ETraits::Entity::fromParts(denseIdx, ETraits::Version::part(entity));
+	sparseEntity = ETraits::Ent::fromParts(denseIdx, ETraits::Version::part(entity));
 	denseEntity = entity;
 	++_counter;
 
@@ -106,8 +106,8 @@ POOL_CE::GetReference POOL_CE::addComponent(const EntityT entity, Args&&... args
 	}
 }
 
-TEMPLATE_CE
-C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> && !TRAITS_CE::flag)
+TEMPLATE_C
+C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std::movable<C> && !TRAITS_C::flag)
 { // user must assume that component exists
 	const size_t id = ETraits::Id::part(entity);
 
@@ -116,8 +116,8 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 	auto&& fromSparse = _sparseGet(id);
 
 	if constexpr (Traits::inPlace) {
-		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
-		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
+		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Ent::null));
+		_dense[idx] = ETraits::Ent::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
 		auto&& component = (*_components[idx / Traits::pageSize])[idx % Traits::pageSize];
 		auto toMove = std::move(component);
 		Traits::destroyAt(&component);
@@ -131,14 +131,14 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 		if (&sparseSwap != &fromSparse) {
 			// first sparse swap, id at listHead = id of given entity
 			sparseSwap =
-				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
-		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Entity::null));
+		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Ent::null));
 
 		_dense[idx] = _dense[_listHead];
-		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
+		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
 
 		auto&& atIdx = _components[idx / Traits::pageSize][idx % Traits::pageSize];
 		auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
@@ -158,18 +158,18 @@ C POOL_CE::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std
 	}
 }
 
-TEMPLATE_CE
-bool POOL_CE::removeComponent(const EntityT entity) noexcept {
+TEMPLATE_C
+bool POOL_C::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseTryGet(id);
-	if (!sparsePtr || *sparsePtr == ETraits::Entity::null) {
+	if (!sparsePtr || *sparsePtr == ETraits::Ent::null) {
 		return false;
 	}
 
 	if constexpr (Traits::inPlace) {
-		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
-		_dense[idx] = ETraits::Entity::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
+		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Ent::null));
+		_dense[idx] = ETraits::Ent::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
 		if constexpr (!Traits::flag) {
 			Traits::destroyAt(_components[idx / Traits::pageSize] + idx % Traits::pageSize);
 		}
@@ -181,14 +181,14 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
 			sparseSwap =
-				ETraits::Entity::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
-		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Entity::null));
+		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Ent::null));
 
 		_dense[idx] = _dense[_listHead];
-		_dense[_listHead] = ETraits::Entity::fromParts(_listHead + 1, ETraits::Version::null);
+		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
 		--_counter;
 
 		if constexpr (!Traits::flag) {
@@ -206,8 +206,8 @@ bool POOL_CE::removeComponent(const EntityT entity) noexcept {
 	return true;
 }
 
-TEMPLATE_CE
-POOL_CE::GetReference POOL_CE::get(const EntityT entity) noexcept {
+TEMPLATE_C
+POOL_C::GetReference POOL_C::get(const EntityT entity) noexcept {
 	// assumed existence of component
 	if constexpr (Traits::flag) {
 		return contains(entity);
@@ -222,13 +222,13 @@ POOL_CE::GetReference POOL_CE::get(const EntityT entity) noexcept {
 	}
 }
 
-TEMPLATE_CE
-POOL_CE::ConstGetReference POOL_CE::get(const EntityT entity) const noexcept {
-	return const_cast<POOL_CE*>(this)->get(entity);
+TEMPLATE_C
+POOL_C::ConstGetReference POOL_C::get(const EntityT entity) const noexcept {
+	return const_cast<POOL_C*>(this)->get(entity);
 }
 
-TEMPLATE_CE
-std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) noexcept requires(!TRAITS_CE::flag)
+TEMPLATE_C
+std::optional<std::reference_wrapper<C>> POOL_C::tryGet(const EntityT entity) noexcept requires(!TRAITS_C::flag)
 {
 	const size_t id = ETraits::Id::part(entity);
 
@@ -242,75 +242,75 @@ std::optional<std::reference_wrapper<C>> POOL_CE::tryGet(const EntityT entity) n
 	return std::optional{ std::ref(_components[idx / Traits::pageSize][idx % Traits::pageSize]) };
 }
 
-TEMPLATE_CE
-std::optional<std::reference_wrapper<const C>> POOL_CE::tryGet(const EntityT entity) const noexcept
-	requires(!TRAITS_CE::flag)
+TEMPLATE_C
+std::optional<std::reference_wrapper<const C>> POOL_C::tryGet(const EntityT entity) const noexcept
+	requires(!TRAITS_C::flag)
 {
-	return const_cast<POOL_CE*>(this)->tryGet(entity);
+	return const_cast<POOL_C*>(this)->tryGet(entity);
 }
 
-TEMPLATE_CE
-POOL_CE::Iterator POOL_CE::begin() noexcept {
+TEMPLATE_C
+POOL_C::Iterator POOL_C::begin() noexcept {
 	return Iterator(this, _findFirst());
 }
 
-TEMPLATE_CE
-const POOL_CE::Iterator POOL_CE::begin() const noexcept {
-	return const_cast<POOL_CE*>(this)->begin();
+TEMPLATE_C
+const POOL_C::Iterator POOL_C::begin() const noexcept {
+	return const_cast<POOL_C*>(this)->begin();
 }
 
-TEMPLATE_CE
-const POOL_CE::Iterator POOL_CE::cbegin() const noexcept {
+TEMPLATE_C
+const POOL_C::Iterator POOL_C::cbegin() const noexcept {
 	return begin();
 }
 
-TEMPLATE_CE
-POOL_CE::Iterator POOL_CE::end() noexcept {
+TEMPLATE_C
+POOL_C::Iterator POOL_C::end() noexcept {
 	return Iterator(this, _findLast() + 1);
 }
 
-TEMPLATE_CE
-const POOL_CE::Iterator POOL_CE::end() const noexcept {
-	return const_cast<POOL_CE*>(this)->end();
+TEMPLATE_C
+const POOL_C::Iterator POOL_C::end() const noexcept {
+	return const_cast<POOL_C*>(this)->end();
 }
 
-TEMPLATE_CE
-const POOL_CE::Iterator POOL_CE::cend() const noexcept {
+TEMPLATE_C
+const POOL_C::Iterator POOL_C::cend() const noexcept {
 	return end();
 }
 
-TEMPLATE_CE
-POOL_CE::ReverseIterator POOL_CE::rbegin() noexcept {
+TEMPLATE_C
+POOL_C::ReverseIterator POOL_C::rbegin() noexcept {
 	return std::reverse_iterator(end());
 }
 
-TEMPLATE_CE
-POOL_CE::ConstReverseIterator POOL_CE::rbegin() const noexcept {
+TEMPLATE_C
+POOL_C::ConstReverseIterator POOL_C::rbegin() const noexcept {
 	return std::reverse_iterator(end());
 }
 
-TEMPLATE_CE
-POOL_CE::ConstReverseIterator POOL_CE::crbegin() const noexcept {
+TEMPLATE_C
+POOL_C::ConstReverseIterator POOL_C::crbegin() const noexcept {
 	return std::reverse_iterator(cend());
 }
 
-TEMPLATE_CE
-POOL_CE::ReverseIterator POOL_CE::rend() noexcept {
+TEMPLATE_C
+POOL_C::ReverseIterator POOL_C::rend() noexcept {
 	return std::reverse_iterator(begin());
 }
 
-TEMPLATE_CE
-POOL_CE::ConstReverseIterator POOL_CE::rend() const noexcept {
+TEMPLATE_C
+POOL_C::ConstReverseIterator POOL_C::rend() const noexcept {
 	return std::reverse_iterator(begin());
 }
 
-TEMPLATE_CE
-POOL_CE::ConstReverseIterator POOL_CE::crend() const noexcept {
+TEMPLATE_C
+POOL_C::ConstReverseIterator POOL_C::crend() const noexcept {
 	return std::reverse_iterator(cbegin());
 }
 
 } // namespace arch::ecs
 
-#undef TEMPLATE_CE
-#undef POOL_CE
-#undef TRAITS_CE
+#undef TEMPLATE_C
+#undef POOL_C
+#undef TRAITS_C

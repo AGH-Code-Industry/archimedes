@@ -9,13 +9,12 @@
 namespace arch::ecs::_details {
 
 /// @brief Sparse set data structure with find-like operations
-/// @tparam E - entity type
-template<class E>
+/// @tparam Entity - entity type
 class SparseSet {
 public:
 
 	/// @brief EntityTraits of entity
-	using Traits = EntityTraits<E>;
+	using Traits = EntityTraits;
 	/// @brief Entity type
 	using EntityT = Traits::EntityT;
 	/// @brief Id type
@@ -48,8 +47,8 @@ public:
 
 protected:
 
-	using SparseContainer = std::vector<std::unique_ptr<std::array<E, Traits::pageSize>>>;
-	using DenseContainer = std::vector<E>;
+	using SparseContainer = std::vector<std::unique_ptr<std::array<Entity, Traits::pageSize>>>;
+	using DenseContainer = std::vector<Entity>;
 
 	// possibly inits sparse page
 	EntityT* _sparseAssurePage(const size_t n) noexcept;
@@ -67,5 +66,3 @@ protected:
 };
 
 } // namespace arch::ecs::_details
-
-#include "SparseSet.hpp"

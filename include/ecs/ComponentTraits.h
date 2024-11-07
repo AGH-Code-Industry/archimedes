@@ -13,8 +13,7 @@ namespace arch::ecs::_details { // NOLINT
 /// @brief Contains info, constants and operations on components and their pages
 /// @details All data extracted from ComponentSpecs
 /// @tparam C - component type
-/// @tparam E - entity type
-template<class C, class E>
+template<class C>
 struct ComponentTraits {
 	/// @brief Component Specifications
 	using Specs = ComponentSpecs<C>;
@@ -22,8 +21,12 @@ struct ComponentTraits {
 	/// @brief Type of component
 	using ComponentT = C;
 
+	/// @brief Whether component is a flag component,
+	static inline constexpr bool flag = Specs::flag;
+	static_assert(!(flag && !std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
+
 	/// @brief Whether component is marked as in-place
-	static inline constexpr bool inPlace = Specs::inPlace;
+	static inline constexpr bool inPlace = Specs::inPlace && !flag;
 	/// @brief Whether component is movable
 	static inline constexpr bool movable = std::movable<ComponentT>;
 	static_assert(!(!movable && !inPlace), "Non-movable components cannot be marked as not-in-place");
@@ -36,17 +39,13 @@ struct ComponentTraits {
 	/// @brief Alignment of component
 	static inline constexpr size_t alignment = alignof(ComponentT);
 
-	/// @brief Whether component is a flag component,
-	static inline constexpr bool flag = Specs::flag;
-	static_assert(!(flag && !std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
-
 	/// @brief Creates new page of size pageSize
 	static inline ComponentT* newPage() noexcept;
 	/// @brief Destroys all components and deallocates memory of given page
 	/// @param pages - pointer to all pages
 	/// @param pageNum - index of page in pages
 	/// @param dense - dense vector of entities
-	static inline void deletePage(ComponentT** pages, size_t pageNum, const std::vector<E>& dense) noexcept;
+	static inline void deletePage(ComponentT** pages, size_t pageNum, const std::vector<Entity>& dense) noexcept;
 	/// @brief Destroys component at given location
 	/// @param component - component to destroy
 	static inline void destroyAt(ComponentT* component) noexcept;

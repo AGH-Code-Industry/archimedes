@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bit>
 #include <limits>
 
 #include "EntitySpecs.h"
@@ -10,29 +11,25 @@ namespace arch::ecs::_details { /* NOLINT */
 /// @details All data extracted from EntitySpecs
 /// @details 'part' of entity - abstract value describing part of entity
 /// @details 'raw part' of entity - 'part' of entity as held in memory, in general 'part' != 'raw part'
-/// @tparam E - entity type
-template<class E>
 struct EntityTraits {
-	/// @brief Entity specifications
-	using Specs = EntitySpecs<E>;
-
+	// Entity specification
+	using Specs = EntitySpecs;
 	/// @brief Entity type
-	using EntityT = typename Specs::EntityT;
+	using EntityT = typename ::arch::ecs::Entity;
 	/// @brief Entity underlying type
-	using EntityRawT = std::underlying_type_t<EntityT>;
+	using EntityRawT = std::underlying_type_t<Entity>;
 	/// @brief Entity id type
-	using IdT = typename Specs::IdT;
+	using IdT = EntityRawT;
 	/// @brief Entity version type
-	using VersionT = typename Specs::VersionT;
+	using VersionT = uint16_t;
 
 	/// @brief Size of sparse pages
-	static inline constexpr size_t pageSize = Specs::pageSize;
-	static_assert(std::popcount(pageSize) == 1, "pageSize must be a power of 2");
+	static inline constexpr size_t pageSize = 1'024;
 
 	/// @brief Entity section
-	struct Entity {
+	struct Ent {
 		/// @brief Entity type
-		using Type = EntityT;
+		using Type = Specs::EntityT;
 		/// @brief Entity underlying type
 		using RawT = EntityRawT;
 
@@ -44,18 +41,18 @@ struct EntityTraits {
 		/// @brief Constructs entity from its parts
 		/// @param id - id of entity
 		/// @param ver - version of entity
-		static inline Type fromParts(const IdT id, const VersionT ver) noexcept;
+		static Type fromParts(const IdT id, const VersionT ver) noexcept;
 		/// @brief Constructs entity from its raw parts
 		/// @param id - id part of entity
 		/// @param ver - version part of entity
-		static inline Type fromRawParts(const RawT id, const RawT ver) noexcept;
+		static Type fromRawParts(const RawT id, const RawT ver) noexcept;
 		/// @brief Constructs entity from others
 		/// @param id - entity to extract id from
 		/// @param ver - entity to extract version from
-		static inline Type fromOthers(const Type id, const Type ver) noexcept;
+		static Type fromOthers(const Type id, const Type ver) noexcept;
 		/// @brief Obtains entity as underlying type
 		/// @param entity - entity to convert
-		static inline RawT toRaw(const Type entity) noexcept;
+		static RawT toRaw(const Type entity) noexcept;
 	};
 
 	/// @brief Id section
@@ -77,19 +74,19 @@ struct EntityTraits {
 		static inline constexpr EntityRawT nullRaw = mask;
 
 		/// @brief Obtains id part from given entity
-		static inline Type part(const EntityT entity) noexcept;
+		static Type part(const EntityT entity) noexcept;
 		/// @brief Obtains id raw part from given entity
-		static inline EntityRawT rawPart(const EntityT entity) noexcept;
+		static EntityRawT rawPart(const EntityT entity) noexcept;
 		/// @brief Converts id part to raw part
-		static inline EntityRawT asRawPart(const Type id) noexcept;
+		static EntityRawT asRawPart(const Type id) noexcept;
 		/// @brief Checks if entity has null id
-		static inline bool hasNull(const EntityT entity) noexcept;
+		static bool hasNull(const EntityT entity) noexcept;
 		/// @brief Creates entity with null id and version of given entity
-		static inline EntityT withNull(const EntityT entity) noexcept;
+		static EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps ids of two entities
-		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		static void swap(EntityT& entity1, EntityT& entity2) noexcept;
 		/// @brief Compares ids of 2 given entities
-		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
+		static bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 
 	/// @brief Version section
@@ -98,41 +95,39 @@ struct EntityTraits {
 		using Type = VersionT;
 
 		/// @brief Bit length of version
-		static inline constexpr size_t length = Entity::length - Specs::idLength;
+		static inline constexpr size_t length = Ent::length - Specs::idLength;
 		/// @brief Bit mask of version
 		static inline constexpr EntityRawT mask = ~(std::numeric_limits<EntityRawT>::max() >> length);
 		/// @brief Max value of version as raw part
 		static inline constexpr EntityRawT maxRaw = ((mask - 1) & mask);
 		/// @brief Max value of version as part
-		static inline constexpr Type max = (Type)(maxRaw >> (Entity::length - length));
+		static inline constexpr Type max = (Type)(maxRaw >> (Ent::length - length));
 		/// @brief Null version (part)
 		static inline constexpr Type null = max + 1;
 		/// @brief Null version (raw part)
 		static inline constexpr EntityRawT nullRaw = mask;
 
 		/// @brief Obtains version part from given entity
-		static inline Type part(const EntityT entity) noexcept;
+		static Type part(const EntityT entity) noexcept;
 		/// @brief Obtains version raw part from given entity
-		static inline EntityRawT asRawPart(const Type version) noexcept;
+		static EntityRawT asRawPart(const Type version) noexcept;
 		/// @brief Converts version part to raw part
-		static inline EntityRawT rawPart(const EntityT entity) noexcept;
+		static EntityRawT rawPart(const EntityT entity) noexcept;
 		/// @brief Checks if entity has null version
-		static inline bool hasNull(const EntityT entity) noexcept;
+		static bool hasNull(const EntityT entity) noexcept;
 		/// @brief Checks if entity has != null version
-		static inline bool hasNotNull(const EntityT entity) noexcept;
+		static bool hasNotNull(const EntityT entity) noexcept;
 		/// @brief Creates entity with next version and id of given entity
-		static inline EntityT withNext(const EntityT entity) noexcept;
+		static EntityT withNext(const EntityT entity) noexcept;
 		/// @brief Gets next version of given entity
-		static inline Type next(const EntityT entity) noexcept;
+		static Type next(const EntityT entity) noexcept;
 		/// @brief Creates entity with null version and id of given entity
-		static inline EntityT withNull(const EntityT entity) noexcept;
+		static EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps versions of two entities
-		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		static void swap(EntityT& entity1, EntityT& entity2) noexcept;
 		/// @brief Compares versions of 2 given entities
-		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
+		static bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 };
 
 } // namespace arch::ecs::_details
-
-#include "EntityTraits.hpp"
