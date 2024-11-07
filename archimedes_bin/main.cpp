@@ -4,8 +4,12 @@
 #include <audio/SourceManager.h>
 #include <thread>
 #include <cmath>
+#include <ecs/Domain.h>
 
 const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
+
+namespace audio = arch::audio;
+namespace ecs = arch::ecs;
 
 struct MyApp : arch::Application {
 	void init() override {
@@ -13,11 +17,20 @@ struct MyApp : arch::Application {
 	}
 };
 
-void testGainChange(arch::audio::SourceManager& audioManager) {
-	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
-	audioManager.addSource(sounds + "rickroll.wav", 1.0f, 0.1f);
+void testGainChange(audio::SourceManager& audioManager, ecs::Domain<ecs::e64>& domain) {
+	ecs::e64 wind = domain.newEntity();
+	ecs::e64 rickroll = domain.newEntity();
+	domain.addComponent<audio::SourceComponent>(wind);
+	domain.addComponent<audio::SourceComponent>(rickroll);
+	domain.getComponent<audio::SourceComponent>(wind).path = sounds + "wind.mp3";
+	domain.getComponent<audio::SourceComponent>(rickroll).path = sounds + "rickroll.wav";
+	domain.getComponent<audio::SourceComponent>(rickroll).gain = 0.1f;
 
-	std::jthread audioThread(&arch::audio::SourceManager::play, &audioManager);
+
+	audioManager.addSource(domain.getComponent<audio::SourceComponent>(wind));
+	audioManager.addSource(domain.getComponent<audio::SourceComponent>(rickroll));
+
+	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
 	int gainModifier = 0;
 	for(int i=0; i < 5; i++) {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -32,8 +45,10 @@ void testGainChange(arch::audio::SourceManager& audioManager) {
 	sleep(2);
 }
 
-void testDistanceChange(arch::audio::SourceManager& audioManager) {
-	audioManager.addSource(sounds + "wind.mp3", 1.0f, 1.0f);
+void testDistanceChange(arch::audio::SourceManager& audioManager, arch::ecs::Domain<arch::ecs::e64>& domain) {
+	arch::audio::SourceComponent wind;
+	wind.path = sounds + "wind.mp3";
+	audioManager.addSource(wind);
 	std::jthread audioThread(&arch::audio::SourceManager::play, &audioManager);
 	float radius = 1.0f;
 	audioManager.mixer.changeSourcePosition(0, 1.0f, 0.0f);
@@ -44,10 +59,10 @@ void testDistanceChange(arch::audio::SourceManager& audioManager) {
 		float y = radius * std::sin(i * 6.28 / steps);
 		audioManager.mixer.changeSourcePosition(0, x, y);
 		if(i == 10) {
-			audioManager.pauseSource(0);
+			audioManager.pauseSource(wind);
 		}
 		else if(i == 20) {
-			audioManager.continueSource(0);
+			audioManager.continueSource(wind);
 		}
 	}
 	audioManager.isListening = false;
@@ -68,9 +83,10 @@ int main() {
 	soundBank.addClip(sounds + "rickroll.wav");
 	soundBank.loadInitialGroups();
 
-	arch::audio::SourceManager audioManager(&soundBank);
+	ecs::Domain<ecs::e64> domain;
+	arch::audio::SourceManager audioManager(&soundBank, &domain);
 
-	testDistanceChange(audioManager);
+	testGainChange(audioManager);
 
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//

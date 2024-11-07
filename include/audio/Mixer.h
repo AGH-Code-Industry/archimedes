@@ -22,7 +22,7 @@ namespace arch::audio {
 		///@param mutex Pointer to the mutex.
 		///@warning This should be called once before using the object, else using other methods will cause
 		///segmentation faults.
-		void initialize(std::vector<Source>* sources, Listener* listener, std::mutex* mutex);
+		void initialize();
 
 		///@brief Change pitch of a Source.
 		///@param index Index to the Source in vector.

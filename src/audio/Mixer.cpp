@@ -2,10 +2,7 @@
 #include <audio/AudioException.h>
 
 namespace arch::audio {
-void Mixer::initialize(std::vector<Source>* sources, Listener* listener, std::mutex* mutex){
-	_sources = sources;
-	_listener = listener;
-	_mutex = mutex;
+void Mixer::initialize(){
 }
 
 void Mixer::changeSourcePitch(int index, ALfloat pitch) {
