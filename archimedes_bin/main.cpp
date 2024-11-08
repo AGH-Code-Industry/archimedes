@@ -4,7 +4,7 @@
 #include <audio/SourceManager.h>
 #include <thread>
 #include <cmath>
-#include <ecs/Domain.h>
+#include <Ecs.h>
 
 const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
 
@@ -17,18 +17,19 @@ struct MyApp : arch::Application {
 	}
 };
 
-void testGainChange(audio::SourceManager& audioManager, ecs::Domain<ecs::e64>& domain) {
-	ecs::e64 wind = domain.newEntity();
-	ecs::e64 rickroll = domain.newEntity();
-	domain.addComponent<audio::SourceComponent>(wind);
-	domain.addComponent<audio::SourceComponent>(rickroll);
-	domain.getComponent<audio::SourceComponent>(wind).path = sounds + "wind.mp3";
-	domain.getComponent<audio::SourceComponent>(rickroll).path = sounds + "rickroll.wav";
-	domain.getComponent<audio::SourceComponent>(rickroll).gain = 0.1f;
+void testGainChange(audio::SourceManager& audioManager, ecs::Domain& domain) {
+	auto windPlayer = domain.newEntity();
+	auto rickrollPlayer = domain.newEntity();
+	domain.addComponent<audio::SourceComponent>(windPlayer);
+	domain.addComponent<audio::SourceComponent>(rickrollPlayer);
+	audio::SourceComponent& wind = domain.getComponent<audio::SourceComponent>(windPlayer);
+	audio::SourceComponent& rickroll = domain.getComponent<audio::SourceComponent>(rickrollPlayer);
+	wind.path = sounds + "wind.mp3";
+	rickroll.path = sounds + "rickroll.wav";
+	rickroll.gain = 0.1f;
 
-
-	audioManager.addSource(domain.getComponent<audio::SourceComponent>(wind));
-	audioManager.addSource(domain.getComponent<audio::SourceComponent>(rickroll));
+	audioManager.addSource(wind);
+	audioManager.addSource(rickroll);
 
 	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
 	int gainModifier = 0;
@@ -36,8 +37,8 @@ void testGainChange(audio::SourceManager& audioManager, ecs::Domain<ecs::e64>& d
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		gainModifier += 2;
 		ALfloat gain = gainModifier / 10.0f;
-		audioManager.mixer.changeSourceGain(0, 1.0f - gain);
-		audioManager.mixer.changeSourceGain(1, gain);
+		wind.gain = 1.0f - gain;
+		rickroll.gain = gain;
 	}
 
 	audioManager.isListening = false;
@@ -45,19 +46,22 @@ void testGainChange(audio::SourceManager& audioManager, ecs::Domain<ecs::e64>& d
 	sleep(2);
 }
 
-void testDistanceChange(arch::audio::SourceManager& audioManager, arch::ecs::Domain<arch::ecs::e64>& domain) {
-	arch::audio::SourceComponent wind;
+void testDistanceChange(audio::SourceManager& audioManager, ecs::Domain& domain) {
+	auto windPlayer = domain.newEntity();
+	domain.addComponent<audio::SourceComponent>(windPlayer);
+	audio::SourceComponent& wind = domain.getComponent<audio::SourceComponent>(windPlayer);
 	wind.path = sounds + "wind.mp3";
+	wind.positionX = 1.0f;
 	audioManager.addSource(wind);
 	std::jthread audioThread(&arch::audio::SourceManager::play, &audioManager);
 	float radius = 1.0f;
-	audioManager.mixer.changeSourcePosition(0, 1.0f, 0.0f);
 	int steps = 30;
 	for(int i=0; i < steps; i++) {
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		float x = radius * std::cos(i * 6.28 / steps);
 		float y = radius * std::sin(i * 6.28 / steps);
-		audioManager.mixer.changeSourcePosition(0, x, y);
+		wind.positionX = x;
+		wind.positionY = y;
 		if(i == 10) {
 			audioManager.pauseSource(wind);
 		}
@@ -77,16 +81,16 @@ int main() {
 		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
 	};
 
-	arch::audio::SoundDevice device;
-	arch::audio::SoundBank soundBank;
+	audio::SoundDevice device;
+	audio::SoundBank soundBank;
 	soundBank.addClip(sounds + "wind.mp3");
 	soundBank.addClip(sounds + "rickroll.wav");
 	soundBank.loadInitialGroups();
 
-	ecs::Domain<ecs::e64> domain;
-	arch::audio::SourceManager audioManager(&soundBank, &domain);
+	ecs::Domain domain;
+	audio::SourceManager audioManager(&soundBank, &domain);
 
-	testGainChange(audioManager);
+	testDistanceChange(audioManager, domain);
 
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//

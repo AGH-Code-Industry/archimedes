@@ -15,7 +15,7 @@ namespace arch::audio {
 	/// @brief Stores all Sources on the scene and synchronizes their work.
 	class SourceManager {
 
-		ecs::Domain<ecs::e64> *_domain;
+		ecs::Domain *_domain;
 
 		///@brief All Sources on the scene.
 		Source _sources[16];
@@ -45,9 +45,7 @@ namespace arch::audio {
 		//TODO: there should be a better way (a new method maybe?)
 		bool isListening = true;
 
-		///@brief Constructor.
-		///@param soundBank Sound bank storing all the clips.
-		SourceManager(SoundBank* soundBank, ecs::Domain<ecs::e64> *domain);
+		SourceManager(SoundBank* soundBank, ecs::Domain *domain);
 
 		///@brief Destructor.
 		///Currently, it does almost nothing (apart from logging).
@@ -55,7 +53,6 @@ namespace arch::audio {
 
 		///@brief Play all the Sources.
 		///Every frame, each playing Source will be updated.
-		///Sources that stopped playing will be removed from the SourceManager.
 		///@warning This is a blocking function, and it should be used in a separate thread.
 		void play();
 

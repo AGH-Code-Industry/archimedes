@@ -4,8 +4,7 @@
 
 namespace arch::audio {
 
-SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain<ecs::e64> *domain) : _soundBank(soundBank), _domain(domain) {
-	mixer.initialize();
+SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain *domain) : _soundBank(soundBank), _domain(domain) {
 	Logger::info("Audio system: opened audio manager");
 }
 
@@ -22,10 +21,11 @@ int SourceManager::_findEmptySource() {
 	return -1;
 }
 
-
-
 void SourceManager::play() {
 	Logger::info("Audio system: audio manager started playing");
+	for (auto&& [entity, pos] : _domain->components<SourceComponent>()) {
+		_playSource(pos);
+	}
 	while (isListening) {
 		_updateListener();
 		for (auto&& [entity, pos] : _domain->components<SourceComponent>()) {
@@ -41,8 +41,10 @@ void SourceManager::addSource(SourceComponent& component){
 		throw AudioException("Could not find empty source");
 	}
 	component.sourceIndex = index;
+	_sources[index].activate(_soundBank, component);
 	_sources[index].update(component);
-	_sources[index].activate(_soundBank);
+
+
 	Logger::info("Audio system: added Source with path {} and index {}", component.path, std::to_string(index));
 }
 

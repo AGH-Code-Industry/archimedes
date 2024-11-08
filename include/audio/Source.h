@@ -7,14 +7,6 @@
 
 namespace arch::audio{
 
-	// /// @brief An enum used to tell what the Source is now doing.
-	// enum class SourceState {
-	// 	waiting, ///< waiting to play a sound
-	// 	playing, ///< playing a sound
-	// 	stopped, ///< stopped permanently
-	// 	paused ///< stopped until continuation
-	// };
-
 	/// @brief Each sound played on the game's scene has its own Source.
 	/// The sound can be modified as needed.
 	class Source{
@@ -40,9 +32,6 @@ namespace arch::audio{
 
 		/// @brief Path to the audio file.
 		std::string _clipPath;
-
-		// /// @brief Tells what the Source is now doing.
-		// SourceState _state = SourceState::waiting;
 
 		/// @brief True if end of the sound file was reached
 		bool _isEndFound = false;
@@ -87,50 +76,18 @@ namespace arch::audio{
 		/// @brief Tells if the sound's playback has to be looped.
 		bool isLooped = false;
 
-		/// @brief Constructor.
-		/// @param soundBank SoundBank responsible for loading audio data from files.
-		/// @param path Path of the sound file.
-		/// @param pitch Pitch modifier of the sound.
-		/// @param gain Gain modifier of the sound.
-		/// @param positionX X coordinate of the position on the map.
-		/// @param positionY Y coordinate of the position on the map.
-		/// @param velocityX Source's velocity on the X axis.
-		/// @param velocityY Source's velocity on the Y axis.
-		/// @param isLooped Tells if the sound's playback has to be looped.
+		void activate(SoundBank* soundBank, SourceComponent& component);
 
-		///@brief Initialize OpenAL buffers and the source, initially load the sound.
-		///@warning Should be always used before playing.
-		void activate(SoundBank* soundBank);
-
-		///@brief Clear OpenAL buffers and the source.
-		///@warning Should be used when the Source is destroyed.
 		void deactivate();
 
-		// ///@brief Getter for the _state property.
-		// ///@see _state
-		// SourceState getState();
-
-		///@brief Starts the playback.
-		///@throws AudioException if the Source is not waiting.
 		void play();
 
-		///@brief Sends all sound data to the OpenAL context.
-		///@warning Should be called each audio frame.
-		///@throws AudioException if the Source is not playing.
 		void update(SourceComponent& component);
 
-		///@brief Permanently stops playing the sound.
-		///@throws AudioException if the Source is not playing.
 		void stop();
 
-		///@brief Pauses the Source until you use continuePlaying().
-		///@see continuePlaying
-		///@throws AudioException if the Source is not playing.
 		void pausePlaying();
 
-		///@brief Continues playing the sound, if the Source is paused.
-		///@see pausePlaying
-		///@throws AudioException if the Source is not paused.
 		void continuePlaying();
 	};
 

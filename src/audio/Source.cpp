@@ -11,11 +11,8 @@ void Source::_updateFromComponent(SourceComponent& component) {
 	velocityX = component.velocityX;
 	velocityY = component.velocityY;
 	if(component.path != _clipPath) {
-		stop();
-		component.path = _clipPath;
 		_cursor = 0;
-		_prepareLoadingBuffer();
-		play();
+		_clipPath = component.path;
 	}
 }
 
@@ -111,41 +108,32 @@ void Source::update(SourceComponent& component){
 
 void Source::stop() {
 	isPlaying = false;
-	// if(_state != SourceState::playing) {
-	// 	throw AudioException("Can't stop Source: it's not playing");
-	// }
-	// _state = SourceState::stopped;
 	alCall(alSourceStop, _source);
 }
 
 void Source::pausePlaying(){
 	isPlaying = false;
-	// if(_state != SourceState::playing) {
-	// 	throw AudioException("Can't pause Source: it's not playing");
-	// }
-	// _state = SourceState::paused;
 	alCall(alSourcePause, _source);
 }
 
 void Source::continuePlaying() {
 	isPlaying = true;
-	// if(_state != SourceState::paused) {
-	// 	throw AudioException("Can't continue Source: it's not paused");
-	// }
-	// _state = SourceState::playing;
 	alCall(alSourcePlay, _source);
 }
 
-void Source::activate(SoundBank* soundBank){
+void Source::activate(SoundBank* soundBank, SourceComponent& component){
 	_soundBank = soundBank;
+	_updateFromComponent(component);
 	alCall(alGenBuffers, 4, &_buffers[0]);
 	alCall(alGenSources, 1, &_source);
 	_prepareLoadingBuffer();
+	isActive = true;
 }
 
 void Source::deactivate() {
 	_soundBank = nullptr;
 	alCall(alDeleteSources, 1, &_source);
 	alCall(alDeleteBuffers, 4, &_buffers[0]);
+	isActive = false;
 }
 }
