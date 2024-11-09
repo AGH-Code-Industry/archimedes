@@ -60,8 +60,6 @@ void Engine::_mainLoop() {
 	InputHandler::get().initialize(_mainWindow->get());
 
 	while (!_mainWindow->shouldClose()) {
-		_mainWindow->clear(_engineConfig.backgroundColor);
-
 		_renderer->prepareFrame();
 		_renderer->beginFrame();
 
@@ -80,6 +78,8 @@ void Engine::_initialize() {
 	_renderer = Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);
 	_renderer->makeCurrent();
+
+	_renderer->setClearColor(_engineConfig.backgroundColor);
 
 	Logger::info("Engine initialization successful");
 }

@@ -16,7 +16,6 @@ public:
 		none,
 
 		graphics,
-		presentaion,
 		transfer,
 		// compute,
 	};

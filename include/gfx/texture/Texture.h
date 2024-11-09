@@ -1,7 +1,6 @@
 #pragma once
 
-#include <span>
-
+#include "Ref.h"
 #include "TextureFilterMode.h"
 #include "TextureWrapMode.h"
 #include "gfx/GraphicsFormat.h"
@@ -47,5 +46,7 @@ private:
 	TextureWrapMode _wrapMode;
 	TextureFilterMode _filterMode;
 };
+
+using TextureHandle = Ref<Texture>;
 
 } // namespace arch::gfx::texture
