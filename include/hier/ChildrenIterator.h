@@ -10,23 +10,36 @@ namespace arch::hier {
 class ChildrenIterator {
 public:
 
-	ChildrenIterator(const ChildNode* node) noexcept;
+	/// @brief Default constructor
 	ChildrenIterator() noexcept = default;
+	/// @brief Node constructor
+	/// @param node - node to point to
+	ChildrenIterator(const ChildNode* node) noexcept;
+	/// @brief Copy constructor
 	ChildrenIterator(const ChildrenIterator&) noexcept = default;
+	/// @brief Move constructor
 	ChildrenIterator(ChildrenIterator&&) noexcept = default;
 
+	/// @brief Copy-assignment operator
 	ChildrenIterator& operator=(const ChildrenIterator&) noexcept = default;
+	/// @brief Move-assignment operator
 	ChildrenIterator& operator=(ChildrenIterator&&) noexcept = default;
 
+	/// @brief Equality operator
 	bool operator==(const ChildrenIterator&) const noexcept = default;
 
+	/// @brief Dereference operator
 	ecs::Entity operator*() const noexcept;
 
-	ChildrenIterator operator++(int) noexcept;
+	/// @brief Prefix increment operator
 	ChildrenIterator& operator++() noexcept;
+	/// @brief Postfix increment operator
+	ChildrenIterator operator++(int) noexcept;
 
-	ChildrenIterator operator--(int) noexcept;
+	/// @brief Prefix decrement operator
 	ChildrenIterator& operator--() noexcept;
+	/// @brief Postfix decrement operator
+	ChildrenIterator operator--(int) noexcept;
 
 private:
 

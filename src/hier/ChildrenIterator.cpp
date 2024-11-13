@@ -9,9 +9,7 @@ ecs::Entity ChildrenIterator::operator*() const noexcept {
 }
 
 ChildrenIterator& ChildrenIterator::operator++() noexcept {
-	if (_current->next != nullptr) {
-		_current = _current->next;
-	}
+	_current = _current->next;
 	return *this;
 }
 
@@ -22,9 +20,7 @@ ChildrenIterator ChildrenIterator::operator++(int) noexcept {
 }
 
 ChildrenIterator& ChildrenIterator::operator--() noexcept {
-	if (_current->prev != nullptr) {
-		_current = _current->prev;
-	}
+	_current = _current->prev;
 	return *this;
 }
 
