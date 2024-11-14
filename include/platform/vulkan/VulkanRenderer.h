@@ -18,7 +18,8 @@ class VulkanTextureManager;
 
 class VulkanRenderer final: public Renderer {
 public:
-	VulkanRenderer() = default;
+	VulkanRenderer(): Renderer(RenderingAPI::vulkan) {}
+
 	~VulkanRenderer() override = default;
 
 	void init(const Ref<Window>& window) override;

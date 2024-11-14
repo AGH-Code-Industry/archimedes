@@ -1,6 +1,7 @@
 #include "gfx/Renderer.h"
 
 #include "Logger.h"
+#include "platform/nvrhi/NvrhiRenderer.h"
 #include "platform/vulkan/VulkanRenderer.h"
 
 namespace arch::gfx {
@@ -9,7 +10,11 @@ Ref<Renderer> Renderer::s_current = nullptr;
 
 Ref<Renderer> Renderer::create(RenderingAPI api) {
 	switch (api) {
-		case RenderingAPI::vulkan: return std::make_shared<vulkan::VulkanRenderer>();
+		case RenderingAPI::vulkan: return createRef<vulkan::VulkanRenderer>();
+
+		case RenderingAPI::Nvrhi_DX11:
+		case RenderingAPI::Nvrhi_DX12:
+		case RenderingAPI::Nvrhi_VK:   return createRef<nvrhi::NvrhiRenderer>(api);
 
 		default: Logger::critical("Unknown RenderingAPI {}", (u32)api); return nullptr;
 	}

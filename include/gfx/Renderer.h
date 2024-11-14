@@ -17,7 +17,7 @@ public:
 	static Ref<Renderer> current() { return s_current; }
 
 protected:
-	Renderer() = default;
+	explicit Renderer(RenderingAPI api): _api(api) {}
 
 public:
 	virtual ~Renderer() = default;
@@ -54,6 +54,7 @@ public:
 
 protected:
 	Ref<Window> _window = nullptr;
+	RenderingAPI _api = RenderingAPI::none;
 
 private:
 	static Ref<Renderer> s_current;

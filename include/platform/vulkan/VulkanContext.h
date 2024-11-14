@@ -18,7 +18,7 @@ public:
 		graphics,
 		presentaion,
 		transfer,
-		// compute,
+		compute,
 	};
 
 	struct Queue {
@@ -31,8 +31,7 @@ public:
 		Queue graphics;
 		Queue presentaion;
 		Queue transfer;
-
-		// Queue compute;
+		Queue compute;
 
 		bool isComplete() const {
 			return graphics.index != ~0u && presentaion.index != ~0u &&
@@ -43,7 +42,7 @@ public:
 public:
 	VulkanContext();
 
-	~VulkanContext();
+	virtual ~VulkanContext();
 
 	VulkanContext(const VulkanContext&) = delete;
 	VulkanContext& operator=(const VulkanContext&) = delete;
