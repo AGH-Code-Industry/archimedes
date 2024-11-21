@@ -19,7 +19,7 @@ public:
 	ecs::Entity newEntity() noexcept;
 	/// @brief Kills entity
 	/// @see arch::ecs::Domain::kill(const ecs::Entity)
-	void killEntity(const ecs::Entity entity) noexcept;
+	void removeEntity(const ecs::Entity entity) noexcept;
 
 	/// @brief Returns ecs::Domain of this scene
 	ecs::Domain& domain() noexcept;

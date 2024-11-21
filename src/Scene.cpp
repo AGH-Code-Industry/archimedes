@@ -16,7 +16,7 @@ ecs::Entity Scene::newEntity() noexcept {
 	return newEntity;
 }
 
-void Scene::killEntity(const ecs::Entity entity) noexcept {
+void Scene::removeEntity(const ecs::Entity entity) noexcept {
 	auto& node = _domain.getComponent<hier::HierarchyNode>(entity);
 	node._unparent();
 
