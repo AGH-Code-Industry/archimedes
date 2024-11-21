@@ -9,12 +9,12 @@ struct HierarchyNode;
 /// @brief Base class of HierarchyNode, also type of sentinel.
 struct ChildNode {
 	/// @brief Previous sibling
-	ChildNode* prev;
+	ChildNode* _prev;
 	/// @brief Next sibling
-	ChildNode* next;
+	ChildNode* _next;
 
 	/// @brief Entity value
-	ecs::Entity entity = ecs::nullEntity;
+	ecs::Entity _entity = ecs::nullEntity;
 };
 
 } // namespace arch::hier

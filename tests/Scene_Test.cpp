@@ -6,24 +6,35 @@
 TEST(Scene, HierarchyIteration) {
 	arch::Scene scene;
 
-	auto e = std::array<arch::ecs::Entity, 11>();
+	auto e = std::array<arch::hier::HierarchyNode*, 11>();
 
-	for (auto&& _e : e) {
-		_e = scene.newEntity();
+	for (size_t i = 0; i != 11; ++i) {
+		e[i] = &scene.domain().getComponent<arch::hier::HierarchyNode>(scene.newEntity());
 	}
 
-	scene.setParent(e[1], e[0]);
-	scene.setParent(e[2], e[0]);
-	scene.setParent(e[3], e[0]);
+	e[1]->setParent(*e[0]);
+	e[2]->setParent(*e[0]);
+	e[3]->setParent(*e[0]);
+
 	{
-		scene.setParent(e[4], e[3]);
-		{ scene.setParent(e[5], e[4]); }
-		scene.setParent(e[6], e[3]);
+		e[4]->setParent(*e[3]);
+		{ e[5]->setParent(*e[4]); }
+		e[6]->setParent(*e[3]);
 	}
-	scene.setParent(e[7], e[0]);
-	{ scene.setParent(e[8], e[7]); }
-	scene.setParent(e[9], e[0]);
+	e[7]->setParent(*e[0]);
+	{ e[8]->setParent(*e[7]); }
+	e[9]->setParent(*e[0]);
 
-	ASSERT_TRUE(std::ranges::equal(e, scene.rootNode().recursiveIterable()));
-	ASSERT_TRUE(std::ranges::equal(std::views::reverse(e), std::views::reverse(scene.rootNode().recursiveIterable())));
+	ASSERT_TRUE(std::ranges::equal(
+		e,
+		scene.rootNode().recursiveIterable(),
+		{},
+		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
+	));
+	ASSERT_TRUE(std::ranges::equal(
+		std::views::reverse(e),
+		std::views::reverse(scene.rootNode().recursiveIterable()),
+		{},
+		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
+	));
 }

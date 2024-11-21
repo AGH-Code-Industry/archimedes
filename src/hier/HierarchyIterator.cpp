@@ -1,9 +1,9 @@
 #include <hier/HierarchyNode.h>
 
 // is sentinel?
-#define SENT(x) ((x)->entity == ::arch::ecs::nullEntity)
+#define SENT(x) ((x)->_entity == ::arch::ecs::nullEntity)
 // is root?
-#define ROOT(x) ((x)->parent == nullptr)
+#define ROOT(x) ((x)->_parent == nullptr)
 // cast ChildNode* x to HierarchyNode*, used only if !SENT(x)
 #define NODE(x) (static_cast<const ::arch::hier::HierarchyNode*>((x)))
 
@@ -13,24 +13,24 @@ HierarchyIterator::HierarchyIterator(const ChildNode* node) noexcept: _current{ 
 
 ecs::Entity HierarchyIterator::operator*() const noexcept {
 	ARCH_ASSERT(!SENT(_current) && !ROOT(NODE(_current)), "HierarchyIterator cannot dereference sentinels or roots");
-	return _current->entity;
+	return _current->_entity;
 }
 
 HierarchyIterator& HierarchyIterator::operator++() noexcept {
 	if (!SENT(_current)) {
 		auto currentHierNode = NODE(_current);
-		if (currentHierNode->first != nullptr) {
-			// jump to first child
-			_current = currentHierNode->first;
+		if (currentHierNode->_first != nullptr) {
+			// jump to _first child
+			_current = currentHierNode->_first;
 			return *this;
-		} else if (SENT(_current->next) && !ROOT(currentHierNode->parent)) {
+		} else if (SENT(_current->_next) && !ROOT(currentHierNode->_parent)) {
 			// last of non-root parent, jump to next
-			_current = currentHierNode->parent->next;
+			_current = currentHierNode->_parent->_next;
 			return *this;
 		}
 	}
 
-	_current = _current->next;
+	_current = _current->_next;
 	return *this;
 }
 
@@ -42,21 +42,21 @@ HierarchyIterator HierarchyIterator::operator++(int) noexcept {
 
 HierarchyIterator& HierarchyIterator::operator--() noexcept {
 	if (!SENT(_current)) {
-		if (!SENT(_current->prev)) {
-			auto currentPrevLast = NODE(_current->prev)->last;
+		if (!SENT(_current->_prev)) {
+			auto currentPrevLast = NODE(_current->_prev)->_last;
 			if (currentPrevLast != nullptr) {
-				// prev has children, jump to last
+				// prev has children, jump to _last
 				_current = currentPrevLast;
 				return *this;
 			}
-		} else if (auto currentParent = NODE(_current)->parent; !ROOT(currentParent)) {
-			// last children of non-root parent, jump to parent
+		} else if (auto currentParent = NODE(_current)->_parent; !ROOT(currentParent)) {
+			// _last children of non-root parent, jump to parent
 			_current = currentParent;
 			return *this;
 		}
 	}
 
-	_current = _current->prev;
+	_current = _current->_prev;
 	return *this;
 }
 
