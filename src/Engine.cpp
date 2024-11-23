@@ -55,7 +55,7 @@ void Engine::_mainLoop() {
 	// material->SetFloat3("_pos", glm::vec3(0.5f, 0.5f, 0.5f));
 	// material->SetColor("_color", glm::vec3(1.0f, 0.0f, 0.0f));
 
-	Ref<Mesh> triangle = Mesh::create(std::span(vertices), indices);
+	Ref<Mesh> triangle; // = Mesh::create(std::span(vertices), indices);
 
 	InputHandler::get().initialize(_mainWindow->get());
 

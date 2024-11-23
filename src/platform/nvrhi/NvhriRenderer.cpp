@@ -1,10 +1,11 @@
 #include "Logger.h"
+#include "nvrhi/validation.h"
 #include "platform/nvrhi/NvrhiRenderer.h"
 #include "platform/nvrhi/context/NvrhiVulkanContext.h"
 
 namespace arch::gfx::nvrhi {
 
-NvrhiRenderer::NvrhiRenderer(RenderingAPI api): Renderer(api) {}
+NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {}
 
 void NvrhiRenderer::init(const Ref<Window>& window) {
 	switch (_api) {
@@ -18,6 +19,10 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 		default: Logger::error("Invalid rendering API"); break;
 	}
 	_context->init(window);
+
+	if (_debug) {
+		_validationLayer = ::nvrhi::validation::createValidationLayer(_context->getDevice());
+	}
 }
 
 void NvrhiRenderer::shutdown() {}
@@ -44,6 +49,14 @@ Ref<buffer::BufferManager> NvrhiRenderer::getBufferManager() {
 
 Ref<texture::TextureManager> NvrhiRenderer::getTextureManager() {
 	return nullptr;
+}
+
+::nvrhi::DeviceHandle NvrhiRenderer::getDevice() {
+	if (_validationLayer) {
+		return _validationLayer;
+	}
+
+	return _context->getDevice();
 }
 
 } // namespace arch::gfx::nvrhi

@@ -7,14 +7,16 @@
 
 namespace arch::gfx::vulkan {
 
-VulkanContext::VulkanContext() {
+VulkanContext::VulkanContext(bool enableValidationLayers): _enableValidationLayers(enableValidationLayers) {
 	VulkanUtils::vkAssert(volkInitialize(), "Failed to initialize volk.");
 
 	_createInstance();
 
 	volkLoadInstance(_instance);
 
-	_setupDebugMessage();
+	if (_enableValidationLayers) {
+		_setupDebugMessage();
+	}
 }
 
 VulkanContext::~VulkanContext() {
@@ -65,7 +67,7 @@ const VulkanContext::Queue& VulkanContext::getQueue(QueueType type) const {
 	switch (type) {
 		case QueueType::graphics:	 return _queues.graphics;
 		case QueueType::presentaion: return _queues.presentaion;
-		// case QueueType::compute:  return _queues.compute;
+		case QueueType::compute:	 return _queues.compute;
 		case QueueType::transfer:	 return _queues.transfer;
 		default:					 throw exceptions::VulkanException("Invalid queue type.");
 	}
@@ -110,6 +112,11 @@ void VulkanContext::_createInstance() {
 }
 
 void VulkanContext::_setupDebugMessage() {
+	if (vkCreateDebugUtilsMessengerEXT == nullptr) {
+		Logger::warn("vkCreateDebugUtilsMessengerEXT is not available, debug messages will not be displayed.");
+		return;
+	}
+
 	VkDebugUtilsMessengerCreateInfoEXT createInfo{
 		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
 		.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
@@ -120,10 +127,12 @@ void VulkanContext::_setupDebugMessage() {
 		.pUserData = nullptr,
 	};
 
+	Logger::info("Setting up debug messenger");
 	VulkanUtils::vkAssert(
 		vkCreateDebugUtilsMessengerEXT(_instance, &createInfo, _allocator, &_debugMessenger),
 		"Failed to setup debug messenger."
 	);
+	Logger::info("Debug messenger created");
 }
 
 void VulkanContext::_pickPhisicalDevice(const Ref<VulkanSwapchain>& swapchain) {
@@ -154,30 +163,22 @@ void VulkanContext::_pickPhisicalDevice(const Ref<VulkanSwapchain>& swapchain) {
 }
 
 void VulkanContext::_createLogicalDevice() {
-	f32 queuePriority = 1.f;
+	// Graphics Queue
+	std::set queueFamilies = { _queues.graphics.index,
+							   _queues.presentaion.index,
+							   _queues.transfer.index,
+							   _queues.compute.index };
 
+	f32 queuePriority = 1.f;
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-	// Graphics Queue
-	queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-								 .queueFamilyIndex = _queues.graphics.index,
-								 .queueCount = 1,
-								 .pQueuePriorities = &queuePriority });
-
-	if (_queues.graphics.index != _queues.presentaion.index) {
-		// Present Queue
-		queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-									 .queueFamilyIndex = _queues.presentaion.index,
-									 .queueCount = 1,
-									 .pQueuePriorities = &queuePriority });
-	}
-
-	if (_queues.transfer.index != _queues.graphics.index && _queues.transfer.index != _queues.presentaion.index) {
-		// Transfer Queue
-		queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-									 .queueFamilyIndex = _queues.transfer.index,
-									 .queueCount = 1,
-									 .pQueuePriorities = &queuePriority });
+	for (auto&& queueFamily : queueFamilies) {
+		queueCreateInfos.push_back(
+			{ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			  .queueFamilyIndex = queueFamily,
+			  .queueCount = 1,
+			  .pQueuePriorities = &queuePriority }
+		);
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
@@ -211,11 +212,11 @@ void VulkanContext::_createLogicalDevice() {
 	vkGetDeviceQueue(_device, _queues.graphics.index, 0, &_queues.graphics.queue);
 	vkGetDeviceQueue(_device, _queues.presentaion.index, 0, &_queues.presentaion.queue);
 	vkGetDeviceQueue(_device, _queues.transfer.index, 0, &_queues.transfer.queue);
-	// vkGetDeviceQueue(_device, _queues.compute.index, 0, &_queues.compute.queue);
+	vkGetDeviceQueue(_device, _queues.compute.index, 0, &_queues.compute.queue);
 }
 
 bool VulkanContext::_areValidationLayersEnabled() const {
-	return _isDebug;
+	return _enableValidationLayers;
 }
 
 std::vector<const char*> VulkanContext::_getValidationLayers() {
@@ -372,6 +373,10 @@ VulkanContext::Queues VulkanContext::_getDeviceQueues(VkPhysicalDevice device, V
 			queues.graphics.index = i;
 		} else if (presentSupport) {
 			queues.presentaion.index = i;
+		}
+
+		if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT && queues.compute.index == ~0u) {
+			queues.compute.index = i;
 		}
 
 		if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT && queues.transfer.index == ~0u) {

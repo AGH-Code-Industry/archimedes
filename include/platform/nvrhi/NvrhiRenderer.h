@@ -7,7 +7,7 @@ namespace arch::gfx::nvrhi {
 
 class NvrhiRenderer final: public Renderer {
 public:
-	NvrhiRenderer(RenderingAPI api);
+	NvrhiRenderer(RenderingAPI api, bool debug = true);
 	~NvrhiRenderer() override = default;
 
 	void init(const Ref<Window>& window) override;
@@ -27,8 +27,12 @@ public:
 	Ref<buffer::BufferManager> getBufferManager() override;
 	Ref<texture::TextureManager> getTextureManager() override;
 
+public:
+	::nvrhi::DeviceHandle getDevice();
+
 private:
 	Ref<NvrhiContext> _context;
+	::nvrhi::DeviceHandle _validationLayer;
 };
 
 } // namespace arch::gfx::nvrhi

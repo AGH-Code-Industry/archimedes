@@ -17,7 +17,7 @@ public:
 	static Ref<Renderer> current() { return s_current; }
 
 protected:
-	explicit Renderer(RenderingAPI api): _api(api) {}
+	explicit Renderer(RenderingAPI api, bool debug = true): _api(api), _debug(debug) {}
 
 public:
 	virtual ~Renderer() = default;
@@ -55,6 +55,7 @@ public:
 protected:
 	Ref<Window> _window = nullptr;
 	RenderingAPI _api = RenderingAPI::none;
+	bool _debug = false;
 
 private:
 	static Ref<Renderer> s_current;

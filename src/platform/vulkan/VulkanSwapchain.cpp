@@ -114,7 +114,6 @@ void VulkanSwapchain::_createSwapchain() {
 	}
 
 	VkDevice device = _context->getDevice();
-	VkPhysicalDevice physicalDevice = _context->getPhysicalDevice();
 	VkAllocationCallbacks* allocator = _context->getAllocator();
 
 	VulkanUtils::vkAssert(

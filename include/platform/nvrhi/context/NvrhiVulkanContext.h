@@ -19,6 +19,8 @@ public:
 	::nvrhi::DeviceHandle getDevice() override;
 
 private:
+	bool _enableValidationLayers;
+
 	::nvrhi::DeviceHandle _device;
 
 	Ref<vulkan::VulkanSwapchain> m_swapchain;

@@ -34,13 +34,12 @@ public:
 		Queue compute;
 
 		bool isComplete() const {
-			return graphics.index != ~0u && presentaion.index != ~0u &&
-				transfer.index != ~0u /*&& compute.index != ~0u*/;
+			return graphics.index != ~0u && presentaion.index != ~0u && transfer.index != ~0u && compute.index != ~0u;
 		}
 	};
 
 public:
-	VulkanContext();
+	VulkanContext(bool enableValidationLayers = true);
 
 	virtual ~VulkanContext();
 
@@ -102,7 +101,7 @@ private:
 	static Queues _getDeviceQueues(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 private:
-	bool _isDebug = true;
+	bool _enableValidationLayers = true;
 
 	VkInstance _instance = nullptr;
 	VkDebugUtilsMessengerEXT _debugMessenger = nullptr;
