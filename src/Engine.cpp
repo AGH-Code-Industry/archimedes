@@ -9,7 +9,8 @@
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config): _engineConfig(config) {}
+Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
+	_window{1, 1, {}}, _engineConfig{config}, _application{application} {}
 
 Engine::~Engine() {
 	_shutdown();
@@ -62,9 +63,14 @@ void Engine::_mainLoop() {
 	while (!_mainWindow->shouldClose()) {
 		_mainWindow->clear(_engineConfig.backgroundColor);
 
+		// Update the application
+		_application->update();
+
+		// Render the scene
 		_renderer->prepareFrame();
 		_renderer->beginFrame();
 
+		// renderer.render();
 		_renderer->render(triangle, Mat4x4(1.0f));
 
 		_renderer->endFrame();
@@ -80,6 +86,8 @@ void Engine::_initialize() {
 	_renderer = Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);
 	_renderer->makeCurrent();
+
+	_application->init();
 
 	Logger::info("Engine initialization successful");
 }

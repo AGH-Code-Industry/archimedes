@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Application.h"
+#include "Ref.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
 #include <gtest/gtest_prod.h>
@@ -21,7 +23,7 @@ struct EngineConfig {
  */
 class Engine {
 public:
-	Engine(const EngineConfig& config);
+	Engine(const EngineConfig& config, const Ref<Application>& application);
 	~Engine();
 
 	/**
@@ -33,6 +35,7 @@ private:
 	Ref<Window> _mainWindow;
 	EngineConfig _engineConfig;
 	Ref<gfx::Renderer> _renderer;
+	Ref<Application> _application;
 
 	FRIEND_TEST(EngineTest, ConfigWindowTest);
 
