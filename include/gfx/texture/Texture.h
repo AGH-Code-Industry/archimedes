@@ -2,10 +2,10 @@
 
 #include <span>
 
+#include "Mmath.h"
 #include "TextureFilterMode.h"
 #include "TextureWrapMode.h"
 #include "gfx/GraphicsFormat.h"
-#include "mmath.h"
 
 namespace arch::gfx::texture {
 

@@ -1,9 +1,9 @@
 #include "Engine.h"
 
 #include "Exception.h"
+#include "Gfx.h"
 #include "InputHandler.h"
 #include "Logger.h"
-#include "gfx.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 
