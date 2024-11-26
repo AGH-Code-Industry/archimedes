@@ -37,8 +37,7 @@ private:
 	Ref<gfx::Renderer> _renderer;
 	Ref<Application> _application;
 
-	FRIEND_TEST(EngineTest, ConfigWindowTest);
-
+private:
 	/**
 	 * Responsible for drawing game on the screen.
 	 */
@@ -53,6 +52,9 @@ private:
 	 * Clearing all previously allocated GLFW and Engine resources.
 	 */
 	void _shutdown();
+
+private:
+	FRIEND_TEST(EngineTest, ConfigWindowTest);
 };
 
 } // namespace arch
