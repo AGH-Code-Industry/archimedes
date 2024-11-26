@@ -20,18 +20,24 @@ VulkanContext::VulkanContext(bool enableValidationLayers): _enableValidationLaye
 }
 
 VulkanContext::~VulkanContext() {
-	vkDestroyDevice(_device, _allocator);
-	_device = nullptr;
+	if (_device) {
+		vkDestroyDevice(_device, _allocator);
+		_device = nullptr;
+	}
 
-	vkDestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, _allocator);
-	_debugMessenger = nullptr;
+	if (_debugMessenger) {
+		vkDestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, _allocator);
+		_debugMessenger = nullptr;
+	}
 
-	vkDestroyInstance(_instance, _allocator);
-	_instance = nullptr;
+	if (_instance) {
+		vkDestroyInstance(_instance, _allocator);
+		_instance = nullptr;
+	}
 }
 
-void VulkanContext::initDevice(const Ref<VulkanSwapchain>& swapchain) {
-	_pickPhisicalDevice(swapchain);
+void VulkanContext::initDevice(VkSurfaceKHR surface) {
+	_pickPhysicalDevice(surface);
 	_createLogicalDevice();
 
 	volkLoadDevice(_device);
@@ -66,7 +72,7 @@ static u32 debugCallback(
 const VulkanContext::Queue& VulkanContext::getQueue(QueueType type) const {
 	switch (type) {
 		case QueueType::graphics:	 return _queues.graphics;
-		case QueueType::presentaion: return _queues.presentaion;
+		case QueueType::presentaion: return _queues.presentation;
 		case QueueType::compute:	 return _queues.compute;
 		case QueueType::transfer:	 return _queues.transfer;
 		default:					 throw exceptions::VulkanException("Invalid queue type.");
@@ -127,15 +133,14 @@ void VulkanContext::_setupDebugMessage() {
 		.pUserData = nullptr,
 	};
 
-	Logger::info("Setting up debug messenger");
+	Logger::info("[Vulkan] Setting up debug messenger");
 	VulkanUtils::vkAssert(
 		vkCreateDebugUtilsMessengerEXT(_instance, &createInfo, _allocator, &_debugMessenger),
 		"Failed to setup debug messenger."
 	);
-	Logger::info("Debug messenger created");
 }
 
-void VulkanContext::_pickPhisicalDevice(const Ref<VulkanSwapchain>& swapchain) {
+void VulkanContext::_pickPhysicalDevice(VkSurfaceKHR surface) {
 	u32 deviceCount = 0;
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 
@@ -148,8 +153,7 @@ void VulkanContext::_pickPhisicalDevice(const Ref<VulkanSwapchain>& swapchain) {
 
 	i32 bestScore = -1;
 	for (const auto& device : devices) {
-		VulkanSwapchain::SupportDetails currentSwapchainSupportDetails;
-		if (i32 score = _getDeviceScore(device, swapchain); score >= 0 && bestScore < score) {
+		if (i32 score = _getDeviceScore(device, surface); score >= 0 && bestScore < score) {
 			_physicalDevice = device;
 			bestScore = score;
 		}
@@ -159,13 +163,13 @@ void VulkanContext::_pickPhisicalDevice(const Ref<VulkanSwapchain>& swapchain) {
 		throw exceptions::VulkanException("Failed to find a suitable GPU!");
 	}
 
-	_queues = _getDeviceQueues(_physicalDevice, swapchain->getSurface());
+	_queues = _getDeviceQueues(_physicalDevice, surface);
 }
 
 void VulkanContext::_createLogicalDevice() {
 	// Graphics Queue
 	std::set queueFamilies = { _queues.graphics.index,
-							   _queues.presentaion.index,
+							   _queues.presentation.index,
 							   _queues.transfer.index,
 							   _queues.compute.index };
 
@@ -181,10 +185,38 @@ void VulkanContext::_createLogicalDevice() {
 		);
 	}
 
-	VkPhysicalDeviceFeatures deviceFeatures = {};
+	VkPhysicalDeviceVulkan12Features vulkan12features = {
+		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+		.descriptorIndexing = true,
+		.shaderSampledImageArrayNonUniformIndexing = true,
+		.descriptorBindingPartiallyBound = true,
+		.descriptorBindingVariableDescriptorCount = true,
+		.runtimeDescriptorArray = true,
+		.timelineSemaphore = true,
+		.bufferDeviceAddress = true,
+	};
+	VkPhysicalDeviceVulkan13Features vulkan13features = {
+		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
+		.pNext = &vulkan12features,
+		.synchronization2 = true,
+	};
+
+	VkPhysicalDeviceFeatures deviceFeatures = {
+		.imageCubeArray = true,
+		.geometryShader = true,
+		.tessellationShader = true,
+		.dualSrcBlend = true,
+		.fillModeNonSolid = true,
+		.samplerAnisotropy = true,
+		.textureCompressionBC = true,
+		.fragmentStoresAndAtomics = true,
+		.shaderImageGatherExtended = true,
+		.shaderInt16 = true,
+	};
 
 	VkDeviceCreateInfo createInfo = {
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.pNext = &vulkan13features,
 		.queueCreateInfoCount = (u32)queueCreateInfos.size(),
 		.pQueueCreateInfos = queueCreateInfos.data(),
 
@@ -210,7 +242,7 @@ void VulkanContext::_createLogicalDevice() {
 	);
 
 	vkGetDeviceQueue(_device, _queues.graphics.index, 0, &_queues.graphics.queue);
-	vkGetDeviceQueue(_device, _queues.presentaion.index, 0, &_queues.presentaion.queue);
+	vkGetDeviceQueue(_device, _queues.presentation.index, 0, &_queues.presentation.queue);
 	vkGetDeviceQueue(_device, _queues.transfer.index, 0, &_queues.transfer.queue);
 	vkGetDeviceQueue(_device, _queues.compute.index, 0, &_queues.compute.queue);
 }
@@ -242,7 +274,7 @@ std::vector<const char*> VulkanContext::_getValidationLayers() {
 		return true;
 	});
 
-	Logger::trace("Available layers {}:", layers.size());
+	Logger::trace("Available layers {}:", availableLayers.size());
 	for (auto&& layer : availableLayers) {
 		Logger::trace("  - {}", layer.layerName);
 	}
@@ -262,7 +294,7 @@ std::vector<const char*> VulkanContext::_getRequiredExtensions() const {
 	return extensions;
 }
 
-int VulkanContext::_getDeviceScore(VkPhysicalDevice device, const Ref<VulkanSwapchain>& swapchain) {
+int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface) {
 	int score = 0;
 	VkPhysicalDeviceProperties deviceProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
@@ -300,13 +332,14 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, const Ref<VulkanSwap
 	}
 
 	// Device Queue Families requirements
-	Queues queues = _getDeviceQueues(device, swapchain->getSurface());
+	Queues queues = _getDeviceQueues(device, surface);
 	if (!queues.isComplete()) {
 		return -1;
 	}
 
 	// Required Swapchain Support
-	VulkanSwapchain::SupportDetails swapchainSupport = swapchain->getSupportDetails(device);
+	VulkanSwapchain::SupportDetails swapchainSupport =
+		VulkanSwapchain::SupportDetails::getSupportDetails(device, surface);
 
 	if (swapchainSupport.formats.empty()) {
 		return -1;
@@ -364,23 +397,30 @@ VulkanContext::Queues VulkanContext::_getDeviceQueues(VkPhysicalDevice device, V
 		VkBool32 presentSupport = false;
 		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
-		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT && presentSupport) {
-			if (queues.graphics.index != queues.presentaion.index || queues.graphics.index == ~0u) {
+		if (queues.graphics.index == -1) {
+			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
 				queues.graphics.index = i;
-				queues.presentaion.index = i;
 			}
-		} else if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			queues.graphics.index = i;
-		} else if (presentSupport) {
-			queues.presentaion.index = i;
 		}
 
-		if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT && queues.compute.index == ~0u) {
-			queues.compute.index = i;
+		if (queues.compute.index == -1) {
+			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) &&
+				!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+				queues.compute.index = i;
+			}
 		}
 
-		if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT && queues.transfer.index == ~0u) {
-			queues.transfer.index = i;
+		if (queues.transfer.index == -1) {
+			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) &&
+				!(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) && !(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+				queues.transfer.index = i;
+			}
+		}
+
+		if (queues.presentation.index == -1) {
+			if (queueFamily.queueCount > 0 && presentSupport) {
+				queues.presentation.index = i;
+			}
 		}
 
 		if (queues.isComplete()) {

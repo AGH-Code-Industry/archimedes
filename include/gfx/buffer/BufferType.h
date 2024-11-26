@@ -7,6 +7,7 @@ enum class BufferType {
 	index,
 	uniform,
 	staging,
+	blob,
 };
 
 } // namespace arch::gfx::buffer

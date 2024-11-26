@@ -44,12 +44,11 @@ void Engine::_mainLoop() {
 		_sceneManager->update();
 
 		// Render the scene
-		_renderer->prepareFrame();
 		_renderer->beginFrame();
 
 		_sceneManager->renderScene(_renderer);
 
-		_renderer->endFrame();
+		_renderer->present();
 
 		_mainWindow->swapBuffers();
 		glfwPollEvents();
@@ -62,6 +61,8 @@ void Engine::_initialize() {
 	_renderer = Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);
 	_renderer->makeCurrent();
+
+	_renderer->setClearColor(_engineConfig.backgroundColor);
 
 	_sceneManager = scene::SceneManager::get();
 

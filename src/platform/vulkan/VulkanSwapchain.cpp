@@ -23,7 +23,7 @@ VulkanSwapchain::~VulkanSwapchain() {
 
 void VulkanSwapchain::updateSwapchain() {
 	if (_swapchain == nullptr) {
-		_supportDetails = getSupportDetails(_context->getPhysicalDevice());
+		_supportDetails = SupportDetails::getSupportDetails(_context->getPhysicalDevice(), _surface);
 
 		_createSwapchain();
 	} else {
@@ -176,27 +176,30 @@ void VulkanSwapchain::_recreateSwapchain() {
 
 	_cleanupSwapchain();
 
-	_supportDetails = getSupportDetails(_context->getPhysicalDevice());
+	_supportDetails = SupportDetails::getSupportDetails(_context->getPhysicalDevice(), _surface);
 
 	_createSwapchain();
 }
 
-VulkanSwapchain::SupportDetails VulkanSwapchain::getSupportDetails(VkPhysicalDevice device) const {
+VulkanSwapchain::SupportDetails VulkanSwapchain::SupportDetails::getSupportDetails(
+	VkPhysicalDevice device,
+	VkSurfaceKHR surface
+) {
 	SupportDetails swapchain;
 
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &swapchain.capabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &swapchain.capabilities);
 
 	u32 formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
 	swapchain.formats.resize(formatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, swapchain.formats.data());
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, swapchain.formats.data());
 
 	u32 presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
 	swapchain.presentModes.resize(presentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, swapchain.presentModes.data());
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, swapchain.presentModes.data());
 	return swapchain;
 }
 

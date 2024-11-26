@@ -19,6 +19,8 @@ public:
 		VkSurfaceCapabilitiesKHR capabilities{};
 		std::vector<VkSurfaceFormatKHR> formats;
 		std::vector<VkPresentModeKHR> presentModes;
+
+		static SupportDetails getSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
 	};
 
 	struct Frame {
@@ -51,8 +53,6 @@ public:
 	u64 getFrameCount() const { return _frames.size(); }
 
 	const Frame& getFrame(int index) const { return _frames[index]; }
-
-	SupportDetails getSupportDetails(VkPhysicalDevice device) const;
 
 private:
 	void _createSurface();

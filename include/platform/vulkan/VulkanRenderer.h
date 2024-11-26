@@ -36,13 +36,10 @@ private:
 	void _createFrames();
 
 public:
-	void prepareFrame() override;
+	void onResize(u32 width, u32 height) override;
+
 	void beginFrame() override;
-	void endFrame() override;
 	void present() override;
-	void setClearColor(Color color) override;
-	void setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-	void setScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
 public:
 	Ref<buffer::VulkanBufferManager> _bufferManager;

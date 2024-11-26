@@ -14,7 +14,7 @@ Ref<Renderer> Renderer::create(RenderingAPI api) {
 
 		case RenderingAPI::Nvrhi_DX11:
 		case RenderingAPI::Nvrhi_DX12:
-		case RenderingAPI::Nvrhi_VK:   return createRef<nvrhi::NvrhiRenderer>(api);
+		case RenderingAPI::Nvrhi_VK:   return createRef<nvrhi::NvrhiRenderer>(api, true);
 
 		default: Logger::critical("Unknown RenderingAPI {}", (u32)api); return nullptr;
 	}
@@ -31,6 +31,10 @@ Ref<Renderer> Renderer::getCurrent() {
 
 void Renderer::makeCurrent() {
 	s_current = shared_from_this();
+}
+
+void Renderer::setClearColor(Color color) {
+	_clearColor = color;
 }
 
 } // namespace arch::gfx

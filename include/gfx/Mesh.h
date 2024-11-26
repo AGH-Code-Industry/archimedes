@@ -12,7 +12,7 @@ namespace arch::gfx {
 
 class Mesh final {
 public:
-	Mesh(const std::vector<float3>& vertices, const std::vector<u32>& indices);
+	Mesh(const Ref<buffer::VertexBuffer>& vertices, const Ref<buffer::IndexBuffer>& indices);
 	~Mesh();
 
 public:

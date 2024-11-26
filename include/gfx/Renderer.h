@@ -30,21 +30,15 @@ public:
 	virtual void shutdown() = 0;
 
 public:
-	// virtual void onResize() = 0;
-	// virtual void waitIdle() = 0;
+	void setClearColor(Color color);
 
-	virtual void prepareFrame() = 0;
+public:
+	virtual void onResize(u32 width, u32 height) = 0;
 
 	virtual void beginFrame() = 0;
-	virtual void endFrame() = 0;
-
 	virtual void present() = 0;
 
 public:
-	virtual void setClearColor(Color color) = 0;
-
-	virtual void setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-	virtual void setScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
 	virtual void render(const Ref<Mesh>& mesh, const Mat4x4& transform) = 0;
 
@@ -56,6 +50,8 @@ protected:
 	Ref<Window> _window = nullptr;
 	RenderingAPI _api = RenderingAPI::none;
 	bool _debug = false;
+
+	Color _clearColor = { 0, 0, 0, 0 };
 
 private:
 	static Ref<Renderer> s_current;

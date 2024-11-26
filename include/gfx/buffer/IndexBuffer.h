@@ -4,7 +4,7 @@
 
 namespace arch::gfx::buffer {
 
-class IndexBuffer: public Buffer {
+class IndexBuffer: public virtual Buffer {
 public:
 	IndexBuffer(): Buffer(BufferType::index) {}
 };

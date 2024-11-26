@@ -80,7 +80,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 
 	swapchain = createRef<VulkanSwapchain>(context, window);
 
-	context->initDevice(swapchain);
+	context->initDevice(swapchain->getSurface());
 
 	swapchain->updateSwapchain();
 
@@ -467,7 +467,7 @@ void VulkanRenderer::_createFrames() {
 	}
 } // namespace arch::gfx::vulkan
 
-void VulkanRenderer::prepareFrame() {}
+void VulkanRenderer::onResize(u32 width, u32 height) {}
 
 u32 imageIndex;
 
@@ -527,7 +527,7 @@ void VulkanRenderer::beginFrame() {
 	vkCmdDraw(frame.commandBuffer, 3, 1, 0, 0);
 }
 
-void VulkanRenderer::endFrame() {
+void VulkanRenderer::present() {
 	auto& frame = frames[_frameIndex];
 
 	vkCmdEndRenderPass(frame.commandBuffer);
@@ -575,13 +575,5 @@ void VulkanRenderer::endFrame() {
 
 	_frameIndex = (_frameIndex + 1) % frames.size();
 }
-
-void VulkanRenderer::present() {}
-
-void VulkanRenderer::setClearColor(Color color) {}
-
-void VulkanRenderer::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {}
-
-void VulkanRenderer::setScissor(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {}
 
 } // namespace arch::gfx::vulkan

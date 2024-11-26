@@ -4,12 +4,14 @@
 
 namespace arch::gfx {
 
-Mesh::Mesh(const std::vector<float3>& vertices, const std::vector<u32>& indices) {}
+Mesh::Mesh(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer):
+	_vertexBuffer(vertexBuffer),
+	_indexBuffer(indexBuffer) {}
 
 Mesh::~Mesh() {}
 
-Ref<Mesh> Mesh::create(Ref<VertexBuffer> vertices, Ref<IndexBuffer> indices) {
-	return nullptr;
+Ref<Mesh> Mesh::create(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer) {
+	return createRef<Mesh>(vertexBuffer, indexBuffer);
 }
 
 } // namespace arch::gfx
