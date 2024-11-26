@@ -30,8 +30,9 @@ void Window::_initialize(int width, int height, const char* name, GLFWmonitor* m
 	}
 
 	glfwMakeContextCurrent(_window);
+	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
 
-	glfwSetFramebufferSizeCallback(_window, _framebufferSizeCallback);
+	});
 }
 
 void Window::resize(int width, int height) const {
@@ -46,26 +47,12 @@ GLFWwindow* Window::get() const {
 	return _window;
 }
 
-void Window::_framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-}
-
 void Window::swapBuffers() const {
 	glfwSwapBuffers(_window);
 }
 
 bool Window::shouldClose() const {
 	return glfwWindowShouldClose(_window);
-}
-
-void Window::clear(Color color) const {
-	glClearColor(color.r, color.g, color.b, color.a);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Window::clear(float r, float g, float b, float a) const {
-	Color color(r, g, b, a);
-	clear(color);
 }
 
 } // namespace arch
