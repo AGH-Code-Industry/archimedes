@@ -9,6 +9,9 @@
 #include <gtest/gtest_prod.h>
 
 namespace arch {
+namespace scene {
+class SceneManager;
+}
 
 struct EngineConfig {
 	int windowWidth;
@@ -36,6 +39,8 @@ private:
 	EngineConfig _engineConfig;
 	Ref<gfx::Renderer> _renderer;
 	Ref<Application> _application;
+
+	Ref<scene::SceneManager> _sceneManager;
 
 private:
 	/**
