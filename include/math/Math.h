@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/mat2x2.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
@@ -46,5 +48,7 @@ using Mat3x3 = glm::mat3;
 using Mat4x4 = glm::mat4;
 
 using Color = glm::vec4;
+
+using Quat = glm::qua<f32>;
 
 } // namespace arch::math
