@@ -3,37 +3,50 @@
 
 namespace arch::audio {
 
-void Source::_updateFromComponent(SourceComponent& component) {
-	pitch = component.pitch;
-	gain = component.gain;
-	positionX = component.positionX;
-	positionY = component.positionY;
-	velocityX = component.velocityX;
-	velocityY = component.velocityY;
+void Source::update(const SourceComponent& component) {
+	_pitch = component.pitch;
+	_gain = component.gain;
+	_positionX = component.positionX;
+	_positionY = component.positionY;
+	_velocityX = component.velocityX;
+	_velocityY = component.velocityY;
+	_isLooped = component.isLooped;
 	if(component.path != _clipPath) {
-		_cursor = 0;
-		_clipPath = component.path;
+		if(_clipPath == "") {
+			_clipPath = component.path;
+		}
+		else {
+			throw AudioException("Clip path should be changed only once per source");
+		}
 	}
 }
 
 
 void Source::_updateSoundAttributes(){
-	alCall(alSourcef, _source, AL_PITCH, pitch);
-	alCall(alSourcef, _source, AL_GAIN, gain);
-	alCall(alSource3f, _source, AL_POSITION, positionX, positionY, 0);
-	alCall(alSource3f, _source, AL_VELOCITY, velocityX, velocityY, 0);
+	alCall(alSourcef, _source, AL_PITCH, _pitch);
+	alCall(alSourcef, _source, AL_GAIN, _gain);
+	alCall(alSource3f, _source, AL_POSITION, _positionX, _positionY, 0);
+	alCall(alSource3f, _source, AL_VELOCITY, _velocityX, _velocityY, 0);
 	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
 }
 
 bool Source::_initiallyLoadSound() {
+	// Logger::debug("before clip");
 	Clip& clip = _soundBank->getClip(_clipPath);
+	// Logger::debug("before format");
 	ALenum format = clip.getFormat();
+	// Logger::debug("before buffer elems");
 	std::size_t bufferElements = clip.getBufferElements();
+	// Logger::debug("before sample rate");
+	// Logger::debug("{}", _clipPath);
 	ALint sampleRate = clip.getSampleRate();
 	bool isEndFound = false;
 	for(int i=0; i<4; i++) {
-		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, isLooped);
+		// Logger::debug("before fill");
+		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
+		// Logger::debug("before bufferdata");
 		alCall(alBufferData, _buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
+		// Logger::debug("after iteration {}", i);
 	}
 	return isEndFound;
 }
@@ -54,10 +67,15 @@ bool Source::_loadSound() {
 	bool isEndFound = false;
 	for(int i=0; i<buffersProcessed; i++) {
 		ALuint buffer;
+		// Logger::debug("unqueue");
 		alCall(alSourceUnqueueBuffers, _source, 1, &buffer);
-		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, isLooped);
+		// Logger::debug("fill");
+		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
+		// Logger::debug("bufferdata");
 		alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
+		// Logger::debug("queue");
 		alCall(alSourceQueueBuffers, _source, 1, &buffer);
+		// Logger::debug("test");
 	}
 	return isEndFound;
 }
@@ -65,75 +83,69 @@ bool Source::_loadSound() {
 void Source::_prepareLoadingBuffer() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	const std::size_t bufferElements = clip.getBufferElements();
-	_loadingBuffer.reserve(bufferElements);
-	for(int i=0; i<bufferElements; i++) {
-		_loadingBuffer.push_back(0);
+	// Logger::debug("bufferElements: {}", bufferElements);
+	_loadingBuffer.resize(bufferElements, 0);
+	_cursor = 0;
+}
+
+void Source::play(SourceComponent& component){
+	ALenum alState;
+	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
+	_updateSoundAttributes();
+	if(alState == AL_PLAYING) {
+		_doNextFrame(component);
+	}
+	else if(alState == AL_PAUSED) {
+		_continuePlaying();
+	}
+	else {
+		_startFromBeginning();
 	}
 }
 
-// SourceState Source::getState() {
-// 	return _state;
-// }
-
-void Source::play(){
-	isPlaying = true;
-	// if(_state != SourceState::waiting) {
-	// 	throw AudioException("Can't play Source: it's not waiting");
-	// }
-	// _state = SourceState::playing;
-	_updateSoundAttributes();
+void Source::_startFromBeginning() {
+	_prepareLoadingBuffer();
 	_isEndFound = _initiallyLoadSound();
 	alCall(alSourceQueueBuffers, _source, 4, &_buffers[0]);
 	alCall(alSourcePlay, _source);
 }
 
-void Source::update(SourceComponent& component){
-	// if(_state != SourceState::playing) {
-	// 	throw AudioException("Can't update Source: it's not playing");
-	// }
-	_updateFromComponent(component);
+
+void Source::_doNextFrame(SourceComponent& component){
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
-	_updateSoundAttributes();
-	if(isLooped || !_isEndFound) {
+	if(_isLooped || !_isEndFound) {
 		_isEndFound = _loadSound();
 	}
 	if(alState != AL_PLAYING) {
-		isPlaying = false;
+		// Logger::debug("stop");
+		component.stop();
 	}
-	// if(alState != AL_PLAYING) {
-	// 	stop();
-	// }
 }
 
-void Source::stop() {
-	isPlaying = false;
+void Source::stopPlaying() {
 	alCall(alSourceStop, _source);
+	_clipPath = "";
 }
 
 void Source::pausePlaying(){
-	isPlaying = false;
 	alCall(alSourcePause, _source);
 }
 
-void Source::continuePlaying() {
-	isPlaying = true;
+void Source::_continuePlaying() {
 	alCall(alSourcePlay, _source);
 }
 
-void Source::activate(SoundBank* soundBank, SourceComponent& component){
+
+void Source::initialize(SoundBank* soundBank){
 	_soundBank = soundBank;
-	_updateFromComponent(component);
 	alCall(alGenBuffers, 4, &_buffers[0]);
 	alCall(alGenSources, 1, &_source);
-	_prepareLoadingBuffer();
-	isActive = true;
 }
 
-void Source::deactivate() {
+Source::~Source() {
 	_soundBank = nullptr;
 	alCall(alDeleteSources, 1, &_source);
 	alCall(alDeleteBuffers, 4, &_buffers[0]);
-	isActive = false;
 }
 }

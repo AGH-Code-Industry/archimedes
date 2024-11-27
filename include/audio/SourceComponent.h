@@ -3,6 +3,10 @@
 #include <AL/al.h>
 
 namespace arch::audio{
+	enum SourceState {
+		ignored, playing, paused, stopped
+	};
+
 	struct SourceComponent{
 		ALfloat pitch = 1.0f;
 		ALfloat gain = 1.0f;
@@ -11,5 +15,26 @@ namespace arch::audio{
 		bool isLooped = false;
 		int sourceIndex = -1;
 		std::string path = "";
+
+		void play() {
+			_state = playing;
+		}
+		void pause() {
+			_state = paused;
+		}
+		void stop() {
+			_state = stopped;
+		}
+
+		void ignore() {
+			_state = ignored;
+		}
+
+		SourceState getState() const {
+			return _state;
+		}
+
+		private:
+			SourceState _state = ignored;
 	};
 }

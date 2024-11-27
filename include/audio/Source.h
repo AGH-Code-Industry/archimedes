@@ -33,8 +33,25 @@ namespace arch::audio{
 		/// @brief Path to the audio file.
 		std::string _clipPath;
 
-		/// @brief True if end of the sound file was reached
+		/// @brief True if end of the sound file was reached.
 		bool _isEndFound = false;
+
+		/// @brief Pitch modifier of the sound.
+		ALfloat _pitch = 1.0f;
+
+		/// @brief Gain modifier of the sound.
+		ALfloat _gain = 1.0f;
+
+		/// @brief Position of the Source on the map.
+		/// Used for spatial effects.
+		ALfloat _positionX = 0.0f, _positionY = 0.0f;
+
+		/// @brief Velocity of the Source on the map.
+		/// Used for calculating the Doppler Effect.
+		ALfloat _velocityX = 0.0f, _velocityY = 0.0f;
+
+		/// @brief Tells if the sound's playback has to be looped.
+		bool _isLooped = false;
 
 		/// @brief Pass all the sound's parameters to OpenAL.
 		void _updateSoundAttributes();
@@ -51,44 +68,27 @@ namespace arch::audio{
 		/// @see _loadingBuffer
 		void _prepareLoadingBuffer();
 
-		void _updateFromComponent(SourceComponent& component);
+		void _doNextFrame(SourceComponent& component);
+
+		void _continuePlaying();
+
+		void _startFromBeginning();
+
 
 		public:
 
-		bool isPlaying = false;
+		void update(const SourceComponent& component);
 
-		bool isActive = false;
+		void initialize(SoundBank* soundBank);
 
-		/// @brief Pitch modifier of the sound.
-		ALfloat pitch = 1.0f;
+		~Source();
 
-		/// @brief Gain modifier of the sound.
-		ALfloat gain = 1.0f;
+		/// @brief Play the sound from the beginning.
+		void play(SourceComponent& component);
 
-		/// @brief Position of the Source on the map.
-		/// Used for spatial effects.
-		ALfloat positionX = 0.0f, positionY = 0.0f;
-
-		/// @brief Velocity of the Source on the map.
-		/// Used for calculating the Doppler Effect.
-		ALfloat velocityX = 0.0f, velocityY = 0.0f;
-
-		/// @brief Tells if the sound's playback has to be looped.
-		bool isLooped = false;
-
-		void activate(SoundBank* soundBank, SourceComponent& component);
-
-		void deactivate();
-
-		void play();
-
-		void update(SourceComponent& component);
-
-		void stop();
+		void stopPlaying();
 
 		void pausePlaying();
-
-		void continuePlaying();
 	};
 
 }

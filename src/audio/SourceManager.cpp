@@ -4,7 +4,12 @@
 
 namespace arch::audio {
 
-SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain *domain) : _soundBank(soundBank), _domain(domain) {
+SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain* domain):
+	_soundBank(soundBank),
+	_domain(domain){
+	for(int i=0; i<16; i++) {
+		_sources[i].initialize(soundBank);
+	}
 	Logger::info("Audio system: opened audio manager");
 }
 
@@ -14,7 +19,7 @@ SourceManager::~SourceManager() {
 
 int SourceManager::_findEmptySource() {
 	for(int i=0; i<16; i++) {
-		if(!_sources[i].isActive) {
+		if(!_sourceUsed[i]) {
 			return i;
 		}
 	}
@@ -23,69 +28,85 @@ int SourceManager::_findEmptySource() {
 
 void SourceManager::play() {
 	Logger::info("Audio system: audio manager started playing");
-	for (auto&& [entity, pos] : _domain->components<SourceComponent>()) {
-		_playSource(pos);
-	}
 	while (isListening) {
 		_updateListener();
-		for (auto&& [entity, pos] : _domain->components<SourceComponent>()) {
-			_updateSource(pos);
+		// Logger::debug("Audio system: audio manager update started");
+		for (auto&& [entity, source] : _domain->components<SourceComponent>()) {
+			if(source.sourceIndex < -1 || source.sourceIndex >= 16) {
+				throw AudioException("Audio system: source index out of range");
+			}
+			if(source.path == "") {
+				continue;
+			}
+			switch (source.getState()) {
+				case playing:
+					Logger::debug("Audio system: source is playing");
+					if(source.sourceIndex == -1) {
+						_assignSource(source);
+					}
+					_updateSource(source);
+					_playSource(source); //flagged
+					Logger::debug("Audio system: afterplay");
+					break;
+				case paused:
+					// Logger::debug("Audio system: source is paused");
+					_updateSource(source);
+					_pauseSource(source);
+					break;
+				case stopped:
+					// Logger::debug("Audio system: source is stopped");
+					_stopSource(source);
+					_removeSource(source);
+					break;
+				case ignored:
+					// Logger::debug("Audio system: source is ignored");
+					break;
+			}
 		}
+		// Logger::debug("Audio system: audio manager update ended");
 	}
 	Logger::info("Audio system: audio manager stopped playing");
 }
 
-void SourceManager::addSource(SourceComponent& component){
+void SourceManager::stop() {
+	isListening = false;
+}
+
+void SourceManager::_assignSource(SourceComponent& component) {
 	int index = _findEmptySource();
-	if(index == -1) {
-		throw AudioException("Could not find empty source");
+	if (index == -1) {
+		throw AudioException("Cannot find empty source");
 	}
+	Logger::debug("{}", index);
+	_sourceUsed[index] = true;
 	component.sourceIndex = index;
-	_sources[index].activate(_soundBank, component);
-	_sources[index].update(component);
-
-
-	Logger::info("Audio system: added Source with path {} and index {}", component.path, std::to_string(index));
+	Logger::info("Audio system: assigned Source with index {}", std::to_string(component.sourceIndex));
 }
 
-void SourceManager::removeSource(SourceComponent& component) {\
-	if(!_sources[component.sourceIndex].isActive) {
-		throw AudioException("Source not active");
-	}
-	if(_sources[component.sourceIndex].isPlaying) {
-		throw AudioException("Source is still playing");
-	}
-	_sources[component.sourceIndex].deactivate();
-	Logger::info("Audio system: removed Source with index {}", std::to_string(component.sourceIndex));
+void SourceManager::_removeSource(SourceComponent& component) {
+	_sourceUsed[component.sourceIndex] = false;
+	int index = component.sourceIndex;
+	component.sourceIndex = -1;
+	component.ignore();
+	Logger::info("Audio system: removed Source with index {}", std::to_string(index));
 }
 
-void SourceManager::pauseSource(SourceComponent& component) {
-	if(!_sources[component.sourceIndex].isActive) {
-		throw AudioException("Source not active");
-	}
+void SourceManager::_pauseSource(SourceComponent& component) {
 	_sources[component.sourceIndex].pausePlaying();
 	Logger::info("Audio system: paused Source with index {}", std::to_string(component.sourceIndex));
 }
 
-void SourceManager::continueSource(SourceComponent& component) {
-	if(!_sources[component.sourceIndex].isActive) {
-		throw AudioException("Source not active");
-	}
-	_sources[component.sourceIndex].continuePlaying();
-	Logger::info("Audio system: continued Source with index {}", std::to_string(component.sourceIndex));
-}
 
 void SourceManager::_playSource(SourceComponent& component) {
-	if(!_sources[component.sourceIndex].isActive) {
-		throw AudioException("Source not active");
-	}
-	_sources[component.sourceIndex].play();
+	_sources[component.sourceIndex].play(component); //flagged .play()
+}
+
+void SourceManager::_stopSource(SourceComponent& component) {
+	_sources[component.sourceIndex].stopPlaying();
+	Logger::info("Audio system: stopped Source with index {}", std::to_string(component.sourceIndex));
 }
 
 void SourceManager::_updateSource(SourceComponent& component) {
-	if(!_sources[component.sourceIndex].isActive) {
-		throw AudioException("Source not active");
-	}
 	_sources[component.sourceIndex].update(component);
 }
 
