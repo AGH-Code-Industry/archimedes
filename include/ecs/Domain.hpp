@@ -77,14 +77,16 @@ Domain::ConstGetReference<std::remove_const_t<C>> Domain::getComponent(const Ent
 template<class C>
 requires(!_details::ComponentTraits<C>::flag && !std::is_const_v<C>)
 std::optional<std::reference_wrapper<C>> Domain::tryGetComponent(const Entity entity) noexcept {
-	return _getCPool<C>().tryGet(entity);
+	auto cpool = _tryGetCPool<C>();
+	return cpool ? cpool->tryGet(entity) : std::nullopt;
 }
 
 template<class C>
 requires(!_details::ComponentTraits<std::remove_const_t<C>>::flag)
 std::optional<std::reference_wrapper<const std::remove_const_t<C>>> Domain::tryGetComponent(const Entity entity
 ) const noexcept {
-	return _getCPool<std::remove_const_t<C>>().tryGet(entity);
+	auto cpool = _tryGetCPool<std::remove_const_t<C>>();
+	return cpool ? cpool->tryGet(entity) : std::nullopt;
 }
 
 template<class C>
