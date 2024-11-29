@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../math/Math.h"
+#include "math/Math.h"
 
 namespace arch::physics {
 
