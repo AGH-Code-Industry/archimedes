@@ -150,14 +150,14 @@ bool VIEW_CIE::contains(const Entity entity) const noexcept {
 	return std::all_of(
 			   _includedCPools.begin(),
 			   _includedCPools.begin() + _minIdx,
-			   [entity](const auto cpool) { return cpool->contains(entity); }
+			   [entity](const auto cpool) { return cpool && cpool->contains(entity); }
 		   ) &&
 		std::all_of(
 			   _includedCPools.begin() + _minIdx + 1,
 			   _includedCPools.end(),
-			   [entity](const auto cpool) { return cpool->contains(entity); }
+			   [entity](const auto cpool) { return cpool && cpool->contains(entity); }
 		) &&
-		std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
+		std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool && cpool->contains(entity); });
 }
 
 TEMPLATE_CE

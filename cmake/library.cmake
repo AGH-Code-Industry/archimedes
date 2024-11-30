@@ -21,6 +21,7 @@ FetchContent_Declare(
         GIT_TAG main
         OVERRIDE_FIND_PACKAGE
 )
+FETCHCONTENT_MAKEAVAILABLE(nvrhi)
 find_package(nvrhi REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC nvrhi nvrhi_vk)

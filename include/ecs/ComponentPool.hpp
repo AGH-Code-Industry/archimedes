@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "ComponentPool.h"
+#include <meta/Rtti.h>
 #include <utils/Assert.h>
 
 #define TEMPLATE_C template<class C>
@@ -158,8 +161,28 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 	}
 }
 
-TEMPLATE_C
-bool POOL_C::removeComponent(const EntityT entity) noexcept {
+template<class T>
+concept isTransform = requires(T t) {
+	{ t.position };
+	{ t.rotation };
+	{ t.scale };
+};
+
+TEMPLATE_C bool POOL_C::removeComponent(const EntityT entity) noexcept {
+	const bool isT = isTransform<C>;
+	// if (isT) {
+	/*std::cout << "sparse of: " << typedesc(C).wrap().name() << '\n';
+	auto& arr = (*_sparse[0].get());
+	int i = 0;
+	for (auto&& e : arr) {
+		++i;
+		std::cout << arch::ecs::_details::EntityTraits::Id::part(e) << ' ';
+		if (i >= 20) {
+			break;
+		}
+	}
+	std::cout << "\n";*/
+	//}
 	const size_t id = ETraits::Id::part(entity);
 
 	auto sparsePtr = _sparseTryGet(id);
@@ -180,8 +203,16 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
+
+			// IMPORTANT ERRORRRRRR
+			// IMPORTANT ERRORRRRRR
+			// IMPORTANT ERRORRRRRR
+			// IMPORTANT ERRORRRRRR
+			// IMPORTANT ERRORRRRRR
+			// VVVVVVVVVVVVVVVVVVVV
+			// fix: entity -> *sparsePtr
 			sparseSwap =
-				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(*sparsePtr), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense

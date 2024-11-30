@@ -1,3 +1,4 @@
+#include <numbers>
 #include <shaderc/shaderc.hpp>
 
 #include "Logger.h"
@@ -16,9 +17,9 @@ struct Vertex {
 };
 
 static const Vertex g_Vertices[] = {
-	{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-	{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
-	{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
+	{  { .25f, std::numbers::sqrt3_v<float> * 0.125f, 0.1f }, { 0.f, 0.f } },
+	{  { 0.f, -std::numbers::sqrt3_v<float> * 0.125f, 0.1f }, { 0.f, 0.f } },
+	{ { -.25f, std::numbers::sqrt3_v<float> * 0.125f, 0.1f }, { 0.f, 0.f } },
 };
 
 constexpr std::string_view vertexShader = R"(
@@ -36,7 +37,12 @@ layout(binding = 256) uniform UniformBufferObject {
 
 void main() {
     gl_Position = ubo.mvp * vec4(inPosition, 1.0);
-    fragColor = vec3(inUV, 0.0);
+
+    if (inPosition.x == 0.0) {
+        fragColor = vec3(0.5 * 3.0 / 2.0, 0.25 / 2.0 * 3.0 / 2.0, 0.0);
+    } else {
+        fragColor = vec3(0.125 / 2, 0.125 / 2, 0.125 / 2);
+    }
 }
 )";
 
@@ -139,7 +145,7 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 									  .setByteSize(sizeof(Mat4x4)) // stores one matrix
 									  .setIsConstantBuffer(true)
 									  .setIsVolatile(true)
-									  .setMaxVersions(16); // number of automatic versions, only necessary on Vulkan
+									  .setMaxVersions(1'024); // number of automatic versions, only necessary on Vulkan
 
 		s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
 
@@ -239,11 +245,9 @@ void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 	auto graphicsState = ::nvrhi::GraphicsState()
 							 .setPipeline(s_pipeline)
 							 .setFramebuffer(currentFramebuffer)
-							 .setViewport(
-								 ::nvrhi::ViewportState().addViewportAndScissorRect(
-									 ::nvrhi::Viewport(framebufferSize.x, framebufferSize.y)
-								 )
-							 )
+							 .setViewport(::nvrhi::ViewportState().addViewportAndScissorRect(
+								 ::nvrhi::Viewport(framebufferSize.x, framebufferSize.y)
+							 ))
 							 .addBindingSet(s_bindingSet)
 							 .addVertexBuffer(vbufBinding);
 	s_commandList->setGraphicsState(graphicsState);

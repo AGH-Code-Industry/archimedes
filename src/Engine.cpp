@@ -7,6 +7,7 @@
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 #include "scene/SceneManager.h"
+#include <net/Init.h>
 
 namespace arch {
 
@@ -56,6 +57,8 @@ void Engine::_mainLoop() {
 }
 
 void Engine::_initialize() {
+	net::Init::init();
+
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
 	_renderer = Renderer::create(_engineConfig.renderingApi);
@@ -73,6 +76,7 @@ void Engine::_initialize() {
 
 void Engine::_shutdown() {
 	Logger::info("Engine shutingdown");
+	net::Init::cleanup();
 	glfwTerminate();
 
 	if (_renderer) {
