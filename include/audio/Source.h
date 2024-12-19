@@ -11,6 +11,8 @@ namespace arch::audio{
 	/// The sound can be modified as needed.
 	class Source{
 
+		bool _wereBuffersQueued = false;
+
 		/// @brief Position in the audio file.
 		std::size_t _cursor = 0;
 
@@ -68,7 +70,7 @@ namespace arch::audio{
 		/// @see _loadingBuffer
 		void _prepareLoadingBuffer();
 
-		void _doNextFrame(SourceComponent& component);
+		void _doNextFrame();
 
 		void _continuePlaying();
 
@@ -76,6 +78,8 @@ namespace arch::audio{
 
 
 		public:
+
+		int currentIndexTestVariable;  // the name is so long on a purpose, I need to know that it's debug only
 
 		void update(const SourceComponent& component);
 

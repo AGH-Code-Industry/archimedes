@@ -5,6 +5,7 @@
 #include <thread>
 #include <cmath>
 #include <Ecs.h>
+#include <mutex>
 
 const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
 
@@ -19,7 +20,7 @@ struct MyApp : arch::Application {
 
 
 
-void testAudioSystem(ecs::Domain& domain) {
+void testSimpleWind(ecs::Domain& domain) {
 	// initialize OpenAL context
 	audio::SoundDevice device;
 
@@ -31,22 +32,25 @@ void testAudioSystem(ecs::Domain& domain) {
 	soundBank.loadInitialGroups();
 
 	// initialize and start the audioManager
-	audio::SourceManager audioManager(&soundBank, &domain);
+	std::mutex mutex;
+	audio::SourceManager audioManager(&soundBank, &domain, mutex);
 	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
 
 	while(getchar() != 'q') {
-		arch::Logger::debug("play");
 		// create an entity and give it an audio source component
-		auto wind = domain.newEntity();
-		audio::SourceComponent& source = domain.addComponent<audio::SourceComponent>(wind);
-		arch::Logger::debug("add");
+		{
+			auto lock = std::lock_guard(mutex);
+			auto wind = domain.newEntity();
+			audio::SourceComponent& source = domain.addComponent<audio::SourceComponent>(wind);
 
-		// set some custom parameters to the source
-		source.path = sounds + "Chiptone A4.wav"; //this is mandatory, so we can play the sound
-		source.gain = 0.5; // this is optional, it will make the sound quieter
+			// set some custom parameters to the source
+			source.path = sounds + "Chiptone A4.wav"; //this is mandatory, so we can play the sound
+			source.gain = 0.5; // this is optional, it will make the sound quieter
 
-		// play the source
-		source.play();
+			// play the source
+			source.play();
+		}
+
 
 	}
 
@@ -63,7 +67,7 @@ int main() {
 
 	ecs::Domain domain;
 
-	testAudioSystem(domain);
+	testSimpleWind(domain);
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//
 	// arch::Engine engine { config, myApp };

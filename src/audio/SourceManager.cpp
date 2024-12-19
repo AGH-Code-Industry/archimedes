@@ -1,14 +1,18 @@
 #include <Logger.h>
 #include <audio/AudioException.h>
 #include <audio/SourceManager.h>
+#include <ecs/View.h>
+
 
 namespace arch::audio {
 
-SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain* domain):
+SourceManager::SourceManager(SoundBank* soundBank, ecs::Domain* domain, std::mutex& mutex):
 	_soundBank(soundBank),
-	_domain(domain){
+	_domain(domain),
+	_mutex(mutex){
 	for(int i=0; i<16; i++) {
 		_sources[i].initialize(soundBank);
+		_sources[i].currentIndexTestVariable = i;
 	}
 	Logger::info("Audio system: opened audio manager");
 }
@@ -30,40 +34,36 @@ void SourceManager::play() {
 	Logger::info("Audio system: audio manager started playing");
 	while (isListening) {
 		_updateListener();
-		// Logger::debug("Audio system: audio manager update started");
-		for (auto&& [entity, source] : _domain->components<SourceComponent>()) {
-			if(source.sourceIndex < -1 || source.sourceIndex >= 16) {
-				throw AudioException("Audio system: source index out of range");
-			}
-			if(source.path == "") {
-				continue;
-			}
-			switch (source.getState()) {
-				case playing:
-					Logger::debug("Audio system: source is playing");
-					if(source.sourceIndex == -1) {
-						_assignSource(source);
-					}
-					_updateSource(source);
-					_playSource(source); //flagged
-					Logger::debug("Audio system: afterplay");
-					break;
-				case paused:
-					// Logger::debug("Audio system: source is paused");
-					_updateSource(source);
-					_pauseSource(source);
-					break;
-				case stopped:
-					// Logger::debug("Audio system: source is stopped");
-					_stopSource(source);
-					_removeSource(source);
-					break;
-				case ignored:
-					// Logger::debug("Audio system: source is ignored");
-					break;
+		{
+			auto lock = std::lock_guard(_mutex);
+			for (auto&& [source] : _domain->view<SourceComponent>().components()) {
+				if(source.sourceIndex < -1 || source.sourceIndex >= 16) {
+					throw AudioException("Audio system: source index out of range");
+				}
+				if(source.path == "") {
+					continue;
+				}
+				switch (source.getState()) {
+					case playing:
+						if(source.sourceIndex == -1) {
+							_assignSource(source);
+						}
+						_updateSource(source);
+						_playSource(source);
+						break;
+					case paused:
+						_updateSource(source);
+						_pauseSource(source);
+						break;
+					case stopped:
+						_stopSource(source);
+						_removeSource(source);
+						break;
+					case ignored:
+						break;
+				}
 			}
 		}
-		// Logger::debug("Audio system: audio manager update ended");
 	}
 	Logger::info("Audio system: audio manager stopped playing");
 }
@@ -77,7 +77,6 @@ void SourceManager::_assignSource(SourceComponent& component) {
 	if (index == -1) {
 		throw AudioException("Cannot find empty source");
 	}
-	Logger::debug("{}", index);
 	_sourceUsed[index] = true;
 	component.sourceIndex = index;
 	Logger::info("Audio system: assigned Source with index {}", std::to_string(component.sourceIndex));
@@ -98,7 +97,7 @@ void SourceManager::_pauseSource(SourceComponent& component) {
 
 
 void SourceManager::_playSource(SourceComponent& component) {
-	_sources[component.sourceIndex].play(component); //flagged .play()
+	_sources[component.sourceIndex].play(component);
 }
 
 void SourceManager::_stopSource(SourceComponent& component) {

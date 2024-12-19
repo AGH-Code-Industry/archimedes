@@ -31,22 +31,17 @@ void Source::_updateSoundAttributes(){
 }
 
 bool Source::_initiallyLoadSound() {
-	// Logger::debug("before clip");
 	Clip& clip = _soundBank->getClip(_clipPath);
-	// Logger::debug("before format");
 	ALenum format = clip.getFormat();
-	// Logger::debug("before buffer elems");
 	std::size_t bufferElements = clip.getBufferElements();
-	// Logger::debug("before sample rate");
-	// Logger::debug("{}", _clipPath);
 	ALint sampleRate = clip.getSampleRate();
 	bool isEndFound = false;
+	ALint buffersProcessed = 0, buffersQueued = 0;
+	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+	alCall(alGetSourcei, _source, AL_BUFFERS_QUEUED, &buffersQueued);
 	for(int i=0; i<4; i++) {
-		// Logger::debug("before fill");
 		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
-		// Logger::debug("before bufferdata");
 		alCall(alBufferData, _buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
-		// Logger::debug("after iteration {}", i);
 	}
 	return isEndFound;
 }
@@ -67,15 +62,10 @@ bool Source::_loadSound() {
 	bool isEndFound = false;
 	for(int i=0; i<buffersProcessed; i++) {
 		ALuint buffer;
-		// Logger::debug("unqueue");
 		alCall(alSourceUnqueueBuffers, _source, 1, &buffer);
-		// Logger::debug("fill");
 		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
-		// Logger::debug("bufferdata");
 		alCall(alBufferData, buffer, format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
-		// Logger::debug("queue");
 		alCall(alSourceQueueBuffers, _source, 1, &buffer);
-		// Logger::debug("test");
 	}
 	return isEndFound;
 }
@@ -83,7 +73,6 @@ bool Source::_loadSound() {
 void Source::_prepareLoadingBuffer() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	const std::size_t bufferElements = clip.getBufferElements();
-	// Logger::debug("bufferElements: {}", bufferElements);
 	_loadingBuffer.resize(bufferElements, 0);
 	_cursor = 0;
 }
@@ -92,14 +81,22 @@ void Source::play(SourceComponent& component){
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 	_updateSoundAttributes();
-	if(alState == AL_PLAYING) {
-		_doNextFrame(component);
-	}
-	else if(alState == AL_PAUSED) {
-		_continuePlaying();
-	}
-	else {
-		_startFromBeginning();
+	switch(alState) {
+		case AL_PLAYING:
+			_doNextFrame();
+			break;
+		case AL_PAUSED:
+			_continuePlaying();
+			break;
+		case AL_STOPPED:
+			component.stop();
+			break;
+		case AL_INITIAL:
+			_startFromBeginning();
+			break;
+		default:
+			throw AudioException("Invalid state");
+
 	}
 }
 
@@ -111,20 +108,15 @@ void Source::_startFromBeginning() {
 }
 
 
-void Source::_doNextFrame(SourceComponent& component){
-	ALenum alState;
-	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
+void Source::_doNextFrame(){
 	if(_isLooped || !_isEndFound) {
 		_isEndFound = _loadSound();
-	}
-	if(alState != AL_PLAYING) {
-		// Logger::debug("stop");
-		component.stop();
 	}
 }
 
 void Source::stopPlaying() {
-	alCall(alSourceStop, _source);
+	alCall(alSourceUnqueueBuffers, _source, 4, &_buffers[0]);
+	alCall(alSourceRewind, _source);
 	_clipPath = "";
 }
 

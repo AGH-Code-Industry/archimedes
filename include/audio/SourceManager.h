@@ -1,6 +1,4 @@
 #pragma once
-#include <mutex>
-#include <vector>
 
 #include <audio/Listener.h>
 #include <audio/Source.h>
@@ -27,6 +25,8 @@ namespace arch::audio {
 		///@brief Sound bank storing all clips.
 		SoundBank* _soundBank;
 
+		std::mutex& _mutex;
+
 		///@brief Find a Source that is not currently used by any component.
 		int _findEmptySource();
 
@@ -47,7 +47,7 @@ namespace arch::audio {
 		//TODO: there should be a better way (a new method maybe?)
 		bool isListening = true;
 
-		SourceManager(SoundBank* soundBank, ecs::Domain *domain);
+		SourceManager(SoundBank* soundBank, ecs::Domain *domain, std::mutex& mutex);
 
 		///@brief Destructor.
 		///Currently, it does almost nothing (apart from logging).
