@@ -18,7 +18,8 @@ struct MyApp : arch::Application {
 	}
 };
 
-audio::SourceComponent* createSource(std::mutex& mutex, ecs::Domain& domain, const std::string& name) {
+audio::SourceComponent* createSource(std::mutex& mutex, ecs::Domain& domain,
+									const std::string& name, bool isLooped) {
 	// create an entity and give it an audio source component
 	auto lock = std::lock_guard(mutex);
 	auto entity = domain.newEntity();
@@ -27,7 +28,7 @@ audio::SourceComponent* createSource(std::mutex& mutex, ecs::Domain& domain, con
 	// set some custom parameters to the source
 	source->path = sounds + name; //this is mandatory, so we can play the sound
 	source->gain = 0.5; // this is optional, it will make the sound quieter
-	source->isLooped = true;  // this will make the sound looped, so it won`t be removed automatically
+	source->isLooped = isLooped;  // this will make the sound looped, so it won`t be removed automatically
 
 	return source;
 }
@@ -54,7 +55,7 @@ void testSimpleWind(ecs::Domain& domain) {
 
 	while(getchar() != 'q') {
 		// create an entity and give it an audio source component
-		auto source = createSource(mutex, domain, filename);
+		auto source = createSource(mutex, domain, filename, false);
 
 		// play the source
 		source->play();
@@ -80,7 +81,7 @@ void testControl(ecs::Domain& domain) {
 	audio::SourceManager audioManager(&soundBank, &domain, mutex);
 	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
 
-	auto source = createSource(mutex, domain, "rickroll.wav");
+	auto source = createSource(mutex, domain, "rickroll.wav", true);
 	source->play();
 
 	char controlSign = 'x';
@@ -100,7 +101,7 @@ void testControl(ecs::Domain& domain) {
 				break;
 			case 'r':
 				if(!isPlaying) {
-					source = createSource(mutex, domain, "rickroll.wav");
+					source = createSource(mutex, domain, "rickroll.wav", true);
 					source->play();
 				}
 				break;
@@ -123,7 +124,9 @@ int main() {
 
 	ecs::Domain domain;
 
+	// testSimpleWind(domain);
 	testControl(domain);
+
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//
 	// arch::Engine engine { config, myApp };
