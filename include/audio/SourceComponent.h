@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
+
 #include <AL/al.h>
+#include <Logger.h>
 
 namespace arch::audio{
 	enum SourceState {
-		ignored, playing, paused, stopped
+		ignoring, playing, pausing, stopping
 	};
 
 	struct SourceComponent{
@@ -17,17 +19,25 @@ namespace arch::audio{
 		std::string path = "";
 
 		void play() {
-			_state = playing;
+			if(_state == pausing || _state == ignoring) {
+				_state = playing;
+			}
 		}
 		void pause() {
-			_state = paused;
+			if(_state == playing) {
+				_state = pausing;
+			}
 		}
 		void stop() {
-			_state = stopped;
+			if(_state == playing || _state == pausing) {
+				_state = stopping;
+			}
 		}
 
 		void ignore() {
-			_state = ignored;
+			if(_state == stopping) {
+				_state = ignoring;
+			}
 		}
 
 		SourceState getState() const {
@@ -35,6 +45,6 @@ namespace arch::audio{
 		}
 
 		private:
-			SourceState _state = ignored;
+			SourceState _state = ignoring;
 	};
 }

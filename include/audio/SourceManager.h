@@ -32,7 +32,7 @@ namespace arch::audio {
 
 		void _playSource(SourceComponent& component);
 		void _assignSource(SourceComponent& component);
-		void _stopSource(SourceComponent& component);
+		bool _stopSource(SourceComponent& component);
 		void _removeSource(SourceComponent& component);
 		void _pauseSource(SourceComponent& component);
 		void _updateSource(SourceComponent& component);

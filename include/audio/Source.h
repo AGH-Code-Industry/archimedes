@@ -90,7 +90,7 @@ namespace arch::audio{
 		/// @brief Play the sound from the beginning.
 		void play(SourceComponent& component);
 
-		void stopPlaying();
+		bool stopPlaying();
 
 		void pausePlaying();
 	};

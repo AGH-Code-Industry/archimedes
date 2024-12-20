@@ -36,9 +36,6 @@ bool Source::_initiallyLoadSound() {
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
 	bool isEndFound = false;
-	ALint buffersProcessed = 0, buffersQueued = 0;
-	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
-	alCall(alGetSourcei, _source, AL_BUFFERS_QUEUED, &buffersQueued);
 	for(int i=0; i<4; i++) {
 		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
 		alCall(alBufferData, _buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
@@ -52,7 +49,7 @@ bool Source::_loadSound() {
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
 
-	ALint buffersProcessed = 0;
+	ALint buffersProcessed;
 	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
 
 	if(buffersProcessed <= 0) {
@@ -114,10 +111,24 @@ void Source::_doNextFrame(){
 	}
 }
 
-void Source::stopPlaying() {
+bool Source::stopPlaying() {
+	_gain = 0.0f;
+	ALenum alState;
+	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
+	if(alState == AL_PAUSED) {
+		_continuePlaying();
+	}
+	alCall(alSourcef, _source, AL_GAIN, _gain);
+	ALint buffersProcessed, buffersQueued;
+	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+	alCall(alGetSourcei, _source, AL_BUFFERS_QUEUED, &buffersQueued);
+	if(buffersProcessed < buffersQueued) {
+		return false;
+	}
 	alCall(alSourceUnqueueBuffers, _source, 4, &_buffers[0]);
 	alCall(alSourceRewind, _source);
 	_clipPath = "";
+	return true;
 }
 
 void Source::pausePlaying(){
@@ -127,7 +138,6 @@ void Source::pausePlaying(){
 void Source::_continuePlaying() {
 	alCall(alSourcePlay, _source);
 }
-
 
 void Source::initialize(SoundBank* soundBank){
 	_soundBank = soundBank;

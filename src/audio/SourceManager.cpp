@@ -51,15 +51,16 @@ void SourceManager::play() {
 						_updateSource(source);
 						_playSource(source);
 						break;
-					case paused:
+					case pausing:
 						_updateSource(source);
 						_pauseSource(source);
 						break;
-					case stopped:
-						_stopSource(source);
-						_removeSource(source);
-						break;
-					case ignored:
+					case stopping:
+						if(_stopSource(source)) {
+							_removeSource(source);
+						}
+					break;
+					case ignoring:
 						break;
 				}
 			}
@@ -92,7 +93,6 @@ void SourceManager::_removeSource(SourceComponent& component) {
 
 void SourceManager::_pauseSource(SourceComponent& component) {
 	_sources[component.sourceIndex].pausePlaying();
-	Logger::info("Audio system: paused Source with index {}", std::to_string(component.sourceIndex));
 }
 
 
@@ -100,9 +100,8 @@ void SourceManager::_playSource(SourceComponent& component) {
 	_sources[component.sourceIndex].play(component);
 }
 
-void SourceManager::_stopSource(SourceComponent& component) {
-	_sources[component.sourceIndex].stopPlaying();
-	Logger::info("Audio system: stopped Source with index {}", std::to_string(component.sourceIndex));
+bool SourceManager::_stopSource(SourceComponent& component) {
+	return _sources[component.sourceIndex].stopPlaying();
 }
 
 void SourceManager::_updateSource(SourceComponent& component) {
