@@ -148,14 +148,14 @@ void testSpatialAudio(ecs::Domain& domain) {
 	// play the source
 	source->play();
 
-	// during playing the sound, update the source every 1 second.
+	// during playing the sound, update the source every 50 ms.
 	// make the source hang around the listener while changing the distance from them.
 	const int steps = 1000;
 	for (int i=0; i<steps; i++) {
+		const int stepsPerCircle = 100;
+		const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
 		{
-			const int stepsPerCircle = 100;
 			auto lock = std::lock_guard(mutex);
-			const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
 			source->positionX = distance * std::cos(i * 2 * std::numbers::pi / stepsPerCircle);
 			source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
 		}
