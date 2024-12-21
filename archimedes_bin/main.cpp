@@ -34,7 +34,7 @@ audio::AudioSource* createSource(std::mutex& mutex, ecs::Domain& domain,
 }
 
 
-void testSimpleWind(ecs::Domain& domain) {
+void testSimpleSound(ecs::Domain& domain) {
 	// initialize OpenAL context
 	audio::SoundDevice device;
 
@@ -117,6 +117,54 @@ void testControl(ecs::Domain& domain) {
 	audioManager.stop();
 }
 
+void testSpatialAudio(ecs::Domain& domain) {
+	// initialize OpenAL context
+	audio::SoundDevice device;
+
+	// initialize SoundBank
+	audio::SoundBank soundBank;
+
+	// audio file name
+	const std::string filename = "wind.mp3";
+
+	// load audio files that we can play
+	soundBank.addClip(sounds + filename);
+	soundBank.loadInitialGroups();
+
+	// initialize and start the audioManager
+	std::mutex mutex;
+	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
+
+	// create an entity and give it an audio source component
+	auto source = createSource(mutex, domain, filename, true);
+
+	{
+		auto lock = std::lock_guard(mutex);
+		source->positionX = 0.0f;
+		source->positionY = 1.0f;
+	}
+
+	// play the source
+	source->play();
+
+	// during playing the sound, update the source every 1 second.
+	// make the source hang around the listener while changing the distance from them.
+	const int steps = 1000;
+	for (int i=0; i<steps; i++) {
+		{
+			const int stepsPerCircle = 100;
+			auto lock = std::lock_guard(mutex);
+			const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
+			source->positionX = distance * std::cos(i * 2 * std::numbers::pi / stepsPerCircle);
+			source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+
+	//close the audioManager
+	audioManager.stop();
+}
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
@@ -127,8 +175,9 @@ int main() {
 
 	ecs::Domain domain;
 
-	// testSimpleWind(domain);
-	testControl(domain);
+	// testSimpleSound(domain);
+	// testControl(domain);
+	testSpatialAudio(domain);
 
 	// arch::Ref<MyApp> myApp = arch::createRef<MyApp>();
 	//
