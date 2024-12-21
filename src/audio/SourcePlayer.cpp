@@ -1,19 +1,19 @@
-#include <audio/Source.h>
+#include <audio/SourcePlayer.h>
 #include <audio/Calls.hpp>
 
 namespace arch::audio {
 
-void Source::update(const SourceComponent& component) {
-	_pitch = component.pitch;
-	_gain = component.gain;
-	_positionX = component.positionX;
-	_positionY = component.positionY;
-	_velocityX = component.velocityX;
-	_velocityY = component.velocityY;
-	_isLooped = component.isLooped;
-	if(component.path != _clipPath) {
+void SourcePlayer::update(const AudioSource& source) {
+	_pitch = source.pitch;
+	_gain = source.gain;
+	_positionX = source.positionX;
+	_positionY = source.positionY;
+	_velocityX = source.velocityX;
+	_velocityY = source.velocityY;
+	_isLooped = source.isLooped;
+	if(source.path != _clipPath) {
 		if(_clipPath == "") {
-			_clipPath = component.path;
+			_clipPath = source.path;
 		}
 		else {
 			throw AudioException("Clip path should be changed only once per source");
@@ -21,8 +21,7 @@ void Source::update(const SourceComponent& component) {
 	}
 }
 
-
-void Source::_updateSoundAttributes(){
+void SourcePlayer::_updateSoundAttributes(){
 	alCall(alSourcef, _source, AL_PITCH, _pitch);
 	alCall(alSourcef, _source, AL_GAIN, _gain);
 	alCall(alSource3f, _source, AL_POSITION, _positionX, _positionY, 0);
@@ -30,7 +29,7 @@ void Source::_updateSoundAttributes(){
 	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
 }
 
-bool Source::_initiallyLoadSound() {
+bool SourcePlayer::_initiallyLoadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format = clip.getFormat();
 	std::size_t bufferElements = clip.getBufferElements();
@@ -43,19 +42,13 @@ bool Source::_initiallyLoadSound() {
 	return isEndFound;
 }
 
-bool Source::_loadSound() {
+bool SourcePlayer::_loadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format = clip.getFormat();
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
-
 	ALint buffersProcessed;
 	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
-
-	if(buffersProcessed <= 0) {
-		return false;
-	}
-
 	bool isEndFound = false;
 	for(int i=0; i<buffersProcessed; i++) {
 		ALuint buffer;
@@ -67,14 +60,14 @@ bool Source::_loadSound() {
 	return isEndFound;
 }
 
-void Source::_prepareLoadingBuffer() {
+void SourcePlayer::_prepareLoadingBuffer() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	const std::size_t bufferElements = clip.getBufferElements();
 	_loadingBuffer.resize(bufferElements, 0);
 	_cursor = 0;
 }
 
-void Source::play(SourceComponent& component){
+void SourcePlayer::run(AudioSource& source){
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 	_updateSoundAttributes();
@@ -86,7 +79,7 @@ void Source::play(SourceComponent& component){
 			_continuePlaying();
 			break;
 		case AL_STOPPED:
-			component.stop();
+			source.stop();
 			break;
 		case AL_INITIAL:
 			_startFromBeginning();
@@ -97,7 +90,7 @@ void Source::play(SourceComponent& component){
 	}
 }
 
-void Source::_startFromBeginning() {
+void SourcePlayer::_startFromBeginning() {
 	_prepareLoadingBuffer();
 	_isEndFound = _initiallyLoadSound();
 	alCall(alSourceQueueBuffers, _source, 4, &_buffers[0]);
@@ -105,13 +98,13 @@ void Source::_startFromBeginning() {
 }
 
 
-void Source::_doNextFrame(){
+void SourcePlayer::_doNextFrame(){
 	if(_isLooped || !_isEndFound) {
 		_isEndFound = _loadSound();
 	}
 }
 
-bool Source::stopPlaying() {
+bool SourcePlayer::stopPlaying() {
 	_gain = 0.0f;
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
@@ -131,21 +124,21 @@ bool Source::stopPlaying() {
 	return true;
 }
 
-void Source::pausePlaying(){
+void SourcePlayer::pausePlaying(){
 	alCall(alSourcePause, _source);
 }
 
-void Source::_continuePlaying() {
+void SourcePlayer::_continuePlaying() {
 	alCall(alSourcePlay, _source);
 }
 
-void Source::initialize(SoundBank* soundBank){
+void SourcePlayer::initialize(SoundBank* soundBank){
 	_soundBank = soundBank;
 	alCall(alGenBuffers, 4, &_buffers[0]);
 	alCall(alGenSources, 1, &_source);
 }
 
-Source::~Source() {
+SourcePlayer::~SourcePlayer() {
 	_soundBank = nullptr;
 	alCall(alDeleteSources, 1, &_source);
 	alCall(alDeleteBuffers, 4, &_buffers[0]);

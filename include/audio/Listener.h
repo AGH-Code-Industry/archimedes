@@ -1,5 +1,4 @@
 #pragma once
-#include <mutex>
 #include <AL/al.h>
 
 namespace arch::audio {
@@ -26,7 +25,7 @@ class Listener {
 	///@param positionY Y coordinate of the position.
 	///@param velocityX velocity on the X axis.
 	///@param velocityY velocity on the Y axis.
-	Listener(ALfloat masterGain=1.0f, ALfloat positionX=0.0f, ALfloat positionY=0.0f,
+	explicit Listener(ALfloat masterGain=1.0f, ALfloat positionX=0.0f, ALfloat positionY=0.0f,
 					ALfloat velocityX=0.0f, ALfloat velocityY=0.0f);
 
 	///@brief Sends the parameters to the OpenAL context.

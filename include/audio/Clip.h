@@ -35,7 +35,7 @@ class Clip{
 		explicit Clip(const std::string& path) : _filePath(path) {}
 
 		/// @brief Loads the sound file.
-		/// @throws AudioException If couldn't open the file.
+		/// @throws AudioException If it couldn't open the file.
 		void load();
 
 		/// @brief Unloads the sound file.

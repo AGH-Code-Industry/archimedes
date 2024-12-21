@@ -1,7 +1,7 @@
 #include <Engine.h>
 #include <Logger.h>
 #include <audio/SoundDevice.h>
-#include <audio/SourceManager.h>
+#include <audio/AudioManager.h>
 #include <thread>
 #include <cmath>
 #include <Ecs.h>
@@ -18,12 +18,12 @@ struct MyApp : arch::Application {
 	}
 };
 
-audio::SourceComponent* createSource(std::mutex& mutex, ecs::Domain& domain,
+audio::AudioSource* createSource(std::mutex& mutex, ecs::Domain& domain,
 									const std::string& name, bool isLooped) {
 	// create an entity and give it an audio source component
 	auto lock = std::lock_guard(mutex);
 	auto entity = domain.newEntity();
-	auto source = &domain.addComponent<audio::SourceComponent>(entity);
+	auto source = &domain.addComponent<audio::AudioSource>(entity);
 
 	// set some custom parameters to the source
 	source->path = sounds + name; //this is mandatory, so we can play the sound
@@ -42,7 +42,7 @@ void testSimpleWind(ecs::Domain& domain) {
 	audio::SoundBank soundBank;
 
 	// audio file name
-	std::string filename = "Chiptone A4.wav";
+	const std::string filename = "Chiptone A4.wav";
 
 	// load audio files that we can play
 	soundBank.addClip(sounds + filename);
@@ -50,8 +50,8 @@ void testSimpleWind(ecs::Domain& domain) {
 
 	// initialize and start the audioManager
 	std::mutex mutex;
-	audio::SourceManager audioManager(&soundBank, &domain, mutex);
-	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
+	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	while(getchar() != 'q') {
 		// create an entity and give it an audio source component
@@ -72,16 +72,19 @@ void testControl(ecs::Domain& domain) {
 	// initialize SoundBank
 	audio::SoundBank soundBank;
 
+	// audio file name
+	const std::string filename = "rickroll.wav";
+
 	// load audio files that we can play
-	soundBank.addClip(sounds + "rickroll.wav");
+	soundBank.addClip(sounds + filename);
 	soundBank.loadInitialGroups();
 
 	// initialize and start the audioManager
 	std::mutex mutex;
-	audio::SourceManager audioManager(&soundBank, &domain, mutex);
-	std::jthread audioThread(&audio::SourceManager::play, &audioManager);
+	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
-	auto source = createSource(mutex, domain, "rickroll.wav", true);
+	auto source = createSource(mutex, domain, filename, true);
 	source->play();
 
 	char controlSign = 'x';
@@ -101,7 +104,7 @@ void testControl(ecs::Domain& domain) {
 				break;
 			case 'r':
 				if(!isPlaying) {
-					source = createSource(mutex, domain, "rickroll.wav", true);
+					source = createSource(mutex, domain, filename, true);
 					source->play();
 				}
 				break;
