@@ -1,6 +1,6 @@
 #include <Scene.h>
 
-namespace arch {
+namespace arch::scene {
 
 Scene::Scene() noexcept: _domain{} {
 	const auto root = _domain.newEntity();
@@ -43,4 +43,4 @@ const Scene::Node& Scene::rootNode() const noexcept {
 	return *_rootNode;
 }
 
-} // namespace arch
+} // namespace arch::scene
