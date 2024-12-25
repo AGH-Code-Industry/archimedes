@@ -135,14 +135,13 @@ public:
 	/// @param entity - entity to get component from
 	template<class C>
 	requires(!_details::ComponentTraits<C>::flag && !std::is_const_v<C>)
-	std::optional<std::reference_wrapper<C>> tryGetComponent(const Entity entity) noexcept;
+	OptRef<C> tryGetComponent(const Entity entity) noexcept;
 	/// @brief Obtains optional with readonly reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
 	requires(!_details::ComponentTraits<std::remove_const_t<C>>::flag)
-	std::optional<std::reference_wrapper<const std::remove_const_t<C>>> tryGetComponent(const Entity entity
-	) const noexcept;
+	OptRef<const std::remove_const_t<C>> tryGetComponent(const Entity entity) const noexcept;
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
