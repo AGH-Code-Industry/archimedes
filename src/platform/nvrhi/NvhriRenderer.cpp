@@ -67,7 +67,9 @@ NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug)
 }
 
 NvrhiRenderer::~NvrhiRenderer() {
-	shutdown();
+	if (_context) {
+		shutdown();
+	}
 }
 
 void NvrhiRenderer::init(const Ref<Window>& window) {
@@ -200,6 +202,7 @@ void NvrhiRenderer::shutdown() {
 	if (_context.use_count() > 1) {
 		Logger::warn("NVRHI context is still in use.");
 	}
+	_context->shutdown();
 	_context.reset();
 }
 

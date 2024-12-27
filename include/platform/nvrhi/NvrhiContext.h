@@ -16,6 +16,7 @@ public:
 	virtual ~NvrhiContext();
 
 	virtual void init(const Ref<Window>& window) = 0;
+	virtual void shutdown();
 
 	virtual void onResize(u32 width, u32 height) = 0;
 

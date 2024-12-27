@@ -21,23 +21,7 @@ NvrhiVulkanContext::NvrhiVulkanContext(bool enableValidationLayers):
 	_enableValidationLayers(enableValidationLayers) {}
 
 NvrhiVulkanContext::~NvrhiVulkanContext() {
-	if (_swapchain) {
-		_destroySwapchain();
-	}
-
-	for (u32 i = 0; i < _acquireSemaphores.size(); i++) {
-		vkDestroySemaphore(VulkanContext::getDevice(), _acquireSemaphores[i], getAllocator());
-		vkDestroySemaphore(VulkanContext::getDevice(), _presentSemaphores[i], getAllocator());
-	}
-	_acquireSemaphores.clear();
-	_presentSemaphores.clear();
-
-	_device = nullptr;
-
-	if (_surface) {
-		vkDestroySurfaceKHR(getInstance(), _surface, getAllocator());
-		_surface = nullptr;
-	}
+	shutdown();
 }
 
 void NvrhiVulkanContext::init(const Ref<Window>& window) {
@@ -84,6 +68,28 @@ void NvrhiVulkanContext::init(const Ref<Window>& window) {
 	_createFrameSemaphores();
 }
 
+void NvrhiVulkanContext::shutdown() {
+	NvrhiContext::shutdown();
+
+	if (_swapchain) {
+		_destroySwapchain();
+	}
+
+	for (u32 i = 0; i < _acquireSemaphores.size(); i++) {
+		vkDestroySemaphore(VulkanContext::getDevice(), _acquireSemaphores[i], getAllocator());
+		vkDestroySemaphore(VulkanContext::getDevice(), _presentSemaphores[i], getAllocator());
+	}
+	_acquireSemaphores.clear();
+	_presentSemaphores.clear();
+
+	_device = nullptr;
+
+	if (_surface) {
+		vkDestroySurfaceKHR(getInstance(), _surface, getAllocator());
+		_surface = nullptr;
+	}
+}
+
 void NvrhiVulkanContext::onResize(u32 width, u32 height) {
 	_preResizeFramebuffers();
 
@@ -115,7 +121,7 @@ void NvrhiVulkanContext::beginFrame() {
 			&_currentFrame
 		);
 
-		if (res == VK_ERROR_OUT_OF_DATE_KHR && attempt < maxAttempts) {
+		if (res == VK_ERROR_OUT_OF_DATE_KHR) {
 			_supportDetails = vulkan::VulkanSwapchain::SupportDetails::getSupportDetails(getPhysicalDevice(), _surface);
 
 			onResize(
@@ -351,6 +357,15 @@ void NvrhiVulkanContext::_createFrameSemaphores() {
 		_acquireSemaphores.push_back(acquireSemaphore);
 		_presentSemaphores.push_back(presentSemaphore);
 	}
+}
+
+void NvrhiVulkanContext::_destroyFrameSemaphores() {
+	for (u32 i = 0; i < _acquireSemaphores.size(); i++) {
+		vkDestroySemaphore(VulkanContext::getDevice(), _acquireSemaphores[i], getAllocator());
+		vkDestroySemaphore(VulkanContext::getDevice(), _presentSemaphores[i], getAllocator());
+	}
+	_acquireSemaphores.clear();
+	_presentSemaphores.clear();
 }
 
 } // namespace arch::gfx::nvrhi

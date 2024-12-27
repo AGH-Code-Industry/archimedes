@@ -8,12 +8,13 @@
 
 namespace arch::gfx::nvrhi {
 
-class NvrhiVulkanContext final: public NvrhiContext, public vulkan::VulkanContext {
+class NvrhiVulkanContext final: public vulkan::VulkanContext, public NvrhiContext {
 public:
 	explicit NvrhiVulkanContext(bool enableValidationLayers = true);
 	~NvrhiVulkanContext() override;
 
 	void init(const Ref<Window>& window) override;
+	void shutdown() override;
 
 	void onResize(u32 width, u32 height) override;
 
@@ -41,6 +42,7 @@ private:
 	void _createSwapchain(i32 width, i32 height);
 	void _destroySwapchain();
 	void _createFrameSemaphores();
+	void _destroyFrameSemaphores();
 
 public:
 

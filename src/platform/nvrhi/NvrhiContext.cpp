@@ -3,7 +3,12 @@
 namespace arch::gfx::nvrhi {
 
 NvrhiContext::~NvrhiContext() {
+	NvrhiContext::shutdown();
+}
+
+void NvrhiContext::shutdown() {
 	_depthStencilBuffer = nullptr;
+	_framebuffers.clear();
 }
 
 ::nvrhi::FramebufferHandle NvrhiContext::getFramebuffer(int index) {
