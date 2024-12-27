@@ -14,7 +14,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${ARCHIMEDES_LIBRARIES})
 
 
 include(FetchContent)
-set(NVRHI_WITH_VULKAN TRUE)
 FetchContent_Declare(
         nvrhi
         GIT_REPOSITORY https://github.com/NVIDIAGameWorks/NvRhi.git
@@ -23,4 +22,4 @@ FetchContent_Declare(
 )
 find_package(nvrhi REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC nvrhi nvrhi_vk)
+target_link_libraries(${PROJECT_NAME} PRIVATE nvrhi_vk nvrhi)
