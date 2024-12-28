@@ -17,6 +17,7 @@ private:
 	char _versionSep = '\0';
 	char _fill = ' ';
 	bool _prefix = false;
+	bool _hasIdx = false;
 
 	// ctre's to_optional_number did not work
 	static constexpr int _svToInt(std::string_view sv) noexcept;

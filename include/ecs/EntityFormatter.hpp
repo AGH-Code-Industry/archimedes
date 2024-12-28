@@ -78,6 +78,7 @@ constexpr std::format_parse_context::iterator std::formatter<arch::ecs::Entity>:
 		// \{(\d*)\}
 		auto widthIdxOpt = match.get<7>().to_optional_view();
 		if (widthIdxOpt) {
+			_hasIdx = true;
 			if (widthIdxOpt.value().empty()) {
 				_widthIdx = -(short)ctx.next_arg_id();
 			} else {

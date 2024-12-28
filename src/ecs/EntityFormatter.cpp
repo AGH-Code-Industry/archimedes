@@ -4,7 +4,7 @@ std::format_context::iterator std::formatter<arch::ecs::Entity>::format(
 	const arch::ecs::Entity entity,
 	std::format_context& ctx
 ) const noexcept {
-	const auto width = _widthIdx < 0 ? std::visit_format_arg(*this, ctx.arg(-_widthIdx)) : _width;
+	const auto width = _hasIdx && _widthIdx < 0 ? std::visit_format_arg(*this, ctx.arg(-_widthIdx)) : _width;
 
 	// max length:
 	// 0b<48 chars><sep>0b<16 chars>
