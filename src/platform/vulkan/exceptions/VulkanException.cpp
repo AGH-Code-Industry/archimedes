@@ -1,4 +1,4 @@
-#include "platform/vulkan/exceptions/VulkanException.h"
+#include "VulkanException.h"
 
 namespace arch::gfx::vulkan::exceptions {
 

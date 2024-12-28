@@ -1,13 +1,13 @@
-#include "platform/vulkan/VulkanRenderer.h"
+#include "VulkanRenderer.h"
 
 #include <shaderc/shaderc.hpp>
 
 #include "Logger.h"
+#include "VulkanUtils.h"
 #include "Window.h"
-#include "platform/vulkan/VulkanUtils.h"
-#include "platform/vulkan/buffer/VulkanBufferManager.h"
-#include "platform/vulkan/texture/VulkanTexture.h"
-#include "platform/vulkan/texture/VulkanTextureManager.h"
+#include "buffer/VulkanBufferManager.h"
+#include "texture/VulkanTexture.h"
+#include "texture/VulkanTextureManager.h"
 
 namespace arch::gfx::vulkan {
 
@@ -333,7 +333,8 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-		if (vkCreatePipelineLayout(_context->getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		if (vkCreatePipelineLayout(_context->getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
+			VK_SUCCESS) {
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 

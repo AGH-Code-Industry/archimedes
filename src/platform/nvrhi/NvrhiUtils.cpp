@@ -1,4 +1,4 @@
-#include "platform/nvrhi/NvrhiUtils.h"
+#include "NvrhiUtils.h"
 
 namespace arch::gfx::nvrhi {
 

@@ -1,4 +1,4 @@
-#include "platform/vulkan/buffer/VulkanBufferManager.h"
+#include "VulkanBufferManager.h"
 
 namespace arch::gfx::vulkan::buffer {
 

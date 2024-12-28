@@ -1,12 +1,12 @@
 #include <shaderc/shaderc.hpp>
 
 #include "Logger.h"
+#include "NvrhiRenderer.h"
+#include "buffer/NvrhiBufferManager.h"
+#include "context/NvrhiVulkanContext.h"
 #include "nvrhi/utils.h"
 #include "nvrhi/validation.h"
-#include "platform/nvrhi/NvrhiRenderer.h"
-#include "platform/nvrhi/buffer/NvrhiBufferManager.h"
-#include "platform/nvrhi/context/NvrhiVulkanContext.h"
-#include "platform/nvrhi/texture/NvrhiTextureManager.h"
+#include "texture/NvrhiTextureManager.h"
 
 namespace arch::gfx::nvrhi {
 

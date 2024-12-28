@@ -1,14 +1,14 @@
 #define NOMINMAX
-#include "platform/nvrhi/context/NvrhiVulkanContext.h"
+#include "NvrhiVulkanContext.h"
 
 #include <vulkan/vulkan.hpp>
 
+#include "../../vulkan/VulkanUtils.h"
+#include "../NvrhiMessageCallback.h"
+#include "../NvrhiUtils.h"
 #include "Window.h"
 #include "nvrhi/validation.h"
 #include "nvrhi/vulkan.h"
-#include "platform/nvrhi/NvrhiMessageCallback.h"
-#include "platform/nvrhi/NvrhiUtils.h"
-#include "platform/vulkan/VulkanUtils.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 

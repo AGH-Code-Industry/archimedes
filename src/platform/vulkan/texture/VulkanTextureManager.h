@@ -1,6 +1,6 @@
 #pragma once
+#include "../VulkanContext.h"
 #include "gfx/Texture.h"
-#include "platform/vulkan/VulkanContext.h"
 
 namespace arch::gfx::vulkan::texture {
 

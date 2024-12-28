@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../VulkanContext.h"
 #include "gfx/Buffer.h"
-#include "platform/vulkan/VulkanContext.h"
 
 namespace arch::gfx::vulkan::buffer {
 

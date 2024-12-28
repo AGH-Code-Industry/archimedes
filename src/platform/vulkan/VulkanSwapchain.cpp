@@ -1,10 +1,10 @@
-#include "platform/vulkan/VulkanSwapchain.h"
+#include "VulkanSwapchain.h"
 
 #include <algorithm>
 
+#include "VulkanContext.h"
+#include "VulkanUtils.h"
 #include "Window.h"
-#include "platform/vulkan/VulkanContext.h"
-#include "platform/vulkan/VulkanUtils.h"
 
 namespace arch::gfx::vulkan {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "NvrhiContext.h"
 #include "gfx/Renderer.h"
-#include "nvrhi/nvrhi.h"
+#include <nvrhi/nvrhi.h>
 
 namespace arch::gfx::nvrhi {
 

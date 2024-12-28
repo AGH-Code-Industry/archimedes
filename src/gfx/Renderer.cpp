@@ -1,8 +1,8 @@
 #include "gfx/Renderer.h"
 
+#include "../platform/nvrhi/NvrhiRenderer.h"
+#include "../platform/vulkan/VulkanRenderer.h"
 #include "Logger.h"
-#include "platform/nvrhi/NvrhiRenderer.h"
-#include "platform/vulkan/VulkanRenderer.h"
 
 namespace arch::gfx {
 

@@ -1,7 +1,7 @@
-#include "platform/nvrhi/buffer/NvrhiBufferManager.h"
+#include "NvrhiBufferManager.h"
 
-#include "platform/nvrhi/buffer/NvrhiIndexBuffer.h"
-#include "platform/nvrhi/buffer/NvrhiVertexBuffer.h"
+#include "NvrhiIndexBuffer.h"
+#include "NvrhiVertexBuffer.h"
 
 namespace arch::gfx::nvrhi::buffer {
 

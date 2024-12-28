@@ -1,8 +1,8 @@
-#include "platform/vulkan/texture/VulkanTexture.h"
+#include "VulkanTexture.h"
 
+#include "../VulkanRenderer.h"
+#include "../VulkanUtils.h"
 #include "gfx/Renderer.h"
-#include "platform/vulkan/VulkanRenderer.h"
-#include "platform/vulkan/VulkanUtils.h"
 
 namespace arch::gfx::vulkan::texture {
 

@@ -75,15 +75,15 @@ class NvrhiRendererTestApp: public arch::Application {
 						.view<arch::scene::components::TransformComponent, VelocityComponent>();
 
 		for (auto [entity, transform, velocity] : view.all()) {
-			if (transform.getPosition().y < -.5f || transform.getPosition().y > .5f) {
+			if (transform.position.y < -.5f || transform.position.y > .5f) {
 				velocity.velocity *= -1;
 			}
-			if (transform.getPosition().x < -.5f || transform.getPosition().x > .5f) {
+			if (transform.position.x < -.5f || transform.position.x > .5f) {
 				velocity.velocity.x *= -1;
 			}
 
-			transform.getPosition().x += velocity.velocity.x;
-			transform.getPosition().y += velocity.velocity.y;
+			transform.position.x += velocity.velocity.x;
+			transform.position.y += velocity.velocity.y;
 		}
 	}
 };

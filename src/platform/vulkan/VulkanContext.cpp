@@ -1,7 +1,7 @@
-#include "platform/vulkan/VulkanContext.h"
+#include "VulkanContext.h"
 
-#include "platform/vulkan/VulkanUtils.h"
-#include "platform/vulkan/exceptions/VulkanException.h"
+#include "VulkanUtils.h"
+#include "exceptions/VulkanException.h"
 #include <GLFW/glfw3.h>
 #include <volk.h>
 

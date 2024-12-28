@@ -1,7 +1,7 @@
-#include "platform/vulkan/VulkanUtils.h"
+#include "VulkanUtils.h"
 
 #include "Logger.h"
-#include "platform/vulkan/exceptions/VulkanException.h"
+#include "exceptions/VulkanException.h"
 
 namespace arch::gfx::vulkan {
 

@@ -2,8 +2,8 @@
 
 #include <queue>
 
-#include "platform/nvrhi/NvrhiContext.h"
-#include "platform/vulkan/VulkanContext.h"
+#include "../../vulkan/VulkanContext.h"
+#include "../NvrhiContext.h"
 #include <nvrhi/vulkan.h>
 
 namespace arch::gfx::nvrhi {

@@ -1,4 +1,4 @@
-#include "platform/nvrhi/buffer/NvrhiVertexBuffer.h"
+#include "NvrhiVertexBuffer.h"
 
 namespace arch::gfx::nvrhi::buffer {
 
