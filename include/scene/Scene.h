@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include <Ecs.h>
 #include <Hier.h>
 
@@ -33,7 +35,15 @@ public:
 	/// @brief Returns readonly root node
 	const Node& rootNode() const noexcept;
 
+	bool addTag(const ecs::Entity entity, std::string_view tag) noexcept;
+	bool removeTag(const ecs::Entity entity, std::string_view tag) noexcept;
+	bool hasTag(const ecs::Entity entity, std::string_view tag) const noexcept;
+
+	OptRef<const std::unordered_set<std::string_view>> tagsOf(const ecs::Entity entity) const noexcept;
+
 private:
+
+	void _untagEntity(const ecs::Entity entity) noexcept;
 
 	ecs::Domain _domain;
 	Node* _rootNode;

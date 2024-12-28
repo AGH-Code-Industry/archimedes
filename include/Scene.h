@@ -2,7 +2,6 @@
 
 #include <scene/Entity.h>
 #include <scene/Scene.h>
-#include <scene/Tags.h>
 
 namespace arch {
 
