@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS.h>
+#include <Ecs.h>
 #include <Engine.h>
 #include <Scene.h>
 
