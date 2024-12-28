@@ -76,16 +76,16 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 
 	Ref<VulkanRenderer> renderer = std::static_pointer_cast<VulkanRenderer>(shared_from_this());
 
-	context = createRef<VulkanContext>();
+	_context = createRef<VulkanContext>();
 
-	swapchain = createRef<VulkanSwapchain>(context, window);
+	_swapchain = createRef<VulkanSwapchain>(_context, window);
 
-	context->initDevice(swapchain->getSurface());
+	_context->initDevice(_swapchain->getSurface());
 
-	swapchain->updateSwapchain();
+	_swapchain->updateSwapchain();
 
-	_bufferManager = createRef<buffer::VulkanBufferManager>(context);
-	_textureManager = createRef<texture::VulkanTextureManager>(context);
+	_bufferManager = createRef<buffer::VulkanBufferManager>(_context);
+	_textureManager = createRef<texture::VulkanTextureManager>(_context);
 
 	_createDepthTexture();
 
@@ -164,7 +164,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		// );
 
 		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = swapchain->getFormat();
+		colorAttachment.format = _swapchain->getFormat();
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -199,7 +199,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 
-		if (vkCreateRenderPass(context->getDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+		if (vkCreateRenderPass(_context->getDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
 	}
@@ -208,7 +208,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		shaderc::CompileOptions options;
 		shaderc::Compiler compiler;
 		vertModule = createShaderModule(
-			context->getDevice(),
+			_context->getDevice(),
 			compiler.CompileGlslToSpv(
 				vertexShader.data(),
 				vertexShader.size(),
@@ -218,7 +218,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 			)
 		);
 		fragModule = createShaderModule(
-			context->getDevice(),
+			_context->getDevice(),
 			compiler.CompileGlslToSpv(
 				fragmentShader.data(),
 				fragmentShader.size(),
@@ -261,7 +261,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-		VkExtent2D swapChainExtent = swapchain->getExtent();
+		VkExtent2D swapChainExtent = _swapchain->getExtent();
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -333,7 +333,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-		if (vkCreatePipelineLayout(context->getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		if (vkCreatePipelineLayout(_context->getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
@@ -355,7 +355,7 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 		pipelineInfo.basePipelineIndex = -1; // Optional
 
-		if (vkCreateGraphicsPipelines(context->getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) !=
+		if (vkCreateGraphicsPipelines(_context->getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) !=
 			VK_SUCCESS) {
 			throw std::runtime_error("failed to create graphics pipeline!");
 		}
@@ -367,9 +367,9 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = context->getQueue(VulkanContext::QueueType::graphics).index;
+		poolInfo.queueFamilyIndex = _context->getQueue(VulkanContext::QueueType::graphics).index;
 
-		if (vkCreateCommandPool(context->getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		if (vkCreateCommandPool(_context->getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create command pool!");
 		}
 
@@ -379,8 +379,8 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		for (auto& frame : frames) {
-			if (vkAllocateCommandBuffers(context->getDevice(), &allocInfo, &frame.commandBuffer) != VK_SUCCESS) {
+		for (auto& frame : _frames) {
+			if (vkAllocateCommandBuffers(_context->getDevice(), &allocInfo, &frame.commandBuffer) != VK_SUCCESS) {
 				throw std::runtime_error("failed to allocate command buffers!");
 			}
 		}
@@ -390,20 +390,20 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 }
 
 void VulkanRenderer::shutdown() {
-	if (swapchain.use_count() > 1) {
+	if (_swapchain.use_count() > 1) {
 		Logger::warn("Swapchain is still in use.");
 	}
-	swapchain.reset();
+	_swapchain.reset();
 
-	depthTexture.reset();
+	_depthTexture.reset();
 
 	_bufferManager.reset();
 	_textureManager.reset();
 
-	if (context.use_count() > 1) {
+	if (_context.use_count() > 1) {
 		Logger::warn("Context is still in use.");
 	}
-	context.reset();
+	_context.reset();
 }
 
 Ref<BufferManager> VulkanRenderer::getBufferManager() {
@@ -418,25 +418,25 @@ void VulkanRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {}
 
 void VulkanRenderer::_createDepthTexture() {
 	// Depthbuffer
-	VkFormat format = context->findSupportedFormat(
+	VkFormat format = _context->findSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 	);
 
-	VkExtent2D extent = swapchain->getExtent();
+	VkExtent2D extent = _swapchain->getExtent();
 
-	depthTexture = std::static_pointer_cast<texture::VulkanTexture>(
+	_depthTexture = std::static_pointer_cast<texture::VulkanTexture>(
 		_textureManager->createTexture2D(extent.width, extent.height, nullptr, VulkanUtils::getFormat(format))
 	);
 }
 
 void VulkanRenderer::_createFrames() {
-	VkExtent2D extent = swapchain->getExtent();
+	VkExtent2D extent = _swapchain->getExtent();
 
-	frames.resize(swapchain->getFrameCount());
-	for (int i = 0; i < frames.size(); ++i) {
-		const VulkanSwapchain::Frame& frame = swapchain->getFrame(i);
+	_frames.resize(_swapchain->getFrameCount());
+	for (int i = 0; i < _frames.size(); ++i) {
+		const VulkanSwapchain::Frame& frame = _swapchain->getFrame(i);
 		std::array attachments = { frame.imageView /*, depthTexture->getImage().getImageView()*/ };
 
 		VkFramebufferCreateInfo framebufferCraeteInfo = {
@@ -449,7 +449,7 @@ void VulkanRenderer::_createFrames() {
 			.layers = 1,
 		};
 
-		vkCreateFramebuffer(context->getDevice(), &framebufferCraeteInfo, nullptr, &frames[i].framebuffer);
+		vkCreateFramebuffer(_context->getDevice(), &framebufferCraeteInfo, nullptr, &_frames[i].framebuffer);
 
 		VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -457,11 +457,11 @@ void VulkanRenderer::_createFrames() {
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		if (vkCreateSemaphore(context->getDevice(), &semaphoreInfo, nullptr, &frames[i].imageAvailableSemaphore) !=
+		if (vkCreateSemaphore(_context->getDevice(), &semaphoreInfo, nullptr, &_frames[i].imageAvailableSemaphore) !=
 				VK_SUCCESS ||
-			vkCreateSemaphore(context->getDevice(), &semaphoreInfo, nullptr, &frames[i].renderFinishedSemaphore) !=
+			vkCreateSemaphore(_context->getDevice(), &semaphoreInfo, nullptr, &_frames[i].renderFinishedSemaphore) !=
 				VK_SUCCESS ||
-			vkCreateFence(context->getDevice(), &fenceInfo, nullptr, &frames[i].inFlightFence) != VK_SUCCESS) {
+			vkCreateFence(_context->getDevice(), &fenceInfo, nullptr, &_frames[i].inFlightFence) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create semaphores!");
 		}
 	}
@@ -472,14 +472,14 @@ void VulkanRenderer::onResize(u32 width, u32 height) {}
 u32 imageIndex;
 
 void VulkanRenderer::beginFrame() {
-	auto& frame = frames[_frameIndex];
+	auto& frame = _frames[_frameIndex];
 
-	vkWaitForFences(context->getDevice(), 1, &frame.inFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(context->getDevice(), 1, &frame.inFlightFence);
+	vkWaitForFences(_context->getDevice(), 1, &frame.inFlightFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(_context->getDevice(), 1, &frame.inFlightFence);
 
 	vkAcquireNextImageKHR(
-		context->getDevice(),
-		swapchain->getSwapchain(),
+		_context->getDevice(),
+		_swapchain->getSwapchain(),
 		UINT64_MAX,
 		frame.imageAvailableSemaphore,
 		VK_NULL_HANDLE,
@@ -502,7 +502,7 @@ void VulkanRenderer::beginFrame() {
 	renderPassInfo.renderPass = renderPass;
 	renderPassInfo.framebuffer = frame.framebuffer;
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapchain->getExtent();
+	renderPassInfo.renderArea.extent = _swapchain->getExtent();
 	VkClearValue clearColor = { { { 0.0f, 0.0f, 0.0f, 1.0f } } };
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
@@ -513,22 +513,22 @@ void VulkanRenderer::beginFrame() {
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(swapchain->getExtent().width);
-	viewport.height = static_cast<float>(swapchain->getExtent().height);
+	viewport.width = static_cast<float>(_swapchain->getExtent().width);
+	viewport.height = static_cast<float>(_swapchain->getExtent().height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(frame.commandBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor{};
 	scissor.offset = { 0, 0 };
-	scissor.extent = swapchain->getExtent();
+	scissor.extent = _swapchain->getExtent();
 	vkCmdSetScissor(frame.commandBuffer, 0, 1, &scissor);
 
 	vkCmdDraw(frame.commandBuffer, 3, 1, 0, 0);
 }
 
 void VulkanRenderer::present() {
-	auto& frame = frames[_frameIndex];
+	auto& frame = _frames[_frameIndex];
 
 	vkCmdEndRenderPass(frame.commandBuffer);
 
@@ -551,7 +551,7 @@ void VulkanRenderer::present() {
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
 	if (vkQueueSubmit(
-			context->getQueue(VulkanContext::QueueType::graphics).queue,
+			_context->getQueue(VulkanContext::QueueType::graphics).queue,
 			1,
 			&submitInfo,
 			frame.inFlightFence
@@ -565,15 +565,15 @@ void VulkanRenderer::present() {
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { swapchain->getSwapchain() };
+	VkSwapchainKHR swapChains[] = { _swapchain->getSwapchain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	vkQueuePresentKHR(context->getQueue(VulkanContext::QueueType::presentaion).queue, &presentInfo);
+	vkQueuePresentKHR(_context->getQueue(VulkanContext::QueueType::presentaion).queue, &presentInfo);
 
-	_frameIndex = (_frameIndex + 1) % frames.size();
+	_frameIndex = (_frameIndex + 1) % _frames.size();
 }
 
 } // namespace arch::gfx::vulkan

@@ -41,12 +41,12 @@ public:
 	void beginFrame() override;
 	void present() override;
 
-public:
+private:
 	Ref<buffer::VulkanBufferManager> _bufferManager;
 	Ref<texture::VulkanTextureManager> _textureManager;
 
-	Ref<VulkanContext> context;
-	Ref<VulkanSwapchain> swapchain;
+	Ref<VulkanContext> _context;
+	Ref<VulkanSwapchain> _swapchain;
 
 	struct FrameData {
 		VkFramebuffer framebuffer;
@@ -57,9 +57,9 @@ public:
 		VkFence inFlightFence;
 	};
 
-	std::vector<FrameData> frames;
+	std::vector<FrameData> _frames;
 	std::uint32_t _frameIndex = 0;
-	Ref<texture::VulkanTexture> depthTexture;
+	Ref<texture::VulkanTexture> _depthTexture;
 };
 
 } // namespace arch::gfx::vulkan

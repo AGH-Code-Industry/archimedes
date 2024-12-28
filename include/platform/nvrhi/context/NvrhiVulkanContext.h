@@ -44,8 +44,6 @@ private:
 	void _createFrameSemaphores();
 	void _destroyFrameSemaphores();
 
-public:
-
 private:
 	bool _enableValidationLayers;
 

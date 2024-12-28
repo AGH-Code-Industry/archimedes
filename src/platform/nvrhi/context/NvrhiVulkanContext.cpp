@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "platform/nvrhi/context/NvrhiVulkanContext.h"
 
 #include <vulkan/vulkan.hpp>
@@ -10,9 +11,6 @@
 #include "platform/vulkan/VulkanUtils.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
-
-#undef min
-#undef max
 
 namespace arch::gfx::nvrhi {
 

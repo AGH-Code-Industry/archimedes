@@ -58,7 +58,7 @@ void Engine::_mainLoop() {
 void Engine::_initialize() {
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
-	_renderer = Renderer::create(_engineConfig.renderingApi);
+	_renderer = gfx::Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);
 	_renderer->makeCurrent();
 

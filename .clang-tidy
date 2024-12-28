@@ -25,5 +25,4 @@ CheckOptions:
   - { key: readability-identifier-naming.PrivateMethodPrefix,    value: _ }
   - { key: readability-identifier-naming.ProtectedMethodPrefix,  value: _ }
   - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _ }
-  - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _ }
   - { key: readability-identifier-naming.ProtectedMemberPrefix,  value: _ }
