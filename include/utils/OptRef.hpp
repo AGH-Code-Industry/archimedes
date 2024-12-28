@@ -3,6 +3,18 @@
 namespace arch {
 
 template<class T>
+OptRef<T>::OptRef(const OptRef<std::remove_const_t<T>>& other) noexcept requires(std::is_const_v<T>)
+	: _ptr{ other._ptr } {
+	other._ptr = nullptr;
+}
+
+template<class T>
+OptRef<T>::OptRef(OptRef<std::remove_const_t<T>>&& other) noexcept requires(std::is_const_v<T>)
+	: _ptr{ other._ptr } {
+	other._ptr = nullptr;
+}
+
+template<class T>
 OptRef<T>::OptRef(std::nullopt_t) noexcept: OptRef() {}
 
 template<class T>
@@ -17,6 +29,17 @@ template<class T>
 const T& OptRef<T>::operator*() const noexcept requires(!std::is_const_v<T>)
 {
 	return *_ptr;
+}
+
+template<class T>
+T* OptRef<T>::operator->() noexcept {
+	return _ptr;
+}
+
+template<class T>
+const T* OptRef<T>::operator->() const noexcept requires(!std::is_const_v<T>)
+{
+	return _ptr;
 }
 
 template<class T>

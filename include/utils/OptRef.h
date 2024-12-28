@@ -13,6 +13,8 @@ public:
 	OptRef(std::nullopt_t) noexcept;
 	OptRef(const OptRef&) noexcept = default;
 	OptRef(OptRef&&) noexcept = default;
+	OptRef(const OptRef<std::remove_const_t<T>>& other) noexcept requires(std::is_const_v<T>);
+	OptRef(OptRef<std::remove_const_t<T>>&& other) noexcept requires(std::is_const_v<T>);
 	OptRef(T& ref) noexcept;
 
 	T& operator*() noexcept;
@@ -35,6 +37,9 @@ public:
 	void swap(OptRef& other) noexcept;
 
 private:
+
+	template<class T2>
+	friend class OptRef;
 
 	T* _ptr = nullptr;
 };
