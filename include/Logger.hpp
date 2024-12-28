@@ -7,7 +7,7 @@
 namespace arch {
 
 template<typename... Args>
-void Logger::_log_impl(
+void Logger::_logImpl(
 	LogLevel level,
 	const std::source_location loc,
 	spdlog::format_string_t<Args...> fmt,
@@ -41,7 +41,7 @@ struct UniversalLogger {
 		std::source_location loc = std::source_location::current()
 	) {
 		// Pass all arguments to the logger
-		Logger::_log_impl(level, loc, fmt, std::forward<Args>(args)...);
+		Logger::_logImpl(level, loc, fmt, std::forward<Args>(args)...);
 	}
 };
 

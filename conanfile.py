@@ -21,7 +21,7 @@ class Archimedes(ConanFile):
         self.requires("vulkan-memory-allocator/cci.20231120")
 
         # SPIRV (Shader compiler)
-        # self.requires("shaderc/2021.1") # waiting for conan repo update
+        self.requires("shaderc/2023.6")  # waiting for conan repo update
 
     def configure(self):
         if is_msvc(self, True):

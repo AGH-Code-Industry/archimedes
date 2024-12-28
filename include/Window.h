@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include <ArchMath.h>
 #include <GLFW/glfw3.h>
 
 namespace arch {
@@ -33,8 +32,6 @@ public:
 	 */
 	GLFWwindow* get() const;
 
-	void clear(Color color) const;
-	void clear(float r, float g, float b, float a) const;
 	void swapBuffers() const;
 	void resize(int width, int height) const;
 	void setTitle(const std::string& title) const;
@@ -54,9 +51,7 @@ private:
 	 * @param monitor The monitor to use for fullscreen mode.
 	 * @param window The window whose context to share resources with, or NULL to not share resources.
 	 */
-	void initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window);
-
-	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+	void _initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window);
 };
 
 } // namespace arch
