@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <iostream>
 #include <unordered_map>
 
 #include "ComponentPool.h"
@@ -192,6 +193,18 @@ public:
 	template<class... Includes, class... Excludes>
 	auto readonlyView(ExcludeT<Excludes...> = ExcludeT{}) const noexcept;
 
+	/// @brief Creates or obtains global instance of given type
+	/// @tparam T - type to obtain
+	/// @param args... - arguments to forward to constructor of T
+	/// @return Reference to instance of T
+	template<class T, class... Args>
+	T& global(Args&&... args) noexcept requires(!std::is_const_v<T>);
+	/// @brief Obtains global instance of given type
+	/// @tparam T - type to obtain
+	/// @return Readonly reference to instance of T
+	template<class T>
+	OptRef<T> global() const noexcept requires(std::is_const_v<T>);
+
 private:
 
 	template<bool, class, class>
@@ -218,6 +231,24 @@ private:
 	// destroying function for ComponentPool of given type
 	template<class C>
 	static inline void _destroyCPool(CPoolsT& cpools) noexcept;
+
+	class Global {
+	public:
+		Global() noexcept = default;
+
+		~Global() noexcept;
+
+		template<class T>
+		T& get() noexcept;
+		template<class T>
+		const T& get() const noexcept;
+
+		u8* ptr = {};
+		void (*deleter)(u8*) = {};
+	};
+
+	// global instances of Components
+	std::unordered_map<meta::rtti::TypeDescriptorWrapper, Global> _globals;
 
 	EntityPool _entityPool;
 	CPoolsT _componentPools;

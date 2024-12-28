@@ -68,4 +68,11 @@ auto Domain::entities() const noexcept {
 	return std::views::all(_entityPool);
 }
 
+Domain::Global::~Global() noexcept {
+	deleter(ptr);
+
+	ptr = {};
+	deleter = {};
+}
+
 } // namespace arch::ecs
