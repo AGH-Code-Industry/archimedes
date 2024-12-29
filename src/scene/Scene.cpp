@@ -22,7 +22,7 @@ void Scene::removeEntity(const ecs::Entity entity) noexcept {
 	auto& node = _domain.getComponent<hier::HierarchyNode>(entity);
 	node._unparent();
 
-	_untagEntity(entity);
+	untag(entity);
 
 	_domain.kill(node._entity);
 }
@@ -83,7 +83,7 @@ bool Scene::hasTag(const ecs::Entity entity, std::string_view tag) const noexcep
 	return tagsOpt ? tagsOpt->value.find(tag) != tagsOpt->value.end() : false;
 }
 
-void Scene::_untagEntity(const ecs::Entity entity) noexcept {
+void Scene::untag(const ecs::Entity entity) noexcept {
 	auto tagsOpt = _domain.tryGetComponent<Tags>(entity);
 	if (tagsOpt) {
 		auto& entitiesOfTag = _domain.global<TagDB>().value;
