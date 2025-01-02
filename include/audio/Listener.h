@@ -1,5 +1,4 @@
 #pragma once
-#include <AL/al.h>
 
 namespace arch::audio {
 ///@brief Stores data about the listener of all played sounds.
@@ -9,15 +8,15 @@ class Listener {
 public:
 	///@brief Gain of all listened sounds.
 	/// Controls loudness of all the sounds.
-	ALfloat masterGain;
+	float masterGain;
 
 	///@brief Position of the Listener on the map.
 	/// Used for calculating spatial effects.
-	ALfloat positionX, positionY;
+	float positionX, positionY;
 
 	///@brief Velocity of the Listener.
 	/// Used for calculating the Doppler effect.
-	ALfloat velocityX, velocityY;
+	float velocityX, velocityY;
 
 	///@brief Constructor. Calls update at startup.
 	///@param masterGain Gain of all listened sounds.
@@ -26,11 +25,11 @@ public:
 	///@param velocityX velocity on the X axis.
 	///@param velocityY velocity on the Y axis.
 	explicit Listener(
-		ALfloat masterGain = 1.0f,
-		ALfloat positionX = 0.0f,
-		ALfloat positionY = 0.0f,
-		ALfloat velocityX = 0.0f,
-		ALfloat velocityY = 0.0f
+		float masterGain = 1.0f,
+		float positionX = 0.0f,
+		float positionY = 0.0f,
+		float velocityX = 0.0f,
+		float velocityY = 0.0f
 	);
 
 	///@brief Sends the parameters to the OpenAL context.

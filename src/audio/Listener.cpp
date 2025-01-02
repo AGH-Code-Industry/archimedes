@@ -4,7 +4,7 @@
 
 namespace arch::audio {
 
-Listener::Listener(ALfloat masterGain, ALfloat positionX, ALfloat positionY, ALfloat velocityX, ALfloat velocityY):
+Listener::Listener(float masterGain, float positionX, float positionY, float velocityX, float velocityY):
 	masterGain(masterGain),
 	positionX(positionX),
 	positionY(positionY),

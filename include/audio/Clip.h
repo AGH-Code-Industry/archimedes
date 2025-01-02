@@ -3,22 +3,28 @@
 #include <string>
 #include <vector>
 
-#include <AL/al.h>
 
 namespace arch::audio {
+
+/// @brief Tells the format of sound file.
+enum ClipFormat {
+	mono,
+	stereo
+};
+
 /// @brief Allows for loading audio files and streaming their data to AudioSources.
 class Clip {
 	/// @brief Sound's sample rate.
-	ALint _sampleRate{};
+	int _sampleRate{};
 
 	/// @brief Size of all samples in bytes.
-	ALint _dataSize{};
+	int _dataSize{};
 
 	/// @brief Sound's number of channels.
-	ALushort _channelsNumber{};
+	unsigned short _channelsNumber{};
 
 	/// @brief Sound's all samples.
-	std::vector<ALshort> _soundData;
+	std::vector<short> _soundData;
 
 	/// @brief Path to the sound file.
 	std::string _filePath;
@@ -52,7 +58,7 @@ public:
 	/// @param isLooped If the sound has to be looped, set it to true.
 	/// @throws AudioException If clip is not loaded.
 	/// @returns True if the end of sound was reached, false otherwise.
-	bool fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const;
+	bool fillBuffer(std::vector<short>& buffer, std::size_t& cursor, bool isLooped) const;
 
 	/// @brief Get number of all elements in a buffer.
 	/// The number depends on the number of channels, so it needs to be calculated by the Clip.
@@ -61,12 +67,12 @@ public:
 
 	/// @brief Get the sound's OpenAL format.
 	/// @returns OpenAL format value.
-	ALenum getFormat() const;
+	ClipFormat getFormat() const;
 
 	/// @brief Getter of the _sampleRate parameter.
 	/// @see _sampleRate
 	/// @returns Sound's sample rate.
-	ALint getSampleRate() const;
+	int getSampleRate() const;
 
 	/// @brief Getter of the _isLoaded property.
 	/// @see _isLoaded

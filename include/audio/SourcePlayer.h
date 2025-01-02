@@ -1,6 +1,5 @@
 #pragma once
 
-#include <AL/al.h>
 #include <audio/AudioSource.h>
 #include <audio/SoundBank.h>
 
@@ -13,18 +12,18 @@ class SourcePlayer {
 	std::size_t _cursor = 0;
 
 	/// @brief Buffer loaded by Clip when SourcePlayer is streaming the sound.
-	std::vector<ALshort> _loadingBuffer;
+	std::vector<short> _loadingBuffer;
 
 	/// @brief SoundBank responsible for loading audio data from files.
 	SoundBank* _soundBank{};
 
 	/// @brief OpenAL source index.
 	/// Value returned by alGenSources().
-	ALuint _source{};
+	unsigned int _source{};
 
 	/// @brief OpenAL buffers' indexes.
 	/// Values returned by alGenBuffers().
-	ALuint _buffers[4] = {};
+	unsigned int _buffers[4] = {};
 	// TODO: one day this number of buffers might be not sufficient
 	// (because now all Sources have one common thread)
 
@@ -35,18 +34,18 @@ class SourcePlayer {
 	bool _isEndFound = false;
 
 	/// @brief Pitch modifier of the sound.
-	ALfloat _pitch = 1.0f;
+	float _pitch = 1.0f;
 
 	/// @brief Gain modifier of the sound.
-	ALfloat _gain = 1.0f;
+	float _gain = 1.0f;
 
 	/// @brief Position of the Source on the map.
 	/// Used for spatial effects.
-	ALfloat _positionX = 0.0f, _positionY = 0.0f;
+	float _positionX = 0.0f, _positionY = 0.0f;
 
 	/// @brief Velocity of the Source on the map.
 	/// Used for calculating the Doppler Effect.
-	ALfloat _velocityX = 0.0f, _velocityY = 0.0f;
+	float _velocityX = 0.0f, _velocityY = 0.0f;
 
 	/// @brief Tells if the sound's playback has to be looped.
 	bool _isLooped = false;

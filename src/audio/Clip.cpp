@@ -1,15 +1,18 @@
 #include <audio/AudioException.h>
 #include <audio/Clip.h>
 #include <sndfile.h>
+#include <AL/al.h>
 
 namespace arch::audio {
 
-ALenum Clip::getFormat() const {
+ClipFormat Clip::getFormat() const {
 	if (_channelsNumber == 1) {
-		return AL_FORMAT_MONO16;
+		// return AL_FORMAT_MONO16;
+		return mono;
 	}
 	if (_channelsNumber == 2) {
-		return AL_FORMAT_STEREO16;
+		return stereo;
+		// return AL_FORMAT_STEREO16;
 	}
 	throw AudioException(_filePath + " - Wrong format");
 }
@@ -18,7 +21,7 @@ std::size_t Clip::getBufferElements() const {
 	return _sampleItems * _channelsNumber;
 }
 
-bool Clip::fillBuffer(std::vector<ALshort>& buffer, std::size_t& cursor, bool isLooped) const {
+bool Clip::fillBuffer(std::vector<short>& buffer, std::size_t& cursor, bool isLooped) const {
 	const std::size_t bufferElements = getBufferElements();
 	std::size_t sizeToCopy = bufferElements;
 
@@ -87,7 +90,7 @@ Clip::~Clip() {
 	}
 }
 
-ALint Clip::getSampleRate() const {
+int Clip::getSampleRate() const {
 	return _sampleRate;
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-#include <AL/al.h>
 #include <Logger.h>
 
 namespace arch::audio {
@@ -18,18 +17,18 @@ enum SourceState {
 /// It also allows to specify what the AudioManager should do with it.
 struct AudioSource {
 	/// @brief Pitch modifier of the sound.
-	ALfloat pitch = 1.0f;
+	float pitch = 1.0f;
 
 	/// @brief Gain modifier of the sound.
-	ALfloat gain = 1.0f;
+	float gain = 1.0f;
 
 	/// @brief Position of the AudioSource on the map.
 	/// Used for spatial effects.
-	ALfloat positionX = 0.0f, positionY = 0.0f;
+	float positionX = 0.0f, positionY = 0.0f;
 
 	/// @brief Velocity of the AudioSource on the map.
 	/// Used for calculating the Doppler Effect.
-	ALfloat velocityX = 0.0f, velocityY = 0.0f;
+	float velocityX = 0.0f, velocityY = 0.0f;
 
 	/// @brief Tells if the sound's playback has to be looped.
 	bool isLooped = false;

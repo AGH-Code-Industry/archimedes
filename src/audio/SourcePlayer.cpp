@@ -31,7 +31,13 @@ void SourcePlayer::_updateSoundAttributes() {
 
 bool SourcePlayer::_initiallyLoadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
-	ALenum format = clip.getFormat();
+	ALenum format{};
+	switch(clip.getFormat()) {
+		case mono:
+			format = AL_FORMAT_MONO16;
+		case stereo:
+			format = AL_FORMAT_STEREO16;
+	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
 	bool isEndFound = false;
@@ -44,7 +50,13 @@ bool SourcePlayer::_initiallyLoadSound() {
 
 bool SourcePlayer::_loadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
-	ALenum format = clip.getFormat();
+	ALenum format{};
+	switch(clip.getFormat()) {
+		case mono:
+			format = AL_FORMAT_MONO16;
+		case stereo:
+			format = AL_FORMAT_STEREO16;
+	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
 	ALint buffersProcessed;
