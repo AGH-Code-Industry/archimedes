@@ -1,15 +1,14 @@
-#include <Logger.h>
 #include <audio/Calls.hpp>
 
+#include <Logger.h>
 #include <audio/AudioException.h>
 #include <audio/SoundDevice.h>
 
 namespace arch::audio {
 
-
 SoundDevice::SoundDevice() {
 	alcDevice = alcOpenDevice(nullptr);
-	if(!alcDevice) {
+	if (!alcDevice) {
 		throw AudioException("Failed to open device");
 	}
 
@@ -19,9 +18,10 @@ SoundDevice::SoundDevice() {
 
 	Logger::info("Audio system: opened device");
 }
+
 SoundDevice::~SoundDevice() {
 	alcCall(alcMakeContextCurrent, alcDevice, nullptr);
 	alcCall(alcCloseDevice, alcDevice, alcDevice);
 	Logger::info("Audio system: closed device");
 }
-}  // namespace arch::audio
+} // namespace arch::audio

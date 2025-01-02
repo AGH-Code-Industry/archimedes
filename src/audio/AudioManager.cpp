@@ -3,14 +3,13 @@
 #include <audio/AudioManager.h>
 #include <ecs/View.h>
 
-
 namespace arch::audio {
 
 AudioManager::AudioManager(SoundBank* soundBank, ecs::Domain* domain, std::mutex& ecsMutex):
 	_soundBank(soundBank),
 	_domain(domain),
-	_ecsMutex(ecsMutex){
-	for(int i=0; i<16; i++) {
+	_ecsMutex(ecsMutex) {
+	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
 	}
 	Logger::info("Audio system: opened audio manager");
@@ -21,8 +20,8 @@ AudioManager::~AudioManager() {
 }
 
 int AudioManager::_findEmptyPlayer() {
-	for(int i=0; i<16; i++) {
-		if(!_sourceUsed[i]) {
+	for (int i = 0; i < 16; i++) {
+		if (!_sourceUsed[i]) {
 			return i;
 		}
 	}
@@ -36,15 +35,15 @@ void AudioManager::play() {
 		{
 			auto lock = std::lock_guard(_ecsMutex);
 			for (auto&& [source] : _domain->view<AudioSource>().components()) {
-				if(source.sourceIndex < -1 || source.sourceIndex >= 16) {
+				if (source.sourceIndex < -1 || source.sourceIndex >= 16) {
 					throw AudioException("Audio system: source index out of range");
 				}
-				if(source.path == "") {
+				if (source.path == "") {
 					continue;
 				}
 				switch (source.getState()) {
 					case playing:
-						if(source.sourceIndex == -1) {
+						if (source.sourceIndex == -1) {
 							_assignSource(source);
 						}
 						_updateSource(source);
@@ -55,12 +54,11 @@ void AudioManager::play() {
 						_pauseSource(source);
 						break;
 					case stopping:
-						if(_stopSource(source)) {
+						if (_stopSource(source)) {
 							_removeSource(source);
 						}
 						break;
-					case ignoring:
-						break;
+					case ignoring: break;
 				}
 			}
 		}

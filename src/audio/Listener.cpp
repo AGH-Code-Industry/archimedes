@@ -1,11 +1,15 @@
-#include <audio/Listener.h>
 #include <audio/Calls.hpp>
+
+#include <audio/Listener.h>
 
 namespace arch::audio {
 
-Listener::Listener(ALfloat masterGain, ALfloat positionX, ALfloat positionY, ALfloat velocityX,
-							ALfloat velocityY): masterGain(masterGain), positionX(positionX), positionY(positionY),
-							velocityX(velocityX), velocityY(velocityY){
+Listener::Listener(ALfloat masterGain, ALfloat positionX, ALfloat positionY, ALfloat velocityX, ALfloat velocityY):
+	masterGain(masterGain),
+	positionX(positionX),
+	positionY(positionY),
+	velocityX(velocityX),
+	velocityY(velocityY) {
 	update();
 }
 
@@ -15,4 +19,4 @@ void Listener::update() {
 	alCall(alListener3f, AL_VELOCITY, velocityX, velocityY, 0);
 }
 
-}
+} // namespace arch::audio

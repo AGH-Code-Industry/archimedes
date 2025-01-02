@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include <Exception.h>
 
 namespace arch::audio {

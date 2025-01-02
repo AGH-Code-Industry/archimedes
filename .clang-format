@@ -63,7 +63,7 @@ AlignConsecutiveShortCaseStatements:
 
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-# AllowBreakBeforeNoexceptSpecifier: OnlyWithParen
+AllowBreakBeforeNoexceptSpecifier: OnlyWithParen
 
 # Shorts
 AllowShortBlocksOnASingleLine: Empty

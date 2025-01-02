@@ -1,38 +1,35 @@
+#include <cmath>
+#include <mutex>
+#include <thread>
+
+#include <Ecs.h>
 #include <Engine.h>
 #include <Logger.h>
-#include <audio/SoundDevice.h>
 #include <audio/AudioManager.h>
-#include <thread>
-#include <cmath>
-#include <Ecs.h>
-#include <mutex>
+#include <audio/SoundDevice.h>
 
 const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
 
 namespace audio = arch::audio;
 namespace ecs = arch::ecs;
 
-struct MyApp : arch::Application {
-	void init() override {
-		arch::Logger::info("Initializing user app!");
-	}
+struct MyApp: arch::Application {
+	void init() override { arch::Logger::info("Initializing user app!"); }
 };
 
-audio::AudioSource* createSource(std::mutex& mutex, ecs::Domain& domain,
-									const std::string& name, bool isLooped) {
+audio::AudioSource* createSource(std::mutex& mutex, ecs::Domain& domain, const std::string& name, bool isLooped) {
 	// create an entity and give it an audio source component
 	auto lock = std::lock_guard(mutex);
 	auto entity = domain.newEntity();
 	auto source = &domain.addComponent<audio::AudioSource>(entity);
 
 	// set some custom parameters to the source
-	source->path = sounds + name; //this is mandatory, so we can play the sound
+	source->path = sounds + name; // this is mandatory, so we can play the sound
 	source->gain = 0.5; // this is optional, it will make the sound quieter
-	source->isLooped = isLooped;  // this will make the sound looped, so it won`t be removed automatically
+	source->isLooped = isLooped; // this will make the sound looped, so it won`t be removed automatically
 
 	return source;
 }
-
 
 void testSimpleSound(ecs::Domain& domain) {
 	// initialize OpenAL context
@@ -53,7 +50,7 @@ void testSimpleSound(ecs::Domain& domain) {
 	audio::AudioManager audioManager(&soundBank, &domain, mutex);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
-	while(getchar() != 'q') {
+	while (getchar() != 'q') {
 		// create an entity and give it an audio source component
 		auto source = createSource(mutex, domain, filename, false);
 
@@ -61,7 +58,7 @@ void testSimpleSound(ecs::Domain& domain) {
 		source->play();
 	}
 
-	//close the audioManager
+	// close the audioManager
 	audioManager.stop();
 }
 
@@ -89,31 +86,26 @@ void testControl(ecs::Domain& domain) {
 
 	char controlSign = 'x';
 	bool isPlaying = true;
-	while(controlSign != 'q') {
+	while (controlSign != 'q') {
 		controlSign = getchar();
-		switch(controlSign) {
-			case 'p':
-				source->pause();
-				break;
-			case 'c':
-				source->play();
-				break;
+		switch (controlSign) {
+			case 'p': source->pause(); break;
+			case 'c': source->play(); break;
 			case 's':
 				source->stop();
 				isPlaying = false;
 				break;
 			case 'r':
-				if(!isPlaying) {
+				if (!isPlaying) {
 					source = createSource(mutex, domain, filename, true);
 					source->play();
 				}
 				break;
-			default:
-				break;
+			default: break;
 		}
 	}
 
-	//close the audioManager
+	// close the audioManager
 	audioManager.stop();
 }
 
@@ -150,8 +142,8 @@ void testSpatialAudio(ecs::Domain& domain) {
 
 	// during playing the sound, update the source every 50 ms.
 	// make the source hang around the listener while changing the distance from them.
-	const int steps = 1000;
-	for (int i=0; i<steps; i++) {
+	const int steps = 1'000;
+	for (int i = 0; i < steps; i++) {
 		const int stepsPerCircle = 100;
 		const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
 		{
@@ -162,16 +154,14 @@ void testSpatialAudio(ecs::Domain& domain) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
-	//close the audioManager
+	// close the audioManager
 	audioManager.stop();
 }
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::EngineConfig config {
-		600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0)
-	};
+	arch::EngineConfig config{ 600, 480, "Archimedes Test", glm::vec4(0, 0, 0, 0) };
 
 	ecs::Domain domain;
 

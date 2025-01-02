@@ -1,5 +1,6 @@
-#include <audio/SourcePlayer.h>
 #include <audio/Calls.hpp>
+
+#include <audio/SourcePlayer.h>
 
 namespace arch::audio {
 
@@ -11,17 +12,16 @@ void SourcePlayer::update(const AudioSource& source) {
 	_velocityX = source.velocityX;
 	_velocityY = source.velocityY;
 	_isLooped = source.isLooped;
-	if(source.path != _clipPath) {
-		if(_clipPath == "") {
+	if (source.path != _clipPath) {
+		if (_clipPath == "") {
 			_clipPath = source.path;
-		}
-		else {
+		} else {
 			throw AudioException("Clip path should be changed only once per source");
 		}
 	}
 }
 
-void SourcePlayer::_updateSoundAttributes(){
+void SourcePlayer::_updateSoundAttributes() {
 	alCall(alSourcef, _source, AL_PITCH, _pitch);
 	alCall(alSourcef, _source, AL_GAIN, _gain);
 	alCall(alSource3f, _source, AL_POSITION, _positionX, _positionY, 0);
@@ -35,7 +35,7 @@ bool SourcePlayer::_initiallyLoadSound() {
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
 	bool isEndFound = false;
-	for(int i=0; i<4; i++) {
+	for (int i = 0; i < 4; i++) {
 		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
 		alCall(alBufferData, _buffers[i], format, _loadingBuffer.data(), bufferElements * sizeof(short), sampleRate);
 	}
@@ -50,7 +50,7 @@ bool SourcePlayer::_loadSound() {
 	ALint buffersProcessed;
 	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
 	bool isEndFound = false;
-	for(int i=0; i<buffersProcessed; i++) {
+	for (int i = 0; i < buffersProcessed; i++) {
 		ALuint buffer;
 		alCall(alSourceUnqueueBuffers, _source, 1, &buffer);
 		isEndFound |= clip.fillBuffer(_loadingBuffer, _cursor, _isLooped);
@@ -67,26 +67,16 @@ void SourcePlayer::_prepareLoadingBuffer() {
 	_cursor = 0;
 }
 
-void SourcePlayer::run(AudioSource& source){
+void SourcePlayer::run(AudioSource& source) {
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 	_updateSoundAttributes();
-	switch(alState) {
-		case AL_PLAYING:
-			_doNextFrame();
-			break;
-		case AL_PAUSED:
-			_continuePlaying();
-			break;
-		case AL_STOPPED:
-			source.stop();
-			break;
-		case AL_INITIAL:
-			_startFromBeginning();
-			break;
-		default:
-			throw AudioException("Invalid state");
-
+	switch (alState) {
+		case AL_PLAYING: _doNextFrame(); break;
+		case AL_PAUSED:	 _continuePlaying(); break;
+		case AL_STOPPED: source.stop(); break;
+		case AL_INITIAL: _startFromBeginning(); break;
+		default:		 throw AudioException("Invalid state");
 	}
 }
 
@@ -97,9 +87,8 @@ void SourcePlayer::_startFromBeginning() {
 	alCall(alSourcePlay, _source);
 }
 
-
-void SourcePlayer::_doNextFrame(){
-	if(_isLooped || !_isEndFound) {
+void SourcePlayer::_doNextFrame() {
+	if (_isLooped || !_isEndFound) {
 		_isEndFound = _loadSound();
 	}
 }
@@ -108,14 +97,14 @@ bool SourcePlayer::stopPlaying() {
 	_gain = 0.0f;
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
-	if(alState == AL_PAUSED) {
+	if (alState == AL_PAUSED) {
 		_continuePlaying();
 	}
 	alCall(alSourcef, _source, AL_GAIN, _gain);
 	ALint buffersProcessed, buffersQueued;
 	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
 	alCall(alGetSourcei, _source, AL_BUFFERS_QUEUED, &buffersQueued);
-	if(buffersProcessed < buffersQueued) {
+	if (buffersProcessed < buffersQueued) {
 		return false;
 	}
 	alCall(alSourceUnqueueBuffers, _source, 4, &_buffers[0]);
@@ -124,7 +113,7 @@ bool SourcePlayer::stopPlaying() {
 	return true;
 }
 
-void SourcePlayer::pausePlaying(){
+void SourcePlayer::pausePlaying() {
 	alCall(alSourcePause, _source);
 }
 
@@ -132,7 +121,7 @@ void SourcePlayer::_continuePlaying() {
 	alCall(alSourcePlay, _source);
 }
 
-void SourcePlayer::initialize(SoundBank* soundBank){
+void SourcePlayer::initialize(SoundBank* soundBank) {
 	_soundBank = soundBank;
 	alCall(alGenBuffers, 4, &_buffers[0]);
 	alCall(alGenSources, 1, &_source);
@@ -143,4 +132,4 @@ SourcePlayer::~SourcePlayer() {
 	alCall(alDeleteSources, 1, &_source);
 	alCall(alDeleteBuffers, 4, &_buffers[0]);
 }
-}
+} // namespace arch::audio
