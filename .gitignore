@@ -23,6 +23,5 @@ compile_commands.json
 cmake/conan_files/
 CMakeSettings.json
 cmake-build-*
-archimedes_bin/*.wav
 venv/*
 cmake/conanfile.hash
