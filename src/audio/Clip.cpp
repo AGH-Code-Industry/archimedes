@@ -7,12 +7,10 @@ namespace arch::audio {
 
 ClipFormat Clip::getFormat() const {
 	if (_channelsNumber == 1) {
-		// return AL_FORMAT_MONO16;
 		return mono;
 	}
 	if (_channelsNumber == 2) {
 		return stereo;
-		// return AL_FORMAT_STEREO16;
 	}
 	throw AudioException(_filePath + " - Wrong format");
 }

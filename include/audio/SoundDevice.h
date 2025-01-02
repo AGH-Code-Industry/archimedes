@@ -12,10 +12,13 @@ public:
 	~SoundDevice();
 
 	/// @brief System's default audio device
-	ALCdevice* alcDevice;
+	/// @warning If you want to use it directly, access it by std::reinterpret_cast<ALCdevice*>
+	char* device;
 
 	/// @brief Context for OpenAL calls
-	ALCcontext* alcContext;
+	/// @warning If you want to use it directly, access it by std::reinterpret_cast<ALCcontext*>
+
+	char* context;
 };
 
 } // namespace arch::audio
