@@ -8,10 +8,8 @@
 #include <ecs/ComponentTraits.h>
 #include <utils/OptRef.h>
 
-namespace arch {
-
+namespace arch::scene {
 class Scene;
-
 }
 
 namespace arch::hier {
@@ -94,7 +92,7 @@ public:
 
 private:
 
-	friend class ::arch::Scene;
+	friend class scene::Scene;
 	friend class _details::ChildrenIterator;
 	friend class _details::HierarchyIterator;
 

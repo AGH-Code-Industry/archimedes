@@ -2,24 +2,25 @@
 
 #include "exceptions/GLFWException.h"
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
 
 namespace arch {
 
 Window::Window(int width, int height, const std::string& name, GLFWmonitor* monitor, const Window& share) {
 	_title = name;
-	initialize(width, height, _title.c_str(), monitor, share._window);
+	_initialize(width, height, _title.c_str(), monitor, share._window);
 }
 
 Window::Window(int width, int height, const std::string& name, GLFWmonitor* monitor) {
 	_title = name;
-	initialize(width, height, _title.c_str(), monitor, nullptr);
+	_initialize(width, height, _title.c_str(), monitor, nullptr);
 }
 
-void Window::initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window) {
+void Window::_initialize(int width, int height, const char* name, GLFWmonitor* monitor, GLFWwindow* window) {
 	if (!glfwInit()) {
 		throw GLFWException();
 	}
+
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	_window = glfwCreateWindow(width, height, name, monitor, window);
 
@@ -29,7 +30,9 @@ void Window::initialize(int width, int height, const char* name, GLFWmonitor* mo
 	}
 
 	glfwMakeContextCurrent(_window);
-	glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
+
+	});
 }
 
 void Window::resize(int width, int height) const {
@@ -44,26 +47,12 @@ GLFWwindow* Window::get() const {
 	return _window;
 }
 
-void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-}
-
 void Window::swapBuffers() const {
 	glfwSwapBuffers(_window);
 }
 
 bool Window::shouldClose() const {
 	return glfwWindowShouldClose(_window);
-}
-
-void Window::clear(Color color) const {
-	glClearColor(color.r, color.g, color.b, color.a);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Window::clear(float r, float g, float b, float a) const {
-	Color color(r, g, b, a);
-	clear(color);
 }
 
 } // namespace arch

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/mat2x2.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
@@ -10,6 +12,8 @@
 namespace arch::math {
 
 using Byte = std::byte;
+
+// NOLINTBEGIN(*-identifier-naming)
 
 using i8 = int8_t;
 using i16 = int16_t;
@@ -37,10 +41,14 @@ using uint2 = glm::uvec2;
 using uint3 = glm::uvec3;
 using uint4 = glm::uvec4;
 
+// NOLINTEND(*-identifier-naming)
+
 using Mat2x2 = glm::mat2;
 using Mat3x3 = glm::mat3;
 using Mat4x4 = glm::mat4;
 
 using Color = glm::vec4;
+
+using Quat = glm::qua<f32>;
 
 } // namespace arch::math
