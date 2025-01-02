@@ -35,8 +35,10 @@ bool SourcePlayer::_initiallyLoadSound() {
 	switch(clip.getFormat()) {
 		case mono:
 			format = AL_FORMAT_MONO16;
+			break;
 		case stereo:
 			format = AL_FORMAT_STEREO16;
+			break;
 	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
@@ -54,8 +56,10 @@ bool SourcePlayer::_loadSound() {
 	switch(clip.getFormat()) {
 		case mono:
 			format = AL_FORMAT_MONO16;
+			break;
 		case stereo:
 			format = AL_FORMAT_STEREO16;
+			break;
 	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
