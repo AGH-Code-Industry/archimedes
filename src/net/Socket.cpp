@@ -1,5 +1,3 @@
-#include <stdexcept>
-
 #include "net/Socket.h"
 
 #include "net/IPv4.h"
