@@ -18,7 +18,7 @@ namespace scene = arch::scene;
 
 class SpatialAudioTestApp: public arch::Application {
 
-	const std::string _soundFile = "./sounds/wind.mp3";
+	const std::string _soundFile = "/home/anon/dev/archimedes/archimedes_bin/sounds/wind.mp3";
 
 	//initialize OpenAL context
 	audio::SoundDevice _device;
@@ -41,7 +41,7 @@ class SpatialAudioTestApp: public arch::Application {
 		//initialize AudioManager
 		ecs::Domain* domain = &testScene->domain();
 		_audioManager = new audio::AudioManager(&_soundBank, domain, _mutex);
-		_audioThread = new std::jthread(&audio::AudioManager::play, &_audioManager);
+		_audioThread = new std::jthread(&audio::AudioManager::play, std::ref(_audioManager));
 
 		//add a sound to SoundBank and load it
 		_soundBank.addClip(_soundFile);
@@ -50,6 +50,7 @@ class SpatialAudioTestApp: public arch::Application {
 		// add a "listening" triangle which will be in center of the scene
 		// it resembles the Listener of the sound
 		{
+			auto lock = std::lock_guard(_mutex);
 			ecs::Entity e = testScene->newEntity();
 			testScene->domain().addComponent<scene::components::TransformComponent>(
 				e,
@@ -65,6 +66,7 @@ class SpatialAudioTestApp: public arch::Application {
 		// add a "source" triangle - this resembles the sound's source
 		// it will be moved while moving the source
 		{
+			auto lock = std::lock_guard(_mutex);
 			ecs::Entity e = testScene->newEntity();
 			testScene->domain().addComponent<scene::components::TransformComponent>(
 				e,
@@ -77,10 +79,10 @@ class SpatialAudioTestApp: public arch::Application {
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { /*mesh*/ });
 			auto source = &testScene->domain().addComponent<audio::AudioSource>(e);
 			source->path = _soundFile;
-			source->gain = 0.5f;
+			source->gain = 1.0f;
 			source->isLooped = true;
-			source->positionX = 0.0f;
-			source->positionY = 2.0f;
+			source->positionX = 1.0f;
+			source->positionY = 0.0f;
 			source->play();
 		}
 
@@ -95,8 +97,9 @@ class SpatialAudioTestApp: public arch::Application {
 
 		for (auto [entity, transform, audioSource] : view.all()) {
 			// tells how many steps a triangle needs to take to do a full circle
-			const int stepsPerCircle = 100;
-			const float distance = 2.0f + 2.0f * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
+			const int stepsPerCircle = 1000;
+			// const float distance = 1.0f + 1.0f * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
+			const float distance = 0.8f;
 			float positionX = distance * std::cos(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
 			float positionY = distance * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
 			{
@@ -106,11 +109,11 @@ class SpatialAudioTestApp: public arch::Application {
 			}
 			transform.position = {positionX, positionY, 0.0f};
 		}
-		_currentStep++;
+		_currentStep = (_currentStep + 1) % 10'000;
 	}
 
 	~SpatialAudioTestApp() override {
-		delete _audioManager;
+		// delete _audioManager;
 	}
 
 };
