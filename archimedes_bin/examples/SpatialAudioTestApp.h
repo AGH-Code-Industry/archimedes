@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <mutex>
+#include <numbers>
 #include <thread>
 
 #include <Ecs.h>
@@ -14,19 +15,16 @@ namespace audio = arch::audio;
 namespace ecs = arch::ecs;
 namespace scene = arch::scene;
 
-
-
 struct SpatialAudioTestApp: arch::Application {
-
 	const std::string _soundFile = "/home/anon/dev/archimedes/archimedes_bin/sounds/wind.mp3";
 
-	//initialize OpenAL context
+	// initialize OpenAL context
 	audio::SoundDevice _device;
 
-	//initialize SoundBank
+	// initialize SoundBank
 	audio::SoundBank _soundBank;
 
-	//AudioManager should be initialized after launching the app
+	// AudioManager should be initialized after launching the app
 	std::mutex _mutex;
 	audio::AudioManager* _audioManager{};
 	std::jthread* _audioThread{};
@@ -35,15 +33,15 @@ struct SpatialAudioTestApp: arch::Application {
 	int _currentStep{};
 
 	void init() override {
-		//initialize test scene
+		// initialize test scene
 		arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
 
-		//initialize AudioManager
+		// initialize AudioManager
 		ecs::Domain* domain = &testScene->domain();
 		_audioManager = new audio::AudioManager(&_soundBank, domain, _mutex);
-		_audioThread = new std::jthread(&audio::AudioManager::play, std::ref(_audioManager));
+		_audioThread = new std::jthread(&audio::AudioManager::play, _audioManager);
 
-		//add a sound to SoundBank and load it
+		// add a sound to SoundBank and load it
 		_soundBank.addClip(_soundFile);
 		_soundBank.loadInitialGroups();
 
@@ -74,7 +72,7 @@ struct SpatialAudioTestApp: arch::Application {
 					{ 0.0f, 2.0f, 0.0f },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
 					arch::float3(0.2f)
-			}
+			   }
 			);
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { /*mesh*/ });
 			auto source = &testScene->domain().addComponent<audio::AudioSource>(e);
@@ -97,7 +95,7 @@ struct SpatialAudioTestApp: arch::Application {
 
 		for (auto [entity, transform, audioSource] : view.all()) {
 			// tells how many steps a triangle needs to take to do a full circle
-			const int stepsPerCircle = 1000;
+			const int stepsPerCircle = 1'000;
 			// const float distance = 1.0f + 1.0f * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
 			const float distance = 0.8f;
 			float positionX = distance * std::cos(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
@@ -107,13 +105,14 @@ struct SpatialAudioTestApp: arch::Application {
 				audioSource.positionX = positionX;
 				audioSource.positionY = positionY;
 			}
-			transform.position = {positionX, positionY, 0.0f};
+			transform.position = { positionX, positionY, 0.0f };
 		}
 		_currentStep = (_currentStep + 1) % 10'000;
 	}
 
 	~SpatialAudioTestApp() override {
+		_audioManager->stop();
+		_audioThread->join();
 		delete _audioManager;
 	}
-
 };
