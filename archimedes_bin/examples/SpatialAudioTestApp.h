@@ -16,7 +16,7 @@ namespace scene = arch::scene;
 
 
 
-class SpatialAudioTestApp: public arch::Application {
+struct SpatialAudioTestApp: arch::Application {
 
 	const std::string _soundFile = "/home/anon/dev/archimedes/archimedes_bin/sounds/wind.mp3";
 
@@ -113,7 +113,7 @@ class SpatialAudioTestApp: public arch::Application {
 	}
 
 	~SpatialAudioTestApp() override {
-		// delete _audioManager;
+		delete _audioManager;
 	}
 
 };
