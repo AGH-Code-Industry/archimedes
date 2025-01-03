@@ -1,11 +1,14 @@
 #include "examples/NvrhiRendererTestApp.h"
+#include "examples/SpatialAudioTestApp.h"
 #include <Engine.h>
 #include <Logger.h>
+
+namespace ecs = arch::ecs;
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
+	arch::Ref<arch::Application> myApp = arch::createRef<SpatialAudioTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 600,
 							   .windowHeight = 480,
