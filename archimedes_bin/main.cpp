@@ -3,7 +3,6 @@
 #include <Engine.h>
 #include <Logger.h>
 
-
 namespace ecs = arch::ecs;
 
 int main() {
@@ -17,8 +16,6 @@ int main() {
 							   .backgroundColor = arch::Color(.03f, .03f, .03, 1.f),
 							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
 
-
-
-	arch::Engine engine { config, myApp };
+	arch::Engine engine{ config, myApp };
 	engine.start();
 }

@@ -82,7 +82,7 @@ concept normalReturn = not voidReturn<Function, Params...>;
 /// @param params wrapped function's parameters
 template<typename AlFunction, typename... Params>
 requires voidReturn<AlFunction, Params...>
-auto alCall(AlFunction function, Params... params) {
+auto alCall(AlFunction function, Params&&... params) {
 	function(std::forward<Params>(params)...);
 	checkAlErrors();
 }
@@ -95,7 +95,7 @@ auto alCall(AlFunction function, Params... params) {
 /// @return return value of wrapped function
 template<typename AlFunction, typename... Params>
 requires normalReturn<AlFunction, Params...>
-auto alCall(AlFunction function, Params... params) {
+auto alCall(AlFunction function, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
 	checkAlErrors();
 	return returnValue;
@@ -109,7 +109,7 @@ auto alCall(AlFunction function, Params... params) {
 /// @param params wrapped function's parameters
 template<typename AlcFunction, typename... Params>
 requires voidReturn<AlcFunction, Params...>
-auto alcCall(AlcFunction function, ALCdevice* device, Params... params) {
+auto alcCall(AlcFunction function, ALCdevice* device, Params&&... params) {
 	function(std::forward<Params>(params)...);
 	checkAlcErrors(device);
 }
@@ -123,7 +123,7 @@ auto alcCall(AlcFunction function, ALCdevice* device, Params... params) {
 /// @return return value of wrapped function
 template<typename AlcFunction, typename... Params>
 requires normalReturn<AlcFunction, Params...>
-auto alcCall(AlcFunction function, ALCdevice* device, Params... params) {
+auto alcCall(AlcFunction function, ALCdevice* device, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
 	checkAlcErrors(device);
 	return returnValue;
