@@ -7,7 +7,6 @@
 #include "../NvrhiMessageCallback.h"
 #include "../NvrhiUtils.h"
 #include "Window.h"
-#include "nvrhi/validation.h"
 #include "nvrhi/vulkan.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -166,7 +165,7 @@ void NvrhiVulkanContext::present() {
 
 	_currentPresentSemaphore = (_currentPresentSemaphore + 1) % _presentSemaphores.size();
 
-#ifndef _WIN32
+#ifndef ARCHIMEDES_WINDOWS
 	if (_vsync) {
 		vkQueueWaitIdle(presentQueue.queue);
 	}
@@ -196,6 +195,10 @@ void NvrhiVulkanContext::present() {
 
 int NvrhiVulkanContext::getCurrentFrameIndex() {
 	return _currentFrame;
+}
+
+int NvrhiVulkanContext::getFrameCount() const {
+	return _frames.size();
 }
 
 uint2 NvrhiVulkanContext::getFramebufferSize() const {
@@ -312,7 +315,7 @@ void NvrhiVulkanContext::_createSwapchain(i32 width, i32 height) {
 		textureDesc.width = width;
 		textureDesc.height = height;
 		textureDesc.format = NvrhiUtils::getFormat(fromat);
-		textureDesc.debugName = "Swap chain image";
+		textureDesc.debugName = "Swap chain image " + std::to_string(i);
 		textureDesc.initialState = ::nvrhi::ResourceStates::Present;
 		textureDesc.keepInitialState = true;
 		textureDesc.isRenderTarget = true;

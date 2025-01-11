@@ -28,6 +28,7 @@ public:
 
 public:
 	virtual int getCurrentFrameIndex() = 0;
+	virtual int getFrameCount() const = 0;
 	virtual uint2 getFramebufferSize() const = 0;
 
 	virtual ::nvrhi::DeviceHandle getDevice() = 0;
