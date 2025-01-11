@@ -44,7 +44,8 @@ class AudioManager {
 	///@brief Asks the assigned SourcePlayer to continue playing the sound.
 	/// If it's paused or hasn't been started yet, start playing.
 	///@param source ECS component with info about the sound source.
-	void _runSource(AudioSourceComponent& source);
+	///TODO: add entity info
+	void _runSource(AudioSourceComponent& source, ecs::Entity& entity);
 
 	///@brief Asks the assigned SourcePlayer to stop playing the sound.
 	/// The sound will be automatically removed after some time.
@@ -57,7 +58,8 @@ class AudioManager {
 	/// so it can be used for other AudioSourceComponents.
 	/// Marks the AudioSourceComponent as ignored until the user asks to play it.
 	///@param source ECS component with info about the sound source.
-	void _removeSource(AudioSourceComponent& source);
+	//TODO: add entity description
+	void _removeSource(AudioSourceComponent& source, ecs::Entity& entity);
 
 	///@brief Asks the assigned SourcePlayer to pause playing the sound.
 	///@param source ECS component with info about the sound source.
@@ -70,6 +72,23 @@ class AudioManager {
 
 	///@brief Sends current parameters of the Listener to OpenAL.
 	void _updateListener();
+
+	// TODO: there must be a mechanism ensuring that you can't have multiple state components at once
+	// maybe just check if the entity contains also one of other states? then throw an error
+
+
+	// TODO: also, what if I just remove a state component during playing?
+	// ignoring a component should mean that it's not included in the vector of references
+	// so after removal, you throw a warning (without an exception) and assign a stop component
+	// I could track a vector of booleans... or better, it would be stored in a helper struct with the reference
+	// and the index
+	void _checkPlayingComponents();
+
+	void _checkPausingComponents();
+
+	void _checkStoppingComponents();
+
+	bool _hasMultipleStates(const ecs::Entity& entity);
 
 public:
 

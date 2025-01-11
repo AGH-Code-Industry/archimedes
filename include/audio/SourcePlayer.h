@@ -81,6 +81,7 @@ public:
 	/// @param source ECS component with info about the sound source.
 	/// @throws AudioException if the clip path was modified more than once during the playtime
 	/// (but you still can do it after the last sound was stopped).
+	/// TODO remove exception
 	void update(const AudioSourceComponent& source);
 
 	/// @brief Initializes the _soundBank variable, OpenAL source and OpenAL buffers.
@@ -98,7 +99,8 @@ public:
 	/// @param source AudioSourceComponent that this object is assigned to.
 	/// @warning If it throws and AudioException saying that the state is invalid,
 	/// there is a bug in implementation (and it should be reported).
-	void run(AudioSourceComponent& source);
+	/// TODO: add return value info and remove source param
+	bool run();
 
 	///@brief Stops playing the sound. To do it, OpenAL needs to process all the buffers,
 	/// so the function might be called multiple times. In such situations, the sound is muted
@@ -108,6 +110,8 @@ public:
 
 	///@brief Pauses playing the sound.
 	void pausePlaying();
+
+	void setClipPath(const std::string& clipPath);
 };
 
 } // namespace arch::audio

@@ -81,7 +81,8 @@ struct SpatialAudioTestApp: arch::Application {
 			source->isLooped = true;
 			source->positionX = 1.0f;
 			source->positionY = 0.0f;
-			source->play();
+			// source->play();
+			testScene->domain().addComponent<audio::PlayAudioSourceComponent>(e);
 		}
 
 		scene::SceneManager::get()->changeScene(testScene);

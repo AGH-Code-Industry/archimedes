@@ -6,12 +6,12 @@
 namespace arch::audio {
 
 /// @brief Tells the AudioManager what to do with the AudioSource.
-enum SourceState {
-	ignoring,
-	playing,
-	pausing,
-	stopping
-};
+// enum SourceState {
+// 	ignoring,
+// 	playing,
+// 	pausing,
+// 	stopping
+// };
 
 /// @brief ECS component used to store all data about a sound source on the scene.
 /// It also allows to specify what the AudioManager should do with it.
@@ -45,32 +45,38 @@ struct AudioSourceComponent {
 
 	/// @brief Plays the sound.
 	/// Works only if the sound is currently ignored or paused.
-	void play();
+	// void play();
 
 	/// @brief Pauses the sound.
 	/// Works only if the sound is played.
-	void pause();
+	// void pause();
 
 	/// @brief Stops the sound.
 	/// Works only if the sound is played or paused.
-	void stop();
+	// void stop();
 
 	/// @brief Starts ignoring the sound. This means that the AudioManager won't use the sound.
 	/// Works only if the sound is stopped.
 	/// @warning It's automatically called by the AudioManager after stopping the sound,
 	/// so you shouldn't need to use it.
-	void ignore();
+	// void ignore();
 
 	/// @brief Returns current state of the AudioSource.
 	/// It tells what the AudioManager will do with the sound.
 	/// @returns Current value of the _state variable, which can't
 	/// be modified directly.
 	/// @see _state
-	SourceState getState() const;
+	// SourceState getState() const;
 
-private:
+// private:
 	/// @brief Tells what the AudioManager should do with the sound.
 	/// No AudioSource will be played until the user decides to do so.
-	SourceState _state = ignoring;
+	// SourceState _state = ignoring;
 };
+
+struct PlayAudioSourceComponent {};
+
+struct PauseAudioSourceComponent {};
+
+struct StopAudioSourceComponent {};
 } // namespace arch::audio
