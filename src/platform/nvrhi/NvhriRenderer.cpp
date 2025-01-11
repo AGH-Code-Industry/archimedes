@@ -3,23 +3,14 @@
 #include "Logger.h"
 #include "NvrhiRenderer.h"
 #include "buffer/NvrhiBufferManager.h"
+#include "buffer/NvrhiVertexBuffer.h"
 #include "context/NvrhiVulkanContext.h"
+#include "gfx/Mesh.h"
 #include "nvrhi/utils.h"
 #include "nvrhi/validation.h"
 #include "texture/NvrhiTextureManager.h"
 
 namespace arch::gfx::nvrhi {
-
-struct Vertex {
-	float3 position;
-	float2 uv;
-};
-
-static const Vertex g_Vertices[] = {
-	{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-	{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
-	{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
-};
 
 struct PushConstant {
 	Mat4x4 transform;
@@ -64,12 +55,7 @@ void main() {
 ::nvrhi::BindingLayoutHandle s_bindingLayout;
 ::nvrhi::BindingSetHandle s_bindingSet;
 
-::nvrhi::BufferHandle s_vertexBuffer;
-
-NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {
-	_bufferManager = createRef<buffer::NvrhiBufferManager>();
-	// _textureManager = createRef<texture::NvrhiTextureManager>();
-}
+NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {}
 
 NvrhiRenderer::~NvrhiRenderer() {
 	if (_context) {
@@ -93,6 +79,9 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 	if (_debug) {
 		_validationLayer = ::nvrhi::validation::createValidationLayer(_context->getDevice());
 	}
+
+	_bufferManager = createRef<buffer::NvrhiBufferManager>(std::static_pointer_cast<NvrhiRenderer>(shared_from_this()));
+	// _textureManager = createRef<texture::NvrhiTextureManager>();
 
 	{
 		shaderc::CompileOptions options;
@@ -151,15 +140,6 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 
 		// s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
 
-		auto vertexBufferDesc = ::nvrhi::BufferDesc()
-									.setByteSize(sizeof(g_Vertices))
-									.setIsVertexBuffer(true)
-									.setInitialState(::nvrhi::ResourceStates::VertexBuffer)
-									.setKeepInitialState(true) // enable fully automatic state tracking
-									.setDebugName("Vertex Buffer");
-
-		s_vertexBuffer = getDevice()->createBuffer(vertexBufferDesc);
-
 		_commandBuffer = getDevice()->createCommandList();
 
 		auto bindingSetDesc =
@@ -183,22 +163,17 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 		pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
 		s_pipeline = getDevice()->createGraphicsPipeline(pipelineDesc, _context->getFramebuffer(0));
-
-		_commandBuffer->open();
-
-		_commandBuffer->writeBuffer(s_vertexBuffer, g_Vertices, sizeof(g_Vertices));
-
-		_commandBuffer->close();
-		getDevice()->executeCommandList(_commandBuffer);
 	}
 }
 
 void NvrhiRenderer::shutdown() {
+	_bufferManager.reset();
+	_textureManager.reset();
+
 	s_pipeline = nullptr;
 	s_bindingLayout = nullptr;
 	s_bindingSet = nullptr;
 
-	s_vertexBuffer = nullptr;
 	_commandBuffer = nullptr;
 
 	_validationLayer = nullptr;
@@ -237,8 +212,11 @@ void NvrhiRenderer::present() {
 void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 	::nvrhi::FramebufferHandle currentFramebuffer = _context->getFramebuffer(_context->getCurrentFrameIndex());
 
+	Ref<buffer::NvrhiVertexBuffer> vertexBuffer =
+		std::static_pointer_cast<buffer::NvrhiVertexBuffer>(mesh->getVertexBuffer());
+
 	::nvrhi::VertexBufferBinding vbufBinding =
-		::nvrhi::VertexBufferBinding().setBuffer(s_vertexBuffer).setSlot(0).setOffset(0);
+		::nvrhi::VertexBufferBinding().setBuffer(vertexBuffer->getNativeHandle()).setSlot(0).setOffset(0);
 
 	uint2 framebufferSize = _context->getFramebufferSize();
 	auto graphicsState = ::nvrhi::GraphicsState()
@@ -258,6 +236,7 @@ void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
 
 	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(3);
+
 	_commandBuffer->draw(drawArguments);
 }
 

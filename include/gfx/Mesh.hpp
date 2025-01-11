@@ -11,7 +11,7 @@ Ref<Mesh> Mesh::create(std::span<VertexT> vertices, std::span<u32> indices) {
 	Ref<buffer::BufferManager> bufferManager = Renderer::getCurrent()->getBufferManager();
 
 	Ref<buffer::VertexBuffer> vertexBuffer = bufferManager->createVertexBuffer(vertices);
-	Ref<buffer::IndexBuffer> indexBuffer = bufferManager->createIndexBuffer(indices);
+	Ref<buffer::IndexBuffer> indexBuffer = nullptr; // bufferManager->createIndexBuffer(indices);
 	return create(vertexBuffer, indexBuffer);
 }
 

@@ -6,7 +6,7 @@ namespace arch::gfx::nvrhi::buffer {
 
 class NvrhiIndexBuffer final: public gfx::buffer::IndexBuffer, public NvrhiBuffer {
 public:
-	NvrhiIndexBuffer();
+	NvrhiIndexBuffer(const WeakRef<NvrhiBufferManager>& bufferManager);
 	~NvrhiIndexBuffer() override;
 };
 

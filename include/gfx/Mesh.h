@@ -27,9 +27,15 @@ public:
 	Mesh(Mesh&& other) noexcept = default;
 	Mesh& operator=(Mesh&& other) noexcept = default;
 
+	const Ref<buffer::VertexBuffer>& getVertexBuffer() const { return _vertexBuffer; }
+
+	const Ref<buffer::IndexBuffer>& getIndexBuffer() const { return _indexBuffer; }
+
 private:
 	Ref<buffer::VertexBuffer> _vertexBuffer;
 	Ref<buffer::IndexBuffer> _indexBuffer;
+
+	friend class Renderer;
 };
 
 } // namespace arch::gfx

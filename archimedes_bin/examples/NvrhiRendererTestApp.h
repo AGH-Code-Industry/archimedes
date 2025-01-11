@@ -17,15 +17,13 @@ class NvrhiRendererTestApp: public Application {
 		// 2D square
 		struct Vertex {
 			float3 position;
-			float3 color;
 			float2 tex_coords;
 		};
 
 		std::vector<Vertex> vertices{
-			{  float3(0.5f,  0.5f, 0.0f), {}, float2(1.0f, 1.0f) },
-			{  float3(0.5f, -0.5f, 0.0f), {}, float2(1.0f, 0.0f) },
-			{ float3(-0.5f, -0.5f, 0.0f), {}, float2(0.0f, 0.0f) },
-			{ float3(-0.5f,	0.5f, 0.0f), {}, float2(0.0f, 1.0f) },
+			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
+			{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
+			{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
 		};
 		std::vector<u32> indices{ 0, 1, 3, 1, 2, 3 };
 
