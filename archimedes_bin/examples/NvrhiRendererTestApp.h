@@ -51,10 +51,10 @@ class NvrhiRendererTestApp: public Application {
 			);
 
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh });
-			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, .01f, 0.0f });
+			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.01f, .01f, 0.0f });
 		}
 
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 5; i++) {
 			ecs::Entity e = testScene->newEntity();
 			testScene->domain().addComponent<scene::components::TransformComponent>(
 				e,
@@ -78,10 +78,12 @@ class NvrhiRendererTestApp: public Application {
 						.view<scene::components::TransformComponent, VelocityComponent>();
 
 		for (auto [entity, transform, velocity] : view.all()) {
-			if (transform.position.y < -.5f || transform.position.y > .5f) {
-				velocity.velocity *= -1;
+			if ((transform.position.y < -.5f && velocity.velocity.y < 0) ||
+				(transform.position.y > .5f && velocity.velocity.y > 0)) {
+				velocity.velocity.y *= -1;
 			}
-			if (transform.position.x < -.5f || transform.position.x > .5f) {
+			if ((transform.position.x < -.5f && velocity.velocity.x < 0) ||
+				(transform.position.x > .5f && velocity.velocity.x > 0)) {
 				velocity.velocity.x *= -1;
 			}
 
