@@ -4,7 +4,7 @@
 
 namespace arch::audio {
 
-void SourcePlayer::update(const AudioSource& source) {
+void SourcePlayer::update(const AudioSourceComponent& source) {
 	_pitch = source.pitch;
 	_gain = source.gain;
 	_positionX = source.positionX;
@@ -83,7 +83,7 @@ void SourcePlayer::_prepareLoadingBuffer() {
 	_cursor = 0;
 }
 
-void SourcePlayer::run(AudioSource& source) {
+void SourcePlayer::run(AudioSourceComponent& source) {
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 	_updateSoundAttributes();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <audio/AudioSource.h>
+#include <audio/AudioSourceComponent.h>
 #include <audio/SoundBank.h>
 
 namespace arch::audio {
@@ -77,11 +77,11 @@ class SourcePlayer {
 
 public:
 
-	/// @brief Copies all sound parameters from the AudioSource into this object.
+	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
 	/// @param source ECS component with info about the sound source.
 	/// @throws AudioException if the clip path was modified more than once during the playtime
 	/// (but you still can do it after the last sound was stopped).
-	void update(const AudioSource& source);
+	void update(const AudioSourceComponent& source);
 
 	/// @brief Initializes the _soundBank variable, OpenAL source and OpenAL buffers.
 	/// @param soundBank SoundBank responsible for loading the files.
@@ -95,10 +95,10 @@ public:
 	/// @brief Controls the playback of the sound. If it hasn't started, start it.
 	/// If it's paused, continue it. If it's already playing, update the buffers.
 	/// If it's ended, ask the AudioManager to stop it.
-	/// @param source AudioSource that this object is assigned to.
+	/// @param source AudioSourceComponent that this object is assigned to.
 	/// @warning If it throws and AudioException saying that the state is invalid,
 	/// there is a bug in implementation (and it should be reported).
-	void run(AudioSource& source);
+	void run(AudioSourceComponent& source);
 
 	///@brief Stops playing the sound. To do it, OpenAL needs to process all the buffers,
 	/// so the function might be called multiple times. In such situations, the sound is muted

@@ -12,7 +12,7 @@ enum ClipFormat {
 	stereo
 };
 
-/// @brief Allows for loading audio files and streaming their data to AudioSources.
+/// @brief Allows for loading audio files and streaming their data to SourcePlayers.
 class Clip {
 	/// @brief Sound's sample rate.
 	int _sampleRate{};

@@ -34,7 +34,7 @@ void AudioManager::play() {
 		_updateListener();
 		{
 			auto lock = std::lock_guard(_ecsMutex);
-			for (auto&& [source] : _domain->view<AudioSource>().components()) {
+			for (auto&& [source] : _domain->view<AudioSourceComponent>().components()) {
 				if (source.sourceIndex < -1 || source.sourceIndex >= 16) {
 					throw AudioException("Audio system: source index out of range");
 				}
@@ -70,7 +70,7 @@ void AudioManager::stop() {
 	_isListening = false;
 }
 
-void AudioManager::_assignSource(AudioSource& source) {
+void AudioManager::_assignSource(AudioSourceComponent& source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Cannot find empty source");
@@ -80,7 +80,7 @@ void AudioManager::_assignSource(AudioSource& source) {
 	Logger::info("Audio system: assigned Source with index {}", std::to_string(source.sourceIndex));
 }
 
-void AudioManager::_removeSource(AudioSource& source) {
+void AudioManager::_removeSource(AudioSourceComponent& source) {
 	_sourceUsed[source.sourceIndex] = false;
 	int index = source.sourceIndex;
 	source.sourceIndex = -1;
@@ -88,19 +88,19 @@ void AudioManager::_removeSource(AudioSource& source) {
 	Logger::info("Audio system: removed Source with index {}", std::to_string(index));
 }
 
-void AudioManager::_pauseSource(AudioSource& source) {
+void AudioManager::_pauseSource(AudioSourceComponent& source) {
 	_sources[source.sourceIndex].pausePlaying();
 }
 
-void AudioManager::_runSource(AudioSource& source) {
+void AudioManager::_runSource(AudioSourceComponent& source) {
 	_sources[source.sourceIndex].run(source);
 }
 
-bool AudioManager::_stopSource(AudioSource& source) {
+bool AudioManager::_stopSource(AudioSourceComponent& source) {
 	return _sources[source.sourceIndex].stopPlaying();
 }
 
-void AudioManager::_updateSource(AudioSource& source) {
+void AudioManager::_updateSource(AudioSourceComponent& source) {
 	_sources[source.sourceIndex].update(source);
 }
 

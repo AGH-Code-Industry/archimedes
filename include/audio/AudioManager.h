@@ -1,6 +1,6 @@
 #pragma once
 
-#include <audio/AudioSource.h>
+#include <audio/AudioSourceComponent.h>
 #include <audio/Listener.h>
 #include <audio/SourcePlayer.h>
 #include <ecs/Domain.h>
@@ -10,7 +10,7 @@ namespace arch::audio {
 /// @brief Stores all SourcePlayers on the scene and synchronizes their work.
 /// Allows for automatic removal of sounds that stopped playing.
 class AudioManager {
-	///@brief ECS Domain object allowing to access all AudioSources
+	///@brief ECS Domain object allowing to access all AudioSourceComponents
 	ecs::Domain* _domain;
 
 	///@brief All SourcePlayers on the scene.
@@ -36,37 +36,37 @@ class AudioManager {
 	///@returns Index of the non-used SourcePlayer if it was found, -1 otherwise.
 	int _findEmptyPlayer();
 
-	///@brief Finds an empty SourcePlayer and assign it to the AudioSource.
+	///@brief Finds an empty SourcePlayer and assign it to the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
-	void _assignSource(AudioSource& source);
+	void _assignSource(AudioSourceComponent& source);
 
 	///@brief Asks the assigned SourcePlayer to continue playing the sound.
 	/// If it's paused or hasn't been started yet, start playing.
 	///@param source ECS component with info about the sound source.
-	void _runSource(AudioSource& source);
+	void _runSource(AudioSourceComponent& source);
 
 	///@brief Asks the assigned SourcePlayer to stop playing the sound.
 	/// The sound will be automatically removed after some time.
 	///@param source ECS component with info about the sound source.
 	///@returns False if the SourcePlayer couldn't stop the sound
 	///(because some buffers haven't been processed yet). True otherwise.
-	bool _stopSource(AudioSource& source);
+	bool _stopSource(AudioSourceComponent& source);
 
-	///@brief Unassigns the SourcePlayer from its AudioSource,
-	/// so it can be used for other AudioSources.
-	/// Marks the AudioSource as ignored until the user asks to play it.
+	///@brief Unassigns the SourcePlayer from its AudioSourceComponent,
+	/// so it can be used for other AudioSourceComponents.
+	/// Marks the AudioSourceComponent as ignored until the user asks to play it.
 	///@param source ECS component with info about the sound source.
-	void _removeSource(AudioSource& source);
+	void _removeSource(AudioSourceComponent& source);
 
 	///@brief Asks the assigned SourcePlayer to pause playing the sound.
 	///@param source ECS component with info about the sound source.
-	void _pauseSource(AudioSource& source);
+	void _pauseSource(AudioSourceComponent& source);
 
 	///@brief Asks the assigned SourcePlayer to get all the sound parameters
-	/// from the AudioSource.
+	/// from the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
-	void _updateSource(AudioSource& source);
+	void _updateSource(AudioSourceComponent& source);
 
 	///@brief Sends current parameters of the Listener to OpenAL.
 	void _updateListener();
@@ -75,7 +75,7 @@ public:
 
 	///@brief Constructor. Initializes all SourcePlayers.
 	///@param soundBank SoundBank object responsible for loading all sounds from the disk.
-	///@param domain ECS domain used to access all currently used AudioSources.
+	///@param domain ECS domain used to access all currently used AudioSourceComponents.
 	///@param ecsMutex Mutex used to synchronize the execution of ECS between threads.
 	AudioManager(SoundBank* soundBank, ecs::Domain* domain, std::mutex& ecsMutex);
 
@@ -84,10 +84,10 @@ public:
 	~AudioManager();
 
 	///@brief Controls the audio playback that is done by SourcePlayers.
-	/// Every frame, each playing SourcePlayer will be updated according to the AudioSource
-	/// it's assigned to. It will ignore all AudioSources that have their state set to "ignoring"
+	/// Every frame, each playing SourcePlayer will be updated according to the AudioSourceComponent
+	/// it's assigned to. It will ignore all AudioSourceComponents that have their state set to "ignoring"
 	/// or clip path set to "".
-	///@throws AudioException if there is a non-ignored AudioSource with assigned SourcePlayer
+	///@throws AudioException if there is a non-ignored AudioSourceComponent with assigned SourcePlayer
 	/// that doesn't exist. So the index is other than -1 ("SourcePlayer not assigned")
 	/// and is outside the SourcePlayers array.
 	///@warning This is a blocking function, and it should be used in a separate thread.

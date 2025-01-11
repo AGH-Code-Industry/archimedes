@@ -1,31 +1,31 @@
-#include <audio/AudioSource.h>
+#include <audio/AudioSourceComponent.h>
 
 namespace arch::audio {
-void AudioSource::play() {
+void AudioSourceComponent::play() {
 	if (_state == pausing || _state == ignoring) {
 		_state = playing;
 	}
 }
 
-void AudioSource::pause() {
+void AudioSourceComponent::pause() {
 	if (_state == playing) {
 		_state = pausing;
 	}
 }
 
-void AudioSource::stop() {
+void AudioSourceComponent::stop() {
 	if (_state == playing || _state == pausing) {
 		_state = stopping;
 	}
 }
 
-void AudioSource::ignore() {
+void AudioSourceComponent::ignore() {
 	if (_state == stopping) {
 		_state = ignoring;
 	}
 }
 
-SourceState AudioSource::getState() const {
+SourceState AudioSourceComponent::getState() const {
 	return _state;
 }
 

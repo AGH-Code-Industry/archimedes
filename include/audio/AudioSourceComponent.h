@@ -15,7 +15,7 @@ enum SourceState {
 
 /// @brief ECS component used to store all data about a sound source on the scene.
 /// It also allows to specify what the AudioManager should do with it.
-struct AudioSource {
+struct AudioSourceComponent {
 	/// @brief Pitch modifier of the sound.
 	float pitch = 1.0f;
 

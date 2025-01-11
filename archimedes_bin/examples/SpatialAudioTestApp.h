@@ -75,7 +75,7 @@ struct SpatialAudioTestApp: arch::Application {
 			   }
 			);
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { /*mesh*/ });
-			auto source = &testScene->domain().addComponent<audio::AudioSource>(e);
+			auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e);
 			source->path = _soundFile;
 			source->gain = 1.0f;
 			source->isLooped = true;
@@ -91,7 +91,7 @@ struct SpatialAudioTestApp: arch::Application {
 		auto view = scene::SceneManager::get()
 						->currentScene()
 						->domain()
-						.view<scene::components::TransformComponent, audio::AudioSource>();
+						.view<scene::components::TransformComponent, audio::AudioSourceComponent>();
 
 		for (auto [entity, transform, audioSource] : view.all()) {
 			// tells how many steps a triangle needs to take to do a full circle

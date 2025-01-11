@@ -1,5 +1,4 @@
 #pragma once
-#include <AL/alc.h>
 
 namespace arch::audio {
 /// @brief Represents audio device and context needed for OpenAL calls
