@@ -21,6 +21,10 @@ static const Vertex g_Vertices[] = {
 	{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
 };
 
+struct PushConstant {
+	Mat4x4 transform;
+};
+
 constexpr std::string_view vertexShader = R"(
 #version 450
 
@@ -29,13 +33,17 @@ layout(location = 1) in vec2 inUV;
 
 layout(location = 0) out vec3 fragColor;
 
-layout(binding = 256) uniform UniformBufferObject {
-    mat4 mvp;
-} ubo;
+layout(push_constant) uniform PushConstant {
+	mat4 transform;
+} pushConstant;
+
+// layout(binding = 256) uniform UniformBufferObject {
+//     mat4 mvp;
+// } ubo;
 
 
 void main() {
-    gl_Position = ubo.mvp * vec4(inPosition, 1.0);
+    gl_Position = pushConstant.transform * vec4(inPosition, 1.0);
     fragColor = vec3(inUV, 0.0);
 }
 )";
@@ -56,10 +64,7 @@ void main() {
 ::nvrhi::BindingLayoutHandle s_bindingLayout;
 ::nvrhi::BindingSetHandle s_bindingSet;
 
-::nvrhi::BufferHandle s_constantBuffer;
 ::nvrhi::BufferHandle s_vertexBuffer;
-
-::nvrhi::CommandListHandle s_commandList;
 
 NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {
 	_bufferManager = createRef<buffer::NvrhiBufferManager>();
@@ -138,12 +143,13 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 		);
 
 		auto constantBufferDesc = ::nvrhi::BufferDesc()
+									  .setDebugName("Constant Buffer")
 									  .setByteSize(sizeof(Mat4x4)) // stores one matrix
 									  .setIsConstantBuffer(true)
 									  .setIsVolatile(true)
 									  .setMaxVersions(16); // number of automatic versions, only necessary on Vulkan
 
-		s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
+		// s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
 
 		auto vertexBufferDesc = ::nvrhi::BufferDesc()
 									.setByteSize(sizeof(g_Vertices))
@@ -154,11 +160,10 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 
 		s_vertexBuffer = getDevice()->createBuffer(vertexBufferDesc);
 
-		s_commandList = getDevice()->createCommandList();
+		_commandBuffer = getDevice()->createCommandList();
 
-		auto bindingSetDesc = ::nvrhi::BindingSetDesc()
-								  // .addItem(::nvrhi::BindingSetItem::Texture_SRV(0, geometryTexture))
-								  .addItem(::nvrhi::BindingSetItem::ConstantBuffer(0, s_constantBuffer));
+		auto bindingSetDesc =
+			::nvrhi::BindingSetDesc().addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
 
 		::nvrhi::utils::CreateBindingSetAndLayout(
 			getDevice(),
@@ -179,12 +184,12 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 
 		s_pipeline = getDevice()->createGraphicsPipeline(pipelineDesc, _context->getFramebuffer(0));
 
-		s_commandList->open();
+		_commandBuffer->open();
 
-		s_commandList->writeBuffer(s_vertexBuffer, g_Vertices, sizeof(g_Vertices));
+		_commandBuffer->writeBuffer(s_vertexBuffer, g_Vertices, sizeof(g_Vertices));
 
-		s_commandList->close();
-		getDevice()->executeCommandList(s_commandList);
+		_commandBuffer->close();
+		getDevice()->executeCommandList(_commandBuffer);
 	}
 }
 
@@ -193,9 +198,8 @@ void NvrhiRenderer::shutdown() {
 	s_bindingLayout = nullptr;
 	s_bindingSet = nullptr;
 
-	s_constantBuffer = nullptr;
 	s_vertexBuffer = nullptr;
-	s_commandList = nullptr;
+	_commandBuffer = nullptr;
 
 	_validationLayer = nullptr;
 
@@ -213,10 +217,10 @@ void NvrhiRenderer::onResize(u32 width, u32 height) {
 void NvrhiRenderer::beginFrame() {
 	_context->beginFrame();
 
-	s_commandList->open();
+	_commandBuffer->open();
 
 	::nvrhi::utils::ClearColorAttachment(
-		s_commandList,
+		_commandBuffer,
 		_context->getFramebuffer(_context->getCurrentFrameIndex()),
 		0,
 		::nvrhi::Color(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a)
@@ -224,16 +228,14 @@ void NvrhiRenderer::beginFrame() {
 }
 
 void NvrhiRenderer::present() {
-	s_commandList->close();
-	getDevice()->executeCommandList(s_commandList);
+	_commandBuffer->close();
+	getDevice()->executeCommandList(_commandBuffer);
 
 	_context->present();
 }
 
 void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 	::nvrhi::FramebufferHandle currentFramebuffer = _context->getFramebuffer(_context->getCurrentFrameIndex());
-
-	s_commandList->writeBuffer(s_constantBuffer, &transform, sizeof(transform));
 
 	::nvrhi::VertexBufferBinding vbufBinding =
 		::nvrhi::VertexBufferBinding().setBuffer(s_vertexBuffer).setSlot(0).setOffset(0);
@@ -249,10 +251,14 @@ void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 							 )
 							 .addBindingSet(s_bindingSet)
 							 .addVertexBuffer(vbufBinding);
-	s_commandList->setGraphicsState(graphicsState);
+	_commandBuffer->setGraphicsState(graphicsState);
+
+	PushConstant pushConstants{ transform };
+
+	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
 
 	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(3);
-	s_commandList->draw(drawArguments);
+	_commandBuffer->draw(drawArguments);
 }
 
 Ref<gfx::buffer::BufferManager> NvrhiRenderer::getBufferManager() {

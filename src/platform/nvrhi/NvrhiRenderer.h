@@ -42,6 +42,8 @@ private:
 
 	Ref<buffer::NvrhiBufferManager> _bufferManager;
 	Ref<texture::NvrhiTextureManager> _textureManager;
+
+	::nvrhi::CommandListHandle _commandBuffer;
 };
 
 } // namespace arch::gfx::nvrhi
