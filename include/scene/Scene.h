@@ -2,10 +2,13 @@
 
 #include <unordered_set>
 
+#include "ReturnHandleFlag.h"
 #include <Ecs.h>
 #include <Hier.h>
 
 namespace arch::scene {
+
+class Entity;
 
 class Scene {
 public:
@@ -18,7 +21,13 @@ public:
 
 	/// @brief Creates new entity
 	/// @see arch::ecs::Domain::newEntity()
-	ecs::Entity newEntity() noexcept;
+	Entity newEntity() noexcept;
+	/// @brief Creates new entity
+	/// @see arch::ecs::Domain::newEntity()
+	ecs::Entity newEntity(ReturnHandleFlag) noexcept;
+	/// @brief Kills entity
+	/// @see arch::ecs::Domain::kill(const ecs::Entity)
+	void removeEntity(Entity& entity) noexcept;
 	/// @brief Kills entity
 	/// @see arch::ecs::Domain::kill(const ecs::Entity)
 	void removeEntity(const ecs::Entity entity) noexcept;
@@ -29,7 +38,9 @@ public:
 	const ecs::Domain& domain() const noexcept;
 
 	/// @brief Returns root entity
-	ecs::Entity root() const noexcept;
+	Entity root() noexcept;
+	/// @brief Returns root entity
+	ecs::Entity root(ReturnHandleFlag) const noexcept;
 	/// @brief Returns root node
 	Node& rootNode() noexcept;
 	/// @brief Returns readonly root node

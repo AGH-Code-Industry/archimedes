@@ -1,4 +1,5 @@
 #include <Scene.h>
+#include <scene/Entity.h>
 #include <scene/TagDB.h>
 #include <scene/Tags.h>
 
@@ -9,13 +10,35 @@ Scene::Scene() noexcept: _domain{} {
 	_rootNode = &_domain.addComponent<Node>(root, root);
 }
 
-ecs::Entity Scene::newEntity() noexcept {
+Entity Scene::newEntity() noexcept {
+	Entity result;
+
+	result._entity = _domain.newEntity();
+	result._node = &_domain.addComponent<Node>(result._entity, result._entity);
+	result._node->_setParentUnchecked(*_rootNode);
+	result._scene = this;
+
+	return result;
+}
+
+ecs::Entity Scene::newEntity(ReturnHandleFlag) noexcept {
 	const auto newEntity = _domain.newEntity();
 	auto& newNode = _domain.addComponent<Node>(newEntity, newEntity);
 
 	newNode._setParentUnchecked(*_rootNode);
 
 	return newEntity;
+}
+
+void Scene::removeEntity(Entity& entity) noexcept {
+	auto& node = _domain.getComponent<hier::HierarchyNode>(entity);
+	node._unparent();
+
+	untag(entity);
+
+	_domain.kill(node._entity);
+
+	entity._node = nullptr;
 }
 
 void Scene::removeEntity(const ecs::Entity entity) noexcept {
@@ -35,8 +58,12 @@ const ecs::Domain& Scene::domain() const noexcept {
 	return _domain;
 }
 
-ecs::Entity Scene::root() const noexcept {
-	return _rootNode->_entity;
+Entity Scene::root() noexcept {
+	return Entity(*this, *_rootNode);
+}
+
+ecs::Entity Scene::root(ReturnHandleFlag) const noexcept {
+	return _rootNode->entity();
 }
 
 Scene::Node& Scene::rootNode() noexcept {
