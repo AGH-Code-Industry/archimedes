@@ -1,7 +1,6 @@
 #pragma once
 
 #include <concepts>
-#include <iostream>
 #include <unordered_map>
 
 #include "ComponentPool.h"
