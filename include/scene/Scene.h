@@ -22,9 +22,6 @@ public:
 	/// @brief Creates new entity
 	/// @see arch::ecs::Domain::newEntity()
 	Entity newEntity() noexcept;
-	/// @brief Creates new entity
-	/// @see arch::ecs::Domain::newEntity()
-	ecs::Entity newEntity(ReturnHandleFlag) noexcept;
 	/// @brief Kills entity
 	/// @see arch::ecs::Domain::kill(const ecs::Entity)
 	void removeEntity(Entity& entity) noexcept;
@@ -39,12 +36,6 @@ public:
 
 	/// @brief Returns root entity
 	Entity root() noexcept;
-	/// @brief Returns root entity
-	ecs::Entity root(ReturnHandleFlag) const noexcept;
-	/// @brief Returns root node
-	Node& rootNode() noexcept;
-	/// @brief Returns readonly root node
-	const Node& rootNode() const noexcept;
 
 	/// @brief Adds tag to entity
 	/// @param entity - entity to add tag to
@@ -69,10 +60,19 @@ public:
 	/// @return Non-empty optional if entity was ever tagged, empty optional otherwise
 	OptRef<const std::unordered_set<std::string_view>> tagsOf(const ecs::Entity entity) const noexcept;
 
+	template<class... Includes, class... Excludes>
+	auto entitiesWith(ExcludeT<Excludes...> = ExcludeT{}) noexcept;
+
 private:
+
+	friend class Entity;
+
+	hier::HierarchyNode& _newEntity() noexcept;
 
 	ecs::Domain _domain;
 	Node* _rootNode;
 };
 
 } // namespace arch::scene
+
+#include "Scene.hpp"
