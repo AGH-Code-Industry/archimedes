@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 TEST(Scene, HierarchyIteration) {
-	arch::Scene scene;
+	arch::scene::Scene scene;
 
 	auto e = std::array<arch::hier::HierarchyNode*, 11>();
 

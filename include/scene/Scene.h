@@ -68,7 +68,6 @@ private:
 	friend class Entity;
 
 	hier::HierarchyNode& _newEntity() noexcept;
-
 	ecs::Domain _domain;
 	Node* _rootNode;
 };

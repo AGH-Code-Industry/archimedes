@@ -8,66 +8,41 @@
 #include <ranges>
 #include <vector>
 
+#include "../platform/nvrhi/NvrhiRenderer.h"
+#include "../platform/vulkan/VulkanRenderer.h"
 #include "Logger.h"
 
 namespace arch::gfx {
 
-void Renderer::init() {
-	volkInitialize();
+Ref<Renderer> Renderer::s_current = nullptr;
 
-	VkApplicationInfo appInfo{
-		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		.pApplicationName = "Hello Triangle",
-		.applicationVersion = VK_MAKE_VERSION(1, 0, 0),
-		.pEngineName = "No Engine",
-		.engineVersion = VK_MAKE_VERSION(1, 0, 0),
-		.apiVersion = VK_API_VERSION_1_3,
-	};
+Ref<Renderer> Renderer::create(RenderingAPI api) {
+	switch (api) {
+		case RenderingAPI::vulkan: return createRef<vulkan::VulkanRenderer>();
 
-	std::array instanceExtensions = {
-		VK_KHR_SURFACE_EXTENSION_NAME,
-	};
+		case RenderingAPI::Nvrhi_DX11:
+		case RenderingAPI::Nvrhi_DX12:
+		case RenderingAPI::Nvrhi_VK:   return createRef<nvrhi::NvrhiRenderer>(api, true);
 
-	std::vector layers = {
-		"VK_LAYER_KHRONOS_validation",
-	};
+		default: Logger::critical("Unknown RenderingAPI {}", (u32)api); return nullptr;
+	}
+	return nullptr;
+}
 
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-	std::vector<VkLayerProperties> availableLayers(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-	std::erase_if(layers, [&](auto&& layer) {
-		for (auto&& l : availableLayers) {
-			if (std::strcmp(layer, l.layerName) == 0) {
-				return false;
-			}
-		}
-		return true;
-	});
-
-	Logger::info("Available layers {}:", layerCount);
-	for (auto&& layer : availableLayers) {
-		Logger::info("  - {}", layer.layerName);
+Ref<Renderer> Renderer::getCurrent() {
+	if (!s_current) {
+		Logger::critical("[Renderer] Current context is null");
 	}
 
-	VkInstanceCreateInfo createInfo{
-		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		.pApplicationInfo = &appInfo,
-		.enabledLayerCount = (uint32_t)layers.size(),
-		.ppEnabledLayerNames = layers.data(),
-		.enabledExtensionCount = (uint32_t)instanceExtensions.size(),
-		.ppEnabledExtensionNames = instanceExtensions.data(),
-	};
+	return s_current;
+}
 
-	VkInstance instance;
-	VkResult status = vkCreateInstance(&createInfo, nullptr, &instance);
+void Renderer::makeCurrent() {
+	s_current = shared_from_this();
+}
 
-	if (status != VK_SUCCESS) {
-		Logger::error("Failed to create Vulkan instance.");
-	}
-
-	Logger::info("Created Vulkan instance.");
+void Renderer::setClearColor(Color color) {
+	_clearColor = color;
 }
 
 } // namespace arch::gfx

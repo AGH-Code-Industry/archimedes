@@ -52,7 +52,7 @@ void Scene::removeEntity(const ecs::Entity entity) noexcept {
 	node._unparent();
 
 	untag(entity);
-
+  
 	_domain.kill(node._entity);
 }
 

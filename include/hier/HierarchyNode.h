@@ -9,9 +9,7 @@
 #include <utils/OptRef.h>
 
 namespace arch::scene {
-
 class Scene;
-
 }
 
 namespace arch::hier {
