@@ -9,6 +9,7 @@
 #include "ComponentPoolIterator.h"
 #include "ComponentTraits.h"
 #include <utils/MoveFlag.h>
+#include <utils/OptRef.h>
 
 namespace arch::ecs {
 
@@ -82,12 +83,10 @@ public:
 	ConstGetReference get(const EntityT entity) const noexcept;
 	/// @brief Returns optional with reference to component of given entity
 	/// @param entity - entity to get component of
-	std::optional<std::reference_wrapper<C>> tryGet(const EntityT entity) noexcept
-		requires(!_details::ComponentTraits<C>::flag);
+	OptRef<C> tryGet(const EntityT entity) noexcept requires(!_details::ComponentTraits<C>::flag);
 	/// @brief Returns optional with readonly reference to component of given entity
 	/// @param entity - entity to get component of
-	std::optional<std::reference_wrapper<const C>> tryGet(const EntityT entity) const noexcept
-		requires(!_details::ComponentTraits<C>::flag);
+	OptRef<const C> tryGet(const EntityT entity) const noexcept requires(!_details::ComponentTraits<C>::flag);
 
 	/// @brief Returns iterator to first (const entity, component) contained
 	Iterator begin() noexcept;

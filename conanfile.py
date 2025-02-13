@@ -14,6 +14,8 @@ class Archimedes(ConanFile):
         self.requires("gtest/1.13.0")
         self.requires("stb/cci.20230920", override=True)
         self.requires("draco/1.5.6", override=True)
+        self.requires("ctre/3.9.0")
+        self.requires("openssl/3.3.2")
 
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
@@ -24,7 +26,6 @@ class Archimedes(ConanFile):
         self.requires("shaderc/2023.6")  # waiting for conan repo update
 
     def configure(self):
-        if is_msvc(self, True):
-            self.options["spdlog/1.12.0"].use_std_fmt = True
+        self.options["spdlog/1.12.0"].use_std_fmt = True
 
     generators = "CMakeDeps", "CMakeToolchain"

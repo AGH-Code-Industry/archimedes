@@ -20,5 +20,6 @@ namespace arch {
 
 // expose exclude as arch::exclude
 using ecs::exclude;
+using ecs::ExcludeT;
 
 } // namespace arch

@@ -1,5 +1,13 @@
 #include "gfx/Renderer.h"
 
+/// @brief Temporary code
+
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <ranges>
+#include <vector>
+
 #include "../platform/nvrhi/NvrhiRenderer.h"
 #include "../platform/vulkan/VulkanRenderer.h"
 #include "Logger.h"

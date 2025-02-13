@@ -2,7 +2,6 @@
 
 #include "rtti/EnableRTTI.hpp"
 #include "rtti/RTTIEnabled.hpp"
-#include "rtti/StaticTypedesc.hpp"
 
 #include "rtti/HashTypeName.h"
 #include "rtti/TypeDescriptor.h"

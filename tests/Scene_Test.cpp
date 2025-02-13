@@ -25,20 +25,16 @@ TEST(Scene, HierarchyIteration) {
 	{ e[8]->setParent(*e[7]); }
 	e[9]->setParent(*e[0]);
 
-	ASSERT_TRUE(
-		std::ranges::equal(
-			e,
-			scene.rootNode().recursiveIterable(),
-			{},
-			[](const arch::hier::HierarchyNode* node) { return node->entity(); }
-		)
-	);
-	ASSERT_TRUE(
-		std::ranges::equal(
-			std::views::reverse(e),
-			std::views::reverse(scene.rootNode().recursiveIterable()),
-			{},
-			[](const arch::hier::HierarchyNode* node) { return node->entity(); }
-		)
-	);
+	ASSERT_TRUE(std::ranges::equal(
+		e,
+		scene.root().getComponent<arch::hier::HierarchyNode>().recursiveIterable(),
+		{},
+		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
+	));
+	ASSERT_TRUE(std::ranges::equal(
+		std::views::reverse(e),
+		std::views::reverse(scene.root().getComponent<arch::hier::HierarchyNode>().recursiveIterable()),
+		{},
+		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
+	));
 }

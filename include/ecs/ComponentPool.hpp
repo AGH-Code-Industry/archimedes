@@ -99,6 +99,8 @@ POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) 
 	denseEntity = entity;
 	++_counter;
 
+	ARCH_ASSERT(contains(entity), "Component failed to add");
+
 	if constexpr (Traits::flag) {
 		return true;
 	} else {
@@ -228,7 +230,7 @@ POOL_C::ConstGetReference POOL_C::get(const EntityT entity) const noexcept {
 }
 
 TEMPLATE_C
-std::optional<std::reference_wrapper<C>> POOL_C::tryGet(const EntityT entity) noexcept requires(!TRAITS_C::flag)
+OptRef<C> POOL_C::tryGet(const EntityT entity) noexcept requires(!TRAITS_C::flag)
 {
 	const size_t id = ETraits::Id::part(entity);
 
@@ -239,12 +241,11 @@ std::optional<std::reference_wrapper<C>> POOL_C::tryGet(const EntityT entity) no
 
 	const size_t idx = ETraits::Id::part(*sparsePtr);
 
-	return std::optional{ std::ref(_components[idx / Traits::pageSize][idx % Traits::pageSize]) };
+	return OptRef<C>{ _components[idx / Traits::pageSize][idx % Traits::pageSize] };
 }
 
 TEMPLATE_C
-std::optional<std::reference_wrapper<const C>> POOL_C::tryGet(const EntityT entity) const noexcept
-	requires(!TRAITS_C::flag)
+OptRef<const C> POOL_C::tryGet(const EntityT entity) const noexcept requires(!TRAITS_C::flag)
 {
 	return const_cast<POOL_C*>(this)->tryGet(entity);
 }

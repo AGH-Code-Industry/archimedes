@@ -7,7 +7,7 @@ namespace arch::ecs {
 template<class C>
 ComponentPool<std::remove_const_t<C>>& Domain::_assureCPool() noexcept {
 	using Comp = std::remove_const_t<C>;
-	const auto type = staticTypedesc(Comp).wrap(); // custom RTTI gets a use
+	const auto type = typedesc<Comp>().wrap(); // custom RTTI gets a use
 
 	auto found = _componentPools.find(type);
 	if (found == _componentPools.end()) {
@@ -21,34 +21,34 @@ ComponentPool<std::remove_const_t<C>>& Domain::_assureCPool() noexcept {
 template<class C>
 void Domain::_destroyCPool(CPoolsT& cpools) noexcept {
 	using Comp = std::remove_const_t<C>;
-	reinterpret_cast<ComponentPool<Comp>*>(cpools[staticTypedesc(Comp).wrap()].storage.data())->~ComponentPool();
+	reinterpret_cast<ComponentPool<Comp>*>(cpools[typedesc<Comp>().wrap()].storage.data())->~ComponentPool();
 }
 
 template<class C>
 requires(!std::is_const_v<C>)
 ComponentPool<C>& Domain::_getCPool() noexcept {
-	return *reinterpret_cast<ComponentPool<C>*>(_componentPools.find(staticTypedesc(C).wrap())->second.storage.data());
+	return *reinterpret_cast<ComponentPool<C>*>(_componentPools.find(typedesc<C>().wrap())->second.storage.data());
 }
 
 template<class C>
 const ComponentPool<std::remove_const_t<C>>& Domain::_getCPool() const noexcept {
 	using Comp = std::remove_const_t<C>;
 	return *reinterpret_cast<const ComponentPool<Comp>*>(
-		_componentPools.find(staticTypedesc(Comp).wrap())->second.storage.data()
+		_componentPools.find(typedesc<Comp>().wrap())->second.storage.data()
 	);
 }
 
 template<class C>
 requires(!std::is_const_v<C>)
 ComponentPool<C>* Domain::_tryGetCPool() noexcept {
-	const auto found = _componentPools.find(staticTypedesc(C).wrap());
+	const auto found = _componentPools.find(typedesc<C>().wrap());
 	return found != _componentPools.end() ? reinterpret_cast<ComponentPool<C>*>(found->second.storage.data()) : nullptr;
 }
 
 template<class C>
 const ComponentPool<std::remove_const_t<C>>* Domain::_tryGetCPool() const noexcept {
 	using Comp = std::remove_const_t<C>;
-	const auto found = _componentPools.find(staticTypedesc(Comp).wrap());
+	const auto found = _componentPools.find(typedesc<Comp>().wrap());
 	return found != _componentPools.end() ? reinterpret_cast<const ComponentPool<Comp>*>(found->second.storage.data()) :
 											nullptr;
 }
@@ -76,15 +76,14 @@ Domain::ConstGetReference<std::remove_const_t<C>> Domain::getComponent(const Ent
 
 template<class C>
 requires(!_details::ComponentTraits<C>::flag && !std::is_const_v<C>)
-std::optional<std::reference_wrapper<C>> Domain::tryGetComponent(const Entity entity) noexcept {
+OptRef<C> Domain::tryGetComponent(const Entity entity) noexcept {
 	auto cpool = _tryGetCPool<C>();
 	return cpool ? cpool->tryGet(entity) : std::nullopt;
 }
 
 template<class C>
 requires(!_details::ComponentTraits<std::remove_const_t<C>>::flag)
-std::optional<std::reference_wrapper<const std::remove_const_t<C>>> Domain::tryGetComponent(const Entity entity
-) const noexcept {
+OptRef<const std::remove_const_t<C>> Domain::tryGetComponent(const Entity entity) const noexcept {
 	auto cpool = _tryGetCPool<std::remove_const_t<C>>();
 	return cpool ? cpool->tryGet(entity) : std::nullopt;
 }
@@ -164,6 +163,39 @@ auto Domain::view(ExcludeT<Excludes...>) const noexcept {
 template<class... Includes, class... Excludes>
 auto Domain::readonlyView(ExcludeT<Excludes...>) const noexcept {
 	return view<Includes...>(exclude<Excludes...>);
+}
+
+template<class T>
+T& Domain::Global::get() noexcept {
+	return *reinterpret_cast<T*>(ptr);
+}
+
+template<class T>
+const T& Domain::Global::get() const noexcept {
+	return *reinterpret_cast<const T*>(ptr);
+}
+
+template<class T, class... Args>
+T& Domain::global(Args&&... args) noexcept requires(!std::is_const_v<T>)
+{
+	auto&& found = _globals.find(typedesc<T>().wrap());
+	if (found != _globals.end()) {
+		return found->second.template get<T>();
+	} else {
+		auto& global = _globals[typedesc<T>().wrap()];
+		global.ptr = reinterpret_cast<u8*>(new T(std::forward<Args>(args)...));
+		global.deleter = [](u8* ptr) {
+			delete reinterpret_cast<T*>(ptr);
+		};
+		return global.template get<T>();
+	}
+}
+
+template<class T>
+OptRef<T> Domain::global() const noexcept requires(std::is_const_v<T>)
+{
+	auto&& found = _globals.find(typedesc<std::remove_const_t<T>>().wrap());
+	return found != _globals.end() ? OptRef(found.second.template get<std::remove_const_t<T>>()) : std::nullopt;
 }
 
 } // namespace arch::ecs

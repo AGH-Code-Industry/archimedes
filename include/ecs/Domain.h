@@ -94,7 +94,7 @@ public:
 	void kill(std::initializer_list<Entity> entities) noexcept;
 
 	/// @brief Returns readonly std::view of entities
-	auto entities() const noexcept;
+	auto entities() const noexcept -> decltype(std::views::all(*std::declval<const EntityPool*>()));
 
 	/// @brief Adds component to entity or returns existing one
 	/// @tparam C - component type
@@ -135,14 +135,13 @@ public:
 	/// @param entity - entity to get component from
 	template<class C>
 	requires(!_details::ComponentTraits<C>::flag && !std::is_const_v<C>)
-	std::optional<std::reference_wrapper<C>> tryGetComponent(const Entity entity) noexcept;
+	OptRef<C> tryGetComponent(const Entity entity) noexcept;
 	/// @brief Obtains optional with readonly reference to component of given entity
 	/// @tparam C - component type
 	/// @param entity - entity to get component from
 	template<class C>
 	requires(!_details::ComponentTraits<std::remove_const_t<C>>::flag)
-	std::optional<std::reference_wrapper<const std::remove_const_t<C>>> tryGetComponent(const Entity entity
-	) const noexcept;
+	OptRef<const std::remove_const_t<C>> tryGetComponent(const Entity entity) const noexcept;
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
@@ -193,13 +192,25 @@ public:
 	template<class... Includes, class... Excludes>
 	auto readonlyView(ExcludeT<Excludes...> = ExcludeT{}) const noexcept;
 
+	/// @brief Creates or obtains global instance of given type
+	/// @tparam T - type to obtain
+	/// @param args... - arguments to forward to constructor of T
+	/// @return Reference to instance of T
+	template<class T, class... Args>
+	T& global(Args&&... args) noexcept requires(!std::is_const_v<T>);
+	/// @brief Obtains global instance of given type
+	/// @tparam T - type to obtain
+	/// @return Readonly reference to instance of T
+	template<class T>
+	OptRef<T> global() const noexcept requires(std::is_const_v<T>);
+
 private:
 
 	template<bool, class, class>
 	friend class View;
 
 	// ComponentPools mapped by type
-	using CPoolsT = std::unordered_map<TypeDescriptorWrapper, ComponentPoolStorage>;
+	using CPoolsT = std::unordered_map<meta::rtti::TypeDescriptorWrapper, ComponentPoolStorage>;
 
 	// returns ComponentPool for given type, initializes if not exists
 	template<class C>
@@ -220,10 +231,28 @@ private:
 	template<class C>
 	static inline void _destroyCPool(CPoolsT& cpools) noexcept;
 
+	class Global {
+	public:
+		Global() noexcept = default;
+
+		~Global() noexcept;
+
+		template<class T>
+		T& get() noexcept;
+		template<class T>
+		const T& get() const noexcept;
+
+		u8* ptr = {};
+		void (*deleter)(u8*) = {};
+	};
+
+	// global instances of Components
+	std::unordered_map<meta::rtti::TypeDescriptorWrapper, Global> _globals;
+
 	EntityPool _entityPool;
 	CPoolsT _componentPools;
 	// mapped destroying functions
-	std::unordered_map<TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
+	std::unordered_map<meta::rtti::TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
 };
 
 } // namespace arch::ecs
