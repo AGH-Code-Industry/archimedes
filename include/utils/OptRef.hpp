@@ -1,6 +1,6 @@
 #include "OptRef.h"
 
-namespace arch {
+namespace arch::utils {
 
 template<class T>
 OptRef<T>::OptRef(const OptRef<std::remove_const_t<T>>& other) noexcept requires(std::is_const_v<T>)
@@ -113,5 +113,5 @@ void OptRef<T>::swap(OptRef& other) noexcept {
 	std::swap(_ptr, other._ptr);
 }
 
-} // namespace arch
+} // namespace arch::utils
 

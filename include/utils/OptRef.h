@@ -2,7 +2,7 @@
 
 #include <optional>
 
-namespace arch {
+namespace arch::utils {
 
 /// @brief std::optional equivalent for references
 template<class T>
@@ -44,6 +44,12 @@ private:
 	T* _ptr = nullptr;
 };
 
-} // namespace arch
+} // namespace arch::utils
 
 #include "OptRef.hpp"
+
+namespace arch {
+
+using utils::OptRef;
+
+}
