@@ -67,6 +67,7 @@ public:
 
 	ecs::Entity entity() const noexcept;
 	u32 depth() const noexcept;
+	bool isRoot() const noexcept;
 
 	/// @brief Returns iterator to first child
 	Iterator begin() const noexcept;
