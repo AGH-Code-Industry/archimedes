@@ -4,9 +4,8 @@
 
 namespace arch::scene {
 
-struct NameComponent: public std::string {
-	using std::string::string;
-	using std::string::operator=;
+struct NameComponent {
+	std::string value;
 };
 
 } // namespace arch::scene
