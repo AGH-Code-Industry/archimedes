@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <ranges>
-#include <stacktrace>
 
 #include "Domain.h"
 //
@@ -217,13 +216,6 @@ bool VIEW_CE::_containsNoCheck(const Entity entity) const noexcept {
 
 TEMPLATE_CIE
 bool VIEW_CIE::contains(const Entity entity) const noexcept {
-	bool _1st = std::all_of(_includedCPools.begin(), _includedCPools.begin() + _minIdx, [&](const auto cpool) {
-		return cpool->contains(entity);
-	});
-	// std::cout << std::stacktrace::current() << '\n';
-	bool _2nd = std::all_of(_includedCPools.begin() + _minIdx + 1, _includedCPools.end(), [&](const auto cpool) {
-		return cpool->contains(entity);
-	});
 	return std::all_of(
 			   _includedCPools.begin(),
 			   _includedCPools.begin() + _minIdx,

@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <ranges>
-#include <stacktrace>
 #include <type_traits>
 
 #include "ComponentPool.h"
