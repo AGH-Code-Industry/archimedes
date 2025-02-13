@@ -95,7 +95,7 @@ public:
 	void kill(std::initializer_list<Entity> entities) noexcept;
 
 	/// @brief Returns readonly std::view of entities
-	auto entities() const noexcept;
+	auto entities() const noexcept -> decltype(std::views::all(*std::declval<const EntityPool*>()));
 
 	/// @brief Adds component to entity or returns existing one
 	/// @tparam C - component type
@@ -211,7 +211,7 @@ private:
 	friend class View;
 
 	// ComponentPools mapped by type
-	using CPoolsT = std::unordered_map<TypeDescriptorWrapper, ComponentPoolStorage>;
+	using CPoolsT = std::unordered_map<meta::rtti::TypeDescriptorWrapper, ComponentPoolStorage>;
 
 	// returns ComponentPool for given type, initializes if not exists
 	template<class C>
@@ -253,7 +253,7 @@ private:
 	EntityPool _entityPool;
 	CPoolsT _componentPools;
 	// mapped destroying functions
-	std::unordered_map<TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
+	std::unordered_map<meta::rtti::TypeDescriptorWrapper, void (*)(CPoolsT&)> _cpoolDestroyers;
 };
 
 } // namespace arch::ecs
