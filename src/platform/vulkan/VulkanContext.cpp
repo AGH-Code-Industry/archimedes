@@ -1,5 +1,7 @@
 #include "VulkanContext.h"
 
+#include <cstring>
+
 #include "VulkanUtils.h"
 #include "exceptions/VulkanException.h"
 #include <GLFW/glfw3.h>
@@ -177,12 +179,10 @@ void VulkanContext::_createLogicalDevice() {
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
 	for (auto&& queueFamily : queueFamilies) {
-		queueCreateInfos.push_back(
-			{ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-			  .queueFamilyIndex = queueFamily,
-			  .queueCount = 1,
-			  .pQueuePriorities = &queuePriority }
-		);
+		queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+									 .queueFamilyIndex = queueFamily,
+									 .queueCount = 1,
+									 .pQueuePriorities = &queuePriority });
 	}
 
 	VkPhysicalDeviceVulkan12Features vulkan12features = {
