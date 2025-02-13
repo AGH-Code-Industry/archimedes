@@ -180,14 +180,14 @@ T& Domain::global(Args&&... args) noexcept requires(!std::is_const_v<T>)
 {
 	auto&& found = _globals.find(typedesc<T>().wrap());
 	if (found != _globals.end()) {
-		return found->second.get<T>();
+		return found->second.template get<T>();
 	} else {
 		auto& global = _globals[typedesc<T>().wrap()];
 		global.ptr = reinterpret_cast<u8*>(new T(std::forward<Args>(args)...));
 		global.deleter = [](u8* ptr) {
 			delete reinterpret_cast<T*>(ptr);
 		};
-		return global.get<T>();
+		return global.template get<T>();
 	}
 }
 
@@ -195,7 +195,7 @@ template<class T>
 OptRef<T> Domain::global() const noexcept requires(std::is_const_v<T>)
 {
 	auto&& found = _globals.find(typedesc<std::remove_const_t<T>>().wrap());
-	return found != _globals.end() ? OptRef(found.second.get<std::remove_const_t<T>>()) : std::nullopt;
+	return found != _globals.end() ? OptRef(found.second.template get<std::remove_const_t<T>>()) : std::nullopt;
 }
 
 } // namespace arch::ecs

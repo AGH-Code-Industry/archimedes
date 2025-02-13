@@ -105,7 +105,7 @@ requires(ComponentInfo<C>::movable && !ComponentInfo<C>::flag)
 MoveRes<C, Entity::Error> Entity::removeComponentOpt(MoveFlag) noexcept {
 	auto err = error();
 	if (err == Error::none) {
-		if (!_scene->domain.hasComponent<C>) {
+		if (!_scene->domain().hasComponent<C>()) {
 			return Err(Error::componentNotFound);
 		}
 		return std::move(_scene->domain().removeComponent<C>(_entity, moveFlag));
