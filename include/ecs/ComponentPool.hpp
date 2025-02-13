@@ -99,6 +99,8 @@ POOL_C::GetReference POOL_C::addComponent(const EntityT entity, Args&&... args) 
 	denseEntity = entity;
 	++_counter;
 
+	ARCH_ASSERT(contains(entity), "Component failed to add");
+
 	if constexpr (Traits::flag) {
 		return true;
 	} else {
