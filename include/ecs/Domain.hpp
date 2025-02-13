@@ -7,7 +7,7 @@ namespace arch::ecs {
 template<class C>
 ComponentPool<std::remove_const_t<C>>& Domain::_assureCPool() noexcept {
 	using Comp = std::remove_const_t<C>;
-	const auto type = staticTypedesc(Comp).wrap(); // custom RTTI gets a use
+	const auto type = typedesc<Comp>().wrap(); // custom RTTI gets a use
 
 	auto found = _componentPools.find(type);
 	if (found == _componentPools.end()) {
@@ -21,34 +21,34 @@ ComponentPool<std::remove_const_t<C>>& Domain::_assureCPool() noexcept {
 template<class C>
 void Domain::_destroyCPool(CPoolsT& cpools) noexcept {
 	using Comp = std::remove_const_t<C>;
-	reinterpret_cast<ComponentPool<Comp>*>(cpools[staticTypedesc(Comp).wrap()].storage.data())->~ComponentPool();
+	reinterpret_cast<ComponentPool<Comp>*>(cpools[typedesc<Comp>().wrap()].storage.data())->~ComponentPool();
 }
 
 template<class C>
 requires(!std::is_const_v<C>)
 ComponentPool<C>& Domain::_getCPool() noexcept {
-	return *reinterpret_cast<ComponentPool<C>*>(_componentPools.find(staticTypedesc(C).wrap())->second.storage.data());
+	return *reinterpret_cast<ComponentPool<C>*>(_componentPools.find(typedesc<C>().wrap())->second.storage.data());
 }
 
 template<class C>
 const ComponentPool<std::remove_const_t<C>>& Domain::_getCPool() const noexcept {
 	using Comp = std::remove_const_t<C>;
 	return *reinterpret_cast<const ComponentPool<Comp>*>(
-		_componentPools.find(staticTypedesc(Comp).wrap())->second.storage.data()
+		_componentPools.find(typedesc<Comp>().wrap())->second.storage.data()
 	);
 }
 
 template<class C>
 requires(!std::is_const_v<C>)
 ComponentPool<C>* Domain::_tryGetCPool() noexcept {
-	const auto found = _componentPools.find(staticTypedesc(C).wrap());
+	const auto found = _componentPools.find(typedesc<C>().wrap());
 	return found != _componentPools.end() ? reinterpret_cast<ComponentPool<C>*>(found->second.storage.data()) : nullptr;
 }
 
 template<class C>
 const ComponentPool<std::remove_const_t<C>>* Domain::_tryGetCPool() const noexcept {
 	using Comp = std::remove_const_t<C>;
-	const auto found = _componentPools.find(staticTypedesc(Comp).wrap());
+	const auto found = _componentPools.find(typedesc<Comp>().wrap());
 	return found != _componentPools.end() ? reinterpret_cast<const ComponentPool<Comp>*>(found->second.storage.data()) :
 											nullptr;
 }
@@ -178,11 +178,11 @@ const T& Domain::Global::get() const noexcept {
 template<class T, class... Args>
 T& Domain::global(Args&&... args) noexcept requires(!std::is_const_v<T>)
 {
-	auto&& found = _globals.find(typedesc(T).wrap());
+	auto&& found = _globals.find(typedesc<T>().wrap());
 	if (found != _globals.end()) {
 		return found->second.get<T>();
 	} else {
-		auto& global = _globals[typedesc(T).wrap()];
+		auto& global = _globals[typedesc<T>().wrap()];
 		global.ptr = reinterpret_cast<u8*>(new T(std::forward<Args>(args)...));
 		global.deleter = [](u8* ptr) {
 			delete reinterpret_cast<T*>(ptr);
@@ -194,7 +194,7 @@ T& Domain::global(Args&&... args) noexcept requires(!std::is_const_v<T>)
 template<class T>
 OptRef<T> Domain::global() const noexcept requires(std::is_const_v<T>)
 {
-	auto&& found = _globals.find(typedesc(std::remove_const_t<T>).wrap());
+	auto&& found = _globals.find(typedesc<std::remove_const_t<T>>().wrap());
 	return found != _globals.end() ? OptRef(found.second.get<std::remove_const_t<T>>()) : std::nullopt;
 }
 
