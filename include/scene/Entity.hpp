@@ -14,7 +14,7 @@ template<class C, class... Args>
 Entity::GetResultOpt<C> Entity::addComponentOpt(Args&&... args) noexcept {
 	auto err = error();
 	if (err == Error::none) {
-		if constexpr (ComponentInfo<C>::flag) {
+		if constexpr (ARCH_CTRAITS<C>::flag) {
 			return _scene->domain().addComponent<C>(_entity, std::forward<Args>(args)...);
 		} else {
 			return _scene->domain().addComponent<C>(_entity, std::forward<Args>(args)...);
@@ -25,7 +25,7 @@ Entity::GetResultOpt<C> Entity::addComponentOpt(Args&&... args) noexcept {
 }
 
 template<class C>
-requires(!std::is_const_v<C> && !ComponentInfo<C>::flag)
+requires(!std::is_const_v<C> && !ARCH_CTRAITS<C>::flag)
 Entity::GetResult<C> Entity::getComponent() {
 	_assertValid();
 	auto opt = _scene->domain().tryGetComponent<C>(_entity);
@@ -44,7 +44,7 @@ Entity::GetResult<const C> Entity::getComponent() const {
 }
 
 template<class C>
-requires(!std::is_const_v<C> && !ComponentInfo<C>::flag)
+requires(!std::is_const_v<C> && !ARCH_CTRAITS<C>::flag)
 Entity::GetResultOpt<C> Entity::getComponentOpt() noexcept {
 	auto err = error();
 	if (err == Error::none) {
@@ -81,7 +81,7 @@ bool Entity::removeComponent() {
 }
 
 template<class C>
-requires(ComponentInfo<C>::movable && !ComponentInfo<C>::flag)
+requires(ARCH_CTRAITS<C>::movable && !ARCH_CTRAITS<C>::flag)
 C Entity::removeComponent(MoveFlag) {
 	_assertValid();
 	if (!_scene->domain().hasComponent<C>(_entity)) {
@@ -101,7 +101,7 @@ Res<bool, Entity::Error> Entity::removeComponentOpt() noexcept {
 }
 
 template<class C>
-requires(ComponentInfo<C>::movable && !ComponentInfo<C>::flag)
+requires(ARCH_CTRAITS<C>::movable && !ARCH_CTRAITS<C>::flag)
 MoveRes<C, Entity::Error> Entity::removeComponentOpt(MoveFlag) noexcept {
 	auto err = error();
 	if (err == Error::none) {

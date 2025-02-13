@@ -4,10 +4,11 @@
 #include "HierarchyIterator.h"
 #include "NameComponent.h"
 #include <Hier.h>
-#include <ecs/ComponentInfo.h>
 #include <utils/BoundedRange.h>
 #include <utils/Res.h>
 #include <utils/UUID.h>
+
+#define ARCH_CTRAITS arch::ecs::_details::ComponentTraits
 
 namespace arch::scene {
 
@@ -64,9 +65,9 @@ public:
 	Res<void, Error> untagOpt() noexcept;
 
 	template<class C>
-	using GetResult = std::conditional_t<ComponentInfo<C>::flag, bool, C&>;
+	using GetResult = std::conditional_t<ARCH_CTRAITS<C>::flag, bool, C&>;
 	template<class C>
-	using GetResultOpt = std::conditional_t<ComponentInfo<C>::flag, Res<bool, Error>, RefRes<C, Error>>;
+	using GetResultOpt = std::conditional_t<ARCH_CTRAITS<C>::flag, Res<bool, Error>, RefRes<C, Error>>;
 
 	template<class C, class... Args>
 	GetResult<C> addComponent(Args&&... args);
@@ -74,12 +75,12 @@ public:
 	GetResultOpt<C> addComponentOpt(Args&&... args) noexcept;
 
 	template<class C>
-	requires(!std::is_const_v<C> && !ComponentInfo<C>::flag)
+	requires(!std::is_const_v<C> && !ARCH_CTRAITS<C>::flag)
 	GetResult<C> getComponent();
 	template<class C>
 	GetResult<const C> getComponent() const;
 	template<class C>
-	requires(!std::is_const_v<C> && !ComponentInfo<C>::flag)
+	requires(!std::is_const_v<C> && !ARCH_CTRAITS<C>::flag)
 	GetResultOpt<C> getComponentOpt() noexcept;
 	template<class C>
 	GetResultOpt<const C> getComponentOpt() const noexcept;
@@ -87,12 +88,12 @@ public:
 	template<class C>
 	bool removeComponent();
 	template<class C>
-	requires(ComponentInfo<C>::movable && !ComponentInfo<C>::flag)
+	requires(ARCH_CTRAITS<C>::movable && !ARCH_CTRAITS<C>::flag)
 	C removeComponent(MoveFlag);
 	template<class C>
 	Res<bool, Error> removeComponentOpt() noexcept;
 	template<class C>
-	requires(ComponentInfo<C>::movable && !ComponentInfo<C>::flag)
+	requires(ARCH_CTRAITS<C>::movable && !ARCH_CTRAITS<C>::flag)
 	MoveRes<C, Error> removeComponentOpt(MoveFlag) noexcept;
 
 	template<class C>
@@ -185,3 +186,5 @@ private:
 } // namespace arch::scene
 
 #include "Entity.hpp"
+
+#undef ARCH_CTRAITS
