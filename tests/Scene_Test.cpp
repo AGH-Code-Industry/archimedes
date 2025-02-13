@@ -27,13 +27,13 @@ TEST(Scene, HierarchyIteration) {
 
 	ASSERT_TRUE(std::ranges::equal(
 		e,
-		scene.rootNode().recursiveIterable(),
+		scene.root().getComponent<arch::hier::HierarchyNode>().recursiveIterable(),
 		{},
 		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
 	));
 	ASSERT_TRUE(std::ranges::equal(
 		std::views::reverse(e),
-		std::views::reverse(scene.rootNode().recursiveIterable()),
+		std::views::reverse(scene.root().getComponent<arch::hier::HierarchyNode>().recursiveIterable()),
 		{},
 		[](const arch::hier::HierarchyNode* node) { return node->entity(); }
 	));
