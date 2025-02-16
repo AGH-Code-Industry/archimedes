@@ -17,6 +17,11 @@ class Archimedes(ConanFile):
         self.requires("ctre/3.9.0")
         self.requires("openssl/3.3.2")
 
+        # Audio system
+        self.requires("openal-soft/1.23.1")
+        self.requires("libsndfile/1.2.2")
+
+
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
         self.requires("vulkan-headers/1.3.268.0", override=True)
