@@ -20,8 +20,8 @@ Ref<Renderer> Renderer::create(RenderingAPI api) {
 	switch (api) {
 		case RenderingAPI::vulkan: return createRef<vulkan::VulkanRenderer>();
 
-		case RenderingAPI::Nvrhi_DX11:
-		case RenderingAPI::Nvrhi_DX12:
+		// case RenderingAPI::Nvrhi_DX11:
+		// case RenderingAPI::Nvrhi_DX12:
 		case RenderingAPI::Nvrhi_VK:   return createRef<nvrhi::NvrhiRenderer>(api, true);
 
 		default: Logger::critical("Unknown RenderingAPI {}", (u32)api); return nullptr;
