@@ -12,7 +12,7 @@ class NvrhiBufferManager final:
 	public gfx::buffer::BufferManager,
 	public std::enable_shared_from_this<NvrhiBufferManager> {
 public:
-	NvrhiBufferManager(const Ref<NvrhiRenderer>& renderer);
+	NvrhiBufferManager(const WeakRef<NvrhiRenderer>& renderer);
 	~NvrhiBufferManager() override = default;
 
 protected:
@@ -28,7 +28,7 @@ private:
 	void _setBufferData(const NvrhiBuffer& buffer, const void* data, u64 size) const;
 
 private:
-	Ref<NvrhiRenderer> _renderer;
+	WeakRef<NvrhiRenderer> _renderer;
 	::nvrhi::CommandListHandle _stageCommandBuffer;
 };
 

@@ -6,8 +6,8 @@
 
 namespace arch::gfx::nvrhi::buffer {
 
-NvrhiBufferManager::NvrhiBufferManager(const Ref<NvrhiRenderer>& renderer): _renderer(renderer) {
-	_stageCommandBuffer = renderer->getDevice()->createCommandList();
+NvrhiBufferManager::NvrhiBufferManager(const WeakRef<NvrhiRenderer>& renderer): _renderer(renderer) {
+	_stageCommandBuffer = renderer.lock()->getDevice()->createCommandList();
 }
 
 void NvrhiBufferManager::_setBufferData(const NvrhiBuffer& buffer, const void* data, u64 size) const {
@@ -15,7 +15,7 @@ void NvrhiBufferManager::_setBufferData(const NvrhiBuffer& buffer, const void* d
 	_stageCommandBuffer->writeBuffer(buffer.getNativeHandle(), data, size);
 	_stageCommandBuffer->close();
 
-	_renderer->getDevice()->executeCommandList(_stageCommandBuffer);
+	_renderer.lock()->getDevice()->executeCommandList(_stageCommandBuffer);
 }
 
 Ref<gfx::buffer::VertexBuffer> NvrhiBufferManager::_createVertexBufferImpl(void* data, u32 size) {

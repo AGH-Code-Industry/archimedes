@@ -19,7 +19,7 @@ void NvrhiBuffer::setData(void* data, u64 size) {
 			_handle = nullptr;
 		}
 
-		_handle = bufferManager->_renderer->getDevice()->createBuffer(_getDesc(size));
+		_handle = bufferManager->_renderer.lock()->getDevice()->createBuffer(_getDesc(size));
 
 		_size = size;
 	}
@@ -27,9 +27,9 @@ void NvrhiBuffer::setData(void* data, u64 size) {
 	bufferManager->_setBufferData(*this, data, size);
 }
 
-static u64 index = 0;
 
 ::nvrhi::BufferDesc NvrhiBuffer::_getDesc(u64 size) const {
+	static u64 index = 0;
 	return ::nvrhi::BufferDesc().setByteSize(size).setDebugName("Buffer " + std::to_string(index++));
 }
 
