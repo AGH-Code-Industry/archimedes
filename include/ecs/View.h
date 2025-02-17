@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "ComponentPool.h"
+#include "EntityPool.h"
 #include "ExcludeT.h"
 
 namespace arch::ecs {
@@ -60,12 +61,14 @@ template<bool Const, class Include, class Exclude>
 class View;
 
 /// @brief Domain's view
+/// @details Models std::ranges::view
 /// @tparam Entity - entity type
 /// @tparam Const - whether view is readonly
 /// @tparam Includes - components included in view
 /// @tparam Excludes - components excluded in view
 template<bool Const, class... Includes, class... Excludes>
-class View<Const, TypeList<Includes...>, TypeList<Excludes...>> {
+class View<Const, TypeList<Includes...>, TypeList<Excludes...>>:
+	public std::ranges::view_interface<View<Const, TypeList<Includes...>, TypeList<Excludes...>>> {
 public:
 
 	/// @brief Entity traits
@@ -86,6 +89,12 @@ public:
 	static inline constexpr size_t excludeCount = Exclude::length;
 	/// @brief Whether view is readonly
 	static inline constexpr bool readonly = Const;
+
+	View(const View& other) noexcept;
+	View(View&& other) noexcept;
+
+	View& operator=(const View&) noexcept;
+	View& operator=(View&& other) noexcept;
 
 	/// @brief Checks if entity is contained by view
 	/// @param entity - entity to check
@@ -167,17 +176,13 @@ public:
 	void forEach(Fn&& fn) const noexcept;
 
 	/// @brief Returns iterator to beginning of view
-	auto begin() noexcept requires(!Const);
+	auto begin() const noexcept;
 	/// @brief Returns iterator to beginning of view
-	const auto begin() const noexcept;
-	/// @brief Returns iterator to beginning of view
-	const auto cbegin() const noexcept;
+	auto cbegin() const noexcept;
 	/// @brief Returns iterator to end of view
-	auto end() noexcept requires(!Const);
+	auto end() const noexcept;
 	/// @brief Returns iterator to end of view
-	const auto end() const noexcept;
-	/// @brief Returns iterator to end of view
-	const auto cend() const noexcept;
+	auto cend() const noexcept;
 
 private:
 
@@ -212,7 +217,7 @@ private:
 
 	std::array<CCPoolPtr, includeCount> _includedCPools;
 	std::array<CCPoolPtr, excludeCount> _excludedCPools;
-	size_t _minIdx;
+	size_t _minIdx = (size_t)-1;
 	EntitesViewT _entities;
 };
 
@@ -221,7 +226,8 @@ private:
 /// @tparam Const - whether view is readonly
 /// @tparam Excludes - components excluded in view
 template<bool Const, class... Excludes>
-class View<Const, TypeList<>, TypeList<Excludes...>> {
+class View<Const, TypeList<>, TypeList<Excludes...>>:
+	public std::ranges::view_interface<View<Const, TypeList<>, TypeList<Excludes...>>> {
 public:
 
 	/// @brief Entity traits
@@ -240,6 +246,12 @@ public:
 	static inline constexpr size_t excludeCount = TypeList<Excludes...>::length;
 	/// @brief Whether view is readonly
 	static inline constexpr bool readonly = Const;
+
+	View(const View& other) noexcept;
+	View(View&& other) noexcept;
+
+	View& operator=(const View& other) noexcept;
+	View& operator=(View&& other) noexcept;
 
 	/// @brief Checks if entity is contained by view
 	/// @param entity - entity to check
@@ -272,17 +284,13 @@ public:
 	void forEach(Fn&& fn) const noexcept;
 
 	/// @brief Returns iterator to beginning of view
-	auto begin() noexcept requires(!Const);
+	auto begin() const noexcept;
 	/// @brief Returns iterator to beginning of view
-	const auto begin() const noexcept;
-	/// @brief Returns iterator to beginning of view
-	const auto cbegin() const noexcept;
+	auto cbegin() const noexcept;
 	/// @brief Returns iterator to end of view
-	auto end() noexcept requires(!Const);
+	auto end() const noexcept;
 	/// @brief Returns iterator to end of view
-	const auto end() const noexcept;
-	/// @brief Returns iterator to end of view
-	const auto cend() const noexcept;
+	auto cend() const noexcept;
 
 private:
 
@@ -300,7 +308,7 @@ private:
 
 	// expected type of entities view
 	using EntitesViewT = decltype(std::views::filter(
-		std::declval<const Domain>().entities(),
+		std::views::all(*std::declval<const ecs::EntityPool*>()),
 		std::bind(&View::_containsNoCheck, std::declval<const View*>(), std::placeholders::_1)
 	));
 

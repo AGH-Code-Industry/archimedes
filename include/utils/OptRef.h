@@ -2,7 +2,7 @@
 
 #include <optional>
 
-namespace arch {
+namespace arch::utils {
 
 /// @brief std::optional equivalent for references
 template<class T>
@@ -13,6 +13,8 @@ public:
 	OptRef(std::nullopt_t) noexcept;
 	OptRef(const OptRef&) noexcept = default;
 	OptRef(OptRef&&) noexcept = default;
+	OptRef(const OptRef<std::remove_const_t<T>>& other) noexcept requires(std::is_const_v<T>);
+	OptRef(OptRef<std::remove_const_t<T>>&& other) noexcept requires(std::is_const_v<T>);
 	OptRef(T& ref) noexcept;
 
 	T& operator*() noexcept;
@@ -36,9 +38,18 @@ public:
 
 private:
 
+	template<class T2>
+	friend class OptRef;
+
 	T* _ptr = nullptr;
 };
 
-} // namespace arch
+} // namespace arch::utils
 
 #include "OptRef.hpp"
+
+namespace arch {
+
+using utils::OptRef;
+
+}

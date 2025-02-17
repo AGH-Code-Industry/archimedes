@@ -184,6 +184,10 @@ u32 HierarchyNode::depth() const noexcept {
 	return _depth;
 }
 
+bool HierarchyNode::isRoot() const noexcept {
+	return _parent == nullptr;
+}
+
 auto HierarchyNode::recursiveIterable() noexcept
 	-> decltype(std::ranges::subrange(_details::HierarchyIterator(nullptr), _details::HierarchyIterator(nullptr))) {
 	return std::ranges::subrange(_details::HierarchyIterator(_first), _details::HierarchyIterator(&_sentinel));

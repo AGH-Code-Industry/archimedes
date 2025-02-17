@@ -64,8 +64,15 @@ void Domain::kill(std::initializer_list<Entity> entities) noexcept {
 	_entityPool.kill(entities);
 }
 
-auto Domain::entities() const noexcept {
+auto Domain::entities() const noexcept -> decltype(std::views::all(*std::declval<const EntityPool*>())) {
 	return std::views::all(_entityPool);
+}
+
+Domain::Global::~Global() noexcept {
+	deleter(ptr);
+
+	ptr = {};
+	deleter = {};
 }
 
 } // namespace arch::ecs

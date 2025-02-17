@@ -85,11 +85,11 @@ TEST(ECS, ComponentSimple) {
 
 		// you can check if optional contains value:
 		EXPECT_FALSE(e1Pos);
-		EXPECT_FALSE(e1Pos.has_value());
+		EXPECT_FALSE(e1Pos.hasValue());
 
 		// if it contains something, access it:
-		if (e1Pos or e1Pos.has_value()) {
-			auto& e1PosReference = e1Pos->get();
+		if (e1Pos or e1Pos.hasValue()) {
+			auto& e1PosReference = e1Pos.get();
 			// ...
 		}
 	}
