@@ -10,6 +10,7 @@
 
 namespace arch::gfx {
 
+//todo: make it an resource/asset
 class Mesh final {
 public:
 	Mesh(const Ref<buffer::VertexBuffer>& vertices, const Ref<buffer::IndexBuffer>& indices);

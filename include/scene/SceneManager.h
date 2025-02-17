@@ -13,6 +13,8 @@ class SceneManager {
 public:
 	SceneManager();
 
+	void shutdown();
+
 	void update();
 	void renderScene(const Ref<gfx::Renderer>& renderer);
 

@@ -6,7 +6,15 @@
 
 namespace arch::scene {
 
+static Ref<SceneManager> instance{};
+
 SceneManager::SceneManager() {}
+
+void SceneManager::shutdown() {
+	// TODO: destroy old scene
+	_currentScene.reset();
+	instance.reset();
+}
 
 void SceneManager::update() {
 	// TODO: update scene & all systems
@@ -35,7 +43,8 @@ void SceneManager::changeScene(const Ref<Scene>& scene) {
 }
 
 Ref<SceneManager>& SceneManager::get() {
-	static Ref<SceneManager> instance = createRef<SceneManager>();
+	if (!instance)
+		instance = createRef<SceneManager>();
 	return instance;
 }
 
