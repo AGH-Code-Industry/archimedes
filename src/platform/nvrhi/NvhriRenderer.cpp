@@ -23,6 +23,7 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inUV;
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec2 texCoord;
 
 layout(push_constant) uniform PushConstant {
 	mat4 transform;
@@ -42,18 +43,24 @@ void main() {
 constexpr std::string_view fragmentShader = R"(
 #version 450
 
+layout(binding = 0) uniform texture2D tex;
+layout(binding = 128) uniform sampler texSampler;
+
 layout(location = 0) in vec3 fragColor;
+layout(location = 1) in vec2 texCoord;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = vec4(fragColor, 1.0);
+    outColor = texture(sampler2D(tex, texSampler), texCoord) + vec4(fragColor, 1.0);
 }
 )";
 
 ::nvrhi::GraphicsPipelineHandle s_pipeline;
 ::nvrhi::BindingLayoutHandle s_bindingLayout;
 ::nvrhi::BindingSetHandle s_bindingSet;
+
+Ref<texture::NvrhiTexture> s_texture;
 
 NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {}
 
@@ -80,10 +87,14 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 		_validationLayer = ::nvrhi::validation::createValidationLayer(_context->getDevice());
 	}
 
-	_bufferManager = createRef<buffer::NvrhiBufferManager>(std::static_pointer_cast<NvrhiRenderer>(shared_from_this()));
-	// _textureManager = createRef<texture::NvrhiTextureManager>();
+	WeakRef renderer = std::static_pointer_cast<NvrhiRenderer>(shared_from_this());
+	_bufferManager = createRef<buffer::NvrhiBufferManager>(renderer);
+	_textureManager = createRef<texture::NvrhiTextureManager>(renderer);
 
 	{
+		Color pixels[] = {Color{1, .5, 1, 1}};
+		s_texture = std::static_pointer_cast<texture::NvrhiTexture>(_textureManager->createTexture2D(1, 1, pixels));
+
 		shaderc::CompileOptions options;
 		shaderc::Compiler compiler;
 		auto result = compiler.CompileGlslToSpv(
@@ -142,8 +153,10 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 
 		_commandBuffer = getDevice()->createCommandList();
 
-		auto bindingSetDesc =
-			::nvrhi::BindingSetDesc().addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
+		auto bindingSetDesc = ::nvrhi::BindingSetDesc()
+			.addItem(::nvrhi::BindingSetItem::Texture_SRV(0, s_texture->getNativeHandle()))
+			.addItem(::nvrhi::BindingSetItem::Sampler(0, s_texture->getSampler()))
+			.addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
 
 		::nvrhi::utils::CreateBindingSetAndLayout(
 			getDevice(),
@@ -170,6 +183,7 @@ void NvrhiRenderer::shutdown() {
 	_bufferManager.reset();
 	_textureManager.reset();
 
+	s_texture = nullptr;
 	s_pipeline = nullptr;
 	s_bindingLayout = nullptr;
 	s_bindingSet = nullptr;
