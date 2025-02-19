@@ -14,19 +14,19 @@ NvrhiBuffer::~NvrhiBuffer() {}
 void NvrhiBuffer::setData(void* data, u64 size) {
 	auto bufferManager = _bufferManager.lock();
 
-	if (_size < size) {
+	if (_capacity < size) {
 		if (_handle) {
 			_handle = nullptr;
 		}
 
 		_handle = bufferManager->_renderer.lock()->getDevice()->createBuffer(_getDesc(size));
 
-		_size = size;
+		_capacity = size;
 	}
+	_size = size;
 
 	bufferManager->_setBufferData(*this, data, size);
 }
-
 
 ::nvrhi::BufferDesc NvrhiBuffer::_getDesc(u64 size) const {
 	static u64 index = 0;

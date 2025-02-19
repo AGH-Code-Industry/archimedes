@@ -25,6 +25,7 @@ protected:
 
 	::nvrhi::BufferHandle _handle;
 	u64 _size = 0;
+	u64 _capacity = 0;
 };
 
 } // namespace arch::gfx::nvrhi::buffer
