@@ -16,9 +16,9 @@ public:
 	~NvrhiBufferManager() override = default;
 
 protected:
-	Ref<gfx::buffer::VertexBuffer> _createVertexBufferImpl(void* data, u32 size) override;
+	Ref<gfx::buffer::VertexBuffer> _createVertexBufferImpl(void* data, u64 size, u64 vertexSize) override;
 	Ref<gfx::buffer::IndexBuffer> _createIndexBufferImpl(std::span<u32> indices) override;
-	Ref<gfx::buffer::Buffer> _createBufferImpl(void* data, u32 size) override;
+	Ref<gfx::buffer::Buffer> _createBufferImpl(void* data, u64 size) override;
 
 private:
 	friend class NvrhiBuffer;

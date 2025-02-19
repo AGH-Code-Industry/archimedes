@@ -18,8 +18,8 @@ void NvrhiBufferManager::_setBufferData(const NvrhiBuffer& buffer, const void* d
 	_renderer.lock()->getDevice()->executeCommandList(_stageCommandBuffer);
 }
 
-Ref<gfx::buffer::VertexBuffer> NvrhiBufferManager::_createVertexBufferImpl(void* data, u32 size) {
-	auto buffer = createRef<NvrhiVertexBuffer>(weak_from_this());
+Ref<gfx::buffer::VertexBuffer> NvrhiBufferManager::_createVertexBufferImpl(void* data, u64 size, u64 vertexSize) {
+	auto buffer = createRef<NvrhiVertexBuffer>(vertexSize, weak_from_this());
 	if (data && size > 0) {
 		buffer->setData(data, size);
 	}
@@ -28,13 +28,13 @@ Ref<gfx::buffer::VertexBuffer> NvrhiBufferManager::_createVertexBufferImpl(void*
 
 Ref<gfx::buffer::IndexBuffer> NvrhiBufferManager::_createIndexBufferImpl(std::span<u32> indices) {
 	auto buffer = createRef<NvrhiIndexBuffer>(weak_from_this());
-	if (indices.empty()) {
+	if (!indices.empty()) {
 		buffer->setData(indices.data(), indices.size() * sizeof(u32));
 	}
 	return buffer;
 }
 
-Ref<gfx::buffer::Buffer> NvrhiBufferManager::_createBufferImpl(void* data, u32 size) {
+Ref<gfx::buffer::Buffer> NvrhiBufferManager::_createBufferImpl(void* data, u64 size) {
 	auto buffer = createRef<NvrhiBuffer>(gfx::buffer::BufferType::blob, weak_from_this());
 	if (data && size > 0) {
 		buffer->setData(data, size);

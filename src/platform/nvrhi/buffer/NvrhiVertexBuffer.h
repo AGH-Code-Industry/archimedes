@@ -7,7 +7,7 @@ namespace arch::gfx::nvrhi::buffer {
 
 class NvrhiVertexBuffer final: public gfx::buffer::VertexBuffer, public NvrhiBuffer {
 public:
-	NvrhiVertexBuffer(const WeakRef<NvrhiBufferManager>& bufferManager);
+	NvrhiVertexBuffer(u64 vertexSize, const WeakRef<NvrhiBufferManager>& bufferManager);
 	~NvrhiVertexBuffer() override;
 
 protected:

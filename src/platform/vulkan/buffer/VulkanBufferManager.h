@@ -11,9 +11,9 @@ public:
 	~VulkanBufferManager() noexcept override = default;
 
 private:
-	Ref<VertexBuffer> _createVertexBufferImpl(void* data, u32 size) override;
+	Ref<VertexBuffer> _createVertexBufferImpl(void* data, u64 size, u64 vertexSize) override;
 	Ref<IndexBuffer> _createIndexBufferImpl(std::span<u32> indices) override;
-	Ref<Buffer> _createBufferImpl(void* data, u32 size) override;
+	Ref<Buffer> _createBufferImpl(void* data, u64 size) override;
 
 private:
 	Ref<VulkanContext> _context;

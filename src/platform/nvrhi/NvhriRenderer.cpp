@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "NvrhiRenderer.h"
 #include "buffer/NvrhiBufferManager.h"
+#include "buffer/NvrhiIndexBuffer.h"
 #include "buffer/NvrhiVertexBuffer.h"
 #include "context/NvrhiVulkanContext.h"
 #include "nvrhi/utils.h"
@@ -238,6 +239,9 @@ void NvrhiRenderer::draw(
 	::nvrhi::VertexBufferBinding vbBinding =
 		::nvrhi::VertexBufferBinding().setBuffer(vb->getNativeHandle()).setSlot(0).setOffset(0);
 
+	Ref<buffer::NvrhiIndexBuffer> ib = std::static_pointer_cast<buffer::NvrhiIndexBuffer>(indexBuffer);
+	::nvrhi::IndexBufferBinding ibBinding = ::nvrhi::IndexBufferBinding().setBuffer(ib->getNativeHandle()).setOffset(0);
+
 	uint2 framebufferSize = _context->getFramebufferSize();
 	auto graphicsState = ::nvrhi::GraphicsState()
 							 .setPipeline(s_pipeline)
@@ -248,16 +252,17 @@ void NvrhiRenderer::draw(
 								 )
 							 )
 							 .addBindingSet(s_bindingSet)
-							 .addVertexBuffer(vbBinding);
+							 .addVertexBuffer(vbBinding)
+							 .setIndexBuffer(ibBinding);
 	_commandBuffer->setGraphicsState(graphicsState);
 
 	PushConstant pushConstants{ transform };
 
 	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
 
-	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(3);
+	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(ib->getIndexCount());
 
-	_commandBuffer->draw(drawArguments);
+	_commandBuffer->drawIndexed(drawArguments);
 }
 
 Ref<gfx::buffer::BufferManager> NvrhiRenderer::getBufferManager() {

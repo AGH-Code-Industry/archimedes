@@ -25,7 +25,7 @@ class NvrhiRendererTestApp: public Application {
 			{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
 			{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
 		};
-		std::vector<u32> indices{ 0, 1, 3, 1, 2, 3 };
+		std::vector<u32> indices{ 0, 1, 2 };
 
 		// Ref<Shader> vShader = Shader::load("shaders/vertex_shader.sprv");
 		// Ref<Shader> fShader = Shader::load("shaders/fragment_shader.sprv");

@@ -15,7 +15,7 @@ public:
 
 	::nvrhi::BufferHandle getNativeHandle() const { return _handle; }
 
-	u64 getSize() const { return _size; }
+	u64 getSize() const override { return _size; }
 
 protected:
 	virtual ::nvrhi::BufferDesc _getDesc(u64 size) const;
