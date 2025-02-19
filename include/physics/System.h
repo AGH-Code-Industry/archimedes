@@ -2,15 +2,22 @@
 
 #include "ecs/Domain.h"
 
+#include <chrono>
+
 namespace arch::physics {
 
 class System {
 public:
-	static void setDomain(ecs::Domain& domain);
-	static void update();
+	using Clock = std::chrono::high_resolution_clock;
+	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+	using Duration = std::chrono::duration<f32>;
+
+	explicit System(ecs::Domain& domain);
+	f32 update();
 
 private:
-	inline static ecs::Domain* _domain = nullptr;
+	ecs::Domain& _domain;
+	TimePoint _prevTimePoint;
 };
 
 }

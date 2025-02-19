@@ -5,7 +5,7 @@
 namespace arch::physics {
 
 struct Force {
-	math::float2 value;
+	float2 value;
 };
 
 }

@@ -1,31 +1,34 @@
-#include "ecs/View.h"
 #include "physics/System.h"
-#include "physics/components/Force.h"
-#include "physics/components/Mass.h"
-#include "physics/components/Velocity.h"
+
+#include "ecs/Domain.h"
+#include "ecs/View.h"
+#include "math/Math.h"
+#include "physics/components/Movable.h"
 
 namespace arch::physics {
 
-void System::setDomain(ecs::Domain& domain) {
-	_domain = &domain;
-}
+System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
-void System::update() {
-	if (!_domain) {
-		throw std::runtime_error("System does not have a domain");
-	}
-	auto viewPhysicsComponents = _domain->view<const Force, const Mass, Velocity>();
+f32 System::update() {
+	auto viewPhysicsComponents = _domain.view<Movable>();
+
+	const Duration deltaTime = Clock::now() - _prevTimePoint;
+	const f32 t = deltaTime.count();
+
 	for (const ecs::Entity entity : viewPhysicsComponents) {
-		auto compTuple = viewPhysicsComponents.get(entity);
-		auto& f = std::get<0>(compTuple);
-		auto& m = std::get<1>(compTuple);
-		auto& v = std::get<2>(compTuple);
+		auto [e] = viewPhysicsComponents.get(entity);
 
-		auto a = f.value / m.mass;
+		// update position
+		e.center.position += e.velocity * t;
 
-		static constexpr float deltaTime = 1.0f;
-		v.value += a * deltaTime;
+		// update speed
+		auto a = e.force / e.center.mass;
+		e.velocity += a * t;
 	}
+
+	_prevTimePoint = Clock::now();
+
+	return t;
 }
 
-}
+} // namespace arch::physics

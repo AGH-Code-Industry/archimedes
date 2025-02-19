@@ -2,28 +2,33 @@
 
 #include <Ecs.h>
 #include <physics/System.h>
-#include <physics/components/Force.h>
-#include <physics/components/Mass.h>
-#include <physics/components/Velocity.h>
+#include <physics/components/Movable.h>
 
 TEST(Physics, TestUpdate) {
 	namespace ecs = arch::ecs;
 	namespace phy = arch::physics;
 	namespace math = arch::math;
+
 	ecs::Domain domain;
+	phy::System system(domain);
 
 	auto e0 = domain.newEntity();
 
-	domain.addComponent<phy::Force>(e0);
-	domain.addComponent<phy::Mass>(e0);
-	domain.addComponent<phy::Velocity>(e0);
+	// Create movable entity
+	phy::Movable& entity = domain.addComponent<phy::Movable>(e0);
+	entity.center = {.mass = 1.f, .position = math::float2(0.f, 0.f)};
+	constexpr auto startV = math::float2(1.f, 0.f);
+	entity.velocity = startV;
 
-	domain.getComponent<phy::Force>(e0).value = math::float2(1.0f, 1.0f);
-	domain.getComponent<phy::Mass>(e0).mass = 1.0f;
+	// Add force to it
+	entity.force = math::float2(1.f, 1.f);
 
-	phy::System::setDomain(domain);
+	// Update physics system
+	const math::f32 t = system.update();
 
-	phy::System::update();
+	// Expect entity to move accordingly to the old velocity
+	EXPECT_EQ(entity.center.position, t * startV);
 
-	EXPECT_EQ(domain.getComponent<phy::Velocity>(e0).value, math::float2(1.0f, 1.0f));
+	// Expect that velocity updated accordingly to the force
+	EXPECT_EQ(entity.velocity, startV + t * entity.force);
 }
