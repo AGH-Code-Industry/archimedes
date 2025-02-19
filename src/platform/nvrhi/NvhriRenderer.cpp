@@ -206,6 +206,8 @@ void NvrhiRenderer::onResize(u32 width, u32 height) {
 }
 
 void NvrhiRenderer::beginFrame() {
+	getDevice()->runGarbageCollection();
+
 	_context->beginFrame();
 
 	_commandBuffer->open();
