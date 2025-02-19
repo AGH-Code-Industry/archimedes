@@ -8,8 +8,6 @@
 
 namespace arch::gfx {
 
-class Mesh;
-
 class Renderer: public std::enable_shared_from_this<Renderer> {
 public:
 	static Ref<Renderer> create(RenderingAPI api);
@@ -40,7 +38,11 @@ public:
 
 public:
 
-	virtual void render(const Ref<Mesh>& mesh, const Mat4x4& transform) = 0;
+	virtual void draw(
+		const Ref<buffer::VertexBuffer>& vertexBuffer,
+		const Ref<buffer::IndexBuffer>& indexBuffer,
+		const Mat4x4& transform
+	) = 0;
 
 public:
 	virtual Ref<buffer::BufferManager> getBufferManager() = 0;

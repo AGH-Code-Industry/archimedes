@@ -1,7 +1,6 @@
 #include "scene/SceneManager.h"
 
 #include "Ecs.h"
-#include "exceptions/InitException.h"
 #include "scene/Components.h"
 
 namespace arch::scene {
@@ -25,7 +24,7 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 		auto view = _currentScene->domain().view<components::TransformComponent, components::MeshComponent>();
 
 		for (auto [entity, transform, mesh] : view.all()) {
-			renderer->render(mesh.mesh, transform.getTransformMatrix());
+			renderer->draw(mesh.mesh->getVertexBuffer(), mesh.mesh->getIndexBuffer(), transform.getTransformMatrix());
 		}
 	}
 }
@@ -43,8 +42,9 @@ void SceneManager::changeScene(const Ref<Scene>& scene) {
 }
 
 Ref<SceneManager>& SceneManager::get() {
-	if (!instance)
+	if (!instance) {
 		instance = createRef<SceneManager>();
+	}
 	return instance;
 }
 

@@ -415,7 +415,7 @@ Ref<TextureManager> VulkanRenderer::getTextureManager() {
 	return _textureManager;
 }
 
-void VulkanRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {}
+// void VulkanRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {}
 
 void VulkanRenderer::_createDepthTexture() {
 	// Depthbuffer

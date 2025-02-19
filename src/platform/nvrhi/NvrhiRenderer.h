@@ -27,7 +27,11 @@ public:
 	void beginFrame() override;
 	void present() override;
 
-	void render(const Ref<Mesh>& mesh, const Mat4x4& transform) override;
+	void draw(
+		const Ref<gfx::buffer::VertexBuffer>& vertexBuffer,
+		const Ref<gfx::buffer::IndexBuffer>& indexBuffer,
+		const Mat4x4& transform
+	) override;
 
 public:
 	Ref<gfx::buffer::BufferManager> getBufferManager() override;

@@ -5,7 +5,6 @@
 #include "buffer/NvrhiBufferManager.h"
 #include "buffer/NvrhiVertexBuffer.h"
 #include "context/NvrhiVulkanContext.h"
-#include "gfx/Mesh.h"
 #include "nvrhi/utils.h"
 #include "nvrhi/validation.h"
 #include "texture/NvrhiTextureManager.h"
@@ -227,14 +226,17 @@ void NvrhiRenderer::present() {
 	_context->present();
 }
 
-void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
+void NvrhiRenderer::draw(
+	const Ref<gfx::buffer::VertexBuffer>& vertexBuffer,
+	const Ref<gfx::buffer::IndexBuffer>& indexBuffer,
+	const Mat4x4& transform
+) {
 	::nvrhi::FramebufferHandle currentFramebuffer = _context->getFramebuffer(_context->getCurrentFrameIndex());
 
-	Ref<buffer::NvrhiVertexBuffer> vertexBuffer =
-		std::static_pointer_cast<buffer::NvrhiVertexBuffer>(mesh->getVertexBuffer());
+	Ref<buffer::NvrhiVertexBuffer> vb = std::static_pointer_cast<buffer::NvrhiVertexBuffer>(vertexBuffer);
 
-	::nvrhi::VertexBufferBinding vbufBinding =
-		::nvrhi::VertexBufferBinding().setBuffer(vertexBuffer->getNativeHandle()).setSlot(0).setOffset(0);
+	::nvrhi::VertexBufferBinding vbBinding =
+		::nvrhi::VertexBufferBinding().setBuffer(vb->getNativeHandle()).setSlot(0).setOffset(0);
 
 	uint2 framebufferSize = _context->getFramebufferSize();
 	auto graphicsState = ::nvrhi::GraphicsState()
@@ -246,7 +248,7 @@ void NvrhiRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {
 								 )
 							 )
 							 .addBindingSet(s_bindingSet)
-							 .addVertexBuffer(vbufBinding);
+							 .addVertexBuffer(vbBinding);
 	_commandBuffer->setGraphicsState(graphicsState);
 
 	PushConstant pushConstants{ transform };
