@@ -92,7 +92,9 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 	_textureManager = createRef<texture::NvrhiTextureManager>(renderer);
 
 	{
-		Color pixels[] = {Color{1, .5, 1, 1}};
+		Color pixels[] = {
+			Color{ 1, .5, 1, 1 }
+		};
 		s_texture = std::static_pointer_cast<texture::NvrhiTexture>(_textureManager->createTexture2D(1, 1, pixels));
 
 		shaderc::CompileOptions options;
@@ -127,7 +129,7 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 														  .setElementStride(sizeof(float) * 5) };
 
 		::nvrhi::InputLayoutHandle inputLayout =
-			getDevice()->createInputLayout(attributes, uint32_t(std::size(attributes)), vertexShader);
+			getDevice()->createInputLayout(attributes, std::size(attributes), vertexShader);
 
 		result = compiler.CompileGlslToSpv(
 			fragmentShader.data(),
@@ -154,9 +156,9 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 		_commandBuffer = getDevice()->createCommandList();
 
 		auto bindingSetDesc = ::nvrhi::BindingSetDesc()
-			.addItem(::nvrhi::BindingSetItem::Texture_SRV(0, s_texture->getNativeHandle()))
-			.addItem(::nvrhi::BindingSetItem::Sampler(0, s_texture->getSampler()))
-			.addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
+								  .addItem(::nvrhi::BindingSetItem::Texture_SRV(0, s_texture->getNativeHandle()))
+								  .addItem(::nvrhi::BindingSetItem::Sampler(0, s_texture->getSampler()))
+								  .addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
 
 		::nvrhi::utils::CreateBindingSetAndLayout(
 			getDevice(),
