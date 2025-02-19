@@ -1,11 +1,12 @@
 #pragma once
 
-#include "gfx/Mesh.h"
+#include "asset/mesh/Mesh.h"
 
 namespace arch::scene::components {
 
 struct MeshComponent {
-	Ref<gfx::Mesh> mesh;
+	// TODO: Replace with AssetRef/AssetHandle
+	Ref<asset::mesh::Mesh> mesh;
 };
 
 } // namespace arch::scene::components

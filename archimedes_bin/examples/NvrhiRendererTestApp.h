@@ -12,7 +12,7 @@ struct VelocityComponent {
 
 class NvrhiRendererTestApp: public Application {
 	void init() override {
-		Ref<scene::Scene> testScene = createRef<scene::Scene>();
+		Ref<Scene> testScene = createRef<Scene>();
 
 		// 2D square
 		struct Vertex {
@@ -35,7 +35,7 @@ class NvrhiRendererTestApp: public Application {
 		// material->SetFloat3("_pos", glm::vec3(0.5f, 0.5f, 0.5f));
 		// material->SetColor("_color", glm::vec3(1.0f, 0.0f, 0.0f));
 
-		Ref<gfx::Mesh> mesh = gfx::Mesh::create<Vertex>(vertices, indices);
+		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		{
 			ecs::Entity e = testScene->newEntity();
