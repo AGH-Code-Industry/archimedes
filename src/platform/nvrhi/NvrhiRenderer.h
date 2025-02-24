@@ -41,6 +41,9 @@ public:
 	::nvrhi::DeviceHandle getDevice();
 
 private:
+	void _ensureGraphicsState();
+
+private:
 	Ref<NvrhiContext> _context;
 	::nvrhi::DeviceHandle _validationLayer;
 
@@ -48,6 +51,9 @@ private:
 	Ref<texture::NvrhiTextureManager> _textureManager;
 
 	::nvrhi::CommandListHandle _commandBuffer;
+
+	bool _currentGraphicsStateValid = false;
+	::nvrhi::GraphicsState _currentGraphicsState{};
 };
 
 } // namespace arch::gfx::nvrhi

@@ -212,12 +212,21 @@ void NvrhiRenderer::beginFrame() {
 
 	_commandBuffer->open();
 
+	::nvrhi::FramebufferHandle currentFramebuffer = _context->getFramebuffer(_context->getCurrentFrameIndex());
 	::nvrhi::utils::ClearColorAttachment(
 		_commandBuffer,
-		_context->getFramebuffer(_context->getCurrentFrameIndex()),
+		currentFramebuffer,
 		0,
 		::nvrhi::Color(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a)
 	);
+
+	uint2 framebufferSize = _context->getFramebufferSize();
+
+	_currentGraphicsStateValid = false;
+	_currentGraphicsState.setFramebuffer(currentFramebuffer)
+		.setViewport(
+			::nvrhi::ViewportState().addViewportAndScissorRect(::nvrhi::Viewport(framebufferSize.x, framebufferSize.y))
+		);
 }
 
 void NvrhiRenderer::present() {
@@ -232,32 +241,26 @@ void NvrhiRenderer::draw(
 	const Ref<gfx::buffer::IndexBuffer>& indexBuffer,
 	const Mat4x4& transform
 ) {
-	::nvrhi::FramebufferHandle currentFramebuffer = _context->getFramebuffer(_context->getCurrentFrameIndex());
-
 	Ref<buffer::NvrhiVertexBuffer> vb = std::static_pointer_cast<buffer::NvrhiVertexBuffer>(vertexBuffer);
-
-	::nvrhi::VertexBufferBinding vbBinding =
-		::nvrhi::VertexBufferBinding().setBuffer(vb->getNativeHandle()).setSlot(0).setOffset(0);
+	::nvrhi::VertexBufferBinding vbBinding = ::nvrhi::VertexBufferBinding().setBuffer(vb->getNativeHandle());
 
 	Ref<buffer::NvrhiIndexBuffer> ib = std::static_pointer_cast<buffer::NvrhiIndexBuffer>(indexBuffer);
-	::nvrhi::IndexBufferBinding ibBinding = ::nvrhi::IndexBufferBinding().setBuffer(ib->getNativeHandle()).setOffset(0);
+	::nvrhi::IndexBufferBinding ibBinding = ::nvrhi::IndexBufferBinding().setBuffer(ib->getNativeHandle());
 
-	uint2 framebufferSize = _context->getFramebufferSize();
-	auto graphicsState = ::nvrhi::GraphicsState()
-							 .setPipeline(s_pipeline)
-							 .setFramebuffer(currentFramebuffer)
-							 .setViewport(
-								 ::nvrhi::ViewportState().addViewportAndScissorRect(
-									 ::nvrhi::Viewport(framebufferSize.x, framebufferSize.y)
-								 )
-							 )
-							 .addBindingSet(s_bindingSet)
-							 .addVertexBuffer(vbBinding)
-							 .setIndexBuffer(ibBinding);
-	_commandBuffer->setGraphicsState(graphicsState);
+	if (_currentGraphicsState.pipeline != s_pipeline) {
+		_currentGraphicsState.pipeline = s_pipeline;
+		_currentGraphicsStateValid = false;
+	}
+
+	_currentGraphicsState.bindings.resize(0);
+	_currentGraphicsState.vertexBuffers.resize(0);
+
+	_currentGraphicsState.addBindingSet(s_bindingSet).addVertexBuffer(vbBinding).setIndexBuffer(ibBinding);
+	_currentGraphicsStateValid = false;
+
+	_ensureGraphicsState();
 
 	PushConstant pushConstants{ transform };
-
 	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
 
 	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(ib->getIndexCount());
@@ -279,6 +282,15 @@ Ref<gfx::texture::TextureManager> NvrhiRenderer::getTextureManager() {
 	}
 
 	return _context->getDevice();
+}
+
+void NvrhiRenderer::_ensureGraphicsState() {
+	if (_currentGraphicsStateValid) {
+		return;
+	}
+
+	_commandBuffer->setGraphicsState(_currentGraphicsState);
+	_currentGraphicsStateValid = true;
 }
 
 } // namespace arch::gfx::nvrhi
