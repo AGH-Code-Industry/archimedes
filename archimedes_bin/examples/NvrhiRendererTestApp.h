@@ -35,6 +35,31 @@ class NvrhiRendererTestApp: public Application {
 		// material->SetFloat3("_pos", glm::vec3(0.5f, 0.5f, 0.5f));
 		// material->SetColor("_color", glm::vec3(1.0f, 0.0f, 0.0f));
 
+		Color pixels[] = {
+			Color{ 1, .5, 1, 1 }
+		};
+
+		Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+
+		Ref<gfx::texture::Texture> texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
+
+		auto pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default.glsl",
+				.textures = { texture },
+				.buffers = {},
+			}
+		);
+		auto pipeline2 = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = {},
+			}
+		);
+
 		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		{
@@ -48,7 +73,7 @@ class NvrhiRendererTestApp: public Application {
 			}
 			);
 
-			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh });
+			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
 			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.01f, .01f, 0.0f });
 		}
 
@@ -62,7 +87,7 @@ class NvrhiRendererTestApp: public Application {
 					float3(1)
 			  }
 			);
-			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh });
+			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline2 });
 			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, -.01f, 0.0f });
 		}
 

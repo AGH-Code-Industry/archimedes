@@ -1,5 +1,3 @@
-#include <shaderc/shaderc.hpp>
-
 #include "Logger.h"
 #include "NvrhiRenderer.h"
 #include "buffer/NvrhiBufferManager.h"
@@ -8,59 +6,11 @@
 #include "context/NvrhiVulkanContext.h"
 #include "nvrhi/utils.h"
 #include "nvrhi/validation.h"
+#include "pipeline/NvrhiPipeline.h"
+#include "pipeline/NvrhiPipelineManager.h"
 #include "texture/NvrhiTextureManager.h"
 
 namespace arch::gfx::nvrhi {
-
-struct PushConstant {
-	Mat4x4 transform;
-};
-
-constexpr std::string_view vertexShader = R"(
-#version 450
-
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec2 inUV;
-
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec2 texCoord;
-
-layout(push_constant) uniform PushConstant {
-	mat4 transform;
-} pushConstant;
-
-// layout(binding = 256) uniform UniformBufferObject {
-//     mat4 mvp;
-// } ubo;
-
-
-void main() {
-    gl_Position = pushConstant.transform * vec4(inPosition, 1.0);
-    fragColor = vec3(inUV, 0.0);
-}
-)";
-
-constexpr std::string_view fragmentShader = R"(
-#version 450
-
-layout(binding = 0) uniform texture2D tex;
-layout(binding = 128) uniform sampler texSampler;
-
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec2 texCoord;
-
-layout(location = 0) out vec4 outColor;
-
-void main() {
-    outColor = texture(sampler2D(tex, texSampler), texCoord) + vec4(fragColor, 1.0);
-}
-)";
-
-::nvrhi::GraphicsPipelineHandle s_pipeline;
-::nvrhi::BindingLayoutHandle s_bindingLayout;
-::nvrhi::BindingSetHandle s_bindingSet;
-
-Ref<texture::NvrhiTexture> s_texture;
 
 NvrhiRenderer::NvrhiRenderer(RenderingAPI api, bool debug): Renderer(api, debug) {}
 
@@ -90,105 +40,25 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 	WeakRef renderer = std::static_pointer_cast<NvrhiRenderer>(shared_from_this());
 	_bufferManager = createRef<buffer::NvrhiBufferManager>(renderer);
 	_textureManager = createRef<texture::NvrhiTextureManager>(renderer);
+	_pipelineManager = createRef<pipeline::NvrhiPipelineManager>(renderer);
+
+	_commandBuffer = getDevice()->createCommandList();
 
 	{
-		Color pixels[] = {
-			Color{ 1, .5, 1, 1 }
-		};
-		s_texture = std::static_pointer_cast<texture::NvrhiTexture>(_textureManager->createTexture2D(1, 1, pixels));
-
-		shaderc::CompileOptions options;
-		shaderc::Compiler compiler;
-		auto result = compiler.CompileGlslToSpv(
-			vertexShader.data(),
-			vertexShader.size(),
-			shaderc_glsl_vertex_shader,
-			"shader.vert.spv",
-			options
-		);
-
-		if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-			throw vulkan::exceptions::VulkanException(result.GetErrorMessage());
-		}
-
-		::nvrhi::ShaderHandle vertexShader = getDevice()->createShader(
-			::nvrhi::ShaderDesc(::nvrhi::ShaderType::Vertex),
-			result.begin(),
-			(u64)std::distance(result.begin(), result.end()) * sizeof(u32)
-		);
-
-		::nvrhi::VertexAttributeDesc attributes[] = { ::nvrhi::VertexAttributeDesc()
-														  .setName("POSITION")
-														  .setFormat(::nvrhi::Format::RGB32_FLOAT)
-														  .setOffset(0)
-														  .setElementStride(sizeof(float) * 5),
-													  ::nvrhi::VertexAttributeDesc()
-														  .setName("TEXCOORD")
-														  .setFormat(::nvrhi::Format::RG32_FLOAT)
-														  .setOffset(sizeof(float) * 3)
-														  .setElementStride(sizeof(float) * 5) };
-
-		::nvrhi::InputLayoutHandle inputLayout =
-			getDevice()->createInputLayout(attributes, std::size(attributes), vertexShader);
-
-		result = compiler.CompileGlslToSpv(
-			fragmentShader.data(),
-			fragmentShader.size(),
-			shaderc_glsl_fragment_shader,
-			"shader.vert.spv",
-			options
-		);
-		::nvrhi::ShaderHandle pixelShader = getDevice()->createShader(
-			::nvrhi::ShaderDesc(::nvrhi::ShaderType::Pixel),
-			result.begin(),
-			(u64)std::distance(result.begin(), result.end()) * sizeof(u32)
-		);
-
-		auto constantBufferDesc = ::nvrhi::BufferDesc()
-									  .setDebugName("Constant Buffer")
-									  .setByteSize(sizeof(Mat4x4)) // stores one matrix
-									  .setIsConstantBuffer(true)
-									  .setIsVolatile(true)
-									  .setMaxVersions(16); // number of automatic versions, only necessary on Vulkan
-
+		// auto constantBufferDesc = ::nvrhi::BufferDesc()
+		// 							  .setDebugName("Constant Buffer")
+		// 							  .setByteSize(sizeof(Mat4x4)) // stores one matrix
+		// 							  .setIsConstantBuffer(true)
+		// 							  .setIsVolatile(true)
+		// 							  .setMaxVersions(16); // number of automatic versions, only necessary on Vulkan
+		//
 		// s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
-
-		_commandBuffer = getDevice()->createCommandList();
-
-		auto bindingSetDesc = ::nvrhi::BindingSetDesc()
-								  .addItem(::nvrhi::BindingSetItem::Texture_SRV(0, s_texture->getNativeHandle()))
-								  .addItem(::nvrhi::BindingSetItem::Sampler(0, s_texture->getSampler()))
-								  .addItem(::nvrhi::BindingSetItem::PushConstants(0, sizeof(PushConstant)));
-
-		::nvrhi::utils::CreateBindingSetAndLayout(
-			getDevice(),
-			::nvrhi::ShaderType::All,
-			0,
-			bindingSetDesc,
-			s_bindingLayout,
-			s_bindingSet
-		);
-
-		auto pipelineDesc = ::nvrhi::GraphicsPipelineDesc()
-								.setInputLayout(inputLayout)
-								.setVertexShader(vertexShader)
-								.setPixelShader(pixelShader)
-								.addBindingLayout(s_bindingLayout);
-
-		pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-
-		s_pipeline = getDevice()->createGraphicsPipeline(pipelineDesc, _context->getFramebuffer(0));
 	}
 }
 
 void NvrhiRenderer::shutdown() {
 	_bufferManager.reset();
 	_textureManager.reset();
-
-	s_texture = nullptr;
-	s_pipeline = nullptr;
-	s_bindingLayout = nullptr;
-	s_bindingSet = nullptr;
 
 	_commandBuffer = nullptr;
 
@@ -236,6 +106,18 @@ void NvrhiRenderer::present() {
 	_context->present();
 }
 
+void NvrhiRenderer::usePipeline(const Ref<gfx::pipeline::Pipeline>& pipeline) {
+	Ref<pipeline::NvrhiPipeline> p = std::static_pointer_cast<pipeline::NvrhiPipeline>(pipeline);
+	if (_currentGraphicsState.pipeline != p->getNativeHandle()) {
+		_currentGraphicsState.pipeline = p->getNativeHandle();
+
+		_currentGraphicsState.bindings.resize(0);
+		_currentGraphicsState.addBindingSet(p->getNativeBindingSet());
+
+		_currentGraphicsStateValid = false;
+	}
+}
+
 void NvrhiRenderer::draw(
 	const Ref<gfx::buffer::VertexBuffer>& vertexBuffer,
 	const Ref<gfx::buffer::IndexBuffer>& indexBuffer,
@@ -247,20 +129,22 @@ void NvrhiRenderer::draw(
 	Ref<buffer::NvrhiIndexBuffer> ib = std::static_pointer_cast<buffer::NvrhiIndexBuffer>(indexBuffer);
 	::nvrhi::IndexBufferBinding ibBinding = ::nvrhi::IndexBufferBinding().setBuffer(ib->getNativeHandle());
 
-	if (_currentGraphicsState.pipeline != s_pipeline) {
-		_currentGraphicsState.pipeline = s_pipeline;
-		_currentGraphicsStateValid = false;
-	}
-
-	_currentGraphicsState.bindings.resize(0);
 	_currentGraphicsState.vertexBuffers.resize(0);
+	_currentGraphicsState.addVertexBuffer(vbBinding).setIndexBuffer(ibBinding);
 
-	_currentGraphicsState.addBindingSet(s_bindingSet).addVertexBuffer(vbBinding).setIndexBuffer(ibBinding);
 	_currentGraphicsStateValid = false;
 
 	_ensureGraphicsState();
 
-	PushConstant pushConstants{ transform };
+	union {
+		struct {
+			Mat4x4 transform;
+		};
+
+		char data[128];
+
+	} pushConstants{ transform };
+
 	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
 
 	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(ib->getIndexCount());
@@ -274,6 +158,10 @@ Ref<gfx::buffer::BufferManager> NvrhiRenderer::getBufferManager() {
 
 Ref<gfx::texture::TextureManager> NvrhiRenderer::getTextureManager() {
 	return _textureManager;
+}
+
+Ref<gfx::pipeline::PipelineManager> NvrhiRenderer::getPipelineManager() {
+	return _pipelineManager;
 }
 
 ::nvrhi::DeviceHandle NvrhiRenderer::getDevice() {

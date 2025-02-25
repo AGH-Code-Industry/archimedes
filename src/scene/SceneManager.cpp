@@ -24,6 +24,7 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 		auto view = _currentScene->domain().view<components::TransformComponent, components::MeshComponent>();
 
 		for (auto [entity, transform, mesh] : view.all()) {
+			renderer->usePipeline(mesh.pipeline);
 			renderer->draw(mesh.mesh->getVertexBuffer(), mesh.mesh->getIndexBuffer(), transform.getTransformMatrix());
 		}
 	}

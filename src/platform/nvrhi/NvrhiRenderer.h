@@ -13,6 +13,10 @@ namespace texture {
 class NvrhiTextureManager;
 }
 
+namespace pipeline {
+class NvrhiPipelineManager;
+}
+
 class NvrhiRenderer final: public Renderer {
 public:
 	NvrhiRenderer(RenderingAPI api, bool debug = true);
@@ -27,6 +31,7 @@ public:
 	void beginFrame() override;
 	void present() override;
 
+	void usePipeline(const Ref<gfx::pipeline::Pipeline>& pipeline) override;
 	void draw(
 		const Ref<gfx::buffer::VertexBuffer>& vertexBuffer,
 		const Ref<gfx::buffer::IndexBuffer>& indexBuffer,
@@ -36,9 +41,12 @@ public:
 public:
 	Ref<gfx::buffer::BufferManager> getBufferManager() override;
 	Ref<gfx::texture::TextureManager> getTextureManager() override;
+	Ref<gfx::pipeline::PipelineManager> getPipelineManager() override;
 
 public:
 	::nvrhi::DeviceHandle getDevice();
+
+	const Ref<NvrhiContext>& getContext() const { return _context; }
 
 private:
 	void _ensureGraphicsState();
@@ -49,6 +57,7 @@ private:
 
 	Ref<buffer::NvrhiBufferManager> _bufferManager;
 	Ref<texture::NvrhiTextureManager> _textureManager;
+	Ref<pipeline::NvrhiPipelineManager> _pipelineManager;
 
 	::nvrhi::CommandListHandle _commandBuffer;
 

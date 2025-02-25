@@ -4,6 +4,8 @@
 #include "RenderingAPI.h"
 #include "Window.h"
 #include "buffer/BufferManager.h"
+#include "pipeline/Pipeline.h"
+#include "pipeline/PipelineManager.h"
 #include "texture/TextureManager.h"
 
 namespace arch::gfx {
@@ -38,6 +40,8 @@ public:
 
 public:
 
+	virtual void usePipeline(const Ref<pipeline::Pipeline>& pipeline) = 0;
+
 	virtual void draw(
 		const Ref<buffer::VertexBuffer>& vertexBuffer,
 		const Ref<buffer::IndexBuffer>& indexBuffer,
@@ -47,6 +51,7 @@ public:
 public:
 	virtual Ref<buffer::BufferManager> getBufferManager() = 0;
 	virtual Ref<texture::TextureManager> getTextureManager() = 0;
+	virtual Ref<pipeline::PipelineManager> getPipelineManager() = 0;
 
 protected:
 	Ref<Window> _window = nullptr;
