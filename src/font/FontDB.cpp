@@ -20,6 +20,24 @@ namespace arch::font {
 
 std::unique_ptr<FontDB> FontDB::_singleton;
 
+std::vector<std::string_view> explodeStyle(std::string_view style) {
+	std::vector<std::string_view> result;
+	result.reserve(4);
+
+	const char* substr = style.data();
+	const char* end = substr + style.length();
+	size_t i = 0;
+	for (; substr + i < end; ++i) {
+		if (substr[i] == ' ') {
+			result.push_back(std::string_view(substr, i++));
+			substr += i;
+		}
+	}
+	result.push_back(std::string_view(substr, i));
+
+	return result;
+}
+
 #if ARCHIMEDES_WINDOWS
 void findAndAddFontsWindows(
 	std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>& fonts,
@@ -75,77 +93,38 @@ void findAndAddFontsWindows(
 				FT_Long i = 0;
 
 				do {
+					face = {};
 					if (/*FT_New_Memory_Face(ft, (FT_Byte*)fontData.data(), fontData.size(), i, &face)*/
 						FT_New_Face(ft, path.c_str(), i, &face) == 0) {
 						if (faceCount == 0) {
 							faceCount = face->num_faces;
 						}
 
-						// currently supports only bold & italic
-						auto styleFlags = face->style_flags & 0b11;
-						// std::cout << std::format("'{}'\n", face->style_name);
+						// std::cout << std::format("reading {}\n", path);
+
+						// std::cout << std::format("'{}'\n", face->style_name /*, (void*)face->style_name*/);
 
 						// build set of styles
-						std::stringstream stylesStream;
-						stylesStream.str(face->style_name);
-						std::unordered_set<std::string, utils::StringViewHasher, utils::StringViewComparator> stylesSet;
-						while (!stylesStream.eof()) {
-							std::string subStyle;
-							stylesStream >> subStyle;
-							stylesSet.insert(std::move(subStyle));
+						// auto styles = explodeStyle(face->style_name);
+
+						auto foundFont = fonts.find(face->family_name);
+
+						// set familyName
+						if (foundFont == fonts.end()) {
+							auto&& [it, ignore] = fonts.insert({ face->family_name, {} });
+
+							it->second._familyName = it->first;
+							foundFont = it;
+						} else if (foundFont->second.familyName().empty()) {
+							foundFont->second._familyName = foundFont->first;
 						}
 
-						if (stylesSet.size() > 2) {
-							// currently supports only bold & itali
-							continue;
-						}
+						auto&& font = foundFont->second;
 
-						unsigned int stylesMask = 0;
-						if (stylesSet.contains("Regular")) {
-							stylesMask |= FontStyle::regular;
-						} else {
-							bool isBold = stylesSet.contains("Bold");
-							bool isItalic = stylesSet.contains("Italic");
-
-							if (isBold && stylesSet.size() == 1) {
-								stylesMask |= FontStyle::bold;
-							} else if (isItalic && stylesSet.size() == 1) {
-								stylesMask |= FontStyle::italic;
-							} else if (isBold && isItalic) {
-								stylesMask |= FontStyle::bold | FontStyle::italic;
-							}
-						}
-
-						styleFlags = stylesMask;
-
-						if (styleFlags != 0) {
-							styleFlags >>= 1;
-							auto foundFont = fonts.find(face->family_name);
-
-							// set familyName
-							if (foundFont == fonts.end()) {
-								auto&& [it, ignore] = fonts.insert({ face->family_name, {} });
-
-								it->second._familyName = it->first;
-								foundFont = it;
-							} else if (foundFont->second.familyName().empty()) {
-								foundFont->second._familyName = foundFont->first;
-							}
-
-							auto&& font = foundFont->second;
-
-							font._paths[styleFlags] = path;
-
-							if (styleFlags & FT_STYLE_FLAG_ITALIC) {
-								font._styles |= FontStyle::italic;
-							}
-							if (styleFlags & FT_STYLE_FLAG_BOLD) {
-								font._styles |= FontStyle::bold;
-							}
-							if (!styleFlags) {
-								font._styles |= FontStyle::regular;
-							}
-						}
+						font._styles.insert({
+							face->style_name,
+							{ path, (char*)face }
+						  });
 					}
 				} while (++i < faceCount);
 			}
@@ -172,6 +151,7 @@ FontDB::FontDB() noexcept {
 }
 
 FontDB::~FontDB() noexcept {
+	_fonts.clear();
 	FT_Done_FreeType(reinterpret_cast<FT_Library>(_pimpl));
 }
 

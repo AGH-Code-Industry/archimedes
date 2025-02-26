@@ -1,7 +1,9 @@
 #pragma once
 
 #include <filesystem>
+#include <ranges>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
 #include "FontStyle.h"
@@ -15,19 +17,31 @@ class FontAtlas;
 class FontDB;
 
 class Font {
+	using StylesSet = std::unordered_map<
+		std::string_view,
+		std::tuple<std::string, char*>,
+		utils::StringViewHasher,
+		utils::StringViewComparator>;
+
 public:
+
+	~Font() noexcept;
 
 	static OptRef<Font> get(std::string_view familyName) noexcept;
 
-	bool hasStyle(unsigned int style) const noexcept;
+	bool hasStyle(std::string_view style) const noexcept;
 
 	bool hasRegular() const noexcept;
 	bool hasItalic() const noexcept;
 	bool hasBold() const noexcept;
 	bool hasBoldItalic() const noexcept;
 
+	size_t styleCount() const noexcept;
+
 	std::string_view familyName() const noexcept;
-	std::filesystem::path path(unsigned int style) const noexcept;
+	std::string_view path(std::string_view style) const noexcept;
+
+	auto styles() const noexcept -> decltype(std::views::keys(*std::declval<const StylesSet*>()));
 
 	// might take some time
 	// bool assure(FontStyle style) const noexcept;
@@ -47,8 +61,7 @@ private:
 	Font() noexcept = default;
 
 	std::string_view _familyName;
-	std::string _paths[4];
-	unsigned int _styles{};
+	StylesSet _styles;
 };
 
 } // namespace arch::font
