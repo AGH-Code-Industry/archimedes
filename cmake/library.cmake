@@ -23,3 +23,18 @@ FetchContent_Declare(
 find_package(nvrhi REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE nvrhi_vk nvrhi)
+
+
+
+# install msdf-atlas-gen/1.3 Release
+if (NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed")
+    message(STATUS "msdf-atlas-gen not installed, installing...")
+    execute_process(
+        COMMAND conan install --requires=msdf-atlas-gen/1.3 --build=missing
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    )
+
+    file(WRITE "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed" "")
+else()
+    message(STATUS "msdf-atlas-gen installed")
+endif()
