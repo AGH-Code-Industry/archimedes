@@ -4,6 +4,7 @@
 #include <ranges>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 
 #include "FontStyle.h"
@@ -58,10 +59,12 @@ private:
 		char* pimpl
 	) noexcept;
 
+	friend class std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>;
+
 	Font() noexcept = default;
 
-	std::string_view _familyName;
-	StylesSet _styles;
+	std::string_view _familyName{};
+	StylesSet _styles{};
 };
 
 } // namespace arch::font
