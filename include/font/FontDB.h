@@ -20,6 +20,8 @@ class FontDB {
 
 public:
 
+	FontDB(const FontDB&) noexcept = delete;
+
 	~FontDB() noexcept;
 
 	static FontDB& get() noexcept;
