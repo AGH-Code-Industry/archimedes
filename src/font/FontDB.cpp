@@ -1,7 +1,4 @@
 #include <fstream>
-#include <iostream>
-#include <sstream>
-#include <unordered_set>
 #include <vector>
 
 #include <Logger.h>
@@ -13,8 +10,6 @@
 #include FT_FREETYPE_H
 
 namespace fs = std::filesystem;
-namespace chr = std::chrono;
-using clk = chr::high_resolution_clock;
 
 namespace arch::font {
 
@@ -44,7 +39,6 @@ void findAndAddFontsWindows(
 	char* pimpl
 ) noexcept {
 	FT_Library ft = (FT_Library)pimpl;
-	auto time = decltype(clk::now() - clk::now())();
 	for (const auto hRootKey : { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER }) {
 		constexpr LPCSTR subKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
 
@@ -73,39 +67,16 @@ void findAndAddFontsWindows(
 					path = "C:/Windows/Fonts/" + path;
 				}
 
-				// TODO: wczytywanie z pliku
-				// auto start = clk::now();
-				// std::vector<char> fontData;
-				// if (fs::exists(path)) {
-				//	// std::cout << std::format("reading {}\n", path);
-				//	auto file = std::ifstream(path, std::ios::in | std::ios::binary | std::ios::ate);
-				//	auto fileSize = file.tellg();
-				//	file.seekg(0);
-
-				//	fontData.resize(fileSize);
-				//	file.read(fontData.data(), fileSize);
-				//}
-				// auto end = clk::now();
-				// time += (end - start);
-
 				FT_Face face{};
 				FT_Long faceCount = 0;
 				FT_Long i = 0;
 
 				do {
 					face = {};
-					if (/*FT_New_Memory_Face(ft, (FT_Byte*)fontData.data(), fontData.size(), i, &face)*/
-						FT_New_Face(ft, path.c_str(), i, &face) == 0) {
+					if (FT_New_Face(ft, path.c_str(), i, &face) == 0) {
 						if (faceCount == 0) {
 							faceCount = face->num_faces;
 						}
-
-						// std::cout << std::format("reading {}\n", path);
-
-						// std::cout << std::format("'{}'\n", face->style_name /*, (void*)face->style_name*/);
-
-						// build set of styles
-						// auto styles = explodeStyle(face->style_name);
 
 						auto foundFont = fonts.find(face->family_name);
 
@@ -130,7 +101,6 @@ void findAndAddFontsWindows(
 			}
 		}
 	}
-	std::cout << chr::duration_cast<chr::milliseconds>(time) << '\n';
 }
 #elif ARCHIMEDES_LINUX
 void findAndAddFontsLinux(
