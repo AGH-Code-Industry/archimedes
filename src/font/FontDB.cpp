@@ -9,6 +9,11 @@
 #include <windows.h>
 #include FT_FREETYPE_H
 
+#if ARCHIMEDES_WINDOWS
+#include <windows.h>
+#elif ARCHIMEDES_LINUX
+#endif
+
 namespace fs = std::filesystem;
 
 namespace arch::font {
