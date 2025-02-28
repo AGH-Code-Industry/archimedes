@@ -136,16 +136,8 @@ void NvrhiRenderer::draw(
 
 	_ensureGraphicsState();
 
-	union {
-		struct {
-			Mat4x4 transform;
-		};
-
-		char data[128];
-
-	} pushConstants{ transform };
-
-	_commandBuffer->setPushConstants(&pushConstants, sizeof(pushConstants));
+	// todo: fix this
+	_commandBuffer->setPushConstants(&transform, 128);
 
 	auto drawArguments = ::nvrhi::DrawArguments().setVertexCount(ib->getIndexCount());
 
