@@ -2,11 +2,11 @@
 
 namespace arch::gfx::texture {
 
-Texture::Texture(GraphicsFormat format, TextureWrapMode wrapMode, TextureFilterMode filterMode, bool isReadable):
-	_isReadable(isReadable),
-	_format(format),
-	_wrapMode(wrapMode),
-	_filterMode(filterMode) {}
+Texture::Texture(const CreateInfo& info):
+	_size(info.size),
+	_format(info.format),
+	_wrapMode(info.wrapMode),
+	_filterMode(info.filterMode) {}
 
 TextureFilterMode Texture::getFilter() const {
 	return _filterMode;
@@ -28,24 +28,24 @@ GraphicsFormat Texture::getFormat() const {
 	return _format;
 }
 
-bool Texture::isReadable() const {
-	return _isReadable;
-}
-
 u32 Texture::getWidth() const {
-	return getSize().x;
+	return _size.x;
 }
 
 u32 Texture::getHeight() const {
-	return getSize().y;
+	return _size.y;
 }
 
 u32 Texture::getDepth() const {
-	return getSize().z;
+	return _size.z;
 }
 
 u32 Texture::getSize(u32 axis) const {
-	return getSize()[axis];
+	return _size[axis];
+}
+
+uint3 Texture::getSize() const {
+	return _size;
 }
 
 } // namespace arch::gfx::texture

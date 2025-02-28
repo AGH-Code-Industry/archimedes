@@ -2,12 +2,12 @@
 
 namespace arch::gfx::buffer {
 
-Ref<VertexBuffer> BufferManager::createVertexBuffer() {
-	return _createVertexBufferImpl(nullptr, 0);
+Ref<VertexBuffer> BufferManager::createVertexBuffer(u64 vertexSize) {
+	return _createVertexBufferImpl(nullptr, 0, vertexSize);
 }
 
-Ref<VertexBuffer> BufferManager::createVertexBuffer(void* data, u32 size) {
-	return _createVertexBufferImpl(data, size);
+Ref<VertexBuffer> BufferManager::createVertexBuffer(void* data, u32 size, u64 vertexSize) {
+	return _createVertexBufferImpl(data, size, vertexSize);
 }
 
 Ref<IndexBuffer> BufferManager::createIndexBuffer() {

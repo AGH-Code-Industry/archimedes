@@ -29,7 +29,7 @@ public:
 
 	Ref<TextureManager> getTextureManager() override;
 
-	void render(const Ref<Mesh>& mesh, const Mat4x4& transform) override;
+	// void render(const Ref<Mesh>& mesh, const Mat4x4& transform) override;
 
 private:
 	void _createDepthTexture();

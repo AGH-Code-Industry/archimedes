@@ -72,6 +72,8 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	scene::SceneManager::get()->shutdown();
+
 	Logger::info("Engine shutingdown");
 	glfwTerminate();
 
