@@ -6,7 +6,6 @@
 #include <font/FontDB.h>
 #include <freetype2/ft2build.h>
 #include <utils/Assert.h>
-#include <windows.h>
 #include FT_FREETYPE_H
 
 #if ARCHIMEDES_WINDOWS
