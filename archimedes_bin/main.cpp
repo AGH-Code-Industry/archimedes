@@ -1,4 +1,4 @@
-#include "examples/NvrhiRendererTestApp.h"
+#include "examples/Examples.h"
 #include <Engine.h>
 #include <Logger.h>
 
