@@ -1,11 +1,11 @@
-#include "Examples.h"
+#include "examples/Examples.h"
 #include <Engine.h>
 #include <Logger.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<TextRenderTestApp>();
+	arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 640,
 							   .windowHeight = 400,
