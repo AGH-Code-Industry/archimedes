@@ -12,7 +12,7 @@ Ref<IndexBuffer> VulkanBufferManager::_createIndexBufferImpl(std::span<u32> indi
 	return nullptr;
 }
 
-Ref<Buffer> VulkanBufferManager::_createBufferImpl(void* data, u64 size) {
+Ref<Buffer> VulkanBufferManager::_createBufferImpl(BufferType type, void* data, u64 size) {
 	return nullptr;
 }
 

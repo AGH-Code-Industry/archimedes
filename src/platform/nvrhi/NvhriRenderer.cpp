@@ -43,17 +43,6 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 	_pipelineManager = createRef<pipeline::NvrhiPipelineManager>(renderer);
 
 	_commandBuffer = getDevice()->createCommandList();
-
-	{
-		// auto constantBufferDesc = ::nvrhi::BufferDesc()
-		// 							  .setDebugName("Constant Buffer")
-		// 							  .setByteSize(sizeof(Mat4x4)) // stores one matrix
-		// 							  .setIsConstantBuffer(true)
-		// 							  .setIsVolatile(true)
-		// 							  .setMaxVersions(16); // number of automatic versions, only necessary on Vulkan
-		//
-		// s_constantBuffer = getDevice()->createBuffer(constantBufferDesc);
-	}
 }
 
 void NvrhiRenderer::shutdown() {
