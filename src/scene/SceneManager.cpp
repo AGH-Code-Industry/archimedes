@@ -22,14 +22,14 @@ void SceneManager::update() {
 void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 	if (_currentScene) {
 		auto view = _currentScene->domain().view<components::TransformComponent, components::MeshComponent>();
-		static const auto ortho = glm::ortho(0.f, 640.f, 0.f, 400.f);
+		// static const auto ortho = glm::ortho(0.f, 640.f, 0.f, 400.f);
 
 		for (auto [entity, transform, mesh] : view.all()) {
 			renderer->usePipeline(mesh.pipeline);
 			renderer->draw(
 				mesh.mesh->getVertexBuffer(),
 				mesh.mesh->getIndexBuffer(),
-				ortho * transform.getTransformMatrix()
+				/*ortho * */ transform.getTransformMatrix()
 			);
 		}
 	}

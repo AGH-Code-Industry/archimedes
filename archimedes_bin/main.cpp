@@ -5,10 +5,10 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
+	arch::Ref<arch::Application> myApp = arch::createRef<TextRenderTestApp>();
 
-	arch::EngineConfig config{ .windowWidth = 640,
-							   .windowHeight = 400,
+	arch::EngineConfig config{ .windowWidth = 800,
+							   .windowHeight = 600,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
 							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
