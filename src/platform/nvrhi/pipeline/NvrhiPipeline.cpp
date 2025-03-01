@@ -99,6 +99,17 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 							.setPixelShader(pixelShader)
 							.addBindingLayout(_bindingLayout);
 
+	auto renderTargetBlendStatge = ::nvrhi::BlendState::RenderTarget()
+									   .enableBlend()
+									   .setColorWriteMask(::nvrhi::ColorMask::All)
+									   .setSrcBlend(::nvrhi::BlendFactor::SrcAlpha)
+									   .setDestBlend(::nvrhi::BlendFactor::OneMinusSrcAlpha)
+									   .setBlendOp(::nvrhi::BlendOp::Add)
+									   .setSrcBlendAlpha(::nvrhi::BlendFactor::One)
+									   .setDestBlendAlpha(::nvrhi::BlendFactor::Zero)
+									   .setBlendOpAlpha(::nvrhi::BlendOp::Add);
+
+	pipelineDesc.renderState.blendState.setRenderTarget(0, renderTargetBlendStatge);
 	pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
 	_pipeline =
