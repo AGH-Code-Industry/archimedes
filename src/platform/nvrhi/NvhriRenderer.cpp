@@ -75,10 +75,12 @@ void NvrhiRenderer::onResize(u32 width, u32 height) {
 	_context->onResize(width, height);
 }
 
-void NvrhiRenderer::beginFrame() {
+bool NvrhiRenderer::beginFrame() {
 	getDevice()->runGarbageCollection();
 
-	_context->beginFrame();
+	if (!_context->beginFrame()) {
+		return false;
+	}
 
 	_commandBuffer->open();
 
@@ -97,6 +99,8 @@ void NvrhiRenderer::beginFrame() {
 		.setViewport(
 			::nvrhi::ViewportState().addViewportAndScissorRect(::nvrhi::Viewport(framebufferSize.x, framebufferSize.y))
 		);
+
+	return true;
 }
 
 void NvrhiRenderer::present() {

@@ -101,7 +101,7 @@ void NvrhiVulkanContext::onResize(u32 width, u32 height) {
 	_postResizeFramebuffers();
 }
 
-void NvrhiVulkanContext::beginFrame() {
+bool NvrhiVulkanContext::beginFrame() {
 	VkDevice device = VulkanContext::getDevice();
 
 	const auto& semaphore = _acquireSemaphores[_currentAcquireSemaphore];
@@ -122,6 +122,11 @@ void NvrhiVulkanContext::beginFrame() {
 		if (res == VK_ERROR_OUT_OF_DATE_KHR) {
 			_supportDetails = vulkan::VulkanSwapchain::SupportDetails::getSupportDetails(getPhysicalDevice(), _surface);
 
+			if (!_supportDetails.capabilities.currentExtent.width ||
+				!_supportDetails.capabilities.currentExtent.height) {
+				return false;
+			}
+
 			onResize(
 				_supportDetails.capabilities.currentExtent.width,
 				_supportDetails.capabilities.currentExtent.height
@@ -141,6 +146,8 @@ void NvrhiVulkanContext::beginFrame() {
 		// Schedule the wait. The actual wait operation will be submitted when the app executes any command list.
 		_device->queueWaitForSemaphore(::nvrhi::CommandQueue::Graphics, semaphore, 0);
 	}
+
+	return true;
 }
 
 void NvrhiVulkanContext::present() {
@@ -164,11 +171,11 @@ void NvrhiVulkanContext::present() {
 	const Queue& presentQueue = getQueue(QueueType::presentaion);
 
 	VkResult res = vkQueuePresentKHR(presentQueue.queue, &info);
-	if (res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR) {
+	if (res == VK_SUBOPTIMAL_KHR) {
 		_supportDetails = vulkan::VulkanSwapchain::SupportDetails::getSupportDetails(getPhysicalDevice(), _surface);
 
 		onResize(_supportDetails.capabilities.currentExtent.width, _supportDetails.capabilities.currentExtent.height);
-	} else if (res != VK_SUCCESS) {
+	} else if (!(res == VK_SUCCESS || res == VK_ERROR_OUT_OF_DATE_KHR)) {
 		throw vulkan::exceptions::VulkanException("Failed to present swapchain");
 	}
 

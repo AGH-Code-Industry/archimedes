@@ -35,7 +35,7 @@ public:
 public:
 	virtual void onResize(u32 width, u32 height) = 0;
 
-	virtual void beginFrame() = 0;
+	virtual bool beginFrame() = 0;
 	virtual void present() = 0;
 
 public:
