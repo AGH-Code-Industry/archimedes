@@ -6,8 +6,8 @@
 #include "../../vulkan/VulkanUtils.h"
 #include "../NvrhiMessageCallback.h"
 #include "../NvrhiUtils.h"
+#include "../exception/NvrhiException.h"
 #include "Window.h"
-#include "nvrhi/validation.h"
 #include "nvrhi/vulkan.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -101,7 +101,7 @@ void NvrhiVulkanContext::onResize(u32 width, u32 height) {
 	_postResizeFramebuffers();
 }
 
-void NvrhiVulkanContext::beginFrame() {
+bool NvrhiVulkanContext::beginFrame() {
 	VkDevice device = VulkanContext::getDevice();
 
 	const auto& semaphore = _acquireSemaphores[_currentAcquireSemaphore];
@@ -122,6 +122,11 @@ void NvrhiVulkanContext::beginFrame() {
 		if (res == VK_ERROR_OUT_OF_DATE_KHR) {
 			_supportDetails = vulkan::VulkanSwapchain::SupportDetails::getSupportDetails(getPhysicalDevice(), _surface);
 
+			if (!_supportDetails.capabilities.currentExtent.width ||
+				!_supportDetails.capabilities.currentExtent.height) {
+				return false;
+			}
+
 			onResize(
 				_supportDetails.capabilities.currentExtent.width,
 				_supportDetails.capabilities.currentExtent.height
@@ -131,12 +136,18 @@ void NvrhiVulkanContext::beginFrame() {
 		}
 	}
 
+	if (!(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR)) {
+		throw exception::NvrhiException("Failed to acquire swapchain image!");
+	}
+
 	_currentAcquireSemaphore = (_currentAcquireSemaphore + 1) % _acquireSemaphores.size();
 
 	if (res == VK_SUCCESS) {
 		// Schedule the wait. The actual wait operation will be submitted when the app executes any command list.
 		_device->queueWaitForSemaphore(::nvrhi::CommandQueue::Graphics, semaphore, 0);
 	}
+
+	return true;
 }
 
 void NvrhiVulkanContext::present() {
@@ -160,13 +171,17 @@ void NvrhiVulkanContext::present() {
 	const Queue& presentQueue = getQueue(QueueType::presentaion);
 
 	VkResult res = vkQueuePresentKHR(presentQueue.queue, &info);
-	if (!(res == VK_SUCCESS || res == VK_ERROR_OUT_OF_DATE_KHR)) {
+	if (res == VK_SUBOPTIMAL_KHR) {
+		_supportDetails = vulkan::VulkanSwapchain::SupportDetails::getSupportDetails(getPhysicalDevice(), _surface);
+
+		onResize(_supportDetails.capabilities.currentExtent.width, _supportDetails.capabilities.currentExtent.height);
+	} else if (!(res == VK_SUCCESS || res == VK_ERROR_OUT_OF_DATE_KHR)) {
 		throw vulkan::exceptions::VulkanException("Failed to present swapchain");
 	}
 
 	_currentPresentSemaphore = (_currentPresentSemaphore + 1) % _presentSemaphores.size();
 
-#ifndef _WIN32
+#ifndef ARCHIMEDES_WINDOWS
 	if (_vsync) {
 		vkQueueWaitIdle(presentQueue.queue);
 	}
@@ -196,6 +211,10 @@ void NvrhiVulkanContext::present() {
 
 int NvrhiVulkanContext::getCurrentFrameIndex() {
 	return _currentFrame;
+}
+
+int NvrhiVulkanContext::getFrameCount() const {
+	return _frames.size();
 }
 
 uint2 NvrhiVulkanContext::getFramebufferSize() const {
@@ -312,7 +331,7 @@ void NvrhiVulkanContext::_createSwapchain(i32 width, i32 height) {
 		textureDesc.width = width;
 		textureDesc.height = height;
 		textureDesc.format = NvrhiUtils::getFormat(fromat);
-		textureDesc.debugName = "Swap chain image";
+		textureDesc.debugName = "Swap chain image " + std::to_string(i);
 		textureDesc.initialState = ::nvrhi::ResourceStates::Present;
 		textureDesc.keepInitialState = true;
 		textureDesc.isRenderTarget = true;

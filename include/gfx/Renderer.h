@@ -4,11 +4,11 @@
 #include "RenderingAPI.h"
 #include "Window.h"
 #include "buffer/BufferManager.h"
+#include "pipeline/Pipeline.h"
+#include "pipeline/PipelineManager.h"
 #include "texture/TextureManager.h"
 
 namespace arch::gfx {
-
-class Mesh;
 
 class Renderer: public std::enable_shared_from_this<Renderer> {
 public:
@@ -35,16 +35,23 @@ public:
 public:
 	virtual void onResize(u32 width, u32 height) = 0;
 
-	virtual void beginFrame() = 0;
+	virtual bool beginFrame() = 0;
 	virtual void present() = 0;
 
 public:
 
-	virtual void render(const Ref<Mesh>& mesh, const Mat4x4& transform) = 0;
+	virtual void usePipeline(const Ref<pipeline::Pipeline>& pipeline) = 0;
+
+	virtual void draw(
+		const Ref<buffer::VertexBuffer>& vertexBuffer,
+		const Ref<buffer::IndexBuffer>& indexBuffer,
+		const Mat4x4& transform
+	) = 0;
 
 public:
 	virtual Ref<buffer::BufferManager> getBufferManager() = 0;
 	virtual Ref<texture::TextureManager> getTextureManager() = 0;
+	virtual Ref<pipeline::PipelineManager> getPipelineManager() = 0;
 
 protected:
 	Ref<Window> _window = nullptr;

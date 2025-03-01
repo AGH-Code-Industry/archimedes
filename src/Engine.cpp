@@ -44,13 +44,12 @@ void Engine::_mainLoop() {
 		_sceneManager->update();
 
 		// Render the scene
-		_renderer->beginFrame();
+		if (_renderer->beginFrame()) {
+			_sceneManager->renderScene(_renderer);
 
-		_sceneManager->renderScene(_renderer);
+			_renderer->present();
+		}
 
-		_renderer->present();
-
-		_mainWindow->swapBuffers();
 		glfwPollEvents();
 	}
 }
@@ -72,6 +71,8 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	scene::SceneManager::get()->shutdown();
+
 	Logger::info("Engine shutingdown");
 	glfwTerminate();
 

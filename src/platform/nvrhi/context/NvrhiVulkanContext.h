@@ -18,11 +18,12 @@ public:
 
 	void onResize(u32 width, u32 height) override;
 
-	void beginFrame() override;
+	bool beginFrame() override;
 	void present() override;
 
 public:
 	int getCurrentFrameIndex() override;
+	int getFrameCount() const override;
 	uint2 getFramebufferSize() const override;
 
 	::nvrhi::DeviceHandle getDevice() override;

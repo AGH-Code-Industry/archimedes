@@ -20,7 +20,7 @@ public:
 
 	virtual void onResize(u32 width, u32 height) = 0;
 
-	virtual void beginFrame() = 0;
+	virtual bool beginFrame() = 0;
 	virtual void present() = 0;
 
 public:
@@ -28,6 +28,7 @@ public:
 
 public:
 	virtual int getCurrentFrameIndex() = 0;
+	virtual int getFrameCount() const = 0;
 	virtual uint2 getFramebufferSize() const = 0;
 
 	virtual ::nvrhi::DeviceHandle getDevice() = 0;

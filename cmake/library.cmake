@@ -5,7 +5,7 @@ include("${PROJECT_SOURCE_DIR}/cmake/conan.cmake")
 add_library(${PROJECT_NAME})
 
 # find source files
-file(GLOB_RECURSE ARCHIMEDES_SOURCE CONFIGURE_DEPENDS src/**.cpp)
+file(GLOB_RECURSE ARCHIMEDES_SOURCE CONFIGURE_DEPENDS src/**.cpp src/platform/**.h)
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 

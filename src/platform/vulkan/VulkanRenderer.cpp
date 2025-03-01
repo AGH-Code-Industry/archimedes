@@ -415,7 +415,7 @@ Ref<TextureManager> VulkanRenderer::getTextureManager() {
 	return _textureManager;
 }
 
-void VulkanRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {}
+// void VulkanRenderer::render(const Ref<Mesh>& mesh, const Mat4x4& transform) {}
 
 void VulkanRenderer::_createDepthTexture() {
 	// Depthbuffer
@@ -472,7 +472,7 @@ void VulkanRenderer::onResize(u32 width, u32 height) {}
 
 u32 imageIndex;
 
-void VulkanRenderer::beginFrame() {
+bool VulkanRenderer::beginFrame() {
 	auto& frame = _frames[_frameIndex];
 
 	vkWaitForFences(_context->getDevice(), 1, &frame.inFlightFence, VK_TRUE, UINT64_MAX);
@@ -526,6 +526,8 @@ void VulkanRenderer::beginFrame() {
 	vkCmdSetScissor(frame.commandBuffer, 0, 1, &scissor);
 
 	vkCmdDraw(frame.commandBuffer, 3, 1, 0, 0);
+
+	return true;
 }
 
 void VulkanRenderer::present() {

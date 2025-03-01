@@ -18,7 +18,9 @@ public:
 	static Ref<Buffer> create(const void* data, size_t size, BufferType type);
 
 public:
-	virtual void setData(void* data, u64 size) const = 0;
+	virtual u64 getSize() const = 0;
+
+	virtual void setData(void* data, u64 size) = 0;
 
 protected:
 	BufferType _type;

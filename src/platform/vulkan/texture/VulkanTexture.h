@@ -26,8 +26,10 @@ public:
 
 	void setFilter(TextureFilterMode filterMode) override;
 	void setWrap(TextureWrapMode wrapMode) override;
-	uint3 getSize() const override;
 
+	void setPixels(const void* pixels, u32 width, u32 height) override;
+
+public:
 	VulkanImage& getImage();
 
 private:
