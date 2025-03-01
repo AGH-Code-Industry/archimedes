@@ -28,12 +28,6 @@ class NvrhiRendererTestApp: public Application {
 			{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
 		};
 		std::vector<u32> indices{ 0, 1, 2 };
-		std::vector<Vertex> vertices2{
-			{  { 0.f, 0.f, 0.f }, { 1.f, 1.f } },
-			{  { 0.f, 1.f, 0.f }, { 1.f, 0.f } },
-			{ { 1.f, 0.0f, 0.f }, { 0.f, 1.f } },
-			{ { 1.f, 1.0f, 0.f }, { 0.f, 0.f } },
-		};
 
 		// Ref<Shader> vShader = Shader::load("shaders/vertex_shader.sprv");
 		// Ref<Shader> fShader = Shader::load("shaders/fragment_shader.sprv");
@@ -58,13 +52,19 @@ class NvrhiRendererTestApp: public Application {
 
 		stbi_image_free(data);
 
-		std::vector<Vertex> atlasVertices{
-			{ { 0.f, 0.f, 0.f }, { 0.f, 0.f } },
-			{ { 1.f, 0.f, 0.f }, { 1.f, 0.f } },
-			{ { 0.f, 1.f, 0.f }, { 0.f, 1.f } },
-			//{ { 1.f, 1.f, 0.f }, { 1.f, 1.f } },
+		// std::vector<Vertex> atlasVertices{
+		//	{ { 0.f, 0.f, 0.f }, { 0.f, 0.f } },
+		//	{ { 1.f, 0.f, 0.f }, { 1.f, 0.f } },
+		//	{ { 0.f, 1.f, 0.f }, { 0.f, 1.f } },
+		//	//{ { 1.f, 1.f, 0.f }, { 1.f, 1.f } },
+		// };
+		std::vector<Vertex> vertices2{
+			{  { 0.f, 0.f, 0.f }, { 1.f, 1.f } },
+			{  { 0.f, 1.f, 0.f }, { 1.f, 0.f } },
+			{ { 1.f, 0.0f, 0.f }, { 0.f, 1.f } },
+			{ { 1.f, 1.0f, 0.f }, { 0.f, 0.f } },
 		};
-		std::vector<u32> atlasIndices{ 0, 1, 2, 3 };
+		std::vector<u32> atlasIndices{ 0, 1, 2, 1, 3, 2 };
 
 		Color pixels[] = {
 			Color{ 1, .5, 1, 1 }
@@ -87,6 +87,8 @@ class NvrhiRendererTestApp: public Application {
 			.textures = {},
 			.buffers = {},
 		});
+
+		Ref<asset::mesh::Mesh> atlasMesh = asset::mesh::Mesh::create<Vertex>(vertices2, atlasIndices);
 		auto atlasPipeline = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_atlas.glsl",
@@ -96,14 +98,12 @@ class NvrhiRendererTestApp: public Application {
 
 		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		Ref<asset::mesh::Mesh> atlasMesh = asset::mesh::Mesh::create<Vertex>(vertices2, atlasIndices);
-
 		{
 			auto e = testScene->newEntity();
 			auto&& t = e.addComponent<scene::components::TransformComponent>({
 				{ 600.0f, 350.0f, 0.0f },
 				{ 0.0f, 0.0f, 0.0f, 1.0f },
-				{ 500.0f, 500.f, 0.0f },
+				{ 400.0f, 400.f, 0.0f },
 			});
 			// t.scale *= 1'000;
 			e.addComponent<scene::components::MeshComponent>({ atlasMesh, atlasPipeline });
