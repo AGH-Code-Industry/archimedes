@@ -30,7 +30,24 @@ void NvrhiBuffer::setData(void* data, u64 size) {
 
 ::nvrhi::BufferDesc NvrhiBuffer::_getDesc(u64 size) const {
 	static u64 index = 0;
-	return ::nvrhi::BufferDesc().setByteSize(size).setDebugName("Buffer " + std::to_string(index++));
+	auto desc = ::nvrhi::BufferDesc().setByteSize(size).setDebugName("Buffer " + std::to_string(index++));
+
+	switch (_type) {
+		case gfx::buffer::BufferType::uniform:
+			desc.setIsConstantBuffer(true)
+				.setInitialState(::nvrhi::ResourceStates::ShaderResource)
+				.setKeepInitialState(true); //.setIsVolatile(true).setMaxVersions(16);
+			break;
+
+		case gfx::buffer::BufferType::vertex: desc.setIsVertexBuffer(true); break;
+		case gfx::buffer::BufferType::index:  desc.setIsIndexBuffer(true); break;
+
+		case gfx::buffer::BufferType::blob: desc.setCanHaveRawViews(true); break;
+
+		default: throw InvalidEnumException("Invalid BufferType");
+	}
+
+	return desc;
 }
 
 } // namespace arch::gfx::nvrhi::buffer

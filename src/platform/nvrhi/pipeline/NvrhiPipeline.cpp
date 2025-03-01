@@ -76,7 +76,7 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 			.addItem(::nvrhi::BindingSetItem::Sampler(i++, texture->getSampler()));
 	}
 
-	for (u64 i = 0; const auto& b : desc.buffers) {
+	for (u64 i = 1; const auto& b : desc.buffers) {
 		auto buffer = std::dynamic_pointer_cast<buffer::NvrhiBuffer>(b);
 		bindingSetDesc.addItem(::nvrhi::BindingSetItem::ConstantBuffer(i++, buffer->getNativeHandle()));
 	}
