@@ -15,6 +15,7 @@ public:
 		TextureWrapMode wrapMode;
 		TextureFilterMode filterMode;
 	};
+
 protected:
 	Texture(const CreateInfo& info);
 	virtual ~Texture() = default;
@@ -39,7 +40,7 @@ public:
 public:
 
 	// virtual void setPixels(std::span<Color> pixels) = 0;
-	virtual void setPixels(Color* pixels, u32 width, u32 height) = 0;
+	virtual void setPixels(const void* pixels, u32 width, u32 height) = 0;
 
 	// virtual void setPixel(u32 x, u32 y, Color color) = 0;
 

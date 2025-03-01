@@ -16,7 +16,7 @@ VulkanTexture::VulkanTexture(
 	bool isReadable,
 	VkImageUsageFlags usage
 ):
-	Texture({{}, format, wrapMode, filterMode}),
+	Texture({ {}, format, wrapMode, filterMode }),
 	_context(context),
 	_image(
 		context,
@@ -41,7 +41,7 @@ void VulkanTexture::setWrap(TextureWrapMode wrapMode) {
 	Texture::setWrap(wrapMode);
 }
 
-void VulkanTexture::setPixels(Color* pixels, u32 width, u32 height) {
+void VulkanTexture::setPixels(const void* pixels, u32 width, u32 height) {
 	throw exceptions::VulkanException("Not implemented");
 }
 
