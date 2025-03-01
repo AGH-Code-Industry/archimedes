@@ -101,9 +101,9 @@ class NvrhiRendererTestApp: public Application {
 		{
 			auto e = testScene->newEntity();
 			auto&& t = e.addComponent<scene::components::TransformComponent>({
-				{ 600.0f, 350.0f, 0.0f },
+				{ 600.0f, 300.0f, 0.0f },
 				{ 0.0f, 0.0f, 0.0f, 1.0f },
-				{ 400.0f, 400.f, 0.0f },
+				{ 200.0f, 200.f, 0.0f },
 			});
 			// t.scale *= 1'000;
 			e.addComponent<scene::components::MeshComponent>({ atlasMesh, atlasPipeline });

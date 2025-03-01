@@ -7,8 +7,8 @@ int main() {
 
 	arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
 
-	arch::EngineConfig config{ .windowWidth = 600,
-							   .windowHeight = 480,
+	arch::EngineConfig config{ .windowWidth = 640,
+							   .windowHeight = 400,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
 							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
