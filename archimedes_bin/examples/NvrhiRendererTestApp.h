@@ -29,10 +29,10 @@ class NvrhiRendererTestApp: public Application {
 		};
 		std::vector<u32> indices{ 0, 1, 2 };
 		std::vector<Vertex> vertices2{
-			{  { 0.f, 0.f, 0.f }, { 0.f, 0.f } },
-			{  { 0.f, 1.f, 0.f }, { 0.f, 1.f } },
-			{ { 1.f, 0.0f, 0.f }, { 1.f, 0.f } },
-			{ { 1.f, 1.0f, 0.f }, { 1.f, 1.f } },
+			{  { 0.f, 0.f, 0.f }, { 1.f, 1.f } },
+			{  { 0.f, 1.f, 0.f }, { 1.f, 0.f } },
+			{ { 1.f, 0.0f, 0.f }, { 0.f, 1.f } },
+			{ { 1.f, 1.0f, 0.f }, { 0.f, 0.f } },
 		};
 
 		// Ref<Shader> vShader = Shader::load("shaders/vertex_shader.sprv");
