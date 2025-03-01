@@ -12,7 +12,7 @@ class Archimedes(ConanFile):
         self.requires("assimp/5.2.2")
         self.requires("spdlog/1.12.0")
         self.requires("gtest/1.13.0")
-        self.requires("stb/cci.20230920", override=True)
+        self.requires("stb/cci.20230920")
         self.requires("draco/1.5.6", override=True)
         self.requires("ctre/3.9.0")
         self.requires("openssl/3.3.2")

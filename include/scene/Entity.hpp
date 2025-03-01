@@ -10,6 +10,12 @@ Entity::GetResult<C> Entity::addComponent(Args&&... args) {
 	return _scene->domain().addComponent<C>(_entity, std::forward<Args>(args)...);
 }
 
+template<class C>
+Entity::GetResult<C> Entity::addComponent(C&& component) {
+	_assertValid();
+	return _scene->domain().addComponent<C>(_entity, component);
+}
+
 template<class C, class... Args>
 Entity::GetResultOpt<C> Entity::addComponentOpt(Args&&... args) noexcept {
 	auto err = error();
@@ -18,6 +24,20 @@ Entity::GetResultOpt<C> Entity::addComponentOpt(Args&&... args) noexcept {
 			return _scene->domain().addComponent<C>(_entity, std::forward<Args>(args)...);
 		} else {
 			return _scene->domain().addComponent<C>(_entity, std::forward<Args>(args)...);
+		}
+	} else {
+		return Err(err);
+	}
+}
+
+template<class C>
+Entity::GetResultOpt<C> Entity::addComponentOpt(C&& component) noexcept {
+	auto err = error();
+	if (err == Error::none) {
+		if constexpr (ARCH_CTRAITS<C>::flag) {
+			return _scene->domain().addComponent<C>(_entity, component);
+		} else {
+			return _scene->domain().addComponent<C>(_entity, component);
 		}
 	} else {
 		return Err(err);
