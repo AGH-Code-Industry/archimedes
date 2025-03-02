@@ -22,10 +22,11 @@ class PhysicsTestApp: public Application {
 
 		std::vector<Vertex> vertices{
 			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
-			{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{ { 0.f, .25f, 0.1f }, { 1.f, 1.f } },
+			{ { .25f, -.25f, 0.1f }, { 0.f, 1.f } },
 		};
-		std::vector<u32> indices{ 0, 1, 2 };
+		std::vector<u32> indices{ 0, 1, 2, 0, 2, 3 };
 
 		Color pixels[] = {
 			Color{ 1, .5, 1, 1 }
@@ -61,8 +62,8 @@ class PhysicsTestApp: public Application {
 				scene::components::TransformComponent{
 					.position = { 0.0f, 0.0f, 0.0f },
 					.rotation = { 0.0f, 0.0f, 0.0f, 1.0f },
-					.scale = { 1.0f, .5f, 0.0f },
-				}
+					.scale = float3(1)
+			}
 			);
 
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
