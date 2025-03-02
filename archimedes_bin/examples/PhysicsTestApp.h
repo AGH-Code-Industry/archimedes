@@ -3,14 +3,13 @@
 #include <Ecs.h>
 #include <Engine.h>
 #include <Scene.h>
+#include <physics/components/Movable.h>
+#include <physics/System.h>
 
 using namespace arch;
+namespace phy = physics;
 
-struct VelocityComponent {
-	float3 velocity;
-};
-
-class PhysicsTestApp: public Application {
+struct PhysicsTestApp: Application {
 	void init() override {
 		Ref<Scene> testScene = createRef<Scene>();
 
@@ -22,29 +21,14 @@ class PhysicsTestApp: public Application {
 
 		std::vector<Vertex> vertices{
 			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
-			{ { 0.f, .25f, 0.1f }, { 1.f, 1.f } },
-			{ { .25f, -.25f, 0.1f }, { 0.f, 1.f } },
+			{	  { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
+			{	  { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
 		};
-		std::vector<u32> indices{ 0, 1, 2, 0, 2, 3 };
-
-		Color pixels[] = {
-			Color{ 1, .5, 1, 1 }
-		};
+		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 
 		Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
-
-		Ref<gfx::texture::Texture> texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
-
-		auto pipeline = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default.glsl",
-				.textures = { texture },
-				.buffers = {},
-			}
-		);
-		auto pipeline2 = renderer->getPipelineManager()->create(
+	auto pipeline = renderer->getPipelineManager()->create(
 			{
 				.vertexShaderPath = "shaders/vertex_default.glsl",
 				.fragmentShaderPath = "shaders/fragment_default2.glsl",
@@ -55,56 +39,35 @@ class PhysicsTestApp: public Application {
 
 		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		{
-			ecs::Entity e = testScene->newEntity();
-			testScene->domain().addComponent(
-				e,
-				scene::components::TransformComponent{
-					.position = { 0.0f, 0.0f, 0.0f },
-					.rotation = { 0.0f, 0.0f, 0.0f, 1.0f },
-					.scale = float3(1)
-			}
-			);
-
-			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
-			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.01f, .01f, 0.0f });
-		}
-
-		for (int i = 0; i < 5; i++) {
-			ecs::Entity e = testScene->newEntity();
-			testScene->domain().addComponent<scene::components::TransformComponent>(
-				e,
-				{
-					{ -1 + 0.5f * i, 0.25f * i, 0.0f },
-					{ 0.0f, 0.0f, 0.0f, 1.0f },
-					float3(1)
-			  }
-			);
-			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline2 });
-			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, -.01f, 0.0f });
-		}
+		ecs::Entity e = testScene->newEntity();
+		float2 position{ -1.f, 0.f};
+		testScene->domain().addComponent<scene::components::TransformComponent>(
+			e,
+			{
+				{position, 0},
+				{ 0.f, 0.f, 0.f, 1.f },
+				float3(1)
+		  }
+		);
+		testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
+		testScene->domain().addComponent(e, phy::Movable{{1.f, position}, {0.f, 0.f}, {0.1f, 0.f}});
 
 		scene::SceneManager::get()->changeScene(testScene);
+		_physicsSystem = createRef<phy::System>(std::ref(testScene->domain()));
 	}
 
 	void update() override {
 		auto view = scene::SceneManager::get()
 						->currentScene()
 						->domain()
-						.view<scene::components::TransformComponent, VelocityComponent>();
+						.view<scene::components::TransformComponent, phy::Movable>();
 
-		for (auto [entity, transform, velocity] : view.all()) {
-			if ((transform.position.y < -.5f && velocity.velocity.y < 0) ||
-				(transform.position.y > .5f && velocity.velocity.y > 0)) {
-				velocity.velocity.y *= -1;
-			}
-			if ((transform.position.x < -.5f && velocity.velocity.x < 0) ||
-				(transform.position.x > .5f && velocity.velocity.x > 0)) {
-				velocity.velocity.x *= -1;
-			}
-
-			transform.position.x += velocity.velocity.x;
-			transform.position.y += velocity.velocity.y;
+		for (auto [entity, transform, movable] : view.all()) {
+			transform.position = {movable.center.position, 0};
 		}
+
+		_physicsSystem->update();
 	}
+private:
+	Ref<phy::System> _physicsSystem;
 };
