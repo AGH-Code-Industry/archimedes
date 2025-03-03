@@ -2,6 +2,7 @@
 #include <vector>
 
 #include <Logger.h>
+#include <font/Face.h>
 #include <font/Font.h>
 #include <font/FontDB.h>
 #include <freetype2/ft2build.h>
@@ -19,30 +20,9 @@ namespace arch::font {
 
 std::unique_ptr<FontDB> FontDB::_singleton;
 
-std::vector<std::string_view> explodeStyle(std::string_view style) {
-	std::vector<std::string_view> result;
-	result.reserve(4);
-
-	const char* substr = style.data();
-	const char* end = substr + style.length();
-	size_t i = 0;
-	for (; substr + i < end; ++i) {
-		if (substr[i] == ' ') {
-			result.push_back(std::string_view(substr, i++));
-			substr += i;
-		}
-	}
-	result.push_back(std::string_view(substr, i));
-
-	return result;
-}
-
 #if ARCHIMEDES_WINDOWS
-void findAndAddFontsWindows(
-	std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>& fonts,
-	char* pimpl
-) noexcept {
-	FT_Library ft = (FT_Library)pimpl;
+void FontDB::_findAndAddFontsWindows() noexcept {
+	FT_Library ft = (FT_Library)_pimpl;
 	for (const auto hRootKey : { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER }) {
 		constexpr LPCSTR subKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
 
@@ -82,24 +62,25 @@ void findAndAddFontsWindows(
 							faceCount = face->num_faces;
 						}
 
-						auto foundFont = fonts.find(face->family_name);
+						auto foundFont = _fonts.find(face->family_name);
 
-						// set familyName
-						if (foundFont == fonts.end()) {
-							auto&& [it, ignore] = fonts.insert({ face->family_name, {} });
+						// set name
+						if (foundFont == _fonts.end()) {
+							auto&& [it, ignore] = _fonts.insert({ face->family_name, {} });
 
 							it->second._familyName = it->first;
 							foundFont = it;
-						} else if (foundFont->second.familyName().empty()) {
+						} else if (foundFont->second.name().empty()) {
 							foundFont->second._familyName = foundFont->first;
 						}
 
 						auto&& font = foundFont->second;
 
-						font._styles.insert({
-							face->style_name,
-							{ path, (char*)face }
-						  });
+						auto&& [it, ignored] = font._styles.insert({ face->style_name, {} });
+						auto&& fontFace = it->second;
+						fontFace._familyName = font._familyName;
+						fontFace._fontPath = path;
+						fontFace._pimpl = (char*)face;
 					}
 				} while (++i < faceCount);
 			}
@@ -107,15 +88,14 @@ void findAndAddFontsWindows(
 	}
 }
 #elif ARCHIMEDES_LINUX
-void findAndAddFontsLinux(
-	std::unordered_map<std::string, Font, StringViewHasher, StringViewComparator>& fonts,
-	char* pimpl
-) noexcept {}
+void FontDB::_findAndAddFontsLinux() noexcept {}
 #endif
 
 void FontDB::_findAndAddFonts() noexcept {
 #if ARCHIMEDES_WINDOWS
-	findAndAddFontsWindows(_fonts, _pimpl);
+	_findAndAddFontsWindows();
+#elif ARCHIMEDES_LINUX
+	findAndAddFontsLinux();
 #endif
 }
 
@@ -136,16 +116,20 @@ FontDB& FontDB::get() noexcept {
 	return *_singleton;
 }
 
-bool FontDB::exists(std::string_view familyName) const noexcept {
-	return _fonts.contains(familyName);
+bool FontDB::exists(std::string_view name) const noexcept {
+	return _fonts.contains(name);
 }
 
-OptRef<Font> FontDB::get(std::string_view familyName) noexcept {
-	auto found = _fonts.find(familyName);
+OptRef<Font> FontDB::get(std::string_view name) noexcept {
+	auto found = _fonts.find(name);
 	if (found != _fonts.end()) {
 		return found->second;
 	}
 	return std::nullopt;
+}
+
+OptRef<Font> FontDB::operator[](std::string_view name) noexcept {
+	return get(name);
 }
 
 FontDB::MapType::const_iterator FontDB::begin() const noexcept {
