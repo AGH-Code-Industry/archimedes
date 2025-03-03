@@ -7,7 +7,7 @@ int main() {
 
 	arch::Ref<arch::Application> myApp = arch::createRef<TextRenderTestApp>();
 
-	arch::EngineConfig config{ .windowWidth = 800,
+	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),

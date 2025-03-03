@@ -11,6 +11,7 @@ using namespace arch;
 class TextRenderTestApp: public Application {
 	void init() override {
 		int windowWidth = 800;
+		int windowWidth = 1'200;
 		int windowHeight = 600;
 
 		Ref<Scene> testScene = createRef<Scene>();
