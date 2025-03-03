@@ -18,7 +18,8 @@ MSDFAtlasGen& MSDFAtlasGen::get() noexcept {
 }
 
 MSDFAtlasGen::MSDFAtlasGen() noexcept {
-	auto cacheFile = std::ifstream("msdf_atlas_gen_cache");
+	std::filesystem::create_directory("msdf_cache");
+	auto cacheFile = std::ifstream("msdf_cache/msdf_atlas_gen_cache");
 	if (!cacheFile.good()) {
 		_cachePath();
 	} else {
@@ -58,7 +59,8 @@ void MSDFAtlasGen::_cachePath() noexcept {
 	}
 	std::filesystem::remove("msdf_atlas_gen_temp");
 
-	std::ofstream("msdf_atlas_gen_cache") << _binaryPath;
+	std::filesystem::create_directory("msdf_cache");
+	std::ofstream("msdf_cache/msdf_atlas_gen_cache") << _binaryPath;
 }
 
 std::string_view MSDFAtlasGen::path() const noexcept {
