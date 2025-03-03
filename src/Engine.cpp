@@ -4,6 +4,7 @@
 #include "Gfx.h"
 #include "InputHandler.h"
 #include "Logger.h"
+#include "font/FontDB.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 #include "scene/SceneManager.h"
@@ -15,6 +16,7 @@ Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
 	_application{ application } {}
 
 Engine::~Engine() {
+	font::FontDB::_singleton.release();
 	_shutdown();
 }
 
