@@ -14,21 +14,16 @@
 
 namespace arch::font {
 
-class FontAtlas;
+class MSDFAtlasGen;
 class FontDB;
+class Face;
 
 class Font {
-	using StylesSet = std::unordered_map<
-		std::string_view,
-		std::tuple<std::string, char*>,
-		utils::StringViewHasher,
-		utils::StringViewComparator>;
+	using StylesSet = std::unordered_map<std::string_view, Face, utils::StringViewHasher, utils::StringViewComparator>;
 
 public:
 
-	~Font() noexcept;
-
-	static OptRef<Font> get(std::string_view familyName) noexcept;
+	static OptRef<Font> get(std::string_view name) noexcept;
 
 	bool hasStyle(std::string_view style) const noexcept;
 
@@ -39,8 +34,15 @@ public:
 
 	size_t styleCount() const noexcept;
 
-	std::string_view familyName() const noexcept;
-	std::string_view path(std::string_view style) const noexcept;
+	std::string_view name() const noexcept;
+	OptRef<Face> operator[](std::string_view style) noexcept;
+
+	OptRef<Face> face() noexcept;
+	OptRef<Face> face(std::string_view style) noexcept;
+	OptRef<Face> regular() noexcept;
+	OptRef<Face> bold() noexcept;
+	OptRef<Face> italic() noexcept;
+	OptRef<Face> boldItalic() noexcept;
 
 	auto styles() const noexcept -> decltype(std::views::keys(*std::declval<const StylesSet*>()));
 
@@ -50,14 +52,6 @@ public:
 private:
 
 	friend class FontDB;
-	friend void findAndAddFontsWindows(
-		std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>& fonts,
-		char* pimpl
-	) noexcept;
-	friend void findAndAddFontsLinux(
-		std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>& fonts,
-		char* pimpl
-	) noexcept;
 
 	friend class std::unordered_map<std::string, Font, utils::StringViewHasher, utils::StringViewComparator>;
 
