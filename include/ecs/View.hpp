@@ -50,7 +50,7 @@ auto getByTL(const Domain& domain, const Entity entity, TypeList<Includes...>) n
 TEMPLATE_CIE
 size_t VIEW_CIE::_minInclude() const noexcept {
 	if constexpr (includeCount != 1) {
-		const auto min = std::ranges::min_element(_includedCPools, [](const auto lhs, const auto rks) {
+		const auto min = std::ranges::min_element(_includedCPools, [&](const auto lhs, const auto rks) {
 			return !lhs ? true : (!rks ? true : lhs->count() < rks->count());
 		});
 		if (!(*min)) { // at least one cpool is empty
@@ -128,16 +128,85 @@ VIEW_CIE::View(DomainT* domain) noexcept:
 		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
 	) {}
 
-TEMPLATE_CE
-VIEW_CE::View(DomainT* domain) noexcept:
-	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
+TEMPLATE_CIE
+VIEW_CIE::View(const View& other) noexcept:
+	_includedCPools{ other._includedCPools },
+	_excludedCPools{ other._excludedCPools },
+	_minIdx{ other._minIdx },
+	_entities{ other._entities.base(), std::bind(&View::contains, (const View*)this, std::placeholders::_1) } {}
+
+TEMPLATE_CIE
+VIEW_CIE::View(View&& other) noexcept:
+	_includedCPools{ std::move(other._includedCPools) },
+	_excludedCPools{ std::move(other._excludedCPools) },
+	_minIdx{ std::move(other._minIdx) },
+	_entities{ std::move(other._entities).base(),
+			   std::bind(&View::contains, (const View*)this, std::placeholders::_1) } {
+	other._includedCPools = {};
+	other._excludedCPools = {};
+	other._minIdx = (size_t)-1;
+	other._entities = std::views::filter(
+		ecs::_details::CommonComponentPool::_emptyEntitiesForView(),
+		std::bind(&View::contains, (const View*)&other, std::placeholders::_1)
+	);
+}
+
+TEMPLATE_CIE
+VIEW_CIE& VIEW_CIE::operator=(const View& other) noexcept {
+	_includedCPools = other._includedCPools;
+	_excludedCPools = other._excludedCPools;
+	_minIdx = other._minIdx;
+	_entities = std::ranges::filter_view(
+		other._entities.base(),
+		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
+	);
+}
+
+TEMPLATE_CIE
+VIEW_CIE& VIEW_CIE::operator=(View&& other) noexcept {
+	_includedCPools = std::move(other._includedCPools);
+	_excludedCPools = std::move(other._excludedCPools);
+	_minIdx = std::move(other._minIdx);
+	_entities = std::ranges::filter_view(
+		std::move(other._entities).base(),
+		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
+	);
+
+	other._includedCPools = {};
+	other._excludedCPools = {};
+	other._minIdx = (size_t)-1;
+	other._entities = std::views::filter(
+		ecs::_details::CommonComponentPool::_emptyEntitiesForView(),
+		std::bind(&View::contains, (const View*)&other, std::placeholders::_1)
+	);
+}
+
+TEMPLATE_CE VIEW_CE::View(DomainT* domain) noexcept:
+	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain -> template _tryGetCPool<Excludes>())... },
 	// can't just call refresh(), _entities is not default_initializable
-	_entities(domain->entities(), std::bind(&View::_containsNoCheck, this, std::placeholders::_1)),
+	_entities(domain->entities(), std::bind(&View::_containsNoCheck, (const View*)this, std::placeholders::_1)),
 	_domain{ domain } {
 	ARCH_ASSERT(
 		std::ranges::none_of(_excludedCPools, [](const auto cpool) { return cpool == nullptr; }),
 		"At least one ComponentPool does not exist"
 	);
+}
+
+TEMPLATE_CE
+VIEW_CE::View(const View& other) noexcept:
+	_excludedCPools{ other._excludedCPools },
+	_entities{ other._domain->entities(),
+			   std::bind(&View::_containsNoCheck, (const View*)this, std::placeholders::_1) },
+	_domain{ other._domain } {}
+
+TEMPLATE_CE
+VIEW_CE::View(View&& other) noexcept:
+	_excludedCPools{ std::move(other._excludedCPools) },
+	_entities{ std::move(other._domain->entities()),
+			   std::bind(&View::_containsNoCheck, (const View*)this, std::placeholders::_1) },
+	_domain{ std::move(other._domain) } {
+	other._excludedCPools = {};
+	other._domain = {};
 }
 
 TEMPLATE_CE
@@ -150,14 +219,14 @@ bool VIEW_CIE::contains(const Entity entity) const noexcept {
 	return std::all_of(
 			   _includedCPools.begin(),
 			   _includedCPools.begin() + _minIdx,
-			   [entity](const auto cpool) { return cpool->contains(entity); }
+			   [&](const auto cpool) { return cpool->contains(entity); }
 		   ) &&
 		std::all_of(
 			   _includedCPools.begin() + _minIdx + 1,
 			   _includedCPools.end(),
-			   [entity](const auto cpool) { return cpool->contains(entity); }
+			   [&](const auto cpool) { return cpool->contains(entity); }
 		) &&
-		std::ranges::none_of(_excludedCPools, [entity](const auto cpool) { return cpool->contains(entity); });
+		std::ranges::none_of(_excludedCPools, [&](const auto cpool) { return cpool->contains(entity); });
 }
 
 TEMPLATE_CE
@@ -181,7 +250,8 @@ TEMPLATE_CIE VIEW_CIE& VIEW_CIE::refresh() noexcept {
 TEMPLATE_CE
 VIEW_CE& VIEW_CE::refresh() noexcept {
 	_entities.~EntitesViewT();
-	new (&_entities) EntitesViewT(_domain->entities(), std::bind(&View::_containsNoCheck, this, std::placeholders::_1));
+	new (&_entities)
+		EntitesViewT(_domain->entities(), std::bind(&View::_containsNoCheck, (const View*)this, std::placeholders::_1));
 
 	return *this;
 }
@@ -383,67 +453,67 @@ void VIEW_CE::forEach(Fn&& fn) const noexcept {
 	}
 }
 
+// TEMPLATE_CE
+// auto VIEW_CE::begin() noexcept requires(!Const)
+//{
+//	return _entities.begin();
+// }
+
 TEMPLATE_CE
-auto VIEW_CE::begin() noexcept requires(!Const)
-{
-	return _entities.begin();
+auto VIEW_CE::begin() const noexcept {
+	return const_cast<VIEW_CE*>(this)->_entities.begin();
 }
 
 TEMPLATE_CE
-const auto VIEW_CE::begin() const noexcept {
-	return _entities.begin();
+auto VIEW_CE::cbegin() const noexcept {
+	return const_cast<VIEW_CE*>(this)->_entities.begin();
+}
+
+// TEMPLATE_CE
+// auto VIEW_CE::end() noexcept requires(!Const)
+//{
+//	return _entities.end();
+// }
+
+TEMPLATE_CE
+auto VIEW_CE::end() const noexcept {
+	return const_cast<VIEW_CE*>(this)->_entities.end();
 }
 
 TEMPLATE_CE
-const auto VIEW_CE::cbegin() const noexcept {
-	return _entities.begin();
+auto VIEW_CE::cend() const noexcept {
+	return const_cast<VIEW_CE*>(this)->_entities.end();
 }
 
-TEMPLATE_CE
-auto VIEW_CE::end() noexcept requires(!Const)
-{
-	return _entities.end();
-}
+// TEMPLATE_CIE auto VIEW_CIE::begin() noexcept requires(!Const)
+//{
+//	return _entities.begin();
+// }
 
-TEMPLATE_CE
-const auto VIEW_CE::end() const noexcept {
-	return _entities.end();
-}
-
-TEMPLATE_CE
-const auto VIEW_CE::cend() const noexcept {
-	return _entities.end();
-}
-
-TEMPLATE_CIE auto VIEW_CIE::begin() noexcept requires(!Const)
-{
-	return _entities.begin();
+TEMPLATE_CIE
+auto VIEW_CIE::begin() const noexcept {
+	return const_cast<VIEW_CIE*>(this)->_entities.begin();
 }
 
 TEMPLATE_CIE
-const auto VIEW_CIE::begin() const noexcept {
-	return _entities.begin();
+auto VIEW_CIE::cbegin() const noexcept {
+	return const_cast<VIEW_CIE*>(this)->_entities.begin();
+}
+
+// TEMPLATE_CIE
+// auto VIEW_CIE::end() noexcept requires(!Const)
+//{
+//	return _entities.end();
+// }
+
+TEMPLATE_CIE
+auto VIEW_CIE::end() const noexcept {
+	return const_cast<VIEW_CIE*>(this)->_entities.end();
 }
 
 TEMPLATE_CIE
-const auto VIEW_CIE::cbegin() const noexcept {
-	return _entities.begin();
-}
-
-TEMPLATE_CIE
-auto VIEW_CIE::end() noexcept requires(!Const)
-{
-	return _entities.end();
-}
-
-TEMPLATE_CIE
-const auto VIEW_CIE::end() const noexcept {
-	return _entities.end();
-}
-
-TEMPLATE_CIE
-const auto VIEW_CIE::cend() const noexcept {
-	return _entities.end();
+auto VIEW_CIE::cend() const noexcept {
+	return const_cast<VIEW_CIE*>(this)->_entities.end();
 }
 
 } // namespace arch::ecs

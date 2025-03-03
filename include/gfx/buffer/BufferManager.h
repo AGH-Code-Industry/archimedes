@@ -14,10 +14,10 @@ public:
 	virtual ~BufferManager() = default;
 
 public:
-	Ref<VertexBuffer> createVertexBuffer();
+	Ref<VertexBuffer> createVertexBuffer(u64 vertexSize);
 	template<typename VertexT>
 	Ref<VertexBuffer> createVertexBuffer(std::span<VertexT> vertices);
-	Ref<VertexBuffer> createVertexBuffer(void* data, u32 size);
+	Ref<VertexBuffer> createVertexBuffer(void* data, u32 size, u64 vertexSize);
 
 	Ref<IndexBuffer> createIndexBuffer();
 	Ref<IndexBuffer> createIndexBuffer(std::span<u32> indices);
@@ -25,9 +25,9 @@ public:
 	Ref<Buffer> createBuffer();
 
 protected:
-	virtual Ref<VertexBuffer> _createVertexBufferImpl(void* data, u32 size) = 0;
+	virtual Ref<VertexBuffer> _createVertexBufferImpl(void* data, u64 size, u64 vertexSize) = 0;
 	virtual Ref<IndexBuffer> _createIndexBufferImpl(std::span<u32> indices) = 0;
-	virtual Ref<Buffer> _createBufferImpl(void* data, u32 size) = 0;
+	virtual Ref<Buffer> _createBufferImpl(void* data, u64 size) = 0;
 };
 
 } // namespace arch::gfx::buffer

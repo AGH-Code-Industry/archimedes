@@ -1,12 +1,19 @@
 #include "scene/SceneManager.h"
 
 #include "Ecs.h"
-#include "exceptions/InitException.h"
 #include "scene/Components.h"
 
 namespace arch::scene {
 
+static Ref<SceneManager> instance{};
+
 SceneManager::SceneManager() {}
+
+void SceneManager::shutdown() {
+	// TODO: destroy old scene
+	_currentScene.reset();
+	instance.reset();
+}
 
 void SceneManager::update() {
 	// TODO: update scene & all systems
@@ -17,7 +24,8 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 		auto view = _currentScene->domain().view<components::TransformComponent, components::MeshComponent>();
 
 		for (auto [entity, transform, mesh] : view.all()) {
-			renderer->render(mesh.mesh, transform.getTransformMatrix());
+			renderer->usePipeline(mesh.pipeline);
+			renderer->draw(mesh.mesh->getVertexBuffer(), mesh.mesh->getIndexBuffer(), transform.getTransformMatrix());
 		}
 	}
 }
@@ -35,7 +43,9 @@ void SceneManager::changeScene(const Ref<Scene>& scene) {
 }
 
 Ref<SceneManager>& SceneManager::get() {
-	static Ref<SceneManager> instance = createRef<SceneManager>();
+	if (!instance) {
+		instance = createRef<SceneManager>();
+	}
 	return instance;
 }
 

@@ -23,6 +23,7 @@ public:
 
 public:
 	int getCurrentFrameIndex() override;
+	int getFrameCount() const override;
 	uint2 getFramebufferSize() const override;
 
 	::nvrhi::DeviceHandle getDevice() override;

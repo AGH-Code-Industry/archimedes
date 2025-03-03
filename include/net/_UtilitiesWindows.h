@@ -5,8 +5,10 @@
 
 #include <WS2tcpip.h>
 #include <WinSock2.h>
+#include <iphlpapi.h>
 
 #pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "iphlpapi.lib")
 
 #ifndef poll
 #define poll WSAPoll

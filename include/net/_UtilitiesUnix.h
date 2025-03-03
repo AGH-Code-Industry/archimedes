@@ -15,6 +15,10 @@
 #include <string>
 
 #include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
+#include <net/if.h>
 #include <netdb.h>
 #include <poll.h>
 #include <sys/socket.h>
