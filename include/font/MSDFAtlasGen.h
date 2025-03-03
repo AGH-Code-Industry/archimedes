@@ -19,6 +19,8 @@ public:
 
 	std::string_view path() const noexcept;
 
+	static constexpr unsigned int glyphResolution = 32;
+
 private:
 
 	MSDFAtlasGen() noexcept;
