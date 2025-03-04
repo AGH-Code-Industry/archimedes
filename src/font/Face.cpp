@@ -36,7 +36,9 @@ const Face& Face::assure() noexcept {
 		Logger::debug("{}__{}", _familyName, styleName());
 		_generate();
 	}
-	load();
+	if (!loaded()) {
+		load();
+	}
 	return *this;
 }
 
@@ -64,7 +66,7 @@ bool Face::load() noexcept {
 	auto&& atlas = json["atlas"];
 	_atlas.width = atlas["width"].asUInt();
 	_atlas.height = atlas["height"].asUInt();
-	_atlas.size = atlas["size"].asUInt();
+	_atlas.resolution = atlas["size"].asUInt();
 
 	auto&& metrics = json["metrics"];
 	_metrics.lineHeight = metrics["lineHeight"].asFloat();
@@ -233,8 +235,8 @@ const Face::Metrics& Face::metrics() const noexcept {
 	return _metrics;
 }
 
-unsigned int Face::size() const noexcept {
-	return _atlas.size;
+unsigned int Face::resolution() const noexcept {
+	return _atlas.resolution;
 }
 
 Ref<gfx::texture::Texture> Face::atlasTexture() const noexcept {
