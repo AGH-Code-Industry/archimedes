@@ -18,6 +18,8 @@ class Archimedes(ConanFile):
         self.requires("openssl/3.3.2")
 
         self.requires("freetype/2.13.2")
+        self.requires("jsoncpp/1.9.6")
+
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
         self.requires("vulkan-headers/1.3.268.0", override=True)
