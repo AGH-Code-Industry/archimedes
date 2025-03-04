@@ -8,12 +8,11 @@
 #include <audio/AudioManager.h>
 #include <audio/SoundDevice.h>
 
-const std::string sounds = "/home/anon/dev/archimedes/archimedes_bin/sounds/";
 
 namespace audio = arch::audio;
 namespace ecs = arch::ecs;
 
-inline void testSimpleSound() {
+inline void testSimpleSound(const std::string& sounds) {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -31,7 +30,7 @@ inline void testSimpleSound() {
 
 	// initialize and start the audioManager
 	std::mutex mutex;
-	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	while (getchar() != 'q') {
@@ -44,7 +43,7 @@ inline void testSimpleSound() {
 			source->gain = 0.5;
 			source->isLooped = false;
 			//			source->play();
-			domain.addComponent<audio::PlayAudioSourceComponent>(entity);
+			domain.addComponent<audio::AudioSourceActionComponent>(entity);
 		}
 	}
 
@@ -52,7 +51,7 @@ inline void testSimpleSound() {
 	audioManager.stop();
 }
 
-inline void testControl() {
+inline void testControl(const std::string& sounds) {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -66,24 +65,25 @@ inline void testControl() {
 
 	// load audio files that we can play
 	soundBank.addClip(sounds + filename);
+	arch::Logger::debug("loaded groups");
 	soundBank.loadInitialGroups();
 
+
 	// initialize and start the audioManager
-	std::mutex mutex;
-	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
-	auto entity = domain.newEntity();
-	{
-		auto lock = std::lock_guard(mutex);
-		auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+	arch::Logger::debug("started audio thread");
 
-		source->path = sounds + filename;
-		source->gain = 0.5;
-		source->isLooped = true;
-		//			source->play();
-		domain.addComponent<audio::PlayAudioSourceComponent>(entity);
-	}
+	auto entity = domain.newEntity();
+	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+
+	source->path = sounds + filename;
+	source->gain = 0.5;
+	source->isLooped = true;
+	domain.addComponent<audio::AudioSourceActionComponent>(entity);
+
+	arch::Logger::debug("Added components");
 
 	char controlSign = 'x';
 	bool isPlaying = true;
@@ -92,42 +92,35 @@ inline void testControl() {
 		switch (controlSign) {
 			case 'p':
 				{
-					std::lock_guard<std::mutex> lock(mutex);
-					domain.removeComponent<audio::PlayAudioSourceComponent>(entity);
-					domain.removeComponent<audio::StopAudioSourceComponent>(entity);
-					domain.addComponent<audio::PauseAudioSourceComponent>(entity);
+					auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
+					component.action = audio::pause;
 				}
 				break;
 				//				source->pause(); break;
 			case 'c':
 				{
-					std::lock_guard<std::mutex> lock(mutex);
-					domain.removeComponent<audio::PauseAudioSourceComponent>(entity);
-					domain.addComponent<audio::PlayAudioSourceComponent>(entity);
+					auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
+					component.action = audio::play;
 				}
 				break;
 				//				source->play(); break;
-			case 's':
-				{
-					std::lock_guard<std::mutex> lock(mutex);
-					domain.removeComponent<audio::PlayAudioSourceComponent>(entity);
-					domain.removeComponent<audio::PauseAudioSourceComponent>(entity);
-					domain.addComponent<audio::StopAudioSourceComponent>(entity);
-				}
+			case 's': {
+				auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
+				component.action = audio::stop;
 				//				source->stop();
 				isPlaying = false;
 				break;
+			}
 			case 'r':
 				if (!isPlaying) {
 					{
-						std::lock_guard<std::mutex> lock(mutex);
 						auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
 
 						source->path = sounds + filename;
 						source->gain = 0.5;
 						source->isLooped = true;
 						//			source->play();
-						domain.addComponent<audio::PlayAudioSourceComponent>(entity);
+						domain.addComponent<audio::AudioSourceActionComponent>(entity);
 					}
 					//					source = createSource(mutex, domain, filename, true);
 					//					source->play();
@@ -141,7 +134,7 @@ inline void testControl() {
 	audioManager.stop();
 }
 
-inline void testSpatialAudio() {
+inline void testSpatialAudio(const std::string& sounds) {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -171,11 +164,11 @@ inline void testSpatialAudio() {
 		//			source->play();
 		source->positionX = 0.0f;
 		source->positionY = 1.0f;
-		domain.addComponent<audio::PlayAudioSourceComponent>(entity);
+		domain.addComponent<audio::AudioSourceActionComponent>(entity);
 	}
 
 	// initialize and start the audioManager
-	audio::AudioManager audioManager(&soundBank, &domain, mutex);
+	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	// during playing the sound, update the source every 50 ms.

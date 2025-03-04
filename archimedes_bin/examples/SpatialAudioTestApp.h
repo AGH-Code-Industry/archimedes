@@ -16,7 +16,7 @@ namespace ecs = arch::ecs;
 namespace scene = arch::scene;
 
 struct SpatialAudioTestApp: arch::Application {
-	const std::string _soundFile = "/home/anon/dev/archimedes/archimedes_bin/sounds/wind.mp3";
+	const std::string _soundFile = "C:\\Users\\magro\\12.02.2025\\dev\\archimedes\\archimedes_bin\\sounds\\wind.mp3";
 
 	// initialize OpenAL context
 	audio::SoundDevice _device;
@@ -33,12 +33,12 @@ struct SpatialAudioTestApp: arch::Application {
 	int _currentStep{};
 
 	void init() override {
+		Logger::debug("Initializing Audio Manager");
 		// initialize test scene
 		arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
-
 		// initialize AudioManager
 		ecs::Domain* domain = &testScene->domain();
-		_audioManager = new audio::AudioManager(&_soundBank, domain, _mutex);
+		_audioManager = new audio::AudioManager(&_soundBank, domain);
 		_audioThread = new std::jthread(&audio::AudioManager::play, _audioManager);
 
 		// add a sound to SoundBank and load it
@@ -82,7 +82,7 @@ struct SpatialAudioTestApp: arch::Application {
 			source->positionX = 1.0f;
 			source->positionY = 0.0f;
 			// source->play();
-			testScene->domain().addComponent<audio::PlayAudioSourceComponent>(e);
+			testScene->domain().addComponent<audio::AudioSourceActionComponent>(e);
 		}
 
 		scene::SceneManager::get()->changeScene(testScene);

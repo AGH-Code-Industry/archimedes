@@ -6,12 +6,11 @@
 namespace arch::audio {
 
 /// @brief Tells the AudioManager what to do with the AudioSource.
-// enum SourceState {
-// 	ignoring,
-// 	playing,
-// 	pausing,
-// 	stopping
-// };
+enum SourceAction {
+	play,
+	pause,
+	stop
+};
 
 /// @brief ECS component used to store all data about a sound source on the scene.
 /// It also allows to specify what the AudioManager should do with it.
@@ -32,13 +31,6 @@ struct AudioSourceComponent {
 
 	/// @brief Tells if the sound's playback has to be looped.
 	bool isLooped = false;
-
-	/// @brief Index of the SourcePlayer assigned to the AudioSource.
-	/// The SourcePlayer will send the sound's data to OpenAL source, effectively
-	/// playing it. The default value is -1, meaning that the AudioManager
-	/// hadn't assigned the SourcePlayer yet.
-	/// @warning Should be modified ONLY by the AudioManager.
-	int sourceIndex = -1;
 
 	/// @brief Path to the audio file.
 	std::string path = "";
@@ -74,9 +66,7 @@ struct AudioSourceComponent {
 	// SourceState _state = ignoring;
 };
 
-struct PlayAudioSourceComponent {};
-
-struct PauseAudioSourceComponent {};
-
-struct StopAudioSourceComponent {};
+struct AudioSourceActionComponent {
+	SourceAction action = play;
+};
 } // namespace arch::audio

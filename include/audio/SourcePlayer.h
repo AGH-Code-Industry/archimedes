@@ -112,6 +112,8 @@ public:
 	void pausePlaying();
 
 	void setClipPath(const std::string& clipPath);
+
+	void cleanClipPath();
 };
 
 } // namespace arch::audio

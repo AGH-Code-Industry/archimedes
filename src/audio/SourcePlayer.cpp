@@ -12,23 +12,18 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 	_velocityX = source.velocityX;
 	_velocityY = source.velocityY;
 	_isLooped = source.isLooped;
-	// if (source.path != _clipPath) {
-	// 	if (_clipPath == "") {
-	// 		_clipPath = source.path;
-	// 	} else {
-	// 		//TODO: flagged (should be a better way to test this)
-	// 		//I don't want to allow for changing clip path DURING play time,
-	// 		//but it should be allowed if the SourcePlayer is not in use
-	// 		//maybe a different method for updating the clip path, only during startup?
-	// 		throw AudioException("Clip path should be changed only once per source");
-	// 	}
-	// }
+	if (source.path != _clipPath) {
+		throw AudioException("Clip path should be changed only once per source");
+	}
 }
 
 void SourcePlayer::setClipPath(const std::string& clipPath) {
 	_clipPath = clipPath;
 }
 
+void SourcePlayer::cleanClipPath() {
+	_clipPath = "";
+}
 
 void SourcePlayer::_updateSoundAttributes() {
 	alCall(alSourcef, _source, AL_PITCH, _pitch);
@@ -101,7 +96,6 @@ bool SourcePlayer::run() {
 		case AL_PLAYING: _doNextFrame(); break;
 		case AL_PAUSED:	 _continuePlaying(); break;
 		case AL_STOPPED:
-			// source.stop();
 			isStopped = true;
 			break;
 		case AL_INITIAL: _startFromBeginning(); break;
