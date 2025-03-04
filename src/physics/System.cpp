@@ -3,19 +3,19 @@
 #include "ecs/Domain.h"
 #include "ecs/View.h"
 #include "math/Math.h"
-#include "physics/components/Movable.h"
+#include "physics/components/Moveable.h"
 
 namespace arch::physics {
 
 System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
 f32 System::update() {
-	auto viewPhysicsComponents = _domain.view<Movable>();
+	auto viewPhysicsComponents = _domain.view<Moveable>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	viewPhysicsComponents.forEach([&](const ecs::Entity _, Movable& e) {
+	viewPhysicsComponents.forEach([&](const ecs::Entity _, Moveable& e) {
 		// update position
 		e.center.position += e.velocity * t;
 
@@ -28,5 +28,7 @@ f32 System::update() {
 
 	return t;
 }
+
+void System::collisionDetection() {}
 
 } // namespace arch::physics

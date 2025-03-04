@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ecs/Domain.h"
-
 #include <chrono>
+
+#include "ecs/Domain.h"
 
 namespace arch::physics {
 
@@ -18,6 +18,8 @@ public:
 private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
+
+	void collisionDetection();
 };
 
-}
+} // namespace arch::physics
