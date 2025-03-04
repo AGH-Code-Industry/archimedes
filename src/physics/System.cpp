@@ -15,16 +15,14 @@ f32 System::update() {
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	for (const ecs::Entity entity : viewPhysicsComponents) {
-		auto [e] = viewPhysicsComponents.get(entity);
-
+	viewPhysicsComponents.forEach([&](const ecs::Entity _, Movable& e) {
 		// update position
 		e.center.position += e.velocity * t;
 
 		// update speed
-		auto a = e.force / e.center.mass;
+		const float2 a = e.force / e.center.mass;
 		e.velocity += a * t;
-	}
+	});
 
 	_prevTimePoint = Clock::now();
 
