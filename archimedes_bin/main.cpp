@@ -11,7 +11,7 @@ int main() {
 							   .windowHeight = 720,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
-							   .renderingApi = arch::gfx::RenderingAPI::none };
+							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
 
 	arch::Engine engine{ config, myApp };
 	engine.start();
