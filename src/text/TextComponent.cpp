@@ -45,7 +45,7 @@ TextComponent& TextComponent::setFont(font::Face& face) {
 	return *this;
 }
 
-TextComponent& TextComponent::setPosition(float2 pos) {
+TextComponent& TextComponent::setBaseline(float2 pos) {
 	auto&& t = _domain->addComponent<scene::components::TransformComponent>(_entity);
 	// auto posCopy = t.position;
 	t.position = float3{ pos.x, pos.y, 0 };
@@ -67,10 +67,12 @@ TextComponent& TextComponent::setRotationDeg(float degrees) {
 
 TextComponent& TextComponent::setFontSize(float fontSizePx) {
 	_fontSizePx = fontSizePx;
+	_domain->getComponent<scene::components::TransformComponent>(_entity).scale =
+		float3{ _fontSizePx, _fontSizePx, 0 } / (float)_face->resolution();
 	return *this;
 }
 
-float2 TextComponent::getPosition() const noexcept {
+float2 TextComponent::getBaseline() const noexcept {
 	auto transformOpt = _domain->tryGetComponent<scene::components::TransformComponent>(_entity);
 	if (transformOpt) {
 		return { transformOpt->position.x, transformOpt->position.y };
@@ -96,17 +98,28 @@ float2 TextComponent::getAdvance() const noexcept {
 	}
 }
 
-float2 TextComponent::getBaseline() const noexcept {
+float2 TextComponent::getPosition() const noexcept {
 	try {
 		_assure();
-		return { _topLeft.x, _baseLine };
+		auto&& t = _domain->getComponent<scene::components::TransformComponent>(_entity);
+		return { t.position.x, t.position.y };
 	} catch (...) {
 		return {};
 	}
 }
 
-TextComponent& TextComponent::setBaseline(float2 pos) {
-	return setPosition({ pos.x, pos.y + _baseLine });
+TextComponent& TextComponent::setPosition(float2 pos) {
+	return setBaseline({ pos.x, pos.y - (topLeft() - getPosition()).y });
+}
+
+TextComponent& TextComponent::setTopLeft(float2 pos) {
+	auto delta = topLeft() - pos;
+
+	_topLeft += delta;
+	_bottomRight += delta;
+	setPosition(getPosition() + delta);
+
+	return *this;
 }
 
 void TextComponent::_assure() const {
@@ -122,7 +135,7 @@ void TextComponent::_assure() const {
 	}
 }
 
-void TextComponent::updateText() {
+void TextComponent::updateText(bool outline) {
 	_assure();
 	float3 pos{};
 
@@ -195,7 +208,7 @@ void TextComponent::updateText() {
 	};
 
 	// hardcoded, awaiting window.getSize()
-	UniformBuffer ubo{ glm::ortho(0.f, (float)1'200, 0.f, (float)600) };
+	UniformBuffer ubo{ glm::ortho(0.f, (float)1'280, 0.f, (float)720) };
 
 	auto uniformBuffer = gfx::Renderer::getCurrent()
 							 ->getBufferManager()
@@ -203,7 +216,7 @@ void TextComponent::updateText() {
 
 	auto textPipeline = gfx::Renderer::getCurrent()->getPipelineManager()->create({
 		.vertexShaderPath = "shaders/vertex_default.glsl",
-		.fragmentShaderPath = "shaders/fragment_atlas.glsl",
+		.fragmentShaderPath = outline ? "shaders/fragment_atlasOutline.glsl" : "shaders/fragment_atlas.glsl",
 		.textures = { _face->atlasTexture() },
 		.buffers = { uniformBuffer },
 	});
@@ -256,6 +269,10 @@ float TextComponent::rotateDeg(float degrees) {
 
 float TextComponent::rotate(float angle) {
 	return rotate(angle, center());
+}
+
+float2 TextComponent::size() const noexcept {
+	return { _bottomRight.x - _topLeft.x, _topLeft.y - _bottomRight.y };
 }
 
 } // namespace arch::text

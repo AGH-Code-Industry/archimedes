@@ -19,7 +19,7 @@ public:
 	TextComponent& operator=(std::basic_string_view<Char> text);
 	TextComponent& operator=(font::Face& face) noexcept;
 
-	TextComponent& setFont(std::string_view familyName, std::string_view styleName);
+	TextComponent& setFont(std::string_view familyName, std::string_view styleName = "Regular");
 	TextComponent& setFont(font::Face& face);
 
 	template<class Char>
@@ -27,6 +27,7 @@ public:
 
 	TextComponent& setPosition(float2 pos);
 	TextComponent& setBaseline(float2 pos);
+	TextComponent& setTopLeft(float2 pos);
 	TextComponent& setRotation(float radians);
 	TextComponent& setRotationDeg(float degrees);
 
@@ -39,11 +40,13 @@ public:
 
 	float2 getAdvance() const noexcept;
 
-	void updateText();
+	void updateText(bool outline = false);
 
 	float2 topLeft() const noexcept;
 	float2 bottomRight() const noexcept;
 	float2 center() const noexcept;
+
+	float2 size() const noexcept;
 
 	float rotate(float angle, float2 pivot);
 	float rotate(float angle); // pivot = center()

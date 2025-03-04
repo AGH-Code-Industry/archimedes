@@ -20,8 +20,9 @@ void main() {
     vec3 msdf = texture(sampler2D(tex, texSampler), texCoord).rgb;
     float distance = median(msdf.r, msdf.g, msdf.b);
 
-    float pxDist = screenPxRange() * (distance - 0.5f);
-    float alpha = clamp(pxDist + 0.5f, 0.0f, 1.0f);
+    float smoothing = 1.0f / screenPxRange();
+
+    float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);
 
     outColor = vec4(vec3(1), alpha);
 }

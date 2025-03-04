@@ -5,13 +5,13 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<TextRenderTestApp>();
+	arch::Ref<arch::Application> myApp = arch::createRef<ProjectSelectorApp>();
 
-	arch::EngineConfig config{ .windowWidth = 1'200,
-							   .windowHeight = 600,
+	arch::EngineConfig config{ .windowWidth = 1'280,
+							   .windowHeight = 720,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
-							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
+							   .renderingApi = arch::gfx::RenderingAPI::none };
 
 	arch::Engine engine{ config, myApp };
 	engine.start();

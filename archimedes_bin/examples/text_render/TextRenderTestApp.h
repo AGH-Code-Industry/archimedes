@@ -22,8 +22,8 @@ class TextRenderTestApp: public Application {
 	};
 
 	void init() override {
-		int windowWidth = 1'200;
-		int windowHeight = 600;
+		int windowWidth = 1'280;
+		int windowHeight = 720;
 
 		int baseline = windowHeight / 2;
 
@@ -86,19 +86,24 @@ class TextRenderTestApp: public Application {
 		tc.updateText();
 		auto width = (tc.bottomRight() - tc.topLeft()).x;
 		// vv- how to center <div> -vv
-		tc.setBaseline({ (1200.f - width) / 2, windowHeight / 2 });
+		tc.setBaseline({ (1280.f - width) / 2, windowHeight / 2 });
 		tc.updateText();
 	}
 
 	void update() {
+		static float time = 0;
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+		auto&& arial = *font::FontDB::get()["Arial"]->regular();
 
 		for (auto&& [ent, tr, tc] : scene::SceneManager::get()
 										->currentScene()
 										->domain()
 										.view<scene::components::TransformComponent, text::TextComponent>()
 										.all()) {
-			tc.rotateDeg(1.f);
+			// tc.rotateDeg(1.f);
+			tc.setFontSize(70.f * (cos(time) + 1) / 2.f);
 		}
+		time += 0.05f;
 	}
 };

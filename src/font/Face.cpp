@@ -157,7 +157,7 @@ void Face::_generate() noexcept {
 	command = std::format(
 		"\"\"{0}\" -type msdf -font \"{1}\" -format png -imageout {2}.png -json {2}.json -size {4} "
 		"-pxrange "
-		"4 -yorigin top -chars \"[0x0, 0x100000]\" > {3} 2> {3}\"",
+		"6 -yorigin top -chars \"[0x0, 0x100000]\" > {3} 2> {3}\"",
 		MSDFAtlasGen::get().path(),
 		_fontPath,
 		fileName,
