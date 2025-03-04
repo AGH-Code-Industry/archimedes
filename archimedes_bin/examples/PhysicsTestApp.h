@@ -3,7 +3,7 @@
 #include <Ecs.h>
 #include <Engine.h>
 #include <Scene.h>
-#include <physics/components/Movable.h>
+#include <physics/components/Moveable.h>
 #include <physics/System.h>
 
 using namespace arch;
@@ -50,7 +50,7 @@ struct PhysicsTestApp: Application {
 		  }
 		);
 		testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
-		testScene->domain().addComponent(e, phy::Movable{{1.f, position}, {0.f, 0.f}, {0.1f, 0.f}});
+		testScene->domain().addComponent(e, phy::Moveable{{1.f, position}, {0.f, 0.f}, {0.1f, 0.f}});
 
 		scene::SceneManager::get()->changeScene(testScene);
 		_physicsSystem = createRef<phy::System>(std::ref(testScene->domain()));
@@ -60,7 +60,7 @@ struct PhysicsTestApp: Application {
 		auto view = scene::SceneManager::get()
 						->currentScene()
 						->domain()
-						.view<scene::components::TransformComponent, phy::Movable>();
+						.view<scene::components::TransformComponent, phy::Moveable>();
 
 		for (auto [entity, transform, movable] : view.all()) {
 			transform.position = {movable.center.position, 0};

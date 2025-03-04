@@ -1,14 +1,14 @@
-#include <gtest/gtest.h>
-
 #include <Ecs.h>
+#include <gtest/gtest.h>
 #include <physics/System.h>
 #include <physics/components/Moveable.h>
 
-TEST(Physics, TestUpdate) {
-	namespace ecs = arch::ecs;
-	namespace phy = arch::physics;
-	namespace math = arch::math;
+namespace physics {
+namespace ecs = arch::ecs;
+namespace phy = arch::physics;
+namespace math = arch::math;
 
+TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
 	phy::System system(domain);
 
@@ -16,7 +16,7 @@ TEST(Physics, TestUpdate) {
 
 	// Create movable entity
 	phy::Moveable& entity = domain.addComponent<phy::Moveable>(e0);
-	entity.center = {.mass = 1.f, .position = math::float2(0.f, 0.f)};
+	entity.center = { .mass = 1.f, .position = math::float2(0.f, 0.f) };
 	constexpr auto startV = math::float2(1.f, 0.f);
 	entity.velocity = startV;
 
@@ -32,3 +32,8 @@ TEST(Physics, TestUpdate) {
 	// Expect that velocity updated accordingly to the force
 	EXPECT_EQ(entity.velocity, startV + t * entity.force);
 }
+
+TEST(Physics, CheckCollisions) {
+
+}
+} // namespace physics
