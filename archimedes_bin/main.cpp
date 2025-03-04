@@ -1,11 +1,19 @@
 #include "examples/NvrhiRendererTestApp.h"
+#include "examples/SpatialAudioTestApp.h"
+#include "examples/LegacyAudioTests.h"
 #include <Engine.h>
 #include <Logger.h>
+
+namespace ecs = arch::ecs;
+
+const std::string sounds = "C:\\Users\\magro\\12.02.2025\\dev\\archimedes\\archimedes_bin\\sounds";
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
+	// testControl(sounds);
+
+	arch::Ref<arch::Application> myApp = arch::createRef<SpatialAudioTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 600,
 							   .windowHeight = 480,
