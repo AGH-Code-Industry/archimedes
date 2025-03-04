@@ -3,6 +3,7 @@
 #include "ecs/Domain.h"
 #include "ecs/View.h"
 #include "math/Math.h"
+#include "physics/components/Colliding.h"
 #include "physics/components/Moveable.h"
 
 namespace arch::physics {
@@ -24,11 +25,18 @@ f32 System::update() {
 		e.velocity += a * t;
 	});
 
+	collisionDetection(t);
+
 	_prevTimePoint = Clock::now();
 
 	return t;
 }
 
-void System::collisionDetection() {}
+void System::collisionDetection(f32 t) {
+	auto collidingView = _domain.view<const Colliding>();
+	// collide every Colliding object with all BBoxes
+
+	// collide every Colliding with every other Colliding
+}
 
 } // namespace arch::physics

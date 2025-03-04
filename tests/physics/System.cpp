@@ -2,7 +2,7 @@
 
 #include <Ecs.h>
 #include <physics/System.h>
-#include <physics/components/Movable.h>
+#include <physics/components/Moveable.h>
 
 TEST(Physics, TestUpdate) {
 	namespace ecs = arch::ecs;
@@ -15,7 +15,7 @@ TEST(Physics, TestUpdate) {
 	auto e0 = domain.newEntity();
 
 	// Create movable entity
-	phy::Movable& entity = domain.addComponent<phy::Movable>(e0);
+	phy::Moveable& entity = domain.addComponent<phy::Moveable>(e0);
 	entity.center = {.mass = 1.f, .position = math::float2(0.f, 0.f)};
 	constexpr auto startV = math::float2(1.f, 0.f);
 	entity.velocity = startV;
