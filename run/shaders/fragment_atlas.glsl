@@ -9,7 +9,7 @@ layout(location = 1) in vec2 texCoord;
 layout(location = 0) out vec4 outColor;
 
 float screenPxRange() {
-    return 12.0;
+    return 16.0;
 }
 
 float median(float r, float g, float b) {
