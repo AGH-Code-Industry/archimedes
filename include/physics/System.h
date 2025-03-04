@@ -19,7 +19,7 @@ private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
 
-	void collisionDetection(f32 t);
+	void _collisionDetection(f32 t) const;
 };
 
 } // namespace arch::physics
