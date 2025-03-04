@@ -6,7 +6,6 @@
 #include <font/MSDFAtlasGen.h>
 #include <freetype2/ft2build.h>
 #include <json/json.h>
-#include <utils/CSVLocale.h>
 #include FT_FREETYPE_H
 
 #include <stb_image.h>
