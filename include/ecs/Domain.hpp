@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include "Domain.h"
+#include "DomainAwareComponent.h"
 
 namespace arch::ecs {
 
@@ -55,7 +56,11 @@ const ComponentPool<std::remove_const_t<C>>* Domain::_tryGetCPool() const noexce
 
 template<class C, class... Args>
 Domain::GetReference<std::remove_const_t<C>> Domain::addComponent(const Entity entity, Args&&... args) noexcept {
-	return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<Args>(args)...);
+	if constexpr (DomainAwareComponent<C, Args...>) {
+		return _assureCPool<std::remove_const_t<C>>().addComponent(entity, *this, entity, std::forward<Args>(args)...);
+	} else {
+		return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<Args>(args)...);
+	}
 }
 
 template<class C>
