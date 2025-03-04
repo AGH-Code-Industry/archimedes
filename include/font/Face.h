@@ -50,7 +50,7 @@ public:
 	float kerning(char32_t right, char32_t left) const noexcept;
 	const KerningMap& kerningMap() const noexcept;
 	const Metrics& metrics() const noexcept;
-	unsigned int size() const noexcept;
+	unsigned int resolution() const noexcept;
 
 	Ref<gfx::texture::Texture> atlasTexture() const noexcept;
 	Ref<gfx::texture::Texture> atlasTextureGen() noexcept;
@@ -71,7 +71,7 @@ private:
 	struct {
 		unsigned int width;
 		unsigned int height;
-		unsigned int size;
+		unsigned int resolution;
 	} _atlas;
 
 	Metrics _metrics;
