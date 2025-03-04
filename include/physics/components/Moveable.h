@@ -5,7 +5,7 @@
 
 namespace arch::physics {
 
-struct Movable {
+struct Moveable {
 	MassCenter center;
 	float2 force;
 	float2 velocity;

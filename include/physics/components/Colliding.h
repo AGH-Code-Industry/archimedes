@@ -2,13 +2,13 @@
 
 #include "BBox.h"
 #include "math/Math.h"
-#include "Movable.h"
+#include "Moveable.h"
 
 namespace arch::physics {
 
 struct Colliding {
 	BBox box;
-	float2 bottomRight;
+	Moveable body;
 };
 
 }
