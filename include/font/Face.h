@@ -46,6 +46,7 @@ public:
 	OptRef<const GlyphData> glyphDataGen(char32_t unicode) noexcept;
 	OptRef<const GlyphData> operator[](char32_t unicode) noexcept;
 	OptRef<const GlyphData> operator[](char32_t unicode) const noexcept;
+	const GlyphData& placeholder() const noexcept;
 
 	float kerning(char32_t right, char32_t left) const noexcept;
 	const KerningMap& kerningMap() const noexcept;
@@ -63,6 +64,7 @@ private:
 	friend class MSDFAtlasGen;
 
 	void _generate() noexcept;
+	const GlyphData* _findPlaceholder() const noexcept;
 
 	std::string_view _familyName;
 	std::string _fontPath;
@@ -79,6 +81,7 @@ private:
 	std::unordered_map<char32_t, GlyphData> _glyphs{};
 	KerningMap _kerning;
 	Ref<gfx::texture::Texture> _atlasTexture;
+	const GlyphData* _placeholder;
 };
 
 } // namespace arch::font

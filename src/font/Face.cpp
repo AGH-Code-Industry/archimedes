@@ -1,3 +1,4 @@
+#include <array>
 #include <execution>
 #include <filesystem>
 #include <iostream>
@@ -129,11 +130,13 @@ bool Face::load() noexcept {
 		}
 	);
 
-	_atlasTexture = gfx::Renderer::getCurrent()
-						->getTextureManager()
-						->createTexture2D(atlasWidth(), atlasHeight(), textureData.data());
+	auto&& renderer = *gfx::Renderer::getCurrent();
+
+	_atlasTexture = renderer.getTextureManager()->createTexture2D(atlasWidth(), atlasHeight(), textureData.data());
 
 	stbi_image_free(loadedTextureData);
+
+	_placeholder = _findPlaceholder();
 
 	return true;
 }
@@ -247,6 +250,25 @@ Ref<gfx::texture::Texture> Face::atlasTexture() const noexcept {
 
 Ref<gfx::texture::Texture> Face::atlasTextureGen() noexcept {
 	return assure().atlasTexture();
+}
+
+const GlyphData* Face::_findPlaceholder() const noexcept {
+	constexpr auto potentialPlaceholders =
+		std::array{ U'\xfffd', U'\xfffc', U'\x25a1', U'\x25af', U'\x2b1a', U'?', U' ' };
+
+	for (auto placeholder : potentialPlaceholders) {
+		auto glyphDataOpt = glyphData(placeholder);
+		if (glyphDataOpt) {
+			return &*glyphDataOpt;
+		}
+	}
+	Logger::error("Style '{}' of '{}' does not contain '?' or ' '!", styleName(), _familyName);
+	return nullptr; // impossible for font to not have
+					// '?' or ' '
+}
+
+const GlyphData& Face::placeholder() const noexcept {
+	return *_placeholder;
 }
 
 } // namespace arch::font
