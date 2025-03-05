@@ -22,19 +22,28 @@ struct PhysicsTestApp final: Application {
 
 		std::vector<Vertex> vertices{
 			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{	  { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
-			{	  { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
-			{	  { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
+			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{ { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
+			{ { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
 		};
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 
 		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+
+		struct UniformBuffer {
+			Mat4x4 projection;
+		};
+
+		UniformBuffer ubo{ glm::ortho(0.f, 640.f, 0.f, 400.f) };
+		auto uniformBuffer =
+			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+
 		const auto pipeline = renderer->getPipelineManager()->create(
 			{
 				.vertexShaderPath = "shaders/vertex_default.glsl",
 				.fragmentShaderPath = "shaders/fragment_default2.glsl",
 				.textures = {},
-				.buffers = {},
+				.buffers = { uniformBuffer },
 			}
 		);
 
