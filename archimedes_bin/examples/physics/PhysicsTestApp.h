@@ -34,7 +34,7 @@ struct PhysicsTestApp final: Application {
 			Mat4x4 projection;
 		};
 
-		UniformBuffer ubo{ glm::ortho(0.f, 640.f, 0.f, 400.f) };
+		UniformBuffer ubo{ glm::mat4{1} };
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
@@ -49,8 +49,7 @@ struct PhysicsTestApp final: Application {
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		auto ideallyElasticCollision = [&,
-										&domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
+		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
 			phy::Moveable& myBody = domain.getComponent<phy::Colliding>(me).body;
 			phy::Moveable& otherBody = domain.getComponent<phy::Colliding>(other).body;
 
