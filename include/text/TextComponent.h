@@ -1,69 +1,57 @@
 #pragma once
 
-#include <Font.h>
-#include <ecs/Domain.h>
+#include <unordered_map>
+
+#include <asset/mesh/Mesh.h>
+#include <font/Face.h>
+#include <gfx/pipeline/Pipeline.h>
 
 namespace arch::text {
 
 class TextComponent {
 public:
 
+	TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName = "");
+	TextComponent(
+		std::u32string text,
+		std::vector<Ref<gfx::buffer::Buffer>> buffers,
+		std::string_view familyName,
+		std::string_view styleName = ""
+	);
+	TextComponent(std::u32string text, font::Face& face) noexcept;
+	TextComponent(std::u32string text, std::vector<Ref<gfx::buffer::Buffer>> buffers, font::Face& face) noexcept;
 	TextComponent(const TextComponent&) noexcept = default;
 	TextComponent(TextComponent&&) noexcept = default;
 
-	TextComponent(ecs::Domain& domain, const ecs::Entity entity) noexcept;
-
 	TextComponent& operator=(const TextComponent&) noexcept = default;
 	TextComponent& operator=(TextComponent&&) noexcept = default;
-	template<class Char>
-	TextComponent& operator=(std::basic_string_view<Char> text);
-	TextComponent& operator=(font::Face& face) noexcept;
 
-	TextComponent& setFont(std::string_view familyName, std::string_view styleName);
-	TextComponent& setFont(font::Face& face);
+	void swap(TextComponent& other) noexcept;
 
-	template<class Char>
-	TextComponent& setText(std::basic_string_view<Char> text = {});
+	float3 topLeft(const float3 scale = float3(1)) const noexcept;
+	float3 bottomRight(const float3 scale = float3(1)) const noexcept;
 
-	TextComponent& setPosition(float2 pos);
-	TextComponent& setBaseline(float2 pos);
-	TextComponent& setRotation(float radians);
-	TextComponent& setRotationDeg(float degrees);
-
-	TextComponent& setFontSize(float fontSizePx);
-
-	float2 getPosition() const noexcept;
-	float2 getBaseline() const noexcept;
-	float getRotation() const noexcept;
-	float getRotationDeg() const noexcept;
-
-	float2 getAdvance() const noexcept;
-
-	void updateText();
-
-	float2 topLeft() const noexcept;
-	float2 bottomRight() const noexcept;
-	float2 center() const noexcept;
-
-	float rotate(float angle, float2 pivot);
-	float rotate(float angle); // pivot = center()
-	float rotateDeg(float degrees, float2 pivot);
-	float rotateDeg(float degrees); // pivot = center()
+	const Ref<gfx::pipeline::Pipeline>& pipeline() const noexcept;
+	const Ref<asset::mesh::Mesh>& mesh() const noexcept;
 
 private:
 
-	void _assure() const;
+	void _compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noexcept;
 
 	std::u32string _text{};
 	font::Face* _face{};
-	ecs::Domain* _domain{};
-	ecs::Entity _entity = ecs::nullEntity;
-	float2 _topLeft{};
-	float2 _bottomRight{};
-	float _fontSizePx = 12;
-	float _baseLine{};
+	float3 _topLeft{};
+	float3 _bottomRight{};
+	Ref<gfx::pipeline::Pipeline> _pipeline;
+	Ref<asset::mesh::Mesh> _mesh;
+
+	// TODO: sizes of words -> easy word wrap
+	struct BBox {
+		float3 topLeft;
+		float3 bottomRight;
+	};
+
+	std::unordered_map<char32_t*, BBox> _wordsBBoxes;
 };
 
 } // namespace arch::text
-
-#include "TextComponent.hpp"
