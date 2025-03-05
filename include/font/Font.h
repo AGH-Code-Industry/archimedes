@@ -7,7 +7,6 @@
 #include <type_traits>
 #include <unordered_map>
 
-#include "FontStyle.h"
 #include <utils/OptRef.h>
 #include <utils/StringViewComparator.h>
 #include <utils/StringViewHasher.h>
