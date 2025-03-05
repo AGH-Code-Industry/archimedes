@@ -10,26 +10,26 @@ namespace arch::physics {
 
 namespace {
 [[nodiscard]] bool areColliding(const BBox& lhs, const BBox& rhs) {
-	if (lhs.topLeft.x < rhs.topLeft.x && rhs.topLeft.x < lhs.bottomRight.x) {
+	if (lhs.topLeft.x <= rhs.topLeft.x && rhs.topLeft.x <= lhs.bottomRight.x) {
 		// top left corner of right rectangle is in the left rectangle
-		if (lhs.bottomRight.y < rhs.topLeft.y && rhs.topLeft.y < lhs.topLeft.y) {
+		if (lhs.bottomRight.y <= rhs.topLeft.y && rhs.topLeft.y <= lhs.topLeft.y) {
 			return true;
 		}
 
 		// bottom left corner of right rectangle is in the left rectangle
-		if (lhs.bottomRight.y < rhs.bottomRight.y && rhs.bottomRight.y < lhs.topLeft.y) {
+		if (lhs.bottomRight.y <= rhs.bottomRight.y && rhs.bottomRight.y <= lhs.topLeft.y) {
 			return true;
 		}
 	}
 
-	if (lhs.topLeft.x < rhs.bottomRight.x && rhs.bottomRight.x < lhs.bottomRight.x) {
+	if (lhs.topLeft.x <= rhs.bottomRight.x && rhs.bottomRight.x <= lhs.bottomRight.x) {
 		// top right corner of right rectangle is in the left rectangle
-		if (lhs.bottomRight.y < rhs.topLeft.y && rhs.topLeft.y < lhs.topLeft.y) {
+		if (lhs.bottomRight.y <= rhs.topLeft.y && rhs.topLeft.y <= lhs.topLeft.y) {
 			return true;
 		}
 
 		// bottom right corner of right rectangle is in the left rectangle
-		if (lhs.bottomRight.y < rhs.bottomRight.y && rhs.bottomRight.y < lhs.topLeft.y) {
+		if (lhs.bottomRight.y <= rhs.bottomRight.y && rhs.bottomRight.y <= lhs.topLeft.y) {
 			return true;
 		}
 	}
@@ -42,6 +42,7 @@ System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now(
 
 f32 System::update() {
 	auto viewPhysicsComponents = _domain.view<Moveable>();
+	auto viewColliding = _domain.view<Colliding>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
@@ -55,6 +56,17 @@ f32 System::update() {
 		e.velocity += a * t;
 	});
 
+	viewColliding.forEach([&](ecs::Entity _, Colliding& c) {
+		// update position
+		c.body.center.position += c.body.velocity * t;
+		c.box.topLeft += c.body.velocity * t;
+		c.box.bottomRight += c.body.velocity * t;
+
+		// update speed
+		const float2 a = c.body.force / c.body.center.mass;
+		c.body.velocity += a * t;
+	});
+
 	_collisionDetection(t);
 
 	_prevTimePoint = Clock::now();
@@ -63,12 +75,12 @@ f32 System::update() {
 }
 
 void System::_collisionDetection(f32 t) const {
-	auto bboxesView = _domain.view<const BBox>();
-	auto collidingView = _domain.view<Colliding>();
+	auto viewBBoxes = _domain.view<const BBox>();
+	auto viewColliding = _domain.view<Colliding>();
 
 	// collide every Colliding object with all BBoxes
-	collidingView.forEach([&](const ecs::Entity lhs, const Colliding& c) {
-		bboxesView.forEach([&](const ecs::Entity rhs, const BBox& b) {
+	viewColliding.forEach([&](const ecs::Entity lhs, const Colliding& c) {
+		viewBBoxes.forEach([&](const ecs::Entity rhs, const BBox& b) {
 			if (areColliding(c.box, b)) {
 				c.action(lhs, rhs);
 			}
@@ -76,18 +88,18 @@ void System::_collisionDetection(f32 t) const {
 	});
 
 	// collide every Colliding with every other Colliding
-	for (auto lhsIt = collidingView.begin(); lhsIt != collidingView.end(); ++lhsIt) {
-		if (std::next(lhsIt) == collidingView.end()) {
+	for (auto lhsIt = viewColliding.begin(); lhsIt != viewColliding.end(); ++lhsIt) {
+		if (std::next(lhsIt) == viewColliding.end()) {
 			break;
 		}
 
 		const ecs::Entity lhs = *lhsIt;
-		auto [c1] = collidingView.get(lhs);
+		auto [c1] = viewColliding.get(lhs);
 
-		for (auto rhsIt = std::next(lhsIt); rhsIt != collidingView.end(); ++rhsIt) {
+		for (auto rhsIt = std::next(lhsIt); rhsIt != viewColliding.end(); ++rhsIt) {
 			const ecs::Entity rhs = *rhsIt;
 
-			if (auto [c2] = collidingView.get(rhs); areColliding(c1.box, c2.box)) {
+			if (auto [c2] = viewColliding.get(rhs); areColliding(c1.box, c2.box)) {
 				c1.action(lhs, rhs);
 			}
 		}
