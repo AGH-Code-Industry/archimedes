@@ -13,6 +13,11 @@
 
 namespace arch::font {
 
+static constexpr std::string_view regular = "Regular";
+static constexpr std::string_view bold = "Bold";
+static constexpr std::string_view italic = "Italic";
+static constexpr std::string_view boldItalic = "Bold Italic";
+
 class MSDFAtlasGen;
 class FontDB;
 class Face;
@@ -36,8 +41,7 @@ public:
 	std::string_view name() const noexcept;
 	OptRef<Face> operator[](std::string_view style) noexcept;
 
-	OptRef<Face> face() noexcept;
-	OptRef<Face> face(std::string_view style) noexcept;
+	OptRef<Face> face(std::string_view style = "") noexcept;
 	OptRef<Face> regular() noexcept;
 	OptRef<Face> bold() noexcept;
 	OptRef<Face> italic() noexcept;

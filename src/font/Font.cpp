@@ -22,19 +22,19 @@ bool Font::hasStyle(std::string_view style) const noexcept {
 }
 
 bool Font::hasRegular() const noexcept {
-	return hasStyle("Regular");
+	return hasStyle(font::regular);
 }
 
 bool Font::hasItalic() const noexcept {
-	return hasStyle("Italic");
+	return hasStyle(font::italic);
 }
 
 bool Font::hasBold() const noexcept {
-	return hasStyle("Bold");
+	return hasStyle(font::bold);
 }
 
 bool Font::hasBoldItalic() const noexcept {
-	return hasStyle("Bold Italic");
+	return hasStyle(font::boldItalic);
 }
 
 size_t Font::styleCount() const noexcept {
@@ -53,24 +53,20 @@ OptRef<Face> Font::face(std::string_view style) noexcept {
 	return std::nullopt;
 }
 
-OptRef<Face> Font::face() noexcept {
-	return regular();
-}
-
 OptRef<Face> Font::regular() noexcept {
-	return face("Regular");
+	return face(font::regular);
 }
 
 OptRef<Face> Font::bold() noexcept {
-	return face("Bold");
+	return face(font::bold);
 }
 
 OptRef<Face> Font::italic() noexcept {
-	return face("Italic");
+	return face(font::italic);
 }
 
 OptRef<Face> Font::boldItalic() noexcept {
-	return face("Bold Italic");
+	return face(font::boldItalic);
 }
 
 OptRef<Face> Font::operator[](std::string_view style) noexcept {
