@@ -38,6 +38,10 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 			 domain.view<components::TransformComponent, components::MeshComponent>().all()) {
 			renderInfo.emplace_back(mesh.mesh.get(), &mesh.pipeline, &transform);
 		}
+		for (auto [entity, transform, text] :
+			 domain.view<components::TransformComponent, text::TextComponent>().all()) {
+			renderInfo.emplace_back(text.mesh().get(), &text.pipeline(), &transform);
+		}
 
 		std::ranges::sort(renderInfo, [](const RenderInfo& lhs, const RenderInfo& rhs) {
 			return lhs.transform->position.z > rhs.transform->position.z;
