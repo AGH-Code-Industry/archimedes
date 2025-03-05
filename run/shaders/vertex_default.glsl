@@ -10,12 +10,12 @@ layout(push_constant) uniform PushConstant {
 	mat4 transform;
 } pushConstant;
 
-// layout(binding = 256) uniform UniformBufferObject {
-//     mat4 mvp;
-// } ubo;
+layout(binding = 257) uniform UniformBufferObject {
+    mat4 projection;
+} ubo;
 
 
 void main() {
-    gl_Position = pushConstant.transform * vec4(inPosition, 1.0);
+    gl_Position = ubo.projection * pushConstant.transform * vec4(inPosition, 1.0);
     fragColor = vec3(inUV, 0.0);
 }

@@ -12,10 +12,11 @@ public:
 	~NvrhiTexture() override = default;
 
 	::nvrhi::TextureHandle getNativeHandle() const { return _handle; }
+
 	::nvrhi::SamplerHandle getSampler();
 
 public:
-	void setPixels(Color* pixels, u32 width, u32 height) override;
+	void setPixels(const void* pixels, u32 width, u32 height) override;
 
 protected:
 	virtual ::nvrhi::TextureDesc _getDesc() const;

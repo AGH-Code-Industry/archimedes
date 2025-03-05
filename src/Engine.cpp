@@ -44,13 +44,12 @@ void Engine::_mainLoop() {
 		_sceneManager->update();
 
 		// Render the scene
-		_renderer->beginFrame();
+		if (_renderer->beginFrame()) {
+			_sceneManager->renderScene(_renderer);
 
-		_sceneManager->renderScene(_renderer);
+			_renderer->present();
+		}
 
-		_renderer->present();
-
-		_mainWindow->swapBuffers();
 		glfwPollEvents();
 	}
 }

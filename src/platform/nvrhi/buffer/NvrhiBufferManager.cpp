@@ -34,8 +34,8 @@ Ref<gfx::buffer::IndexBuffer> NvrhiBufferManager::_createIndexBufferImpl(std::sp
 	return buffer;
 }
 
-Ref<gfx::buffer::Buffer> NvrhiBufferManager::_createBufferImpl(void* data, u64 size) {
-	auto buffer = createRef<NvrhiBuffer>(gfx::buffer::BufferType::blob, weak_from_this());
+Ref<gfx::buffer::Buffer> NvrhiBufferManager::_createBufferImpl(gfx::buffer::BufferType type, void* data, u64 size) {
+	auto buffer = createRef<NvrhiBuffer>(type, weak_from_this());
 	if (data && size > 0) {
 		buffer->setData(data, size);
 	}
