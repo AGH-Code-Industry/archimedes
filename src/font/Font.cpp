@@ -46,6 +46,20 @@ std::string_view Font::name() const noexcept {
 }
 
 OptRef<Face> Font::face(std::string_view style) noexcept {
+	if (style.empty()) {
+		auto reg = regular();
+		if (reg) {
+			return reg;
+		} else {
+			auto first = _styles.begin();
+			if (first != _styles.end()) {
+				return first->second;
+			} else {
+				return std::nullopt;
+			}
+		}
+	}
+
 	auto found = _styles.find(style);
 	if (found != _styles.end()) {
 		return found->second;
