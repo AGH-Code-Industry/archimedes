@@ -60,7 +60,7 @@ class TextRenderTestApp: public Application {
 
 		auto linePipeline = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_line.glsl",
+			.fragmentShaderPath = "shaders/fragment_default2.glsl",
 			.textures = {},
 			.buffers = { uniformBuffer },
 		});
