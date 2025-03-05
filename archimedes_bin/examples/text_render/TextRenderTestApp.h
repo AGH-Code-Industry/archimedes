@@ -60,7 +60,7 @@ class TextRenderTestApp: public Application {
 
 		auto linePipeline = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
+			.fragmentShaderPath = "shaders/fragment_line.glsl",
 			.textures = {},
 			.buffers = { uniformBuffer },
 		});
@@ -77,28 +77,32 @@ class TextRenderTestApp: public Application {
 			line.addComponent<LineFlag>();
 		}
 
-		auto&& tc = testScene->newEntity()
-						.addComponent<text::TextComponent>()
-						.setFont("Arial", "Regular")
-						.setFontSize(70)
-						.setBaseline({ 0, windowHeight / 2 })
-						.setText<char32_t>(U"Zażółć gęślą jaźń <3 AV");
-		tc.updateText();
-		auto width = (tc.bottomRight() - tc.topLeft()).x;
-		// vv- how to center <div> -vv
-		tc.setBaseline({ (1200.f - width) / 2, windowHeight / 2 });
-		tc.updateText();
-	}
+		{
+			auto text = testScene->newEntity();
+			auto&& t = text.addComponent<scene::components::TransformComponent>({
+				{ 0.f, windowHeight / 2, 0.f },
+				{ 0.f, 0.f, 0.f, 1.f },
+				{ 70.f, 70.f, 0.f }
+			});
+			auto&& tc = text.addComponent<text::TextComponent>(
+				U"Zażółć gęślą jaźń <3 AV",
+				std::vector{ uniformBuffer },
+				"Arial"
+			);
 
-	void update() {
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			auto topLeft = float4{ tc.topLeft(), 1 };
+			auto bottomRight = float4{ tc.bottomRight(), 1 };
 
-		for (auto&& [ent, tr, tc] : scene::SceneManager::get()
-										->currentScene()
-										->domain()
-										.view<scene::components::TransformComponent, text::TextComponent>()
-										.all()) {
-			tc.rotateDeg(1.f);
+			std::cout << std::format("min = ({}, {})\n", topLeft.x, topLeft.y);
+			std::cout << std::format("max = ({}, {})\n", bottomRight.x, bottomRight.y);
+
+			topLeft = t.getTransformMatrix() * topLeft;
+			bottomRight = t.getTransformMatrix() * bottomRight;
+
+			std::cout << std::format("TL = ({}, {})\n", topLeft.x, topLeft.y);
+			std::cout << std::format("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
 		}
 	}
+
+	void update() { std::this_thread::sleep_for(std::chrono::milliseconds(16)); }
 };
