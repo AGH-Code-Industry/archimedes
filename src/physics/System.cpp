@@ -47,7 +47,7 @@ f32 System::update() {
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	viewPhysicsComponents.forEach([&](ecs::Entity _, Moveable& e) {
+	viewPhysicsComponents.forEach([&](Moveable& e) {
 		// update position
 		e.center.position += e.velocity * t;
 
@@ -56,7 +56,7 @@ f32 System::update() {
 		e.velocity += a * t;
 	});
 
-	viewColliding.forEach([&](ecs::Entity _, Colliding& c) {
+	viewColliding.forEach([&](Colliding& c) {
 		// update position
 		c.body.center.position += c.body.velocity * t;
 		c.box.topLeft += c.body.velocity * t;
