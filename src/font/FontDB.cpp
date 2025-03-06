@@ -20,7 +20,7 @@ namespace arch::font {
 
 std::unique_ptr<FontDB> FontDB::_singleton;
 
-void FontDB::_addPath(std::string path) noexcept {
+void FontDB::_addFont(std::string path) noexcept {
 	if constexpr (ARCHIMEDES_WINDOWS) {
 		if (!fs::path(path).has_parent_path()) {
 			path = "C:/Windows/Fonts/" + path;
@@ -88,7 +88,7 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 			} else if (result == ERROR_SUCCESS && type == REG_SZ) {
 				// we have path to font file
 
-				_addPath((char*)valueData);
+				_addFont((char*)valueData);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ void FontDB::_findAndAddFontsLinux() noexcept {
 				std::string extension = entry.path().extension().string();
 				std::ranges::for_each(extension, [](char& c) { c = std::tolower(c); });
 				if (extensions.contains(extension)) {
-					_addPath(std::move(path));
+					_addFont(std::move(path));
 				}
 			}
 		}

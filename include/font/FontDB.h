@@ -52,7 +52,7 @@ private:
 	void _findAndAddFontsLinux() noexcept;
 #endif
 
-	void _addPath(std::string path) noexcept;
+	void _addFont(std::string path) noexcept;
 
 	MapType _fonts;
 	char* _pimpl;
