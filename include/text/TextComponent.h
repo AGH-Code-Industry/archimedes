@@ -8,9 +8,14 @@
 
 namespace arch::text {
 
+/// @brief Component for text display
 class TextComponent {
 public:
 
+	/// @brief Constructor
+	/// @param text - text to display
+	/// @param familyName - family name of font
+	/// @param styleName - style name
 	TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName = "");
 	TextComponent(
 		std::u32string text,

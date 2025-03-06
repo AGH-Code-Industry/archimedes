@@ -33,7 +33,6 @@ std::string_view Face::fontPath() const noexcept {
 
 const Face& Face::assure() noexcept {
 	if (!generated()) {
-		Logger::debug("{}__{}", _familyName, styleName());
 		_generate();
 	}
 	if (!loaded()) {
@@ -53,6 +52,8 @@ bool Face::load() noexcept {
 
 	fs::create_directory("msdf_cache");
 
+	// BEGIN loading from json
+
 	auto jsonFile = std::ifstream(fileName + ".json");
 	if (!jsonFile.good() || !fs::is_regular_file(fileName + ".png")) {
 		return false;
@@ -70,9 +71,12 @@ bool Face::load() noexcept {
 
 	auto&& metrics = json["metrics"];
 	_metrics.lineHeight = metrics["lineHeight"].asFloat();
-	_metrics.ascender = metrics["ascender"].asFloat();
-	_metrics.descender = metrics["descender"].asFloat();
-	_metrics.underlineY = metrics["underlineY"].asFloat();
+	// flipped for unknown reason
+	_metrics.ascender = -metrics["ascender"].asFloat();
+	// flipped for unknown reason
+	_metrics.descender = -metrics["descender"].asFloat();
+	// flipped for unknown reason
+	_metrics.underlineY = -metrics["underlineY"].asFloat();
 	_metrics.underlineThickness = metrics["underlineThickness"].asFloat();
 
 	for (auto&& glyph : json["glyphs"]) {
@@ -84,9 +88,11 @@ bool Face::load() noexcept {
 		if (planeBoundsPtr) {
 			auto&& planeBounds = *planeBoundsPtr;
 			glyphData.planeBounds.left = planeBounds["left"].asFloat();
-			glyphData.planeBounds.top = planeBounds["top"].asFloat();
+			// flipped for unknown reason
+			glyphData.planeBounds.top = -planeBounds["top"].asFloat();
 			glyphData.planeBounds.right = planeBounds["right"].asFloat();
-			glyphData.planeBounds.bottom = planeBounds["bottom"].asFloat();
+			// flipped for unknown reason
+			glyphData.planeBounds.bottom = -planeBounds["bottom"].asFloat();
 
 			auto&& atlasBounds = glyph["atlasBounds"];
 			glyphData.atlasBounds.left = atlasBounds["left"].asFloat();
@@ -110,6 +116,10 @@ bool Face::load() noexcept {
 			kerning["advance"].asFloat()
 		 });
 	}
+
+	// END loading from json
+
+	// BEGIN loading texture
 
 	auto textureData = std::vector<Color>(atlasWidth() * atlasHeight());
 	stbi_set_flip_vertically_on_load(true);

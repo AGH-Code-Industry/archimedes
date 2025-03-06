@@ -106,7 +106,7 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 
 		pos.x += kerning;
 
-		auto tempPos = pos + float3{ gd.planeBounds.left, -gd.planeBounds.top, 0 };
+		auto tempPos = pos + float3{ gd.planeBounds.left, gd.planeBounds.top, 0 };
 
 		vertices.emplace_back(-tempPos, float2{ gd.uv.first.x, gd.uv.first.y });
 		vertices.emplace_back(

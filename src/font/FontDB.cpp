@@ -1,4 +1,7 @@
+#include <algorithm>
+#include <cctype>
 #include <fstream>
+#include <unordered_set>
 #include <vector>
 
 #include <Logger.h>
@@ -22,6 +25,7 @@ std::unique_ptr<FontDB> FontDB::_singleton;
 
 void FontDB::_addFont(std::string path) noexcept {
 	if constexpr (ARCHIMEDES_WINDOWS) {
+		// some fonts dont have full path in registry
 		if (!fs::path(path).has_parent_path()) {
 			path = "C:/Windows/Fonts/" + path;
 		}
@@ -33,6 +37,7 @@ void FontDB::_addFont(std::string path) noexcept {
 
 	auto ft = reinterpret_cast<FT_Library>(_pimpl);
 
+	// font file can have multiple styles inside
 	do {
 		face = {};
 		if (FT_New_Face(ft, path.c_str(), i, &face) == 0) {
@@ -54,6 +59,7 @@ void FontDB::_addFont(std::string path) noexcept {
 
 			auto&& font = foundFont->second;
 
+			// add style
 			auto&& [it, ignored] = font._styles.insert({ face->style_name, {} });
 			auto&& fontFace = it->second;
 			fontFace._familyName = font._familyName;
@@ -87,7 +93,6 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 				break;
 			} else if (result == ERROR_SUCCESS && type == REG_SZ) {
 				// we have path to font file
-
 				_addFont((char*)valueData);
 			}
 		}
@@ -113,6 +118,7 @@ void FontDB::_findAndAddFontsLinux() noexcept {
 				 fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied, ignored)) {
 				std::string path = entry.path().string();
 				std::string extension = entry.path().extension().string();
+				// linux and its quirks strike again
 				std::ranges::for_each(extension, [](char& c) { c = std::tolower(c); });
 				if (extensions.contains(extension)) {
 					_addFont(std::move(path));

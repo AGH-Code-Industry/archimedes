@@ -19,6 +19,7 @@ MSDFAtlasGen& MSDFAtlasGen::get() noexcept {
 
 MSDFAtlasGen::MSDFAtlasGen() noexcept {
 	std::filesystem::create_directory("msdf_cache");
+
 	auto cacheFile = std::ifstream("msdf_cache/msdf_atlas_gen_cache");
 	if (!cacheFile.good()) {
 		_cachePath();
@@ -49,12 +50,16 @@ void MSDFAtlasGen::_cachePath() noexcept {
 
 		packageID = matches[1].str();
 	}
+
 	std::system((std::string("conan cache path msdf-atlas-gen/1.3:") + packageID + " > msdf_atlas_gen_temp").c_str());
 	{
 		auto tempFile = std::ifstream("msdf_atlas_gen_temp");
 		std::string input;
 		std::getline(tempFile, input);
+
+		// ~/.conan2/...> cd bin
 		auto path = std::filesystem::path(input) / "bin";
+		// ~/.conan2/.../bin> ls | head
 		_binaryPath = std::filesystem::directory_iterator(path)->path().string();
 	}
 	std::filesystem::remove("msdf_atlas_gen_temp");
