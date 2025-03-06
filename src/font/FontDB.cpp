@@ -20,9 +20,51 @@ namespace arch::font {
 
 std::unique_ptr<FontDB> FontDB::_singleton;
 
+void FontDB::_addPath(std::string path) noexcept {
+	if constexpr (ARCHIMEDES_WINDOWS) {
+		if (!fs::path(path).has_parent_path()) {
+			path = "C:/Windows/Fonts/" + path;
+		}
+	}
+
+	FT_Face face{};
+	FT_Long faceCount = 0;
+	FT_Long i = 0;
+
+	auto ft = reinterpret_cast<FT_Library>(_pimpl);
+
+	do {
+		face = {};
+		if (FT_New_Face(ft, path.c_str(), i, &face) == 0) {
+			if (faceCount == 0) {
+				faceCount = face->num_faces;
+			}
+
+			auto foundFont = _fonts.find(face->family_name);
+
+			// set name
+			if (foundFont == _fonts.end()) {
+				auto&& [it, ignore] = _fonts.insert({ face->family_name, {} });
+
+				it->second._familyName = it->first;
+				foundFont = it;
+			} else if (foundFont->second.name().empty()) {
+				foundFont->second._familyName = foundFont->first;
+			}
+
+			auto&& font = foundFont->second;
+
+			auto&& [it, ignored] = font._styles.insert({ face->style_name, {} });
+			auto&& fontFace = it->second;
+			fontFace._familyName = font._familyName;
+			fontFace._fontPath = path;
+			fontFace._pimpl = (char*)face;
+		}
+	} while (++i < faceCount);
+}
+
 #if ARCHIMEDES_WINDOWS
 void FontDB::_findAndAddFontsWindows() noexcept {
-	FT_Library ft = (FT_Library)_pimpl;
 	for (const auto hRootKey : { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER }) {
 		constexpr LPCSTR subKey = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
 
@@ -46,56 +88,46 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 			} else if (result == ERROR_SUCCESS && type == REG_SZ) {
 				// we have path to font file
 
-				auto path = std::string((char*)valueData);
-				if (!fs::path(path).has_parent_path()) {
-					path = "C:/Windows/Fonts/" + path;
-				}
-
-				FT_Face face{};
-				FT_Long faceCount = 0;
-				FT_Long i = 0;
-
-				do {
-					face = {};
-					if (FT_New_Face(ft, path.c_str(), i, &face) == 0) {
-						if (faceCount == 0) {
-							faceCount = face->num_faces;
-						}
-
-						auto foundFont = _fonts.find(face->family_name);
-
-						// set name
-						if (foundFont == _fonts.end()) {
-							auto&& [it, ignore] = _fonts.insert({ face->family_name, {} });
-
-							it->second._familyName = it->first;
-							foundFont = it;
-						} else if (foundFont->second.name().empty()) {
-							foundFont->second._familyName = foundFont->first;
-						}
-
-						auto&& font = foundFont->second;
-
-						auto&& [it, ignored] = font._styles.insert({ face->style_name, {} });
-						auto&& fontFace = it->second;
-						fontFace._familyName = font._familyName;
-						fontFace._fontPath = path;
-						fontFace._pimpl = (char*)face;
-					}
-				} while (++i < faceCount);
+				_addPath((char*)valueData);
 			}
 		}
 	}
 }
 #elif ARCHIMEDES_LINUX
-void FontDB::_findAndAddFontsLinux() noexcept {}
+void FontDB::_findAndAddFontsLinux() noexcept {
+	const auto fontDirs = std::initializer_list<fs::path>{ "/usr/share/fonts",
+														   "/usr/local/share/fonts",
+														   "/opt/share/fonts",
+														   "~/.fonts",
+														   "~/.local/share/fonts",
+														   "~/.config/fontconfig/fonts",
+														   "~/.wine/drive_c/windows/Fonts" };
+
+	const std::unordered_set<std::string_view> extensions{ ".ttf", ".otf", ".woff", ".woff2", ".pfa", ".pfb", ".cff",
+														   ".pcf", ".bdf", ".bdf",	".pfr",	  ".fnt", ".fon" };
+
+	std::error_code ignored;
+	for (auto&& dir : fontDirs) {
+		if (fs::is_directory(dir, ignored)) {
+			for (auto&& entry :
+				 fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied, ignored)) {
+				std::string path = entry.path().string();
+				std::string extension = entry.path().extension().string();
+				std::ranges::for_each(extension, [](char& c) { c = std::tolower(c); });
+				if (extensions.contains(extension)) {
+					_addPath(std::move(path));
+				}
+			}
+		}
+	}
+}
 #endif
 
 void FontDB::_findAndAddFonts() noexcept {
 #if ARCHIMEDES_WINDOWS
 	_findAndAddFontsWindows();
 #elif ARCHIMEDES_LINUX
-	findAndAddFontsLinux();
+	_findAndAddFontsLinux();
 #endif
 }
 
