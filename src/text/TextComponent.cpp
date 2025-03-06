@@ -1,7 +1,7 @@
 #include <font/Face.h>
 #include <font/Font.h>
 #include <font/FontDB.h>
-#include <font/FontNotFoundException.h>
+#include <font/FontException.h>
 #include <text/TextComponent.h>
 
 namespace arch::text {
@@ -18,12 +18,12 @@ TextComponent::TextComponent(
 	_text{ std::move(text) } {
 	auto fontOpt = font::FontDB::get()[familyName];
 	if (!fontOpt) {
-		throw font::FontNotFoundException(std::format("Font '{}' not found! Try FontDB::exists", familyName));
+		throw font::FontException(std::format("Font '{}' not found! Try FontDB::exists", familyName));
 	}
 
 	auto faceOpt = fontOpt.get()[styleName];
 	if (!fontOpt) {
-		throw font::FontNotFoundException(
+		throw font::FontException(
 			std::format("Style '{}' not found in font '{}'! Try Font::hasStyle", styleName, familyName)
 		);
 	}
