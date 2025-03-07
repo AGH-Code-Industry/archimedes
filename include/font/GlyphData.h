@@ -28,9 +28,9 @@ struct GlyphData {
 	/// @brief UV type
 	struct UV {
 		/// @brief Top-left UV corner
-		float2 first{ std::nan("") };
+		float2 first{ std::nanf("") };
 		/// @brief Bottom-right UV corner
-		float2 second{ std::nan("") };
+		float2 second{ std::nanf("") };
 	};
 
 	/// @brief UV data (texCoords)
