@@ -59,12 +59,30 @@ void TextComponent::swap(TextComponent& other) noexcept {
 	std::swap(_mesh, other._mesh);
 }
 
-float3 TextComponent::topLeft(const float3 scale) const noexcept {
-	return _topLeft * scale;
+float3 TextComponent::topLeft() const noexcept {
+	return _topLeft;
 }
 
-float3 TextComponent::bottomRight(const float3 scale) const noexcept {
-	return _bottomRight * scale;
+float3 TextComponent::topLeft(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _topLeft, 1 };
+}
+
+float3 TextComponent::topLeftAdjusted() const noexcept {
+	// baseline == {0, 0}
+	return float3{ 0, _topLeft.y, 0 };
+}
+
+float3 TextComponent::topLeftAdjusted(const Mat4x4& transformMatrix) const noexcept {
+	// baseline == {0, 0}
+	return transformMatrix * float4{ 0, _topLeft.y, 0, 1 };
+}
+
+float3 TextComponent::bottomRight() const noexcept {
+	return _bottomRight;
+}
+
+float3 TextComponent::bottomRight(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _bottomRight, 1 };
 }
 
 const Ref<gfx::pipeline::Pipeline>& TextComponent::pipeline() const noexcept {
@@ -83,6 +101,7 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 		float2 texCoords{};
 	};
 
+	// assume the upper bound
 	std::vector<Vertex> vertices;
 	vertices.reserve(4 * _text.length());
 	std::vector<u32> indices;
@@ -142,6 +161,7 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 		pos.x += gd.advance;
 	}
 
+	// pretransformed positions are inverted
 	_topLeft = float3{ localMax.x, localMin.y, 0 };
 	_bottomRight = float3{ localMin.x, localMax.y, 0 };
 
