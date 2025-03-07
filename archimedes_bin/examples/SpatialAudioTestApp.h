@@ -33,7 +33,6 @@ struct SpatialAudioTestApp: arch::Application {
 	int _currentStep{};
 
 	void init() override {
-		Logger::debug("Initializing Audio Manager");
 		// initialize test scene
 		arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
 		// initialize AudioManager

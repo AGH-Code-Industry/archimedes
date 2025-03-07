@@ -65,15 +65,12 @@ inline void testControl(const std::string& sounds) {
 
 	// load audio files that we can play
 	soundBank.addClip(sounds + filename);
-	arch::Logger::debug("loaded groups");
 	soundBank.loadInitialGroups();
 
 
 	// initialize and start the audioManager
 	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
-
-	arch::Logger::debug("started audio thread");
 
 	auto entity = domain.newEntity();
 	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
@@ -83,47 +80,38 @@ inline void testControl(const std::string& sounds) {
 	source->isLooped = true;
 	domain.addComponent<audio::AudioSourceActionComponent>(entity);
 
-	arch::Logger::debug("Added components");
-
 	char controlSign = 'x';
 	bool isPlaying = true;
 	while (controlSign != 'q') {
 		controlSign = getchar();
 		switch (controlSign) {
 			case 'p':
-				{
-					auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
-					component.action = audio::pause;
+				if (isPlaying) {
+					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::pause);
 				}
 				break;
-				//				source->pause(); break;
 			case 'c':
-				{
-					auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
-					component.action = audio::play;
+				if (isPlaying) {
+					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::play);
 				}
 				break;
-				//				source->play(); break;
-			case 's': {
-				auto component = domain.addComponent<audio::AudioSourceActionComponent>(entity);
-				component.action = audio::stop;
-				//				source->stop();
-				isPlaying = false;
+			case 's':
+				if (isPlaying) {
+					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::stop);
+					isPlaying = false;
+				}
 				break;
-			}
 			case 'r':
 				if (!isPlaying) {
-					{
-						auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+					Logger::debug("Playing from another loop");
+					auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+					Logger::debug("added component from another loop");
 
-						source->path = sounds + filename;
-						source->gain = 0.5;
-						source->isLooped = true;
-						//			source->play();
-						domain.addComponent<audio::AudioSourceActionComponent>(entity);
-					}
-					//					source = createSource(mutex, domain, filename, true);
-					//					source->play();
+					source->path = sounds + filename;
+					source->gain = 0.5;
+					source->isLooped = true;
+					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::play);
+					isPlaying = true;
 				}
 				break;
 			default: break;

@@ -27,7 +27,19 @@ int AudioManager::_findEmptyPlayer() const {
 }
 
 void AudioManager::_performAction(ecs::Entity& entity, AudioSourceComponent& source) {
+	Logger::debug("Found action");
 	auto actionComponent = _domain->getComponent<AudioSourceActionComponent>(entity);
+	switch (actionComponent.action){
+		case SourceAction::play:
+			Logger::debug("Playing action");
+			break;
+		case SourceAction::pause:
+			Logger::debug("Pausing action");
+			break;
+		case SourceAction::stop:
+			Logger::debug("Stopping action");
+			break;
+	}
 	if (!_sourceComponents.contains(&source)) {
 		if (actionComponent.action != SourceAction::play) {
 			throw AudioException("Can't pause/stop unregistered source");
@@ -35,6 +47,7 @@ void AudioManager::_performAction(ecs::Entity& entity, AudioSourceComponent& sou
 		_assignSource(source);
 	}
 	_changeState(source, actionComponent.action);
+	_domain->removeComponent<AudioSourceActionComponent>(entity);
 }
 
 
@@ -74,8 +87,8 @@ void AudioManager::_removeSource(AudioSourceComponent& source) {
 	SourceData& data = _sourceComponents[&source];
 	_sourceUsed[data.index] = false;
 	_sources[data.index].cleanClipPath();
-	_sourceComponents.erase(&source);
 	Logger::info("Audio system: removed Source with index {}", std::to_string(data.index));
+	_sourceComponents.erase(&source);
 }
 
 void AudioManager::_changeState(AudioSourceComponent& source, SourceAction action) {
