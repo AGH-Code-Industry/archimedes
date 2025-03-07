@@ -1,3 +1,4 @@
+#include <array>
 #include <execution>
 #include <filesystem>
 #include <iostream>
@@ -32,7 +33,6 @@ std::string_view Face::fontPath() const noexcept {
 
 const Face& Face::assure() noexcept {
 	if (!generated()) {
-		Logger::debug("{}__{}", _familyName, styleName());
 		_generate();
 	}
 	if (!loaded()) {
@@ -52,6 +52,8 @@ bool Face::load() noexcept {
 
 	fs::create_directory("msdf_cache");
 
+	// BEGIN loading from json
+
 	auto jsonFile = std::ifstream(fileName + ".json");
 	if (!jsonFile.good() || !fs::is_regular_file(fileName + ".png")) {
 		return false;
@@ -69,9 +71,12 @@ bool Face::load() noexcept {
 
 	auto&& metrics = json["metrics"];
 	_metrics.lineHeight = metrics["lineHeight"].asFloat();
-	_metrics.ascender = metrics["ascender"].asFloat();
-	_metrics.descender = metrics["descender"].asFloat();
-	_metrics.underlineY = metrics["underlineY"].asFloat();
+	// flipped for unknown reason
+	_metrics.ascender = -metrics["ascender"].asFloat();
+	// flipped for unknown reason
+	_metrics.descender = -metrics["descender"].asFloat();
+	// flipped for unknown reason
+	_metrics.underlineY = -metrics["underlineY"].asFloat();
 	_metrics.underlineThickness = metrics["underlineThickness"].asFloat();
 
 	for (auto&& glyph : json["glyphs"]) {
@@ -83,9 +88,11 @@ bool Face::load() noexcept {
 		if (planeBoundsPtr) {
 			auto&& planeBounds = *planeBoundsPtr;
 			glyphData.planeBounds.left = planeBounds["left"].asFloat();
-			glyphData.planeBounds.top = planeBounds["top"].asFloat();
+			// flipped for unknown reason
+			glyphData.planeBounds.top = -planeBounds["top"].asFloat();
 			glyphData.planeBounds.right = planeBounds["right"].asFloat();
-			glyphData.planeBounds.bottom = planeBounds["bottom"].asFloat();
+			// flipped for unknown reason
+			glyphData.planeBounds.bottom = -planeBounds["bottom"].asFloat();
 
 			auto&& atlasBounds = glyph["atlasBounds"];
 			glyphData.atlasBounds.left = atlasBounds["left"].asFloat();
@@ -110,6 +117,10 @@ bool Face::load() noexcept {
 		 });
 	}
 
+	// END loading from json
+
+	// BEGIN loading texture
+
 	auto textureData = std::vector<Color>(atlasWidth() * atlasHeight());
 	stbi_set_flip_vertically_on_load(true);
 	int ignored; // width & height loaded from .json
@@ -129,11 +140,13 @@ bool Face::load() noexcept {
 		}
 	);
 
-	_atlasTexture = gfx::Renderer::getCurrent()
-						->getTextureManager()
-						->createTexture2D(atlasWidth(), atlasHeight(), textureData.data());
+	auto&& renderer = *gfx::Renderer::getCurrent();
+
+	_atlasTexture = renderer.getTextureManager()->createTexture2D(atlasWidth(), atlasHeight(), textureData.data());
 
 	stbi_image_free(loadedTextureData);
+
+	_placeholder = _findPlaceholder();
 
 	return true;
 }
@@ -247,6 +260,25 @@ Ref<gfx::texture::Texture> Face::atlasTexture() const noexcept {
 
 Ref<gfx::texture::Texture> Face::atlasTextureGen() noexcept {
 	return assure().atlasTexture();
+}
+
+const GlyphData* Face::_findPlaceholder() const noexcept {
+	constexpr auto potentialPlaceholders =
+		std::array{ U'\xfffd', U'\xfffc', U'\x25a1', U'\x25af', U'\x2b1a', U'?', U' ' };
+
+	for (auto placeholder : potentialPlaceholders) {
+		auto glyphDataOpt = glyphData(placeholder);
+		if (glyphDataOpt) {
+			return &*glyphDataOpt;
+		}
+	}
+	Logger::error("Style '{}' of '{}' does not contain '?' or ' '!", styleName(), _familyName);
+	return nullptr; // impossible for font to not have
+					// '?' or ' '
+}
+
+const GlyphData& Face::placeholder() const noexcept {
+	return *_placeholder;
 }
 
 } // namespace arch::font

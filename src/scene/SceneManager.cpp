@@ -2,6 +2,7 @@
 
 #include "Ecs.h"
 #include "scene/Components.h"
+#include "text/TextComponent.h"
 
 namespace arch::scene {
 
@@ -21,15 +22,37 @@ void SceneManager::update() {
 
 void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 	if (_currentScene) {
-		auto view = _currentScene->domain().view<components::TransformComponent, components::MeshComponent>();
+		auto&& domain = _currentScene->domain();
+
 		// static const auto ortho = glm::ortho(0.f, 640.f, 0.f, 400.f);
 
-		for (auto [entity, transform, mesh] : view.all()) {
-			renderer->usePipeline(mesh.pipeline);
+		struct RenderInfo {
+			const asset::mesh::Mesh* mesh;
+			const Ref<gfx::pipeline::Pipeline>* pipeline;
+			const components::TransformComponent* transform;
+		};
+
+		std::vector<RenderInfo> renderInfo;
+
+		for (auto [entity, transform, mesh] :
+			 domain.view<components::TransformComponent, components::MeshComponent>().all()) {
+			renderInfo.emplace_back(mesh.mesh.get(), &mesh.pipeline, &transform);
+		}
+		for (auto [entity, transform, text] :
+			 domain.view<components::TransformComponent, text::TextComponent>().all()) {
+			renderInfo.emplace_back(text.mesh().get(), &text.pipeline(), &transform);
+		}
+
+		std::ranges::sort(renderInfo, [](const RenderInfo& lhs, const RenderInfo& rhs) {
+			return lhs.transform->position.z > rhs.transform->position.z;
+		});
+
+		for (auto&& [mesh, pipeline, transform] : renderInfo) {
+			renderer->usePipeline(*pipeline);
 			renderer->draw(
-				mesh.mesh->getVertexBuffer(),
-				mesh.mesh->getIndexBuffer(),
-				/*ortho * */ transform.getTransformMatrix()
+				mesh->getVertexBuffer(),
+				mesh->getIndexBuffer(),
+				/*ortho * */ transform->getTransformMatrix()
 			);
 		}
 	}

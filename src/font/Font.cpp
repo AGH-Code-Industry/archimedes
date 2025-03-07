@@ -13,28 +13,24 @@ namespace fs = std::filesystem;
 
 namespace arch::font {
 
-OptRef<Font> Font::get(std::string_view name) noexcept {
-	return FontDB::get().get(name);
-}
-
 bool Font::hasStyle(std::string_view style) const noexcept {
 	return _styles.contains(style);
 }
 
 bool Font::hasRegular() const noexcept {
-	return hasStyle("Regular");
+	return hasStyle(font::regular);
 }
 
 bool Font::hasItalic() const noexcept {
-	return hasStyle("Italic");
+	return hasStyle(font::italic);
 }
 
 bool Font::hasBold() const noexcept {
-	return hasStyle("Bold");
+	return hasStyle(font::bold);
 }
 
 bool Font::hasBoldItalic() const noexcept {
-	return hasStyle("Bold Italic");
+	return hasStyle(font::boldItalic);
 }
 
 size_t Font::styleCount() const noexcept {
@@ -46,6 +42,23 @@ std::string_view Font::name() const noexcept {
 }
 
 OptRef<Face> Font::face(std::string_view style) noexcept {
+	if (style.empty()) {
+		// return Regular as the first
+		auto reg = regular();
+		if (reg) {
+			return reg;
+		} else {
+			// if no Regular, then return first found style
+			auto first = _styles.begin();
+			if (first != _styles.end()) {
+				return first->second;
+			} else {
+				return std::nullopt;
+			}
+		}
+	}
+
+	// style was specified
 	auto found = _styles.find(style);
 	if (found != _styles.end()) {
 		return found->second;
@@ -53,24 +66,20 @@ OptRef<Face> Font::face(std::string_view style) noexcept {
 	return std::nullopt;
 }
 
-OptRef<Face> Font::face() noexcept {
-	return regular();
-}
-
 OptRef<Face> Font::regular() noexcept {
-	return face("Regular");
+	return face(font::regular);
 }
 
 OptRef<Face> Font::bold() noexcept {
-	return face("Bold");
+	return face(font::bold);
 }
 
 OptRef<Face> Font::italic() noexcept {
-	return face("Italic");
+	return face(font::italic);
 }
 
 OptRef<Face> Font::boldItalic() noexcept {
-	return face("Bold Italic");
+	return face(font::boldItalic);
 }
 
 OptRef<Face> Font::operator[](std::string_view style) noexcept {
@@ -78,6 +87,7 @@ OptRef<Face> Font::operator[](std::string_view style) noexcept {
 }
 
 auto Font::styles() const noexcept -> decltype(std::views::keys(*std::declval<const StylesSet*>())) {
+	// styles are mapped by their names
 	return std::views::keys(_styles);
 }
 

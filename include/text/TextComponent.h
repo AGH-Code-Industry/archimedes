@@ -1,72 +1,99 @@
 #pragma once
 
-#include <Font.h>
-#include <ecs/Domain.h>
+#include <unordered_map>
+
+#include <asset/mesh/Mesh.h>
+#include <font/Face.h>
+#include <gfx/pipeline/Pipeline.h>
 
 namespace arch::text {
 
+/// @brief Component for text display
 class TextComponent {
 public:
 
+	/// @brief Constructor
+	/// @param text - text to display
+	/// @param familyName - family name of font
+	/// @param styleName - style name (optional, default value "")
+	/// @throws FontException if font was not found
+	TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName = "");
+	/// @brief Constructor
+	/// @param text - text to display
+	/// @param buffers - buffers to pass to pipeline
+	/// @param familyName - family name of font
+	/// @param styleName - style name (optional, default value "")
+	/// @throws FontException if font was not found
+	TextComponent(
+		std::u32string text,
+		std::vector<Ref<gfx::buffer::Buffer>> buffers,
+		std::string_view familyName,
+		std::string_view styleName = ""
+	);
+	/// @brief Constructor
+	/// @param text - text to display
+	/// @param face - face of text to display
+	TextComponent(std::u32string text, font::Face& face) noexcept;
+	/// @brief Constructor
+	/// @param text - text to display
+	/// @param buffers - buffers to pass to pipeline
+	/// @param face - face of text to display
+	TextComponent(std::u32string text, std::vector<Ref<gfx::buffer::Buffer>> buffers, font::Face& face) noexcept;
+	/// @brief Copy constructor
 	TextComponent(const TextComponent&) noexcept = default;
+	/// @brief Move constructor
 	TextComponent(TextComponent&&) noexcept = default;
 
-	TextComponent(ecs::Domain& domain, const ecs::Entity entity) noexcept;
-
+	/// @brief Copy-assignment operator
 	TextComponent& operator=(const TextComponent&) noexcept = default;
+	/// @brief Move-assignment operator
 	TextComponent& operator=(TextComponent&&) noexcept = default;
-	template<class Char>
-	TextComponent& operator=(std::basic_string_view<Char> text);
-	TextComponent& operator=(font::Face& face) noexcept;
 
-	TextComponent& setFont(std::string_view familyName, std::string_view styleName = "Regular");
-	TextComponent& setFont(font::Face& face);
+	/// @brief Swap function
+	void swap(TextComponent& other) noexcept;
 
-	template<class Char>
-	TextComponent& setText(std::basic_string_view<Char> text = {});
+	/// @brief Returns untransformed top-left corner of text
+	float3 topLeft() const noexcept;
+	/// @brief Returns top-left corner of text
+	/// @param transformMat - matrix to transform topLeft
+	float3 topLeft(const Mat4x4& transformMatrix) const noexcept;
+	/// @brief Returns untransformed adjusted top-left corner of text
+	/// @details Adjusted means that result's .x == baseline.x
+	float3 topLeftAdjusted() const noexcept;
+	/// @brief Returns adjusted top-left corner of text
+	/// @details Adjusted means that result's .x == baseline.x
+	/// @param transformMat - matrix to transform topLeft
+	float3 topLeftAdjusted(const Mat4x4& transformMatrix) const noexcept;
+	/// @brief Returns untransformed bottom-right corner of text
+	float3 bottomRight() const noexcept;
+	/// @brief Returns bottom-right corner of text
+	/// @param transformMat - matrix to transform topLeft
+	float3 bottomRight(const Mat4x4& transformMatrix) const noexcept;
 
-	TextComponent& setPosition(float2 pos);
-	TextComponent& setBaseline(float2 pos);
-	TextComponent& setTopLeft(float2 pos);
-	TextComponent& setRotation(float radians);
-	TextComponent& setRotationDeg(float degrees);
-
-	TextComponent& setFontSize(float fontSizePx);
-
-	float2 getPosition() const noexcept;
-	float2 getBaseline() const noexcept;
-	float getRotation() const noexcept;
-	float getRotationDeg() const noexcept;
-
-	float2 getAdvance() const noexcept;
-
-	void updateText(bool outline = false);
-
-	float2 topLeft() const noexcept;
-	float2 bottomRight() const noexcept;
-	float2 center() const noexcept;
-
-	float2 size() const noexcept;
-
-	float rotate(float angle, float2 pivot);
-	float rotate(float angle); // pivot = center()
-	float rotateDeg(float degrees, float2 pivot);
-	float rotateDeg(float degrees); // pivot = center()
+	/// @brief Returns Ref to pipeline of text
+	const Ref<gfx::pipeline::Pipeline>& pipeline() const noexcept;
+	/// @brief Returns Ref to mesh of text
+	const Ref<asset::mesh::Mesh>& mesh() const noexcept;
 
 private:
 
-	void _assure() const;
+	// computes everything and creates mesh and pipeline
+	void _compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noexcept;
 
 	std::u32string _text{};
 	font::Face* _face{};
-	ecs::Domain* _domain{};
-	ecs::Entity _entity = ecs::nullEntity;
-	float2 _topLeft{};
-	float2 _bottomRight{};
-	float _fontSizePx = 12;
-	float _baseLine{};
+	float3 _topLeft{};
+	float3 _bottomRight{};
+	Ref<gfx::pipeline::Pipeline> _pipeline;
+	Ref<asset::mesh::Mesh> _mesh;
+
+	// TODO: sizes of words -> easy word wrap
+	/*struct BBox {
+		float3 topLeft;
+		float3 bottomRight;
+	};
+
+	std::unordered_map<char32_t*, BBox> _wordsBBoxes;*/
 };
 
 } // namespace arch::text
-
-#include "TextComponent.hpp"

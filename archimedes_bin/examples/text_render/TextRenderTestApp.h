@@ -22,8 +22,8 @@ class TextRenderTestApp: public Application {
 	};
 
 	void init() override {
-		int windowWidth = 1'280;
-		int windowHeight = 720;
+		int windowWidth = 1'200;
+		int windowHeight = 600;
 
 		int baseline = windowHeight / 2;
 
@@ -77,33 +77,46 @@ class TextRenderTestApp: public Application {
 			line.addComponent<LineFlag>();
 		}
 
-		auto&& tc = testScene->newEntity()
-						.addComponent<text::TextComponent>()
-						.setFont("Arial", "Regular")
-						.setFontSize(70)
-						.setBaseline({ 0, windowHeight / 2 })
-						.setText<char32_t>(U"Zażółć gęślą jaźń <3 AV");
-		tc.updateText();
-		auto width = (tc.bottomRight() - tc.topLeft()).x;
-		// vv- how to center <div> -vv
-		tc.setBaseline({ (1280.f - width) / 2, windowHeight / 2 });
-		tc.updateText();
+		{
+			auto text = testScene->newEntity();
+			auto&& t = text.addComponent<scene::components::TransformComponent>({
+				{ 0.f, windowHeight / 2, 0.f },
+				{ 0.f, 0.f, 0.f, 1.f },
+				{ 70.f, 70.f, 0.f }
+			});
+			auto&& tc = text.addComponent<text::TextComponent>(
+				U"Zażółć gęślą jaźń <3 AV",
+				std::vector{ uniformBuffer },
+				"Arial"
+			);
+
+			auto topLeft = float4{ tc.topLeft(), 1 };
+			auto bottomRight = float4{ tc.bottomRight(), 1 };
+
+			std::cout << std::format("min = ({}, {})\n", topLeft.x, topLeft.y);
+			std::cout << std::format("max = ({}, {})\n", bottomRight.x, bottomRight.y);
+
+			topLeft = t.getTransformMatrix() * topLeft;
+			bottomRight = t.getTransformMatrix() * bottomRight;
+
+			std::cout << std::format("TL = ({}, {})\n", topLeft.x, topLeft.y);
+			std::cout << std::format("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
+		}
 	}
 
 	void update() {
-		static float time = 0;
+		static float frame = 0;
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
-		auto&& arial = *font::FontDB::get()["Arial"]->regular();
-
-		for (auto&& [ent, tr, tc] : scene::SceneManager::get()
-										->currentScene()
-										->domain()
-										.view<scene::components::TransformComponent, text::TextComponent>()
-										.all()) {
-			// tc.rotateDeg(1.f);
-			tc.setFontSize(70.f * (cos(time) + 1) / 2.f);
+		for (auto&& [e, transform, text] : scene::SceneManager::get()
+											   ->currentScene()
+											   ->domain()
+											   .view<scene::components::TransformComponent, text::TextComponent>()
+											   .all()) {
+			auto scale = 100.f * (cos(frame) + 1) / 2.f;
+			transform.scale = { scale, scale, 0.f };
 		}
-		time += 0.05f;
+
+		frame += 0.05f;
 	}
 };

@@ -1,187 +1,147 @@
-#include <format>
-#include <iostream>
-
-#include <scene/components/MeshComponent.h>
-#include <scene/components/TransformComponent.h>
+#include <font/Face.h>
+#include <font/Font.h>
+#include <font/FontDB.h>
+#include <font/FontException.h>
 #include <text/TextComponent.h>
 
 namespace arch::text {
 
-TextComponent::TextComponent(ecs::Domain& domain, const ecs::Entity entity) noexcept:
-	_domain{ &domain },
-	_entity{ entity } {
-	_domain
-		->addComponent<scene::components::TransformComponent>(_entity, float3{}, Quat{ 0, 0, 0, 1 }, float3{ 1, 1, 0 });
-}
+TextComponent::TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName):
+	TextComponent(std::move(text), {}, familyName, styleName) {}
 
-TextComponent& TextComponent::operator=(font::Face& face) noexcept {
-	return setFont(face);
-}
-
-TextComponent& TextComponent::setFont(std::string_view familyName, std::string_view styleName) {
-	auto&& fontDB = font::FontDB::get();
-
-	auto fontOpt = fontDB[familyName];
+TextComponent::TextComponent(
+	std::u32string text,
+	std::vector<Ref<gfx::buffer::Buffer>> buffers,
+	std::string_view familyName,
+	std::string_view styleName
+):
+	_text{ std::move(text) } {
+	auto fontOpt = font::FontDB::get()[familyName];
 	if (!fontOpt) {
-		throw font::FontNotFoundException(std::format("Font '{}' not found! Try FontDB::exists", familyName));
+		throw font::FontException(std::format("Font '{}' not found! Try FontDB::exists", familyName));
 	}
 
 	auto faceOpt = fontOpt.get()[styleName];
 	if (!fontOpt) {
-		throw font::FontNotFoundException(
+		throw font::FontException(
 			std::format("Style '{}' not found in font '{}'! Try Font::hasStyle", styleName, familyName)
 		);
 	}
 
 	_face = &*faceOpt;
+
+	_compute(std::move(buffers));
+}
+
+TextComponent::TextComponent(std::u32string text, font::Face& face) noexcept:
+	TextComponent(std::move(text), {}, face) {}
+
+TextComponent::TextComponent(
+	std::u32string text,
+	std::vector<Ref<gfx::buffer::Buffer>> buffers,
+	font::Face& face
+) noexcept:
+	_text{ std::move(text) },
+	_face{ &face } {
+	_compute(std::move(buffers));
+}
+
+void TextComponent::swap(TextComponent& other) noexcept {
+	if (this == &other) {
+		return;
+	}
+
+	std::swap(_text, other._text);
+	std::swap(_face, other._face);
+	std::swap(_topLeft, other._topLeft);
+	std::swap(_bottomRight, other._bottomRight);
+	std::swap(_pipeline, other._pipeline);
+	std::swap(_mesh, other._mesh);
+}
+
+float3 TextComponent::topLeft() const noexcept {
+	return _topLeft;
+}
+
+float3 TextComponent::topLeft(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _topLeft, 1 };
+}
+
+float3 TextComponent::topLeftAdjusted() const noexcept {
+	// baseline == {0, 0}
+	return float3{ 0, _topLeft.y, 0 };
+}
+
+float3 TextComponent::topLeftAdjusted(const Mat4x4& transformMatrix) const noexcept {
+	// baseline == {0, 0}
+	return transformMatrix * float4{ 0, _topLeft.y, 0, 1 };
+}
+
+float3 TextComponent::bottomRight() const noexcept {
+	return _bottomRight;
+}
+
+float3 TextComponent::bottomRight(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _bottomRight, 1 };
+}
+
+const Ref<gfx::pipeline::Pipeline>& TextComponent::pipeline() const noexcept {
+	return _pipeline;
+}
+
+const Ref<asset::mesh::Mesh>& TextComponent::mesh() const noexcept {
+	return _mesh;
+}
+
+void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noexcept {
 	_face->assure();
-
-	return *this;
-}
-
-TextComponent& TextComponent::setFont(font::Face& face) {
-	_face = &face;
-	_face->assure();
-	return *this;
-}
-
-TextComponent& TextComponent::setBaseline(float2 pos) {
-	auto&& t = _domain->addComponent<scene::components::TransformComponent>(_entity);
-	// auto posCopy = t.position;
-	t.position = float3{ pos.x, pos.y, 0 };
-	// auto delta = float2{ t.position.x - posCopy.x, t.position.y - posCopy.y };
-	// this->_topLeft += delta;
-	// this->_bottomRight += delta;
-	return *this;
-}
-
-TextComponent& TextComponent::setRotation(float radians) {
-	_domain->addComponent<scene::components::TransformComponent>(_entity).rotation =
-		glm::angleAxis(radians, float3{ 0, 0, 1 });
-	return *this;
-}
-
-TextComponent& TextComponent::setRotationDeg(float degrees) {
-	return setRotation(glm::radians(degrees));
-}
-
-TextComponent& TextComponent::setFontSize(float fontSizePx) {
-	_fontSizePx = fontSizePx;
-	_domain->getComponent<scene::components::TransformComponent>(_entity).scale =
-		float3{ _fontSizePx, _fontSizePx, 0 } / (float)_face->resolution();
-	return *this;
-}
-
-float2 TextComponent::getBaseline() const noexcept {
-	auto transformOpt = _domain->tryGetComponent<scene::components::TransformComponent>(_entity);
-	if (transformOpt) {
-		return { transformOpt->position.x, transformOpt->position.y };
-	}
-	return {};
-}
-
-float TextComponent::getRotation() const noexcept {
-	auto transformOpt = _domain->tryGetComponent<scene::components::TransformComponent>(_entity);
-	return transformOpt ? glm::eulerAngles(transformOpt->rotation).z : 0;
-}
-
-float TextComponent::getRotationDeg() const noexcept {
-	return glm::degrees(getRotation());
-}
-
-float2 TextComponent::getAdvance() const noexcept {
-	try {
-		_assure();
-		return { _bottomRight.x, 0 };
-	} catch (...) {
-		return {};
-	}
-}
-
-float2 TextComponent::getPosition() const noexcept {
-	try {
-		_assure();
-		auto&& t = _domain->getComponent<scene::components::TransformComponent>(_entity);
-		return { t.position.x, t.position.y };
-	} catch (...) {
-		return {};
-	}
-}
-
-TextComponent& TextComponent::setPosition(float2 pos) {
-	return setBaseline({ pos.x, pos.y - (topLeft() - getPosition()).y });
-}
-
-TextComponent& TextComponent::setTopLeft(float2 pos) {
-	auto delta = topLeft() - pos;
-
-	_topLeft += delta;
-	_bottomRight += delta;
-	setPosition(getPosition() + delta);
-
-	return *this;
-}
-
-void TextComponent::_assure() const {
-	if (_text.empty()) {
-		throw std::logic_error("Text is empty!");
-	} else if (!_face) {
-		throw std::logic_error("Font is not set!");
-	} else if (!_domain || _entity == ecs::nullEntity ||
-			   !_domain->hasComponent<scene::components::TransformComponent>(_entity)) {
-		throw std::logic_error("Bad initialization!");
-	} else if (_fontSizePx == 0) {
-		throw std::logic_error("Font size is 0!");
-	}
-}
-
-void TextComponent::updateText(bool outline) {
-	_assure();
-	float3 pos{};
-
-	auto&& transform = _domain->getComponent<scene::components::TransformComponent>(_entity);
-
-	{
-		const auto scale = _fontSizePx / _face->resolution();
-		transform.scale = float3{ scale, scale, 0 };
-	}
 
 	struct Vertex {
 		float3 position{};
 		float2 texCoords{};
 	};
 
-	auto textVertices = std::vector<Vertex>();
-	textVertices.reserve(4 * _text.length());
-	auto textIndices = std::vector<u32>();
-	textIndices.reserve(6 * _text.length());
-
-	float3 localMin = { std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 0 };
-	float3 localMax = { std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), 0 };
+	// assume the upper bound
+	std::vector<Vertex> vertices;
+	vertices.reserve(4 * _text.length());
+	std::vector<u32> indices;
+	indices.reserve(6 * _text.length());
 
 	u32 indicesIdx = 0;
 
-	for (u32 i = 0; i != _text.length(); ++i) {
-		auto kerning = float3{ i != 0 ? _face->kerning(_text[i - 1], _text[i]) : 0, 0, 0 };
+	auto localMin = float3(std::numeric_limits<float>::max());
+	auto localMax = float3(std::numeric_limits<float>::lowest());
 
-		auto&& gd = _face->glyphData(_text[i]).get();
+	float3 pos{};
+
+	for (u32 i = 0; i != _text.length(); ++i) {
+		auto kerning = i != 0 ? _face->kerning(_text[i - 1], _text[i]) : 0.f;
+
+		auto&& gd = _face->glyphData(_text[i]).getOr(_face->placeholder());
 		if (gd.advanceOnly()) {
-			pos += float3{ (gd.advance + kerning.x) * _face->resolution(), 0, 0 };
+			pos.x += gd.advance + kerning;
 			continue;
 		}
 
-		pos += float3{ kerning.x * _face->resolution(), 0, 0 };
+		pos.x += kerning;
 
-		auto tempPos =
-			pos + float3{ gd.planeBounds.left * _face->resolution(), -gd.planeBounds.top * _face->resolution(), 0 };
+		auto tempPos = pos + float3{ gd.planeBounds.left, gd.planeBounds.top, 0 };
 
-		textVertices.emplace_back(-tempPos, float2{ gd.uv.first.x, gd.uv.first.y });
-		textVertices.emplace_back(float3{ -gd.width, 0, 0 } - tempPos, float2{ gd.uv.second.x, gd.uv.first.y });
-		textVertices.emplace_back(float3{ 0, gd.height, 0 } - tempPos, float2{ gd.uv.first.x, gd.uv.second.y });
-		textVertices
-			.emplace_back(float3{ -gd.width, gd.height, 0 } - tempPos, float2{ gd.uv.second.x, gd.uv.second.y });
+		vertices.emplace_back(-tempPos, float2{ gd.uv.first.x, gd.uv.first.y });
+		vertices.emplace_back(
+			float3{ -gd.width / _face->resolution(), 0, 0 } - tempPos,
+			float2{ gd.uv.second.x, gd.uv.first.y }
+		);
+		vertices.emplace_back(
+			float3{ 0, gd.height / _face->resolution(), 0 } - tempPos,
+			float2{ gd.uv.first.x, gd.uv.second.y }
+		);
+		vertices.emplace_back(
+			float3{ -gd.width / _face->resolution(), gd.height / _face->resolution(), 0 } - tempPos,
+			float2{ gd.uv.second.x, gd.uv.second.y }
+		);
 
-		for (const auto& v : textVertices | std::views::reverse | std::views::take(4)) {
+		for (const auto& v : vertices | std::views::reverse | std::views::take(4)) {
 			localMin.x = std::min(localMin.x, v.position.x);
 			localMin.y = std::min(localMin.y, v.position.y);
 
@@ -190,89 +150,28 @@ void TextComponent::updateText(bool outline) {
 		}
 
 		const auto indicesDelta = 4 * indicesIdx;
-		textIndices.push_back(2 + indicesDelta);
-		textIndices.push_back(0 + indicesDelta);
-		textIndices.push_back(1 + indicesDelta);
-		textIndices.push_back(3 + indicesDelta);
-		textIndices.push_back(2 + indicesDelta);
-		textIndices.push_back(1 + indicesDelta);
+		indices.push_back(2 + indicesDelta);
+		indices.push_back(0 + indicesDelta);
+		indices.push_back(1 + indicesDelta);
+		indices.push_back(3 + indicesDelta);
+		indices.push_back(2 + indicesDelta);
+		indices.push_back(1 + indicesDelta);
 		++indicesIdx;
 
-		pos += float3{ gd.advance * _face->resolution(), 0, 0 };
+		pos.x += gd.advance;
 	}
 
-	auto mesh = asset::mesh::Mesh::create<Vertex>(textVertices, textIndices);
+	// pretransformed positions are inverted
+	_topLeft = float3{ localMax.x, localMin.y, 0 };
+	_bottomRight = float3{ localMin.x, localMax.y, 0 };
 
-	struct UniformBuffer {
-		Mat4x4 projection;
-	};
-
-	// hardcoded, awaiting window.getSize()
-	UniformBuffer ubo{ glm::ortho(0.f, (float)1'280, 0.f, (float)720) };
-
-	auto uniformBuffer = gfx::Renderer::getCurrent()
-							 ->getBufferManager()
-							 ->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
-
-	auto textPipeline = gfx::Renderer::getCurrent()->getPipelineManager()->create({
-		.vertexShaderPath = "shaders/vertex_default.glsl",
-		.fragmentShaderPath = outline ? "shaders/fragment_atlasOutline.glsl" : "shaders/fragment_atlas.glsl",
-		.textures = { _face->atlasTexture() },
-		.buffers = { uniformBuffer },
-	});
-
-	_domain->addComponent<scene::components::MeshComponent>(_entity) =
-		scene::components::MeshComponent({ mesh, textPipeline });
-
-	auto tMat = transform.getTransformMatrix();
-	auto worldMin = tMat * float4{ localMin.x, localMin.y, localMin.z, 1 };
-	auto worldMax = tMat * float4{ localMax.x, localMax.y, localMax.z, 1 };
-
-	_topLeft = float2{ std::min(worldMin.x, worldMax.x), std::max(worldMin.y, worldMax.y) };
-	_bottomRight = float2{ std::max(worldMin.x, worldMax.x), std::min(worldMin.y, worldMax.y) };
-}
-
-float2 TextComponent::topLeft() const noexcept {
-	return _topLeft;
-}
-
-float2 TextComponent::bottomRight() const noexcept {
-	return _bottomRight;
-}
-
-float2 TextComponent::center() const noexcept {
-	return (_topLeft + _bottomRight) / 2.f;
-}
-
-float TextComponent::rotate(float angle, float2 pivot) {
-	_assure();
-	auto&& t = _domain->getComponent<scene::components::TransformComponent>(_entity);
-
-	const auto zAx = float3{ 0, 0, 1 };
-	const auto rotationQuat = glm::angleAxis(angle, zAx);
-
-	/*auto relative = t.position - float3{ pivot.x, pivot.y, 0 };
-	auto rotatedRelative = rotationQuat * relative;*/
-	t.position = rotationQuat * (t.position - float3{ pivot.x, pivot.y, 0 }) + float3{ pivot.x, pivot.y, 0 };
-	t.rotation = rotationQuat * t.rotation;
-
-	return getRotation();
-}
-
-float TextComponent::rotateDeg(float degrees, float2 pivot) {
-	return glm::degrees(rotate(glm::radians(degrees), pivot));
-}
-
-float TextComponent::rotateDeg(float degrees) {
-	return rotateDeg(degrees, center());
-}
-
-float TextComponent::rotate(float angle) {
-	return rotate(angle, center());
-}
-
-float2 TextComponent::size() const noexcept {
-	return { _bottomRight.x - _topLeft.x, _topLeft.y - _bottomRight.y };
+	_mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+	_pipeline =
+		gfx::Renderer::getCurrent()->getPipelineManager()->create({ .vertexShaderPath = "shaders/vertex_default.glsl",
+																	.fragmentShaderPath =
+																		"shaders/text/fragment_atlas.glsl",
+																	.textures = { _face->atlasTexture() },
+																	.buffers = std::move(buffers) });
 }
 
 } // namespace arch::text
