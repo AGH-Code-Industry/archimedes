@@ -24,3 +24,4 @@ cmake/conan_files/
 CMakeSettings.json
 cmake-build-*
 cmake/conanfile.hash
+*cache*
