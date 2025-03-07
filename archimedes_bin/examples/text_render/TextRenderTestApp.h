@@ -104,5 +104,19 @@ class TextRenderTestApp: public Application {
 		}
 	}
 
-	void update() { std::this_thread::sleep_for(std::chrono::milliseconds(16)); }
+	void update() {
+		static float frame = 0;
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+		for (auto&& [e, transform, text] : scene::SceneManager::get()
+											   ->currentScene()
+											   ->domain()
+											   .view<scene::components::TransformComponent, text::TextComponent>()
+											   .all()) {
+			auto scale = 100.f * (cos(frame) + 1) / 2.f;
+			transform.scale = { scale, scale, 0.f };
+		}
+
+		frame += 0.05f;
+	}
 };
