@@ -103,10 +103,7 @@ inline void testControl() {
 				break;
 			case 'r':
 				if (!isPlaying) {
-					Logger::debug("Playing from another loop");
 					auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
-					Logger::debug("added component from another loop");
-
 					source->path = filename;
 					source->gain = 0.5;
 					source->isLooped = true;
