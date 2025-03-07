@@ -2,14 +2,20 @@
 #include <map>
 #include <set>
 #include <string>
+#include <filesystem>
 
 #include <audio/Clip.h>
+
+namespace fs = std::filesystem;
 
 namespace arch::audio {
 /// @brief SoundBank stores a map of Clip objects.
 /// Thanks to this, you can save each audio file just once for all Sources,
 /// even if some play the same sound.
 class SoundBank {
+
+	fs::path soundsDirectory;
+
 	/// @brief A map storing all Clip objects.
 	/// Each clip is referenced by its sound file's path on disk.
 	std::map<std::string, Clip> _clips;

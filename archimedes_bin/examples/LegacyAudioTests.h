@@ -25,7 +25,7 @@ inline void testSimpleSound(const std::string& sounds) {
 	const std::string filename = "Chiptone A4.wav";
 
 	// load audio files that we can play
-	soundBank.addClip(sounds + filename);
+	soundBank.addClip(filename);
 	soundBank.loadInitialGroups();
 
 	// initialize and start the audioManager
@@ -51,7 +51,7 @@ inline void testSimpleSound(const std::string& sounds) {
 	audioManager.stop();
 }
 
-inline void testControl(const std::string& sounds) {
+inline void testControl() {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -64,7 +64,7 @@ inline void testControl(const std::string& sounds) {
 	const std::string filename = "rickroll.wav";
 
 	// load audio files that we can play
-	soundBank.addClip(sounds + filename);
+	soundBank.addClip(filename);
 	soundBank.loadInitialGroups();
 
 
@@ -75,7 +75,7 @@ inline void testControl(const std::string& sounds) {
 	auto entity = domain.newEntity();
 	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
 
-	source->path = sounds + filename;
+	source->path = filename;
 	source->gain = 0.5;
 	source->isLooped = true;
 	domain.addComponent<audio::AudioSourceActionComponent>(entity);
@@ -107,7 +107,7 @@ inline void testControl(const std::string& sounds) {
 					auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
 					Logger::debug("added component from another loop");
 
-					source->path = sounds + filename;
+					source->path = filename;
 					source->gain = 0.5;
 					source->isLooped = true;
 					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::play);
@@ -135,7 +135,7 @@ inline void testSpatialAudio(const std::string& sounds) {
 	const std::string filename = "wind.mp3";
 
 	// load audio files that we can play
-	soundBank.addClip(sounds + filename);
+	soundBank.addClip(filename);
 	soundBank.loadInitialGroups();
 
 	std::mutex mutex;

@@ -6,12 +6,10 @@
 
 namespace ecs = arch::ecs;
 
-const std::string sounds = "C:\\Users\\magro\\12.02.2025\\dev\\archimedes\\archimedes_bin\\sounds\\";
-
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	testControl(sounds);
+	testControl();
 
 	// arch::Ref<arch::Application> myApp = arch::createRef<SpatialAudioTestApp>();
 	//

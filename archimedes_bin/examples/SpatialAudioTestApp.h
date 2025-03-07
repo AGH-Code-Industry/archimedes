@@ -16,7 +16,7 @@ namespace ecs = arch::ecs;
 namespace scene = arch::scene;
 
 struct SpatialAudioTestApp: arch::Application {
-	const std::string _soundFile = "C:\\Users\\magro\\12.02.2025\\dev\\archimedes\\archimedes_bin\\sounds\\wind.mp3";
+	const std::string _soundFile = "wind.mp3";
 
 	// initialize OpenAL context
 	audio::SoundDevice _device;
