@@ -70,6 +70,24 @@ public:
 	/// @param transformMat - matrix to transform topLeft
 	float3 bottomRight(const Mat4x4& transformMatrix) const noexcept;
 
+	/// @brief Returns untransformed top-right corner of text
+	float3 topRight() const noexcept;
+	/// @brief Returns top-right corner of text
+	/// @param transformMat - matrix to transform toRight
+	float3 topRight(const Mat4x4& transformMatrix) const noexcept;
+	/// @brief Returns untransformed bottom-right corner of text
+	float3 bottomLeft() const noexcept;
+	/// @brief Returns bottom-right corner of text
+	/// @param transformMat - matrix to transform bottomLeft
+	float3 bottomLeft(const Mat4x4& transformMatrix) const noexcept;
+	/// @brief Returns untransformed adjusted bottom-left corner of text
+	/// @details Adjusted means that result's .x == baseline.x
+	float3 bottomLeftAdjusted() const noexcept;
+	/// @brief Returns adjusted bottom-left corner of text
+	/// @details Adjusted means that result's .x == baseline.x
+	/// @param transformMat - matrix to transform bottomLeft
+	float3 bottomLeftAdjusted(const Mat4x4& transformMatrix) const noexcept;
+
 	/// @brief Returns Ref to pipeline of text
 	const Ref<gfx::pipeline::Pipeline>& pipeline() const noexcept;
 	/// @brief Returns Ref to mesh of text

@@ -85,6 +85,30 @@ float3 TextComponent::bottomRight(const Mat4x4& transformMatrix) const noexcept 
 	return transformMatrix * float4{ _bottomRight, 1 };
 }
 
+float3 TextComponent::topRight() const noexcept {
+	return float3{ _bottomRight.x, _topLeft.y, 0 };
+}
+
+float3 TextComponent::topRight(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _bottomRight.x, _topLeft.y, 0, 1 };
+}
+
+float3 TextComponent::bottomLeft() const noexcept {
+	return float3{ _topLeft.x, _bottomRight.y, 0 };
+}
+
+float3 TextComponent::bottomLeft(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ _topLeft.x, _bottomRight.y, 0, 1 };
+}
+
+float3 TextComponent::bottomLeftAdjusted() const noexcept {
+	return float3{ 0, _bottomRight.y, 0 };
+}
+
+float3 TextComponent::bottomLeftAdjusted(const Mat4x4& transformMatrix) const noexcept {
+	return transformMatrix * float4{ 0, _bottomRight.y, 0, 1 };
+}
+
 const Ref<gfx::pipeline::Pipeline>& TextComponent::pipeline() const noexcept {
 	return _pipeline;
 }
