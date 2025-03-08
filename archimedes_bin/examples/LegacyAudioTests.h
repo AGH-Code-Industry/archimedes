@@ -12,7 +12,7 @@
 namespace audio = arch::audio;
 namespace ecs = arch::ecs;
 
-inline void testSimpleSound(const std::string& sounds) {
+inline void testSimpleSound() {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -29,22 +29,17 @@ inline void testSimpleSound(const std::string& sounds) {
 	soundBank.loadInitialGroups();
 
 	// initialize and start the audioManager
-	std::mutex mutex;
 	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	while (getchar() != 'q') {
-		{
-			auto lock = std::lock_guard(mutex);
-			auto entity = domain.newEntity();
-			auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+		auto entity = domain.newEntity();
+		auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
 
-			source->path = sounds + filename;
-			source->gain = 0.5;
-			source->isLooped = false;
-			//			source->play();
-			domain.addComponent<audio::AudioSourceActionComponent>(entity);
-		}
+		source->path = filename;
+		source->gain = 0.5;
+		source->isLooped = false;
+		// domain.addComponent<audio::AudioSourceActionComponent>(entity);
 	}
 
 	// close the audioManager
@@ -119,7 +114,7 @@ inline void testControl() {
 	audioManager.stop();
 }
 
-inline void testSpatialAudio(const std::string& sounds) {
+inline void testSpatialAudio() {
 	ecs::Domain domain;
 
 	// initialize OpenAL context
@@ -143,10 +138,9 @@ inline void testSpatialAudio(const std::string& sounds) {
 	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
 	{
 		auto lock = std::lock_guard(mutex);
-		source->path = sounds + filename;
+		source->path = filename;
 		source->gain = 0.5;
 		source->isLooped = true;
-		//			source->play();
 		source->positionX = 0.0f;
 		source->positionY = 1.0f;
 		domain.addComponent<audio::AudioSourceActionComponent>(entity);

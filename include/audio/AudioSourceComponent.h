@@ -36,8 +36,4 @@ struct AudioSourceComponent {
 	/// Used for calculating the Doppler Effect.
 	float velocityX = 0.0f, velocityY = 0.0f;
 };
-
-struct AudioSourceActionComponent {
-	SourceAction action = play;
-};
 } // namespace arch::audio

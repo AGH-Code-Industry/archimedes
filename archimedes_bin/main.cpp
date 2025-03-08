@@ -9,7 +9,7 @@ namespace ecs = arch::ecs;
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	testControl();
+	testSimpleSound();
 
 	// arch::Ref<arch::Application> myApp = arch::createRef<SpatialAudioTestApp>();
 	//

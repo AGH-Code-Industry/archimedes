@@ -16,6 +16,10 @@ struct SourceData {
 	int index;
 };
 
+struct AudioSourceActionComponent {
+	SourceAction action = play;
+};
+
 /// @brief Stores all SourcePlayers on the scene and synchronizes their work.
 /// Allows for automatic removal of sounds that stopped playing.
 class AudioManager {
