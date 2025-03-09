@@ -9,5 +9,7 @@ layout(location = 1) in vec2 texCoord;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(sampler2D(tex, texSampler), texCoord);
+    vec4 color = texture(sampler2D(tex, texSampler), texCoord);
+    
+    outColor = vec4(pow(color.rgb, vec3(2.2)), color.a);
 }

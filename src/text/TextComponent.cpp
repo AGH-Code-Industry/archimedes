@@ -3,8 +3,40 @@
 #include <font/FontDB.h>
 #include <font/FontException.h>
 #include <text/TextComponent.h>
+#include <utils/Assert.h>
 
 namespace arch::text {
+
+TextComponent::TextComponent(TextComponent&& other) noexcept {
+	if (other._pipeline.get() == nullptr || other._mesh.get() == nullptr || other.destroyed) {
+		Logger::critical("nullptr 1 or 2");
+		// int i = 0;
+	} // else {
+	_text = std::move(other._text);
+	_face = std::move(other._face);
+	_topLeft = std::move(other._topLeft);
+	_bottomRight = std::move(other._bottomRight);
+	_pipeline = std::move(other._pipeline);
+	_mesh = std::move(other._mesh);
+	destroyed = other.destroyed;
+	//}
+}
+
+TextComponent& TextComponent::operator=(TextComponent&& other) noexcept {
+	if (other._pipeline.get() == nullptr || other._mesh.get() == nullptr || other.destroyed) {
+		Logger::critical("nullptr 1 or 2");
+		// int i = 0;
+	} // else {
+	_text = std::move(other._text);
+	_face = std::move(other._face);
+	_topLeft = std::move(other._topLeft);
+	_bottomRight = std::move(other._bottomRight);
+	_pipeline = std::move(other._pipeline);
+	_mesh = std::move(other._mesh);
+	destroyed = other.destroyed;
+	//}
+	return *this;
+}
 
 TextComponent::TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName):
 	TextComponent(std::move(text), {}, familyName, styleName) {}
@@ -190,12 +222,20 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 	_bottomRight = float3{ localMin.x, localMax.y, 0 };
 
 	_mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
-	_pipeline =
-		gfx::Renderer::getCurrent()->getPipelineManager()->create({ .vertexShaderPath = "shaders/vertex_default.glsl",
-																	.fragmentShaderPath =
-																		"shaders/text/fragment_atlas.glsl",
-																	.textures = { _face->atlasTexture() },
-																	.buffers = std::move(buffers) });
+	try {
+		_pipeline = gfx::Renderer::getCurrent()->getPipelineManager()->create(
+			{ .vertexShaderPath = "shaders/vertex_default.glsl",
+			  .fragmentShaderPath = "shaders/text/fragment_atlasOutline.glsl",
+			  .textures = { _face->atlasTexture() },
+			  .buffers = std::move(buffers) }
+		);
+
+	} catch (Exception& e) {
+		e.print();
+		throw;
+	}
+	ARCH_ASSERT(_mesh != nullptr, "dupa");
+	ARCH_ASSERT(_pipeline != nullptr, "dupa2");
 }
 
 } // namespace arch::text

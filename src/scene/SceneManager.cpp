@@ -27,28 +27,37 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 		// static const auto ortho = glm::ortho(0.f, 640.f, 0.f, 400.f);
 
 		struct RenderInfo {
-			const asset::mesh::Mesh* mesh;
-			const Ref<gfx::pipeline::Pipeline>* pipeline;
+			ecs::Entity entity;
+			Ref<asset::mesh::Mesh> mesh;
+			Ref<gfx::pipeline::Pipeline> pipeline;
 			const components::TransformComponent* transform;
+			bool destroyed;
 		};
 
 		std::vector<RenderInfo> renderInfo;
 
-		for (auto [entity, transform, mesh] :
-			 domain.view<components::TransformComponent, components::MeshComponent>().all()) {
-			renderInfo.emplace_back(mesh.mesh.get(), &mesh.pipeline, &transform);
+		auto meshView = domain.view<components::TransformComponent, components::MeshComponent>();
+		auto textView = domain.view<components::TransformComponent, text::TextComponent>();
+
+		for (auto&& [entity, transform, mesh] : meshView.all()) {
+			renderInfo.emplace_back(entity, mesh.mesh, mesh.pipeline, &transform, mesh.destroyed);
 		}
-		for (auto [entity, transform, text] :
-			 domain.view<components::TransformComponent, text::TextComponent>().all()) {
-			renderInfo.emplace_back(text.mesh().get(), &text.pipeline(), &transform);
+		for (auto&& [entity, transform, text] : textView.all()) {
+			renderInfo.emplace_back(entity, text.mesh(), text.pipeline(), &transform, text.destroyed);
 		}
 
 		std::ranges::sort(renderInfo, [](const RenderInfo& lhs, const RenderInfo& rhs) {
 			return lhs.transform->position.z > rhs.transform->position.z;
 		});
 
-		for (auto&& [mesh, pipeline, transform] : renderInfo) {
-			renderer->usePipeline(*pipeline);
+		for (auto&& [e, mesh, pipeline, transform, destroyed] : renderInfo) {
+			if (!domain.alive(e)) {
+				Logger::critical("{:|v} is not alive", e);
+			}
+			if (destroyed) {
+				Logger::critical("{:|v} was destroyed", e);
+			}
+			renderer->usePipeline(pipeline);
 			renderer->draw(
 				mesh->getVertexBuffer(),
 				mesh->getIndexBuffer(),

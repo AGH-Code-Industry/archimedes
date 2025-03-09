@@ -39,6 +39,8 @@ public:
 	/// @brief Null entity
 	static inline constexpr EntityT null = Traits::Ent::null;
 
+	void printState(std::string_view msg) const noexcept;
+
 	/// @brief Swaps this pool with given pool
 	/// @param other - pool to swap with
 	void swap(EntityPool& other) noexcept;
@@ -123,6 +125,7 @@ private:
 	std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> _debug() noexcept;
 
 	size_t _size = 0;
+	size_t _last = 0;
 };
 
 } // namespace arch::ecs

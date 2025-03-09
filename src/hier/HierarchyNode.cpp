@@ -1,9 +1,12 @@
+#include <ecs/EntityFormatter.h>
 #include <hier/HierarchyNode.h>
 
 namespace arch::hier {
 
 HierarchyNode::HierarchyNode(const ecs::Entity entity) noexcept {
+	// Logger::debug("in =  {:|v}", entity);
 	this->_entity = entity;
+	// Logger::debug("new = {:|v}", this->_entity);
 }
 
 void HierarchyNode::_unparent() noexcept {

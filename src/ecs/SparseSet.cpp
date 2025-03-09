@@ -84,7 +84,7 @@ bool SparseSet::contains(const IdT id) const noexcept {
 bool SparseSet::contains(const EntityT entity) const noexcept {
 	const auto sparsePtr = _sparseTryGet(Traits::Id::part(entity));
 
-	return sparsePtr && Traits::Version::equal(*sparsePtr, entity);
+	return sparsePtr && Traits::Version::hasNotNull(entity) && Traits::Version::equal(*sparsePtr, entity);
 }
 
 } // namespace arch::ecs::_details

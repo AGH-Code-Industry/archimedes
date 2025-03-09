@@ -42,12 +42,14 @@ public:
 	/// @brief Copy constructor
 	TextComponent(const TextComponent&) noexcept = default;
 	/// @brief Move constructor
-	TextComponent(TextComponent&&) noexcept = default;
+	TextComponent(TextComponent&& other) noexcept;
+
+	~TextComponent() { destroyed = true; }
 
 	/// @brief Copy-assignment operator
 	TextComponent& operator=(const TextComponent&) noexcept = default;
 	/// @brief Move-assignment operator
-	TextComponent& operator=(TextComponent&&) noexcept = default;
+	TextComponent& operator=(TextComponent&& other) noexcept;
 
 	/// @brief Swap function
 	void swap(TextComponent& other) noexcept;
@@ -88,10 +90,14 @@ public:
 	/// @param transformMat - matrix to transform bottomLeft
 	float3 bottomLeftAdjusted(const Mat4x4& transformMatrix) const noexcept;
 
+	const std::u32string& string() const noexcept { return _text; }
+
 	/// @brief Returns Ref to pipeline of text
 	const Ref<gfx::pipeline::Pipeline>& pipeline() const noexcept;
 	/// @brief Returns Ref to mesh of text
 	const Ref<asset::mesh::Mesh>& mesh() const noexcept;
+
+	bool destroyed = false;
 
 private:
 

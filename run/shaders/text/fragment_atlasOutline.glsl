@@ -9,7 +9,7 @@ layout(location = 1) in vec2 texCoord;
 layout(location = 0) out vec4 outColor;
 
 // Variable for outline thickness (in SDF units, e.g. 0.05)
-float outlineThickness = 0.25;
+float outlineThickness = 0.3;
 
 float screenPxRange() {
     return 32.0;
@@ -29,7 +29,6 @@ void main() {
         0.5 + smoothing,
         distance
     );
-    //insideAlpha = pow(insideAlpha, 1000.0f);
     float outlineAlpha = smoothstep(
         0.5 - outlineThickness - smoothing,
         0.5 - outlineThickness + smoothing,
