@@ -273,9 +273,9 @@ void present(
 
 		auto mt = std::mt19937(std::random_device{}());
 		auto randInt = std::uniform_int_distribution(0, 2);
-		auto randAngle1 = std::uniform_real_distribution(30.f, 85.f);
-		auto randAngle2 = std::uniform_real_distribution(95.f, 150.f);
-		auto randSpeed = std::uniform_real_distribution(15.f, 40.f);
+		auto randAngle1 = std::uniform_real_distribution(30.f, 89.f);
+		auto randAngle2 = std::uniform_real_distribution(91.f, 150.f);
+		auto randSpeed = std::uniform_real_distribution(10.f, 30.f);
 		auto randRotation = std::uniform_real_distribution(glm::radians(-10.f), glm::radians(10.f));
 
 		std::vector<Vertex> particleVertices{
@@ -287,7 +287,7 @@ void present(
 
 		mesh = asset::mesh::Mesh::create(std::span(particleVertices), indices);
 
-		for (int i = 0; i != 300; ++i) {
+		for (int i = 0; i != 500; ++i) {
 			auto particle = scene::SceneManager::get()->currentScene()->newEntity();
 
 			particle.addComponent<Particle>(randRotation(mt));
@@ -305,7 +305,7 @@ void present(
 			float angle = glm::radians(randAngle1(mt));
 			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt) / 1.f;
 		}
-		for (int i = 0; i != 300; ++i) {
+		for (int i = 0; i != 500; ++i) {
 			auto particle = scene::SceneManager::get()->currentScene()->newEntity();
 
 			particle.addComponent<Particle>(randRotation(mt));
@@ -321,7 +321,7 @@ void present(
 			);
 			auto&& movable = particle.addComponent<physics::Moveable>();
 			float angle = glm::radians(randAngle2(mt));
-			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt) / 1.f;
+			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt);
 		}
 	}
 
@@ -364,67 +364,90 @@ class ProjectSelectorApp: public Application {
 	std::vector<Entity> rectEntities;
 
 	void initRects() {
+		auto twister = std::mt19937(std::random_device{}());
+		auto rng = std::uniform_real_distribution(0.2f, 1.0f);
+
+		std::vector<std::tuple<std::u32string, Color>> texts;
 		{
-			auto twister = std::mt19937(std::random_device{}());
-			auto rng = std::uniform_real_distribution(0.2f, 1.0f);
-
-			std::vector<std::u32string> texts{
-				/*U"Bright Bodies",   U"Tacticool Fishing", U"Archimedes",
-				U"Student Trainer", U"Czasoport",		 U"Racing Cart",
-				U"Monstrous Tide",  U"Moose's Tales",	 U"Brewer",
-				U"Ej Mordo Flanki", U"Packet Defender",	 U"Butcher of Monsters",
-				U"Student test",	   U"Shotguns"*/
-			};
-			{
-				auto file = std::ifstream("projekty.txt");
-				std::string input;
-				while (std::getline(file, input)) {
-					texts.push_back(text::convertTo<char32_t>(std::string_view(input)));
+			auto file = std::ifstream("projekty.txt");
+			std::string input;
+			while (std::getline(file, input)) {
+				auto colorPos = input.find('#');
+				if (colorPos != (size_t)-1) {
+					float r, g, b;
+					std::from_chars(
+						input.data() + colorPos + 1,
+						input.data() + colorPos + 3,
+						r,
+						std::chars_format::hex
+					);
+					std::from_chars(
+						input.data() + colorPos + 3,
+						input.data() + colorPos + 5,
+						g,
+						std::chars_format::hex
+					);
+					std::from_chars(
+						input.data() + colorPos + 5,
+						input.data() + colorPos + 7,
+						b,
+						std::chars_format::hex
+					);
+					texts.emplace_back(
+						text::convertTo<char32_t>(std::string_view(input.data(), input.data() + colorPos - 1)),
+						Color{ r / 255.f, g / 255.f, b / 255.f, 1.f }
+					);
+				} else {
+					texts.emplace_back(
+						text::convertTo<char32_t>(std::string_view(input)),
+						Color{ rng(twister), rng(twister), rng(twister), 1.f }
+					);
 				}
 			}
-			std::ranges::shuffle(texts, twister);
+		}
+		std::ranges::shuffle(texts, twister);
 
-			rectParent = scene::SceneManager::get()->currentScene()->newEntity();
+		rectParent = scene::SceneManager::get()->currentScene()->newEntity();
 
-			float posBegin = (windowWidth - rectSize.x * texts.size()) / 2.f;
+		float posBegin = (windowWidth - rectSize.x * texts.size()) / 2.f;
 
-			for (auto&& [i, t] : texts | std::views::enumerate) {
-				auto rect = newRectWithText(
-					{ rng(twister), rng(twister), rng(twister), 1.f },
-					t,
-					{ posBegin + i * rectSize.x, (windowHeight + rectSize.y) / 2.f, 0.f },
+		for (auto&& [i, tcPair] : texts | std::views::enumerate) {
+			auto&& [t, c] = tcPair;
+			auto rect = newRectWithText(
+				c,
+				t,
+				{ posBegin + i * rectSize.x, (windowHeight + rectSize.y) / 2.f, 0.f },
+				rectSize,
+				i
+			);
+			rect.setParent(rectParent);
+			rectEntities.push_back(rect);
+		}
+		while (rectParent.childrenCount() < minRects) {
+			for (auto&& [i, child] :
+				 rectParent.children() | std::views::take(rectParent.childrenCount()) | std::views::enumerate) {
+				newRectWithText(
+					child.getComponent<RectSpriteComponent>().color,
+					child.firstChild().getComponent<text::TextComponent>().string(),
+					{ 0, (windowHeight + rectSize.y) / 2, 0 },
 					rectSize,
-					i
-				);
-				rect.setParent(rectParent);
-				rectEntities.push_back(rect);
+					child.getComponent<RectSpriteComponent>().index,
+					child.getComponent<RectSpriteComponent>().marginPercent
+				)
+					.setParent(rectParent);
 			}
-			while (rectParent.childrenCount() < minRects) {
-				for (auto&& [i, child] :
-					 rectParent.children() | std::views::take(rectParent.childrenCount()) | std::views::enumerate) {
-					newRectWithText(
-						child.getComponent<RectSpriteComponent>().color,
-						child.firstChild().getComponent<text::TextComponent>().string(),
-						{ 0, (windowHeight + rectSize.y) / 2, 0 },
-						rectSize,
-						child.getComponent<RectSpriteComponent>().index,
-						child.getComponent<RectSpriteComponent>().marginPercent
-					)
-						.setParent(rectParent);
-				}
-			}
-			posBegin = (windowWidth - rectSize.x * rectParent.childrenCount()) / 2.f;
-			for (auto [i, rect2] : rectParent.children() | std::views::enumerate) {
-				/*moveRect(
-				 rect2,
-				 (rect2.getComponent<Transform>().position.x < windowWidth / 2) ? rectSize.x / 2 :
-																				  -rectSize.x / 2,
-				 (windowWidth - rectParent.childrenCount() * rectSize.x) / 2.f,
-				 (windowWidth + rectParent.childrenCount() * rectSize.x) / 2.f
-				);*/
-				rect2.getComponent<Transform>().position.x = posBegin + i * rectSize.x;
-				// updateTextInRect(rect);
-			}
+		}
+		posBegin = (windowWidth - rectSize.x * rectParent.childrenCount()) / 2.f;
+		for (auto [i, rect2] : rectParent.children() | std::views::enumerate) {
+			/*moveRect(
+				rect2,
+				(rect2.getComponent<Transform>().position.x < windowWidth / 2) ? rectSize.x / 2 :
+																				-rectSize.x / 2,
+				(windowWidth - rectParent.childrenCount() * rectSize.x) / 2.f,
+				(windowWidth + rectParent.childrenCount() * rectSize.x) / 2.f
+			);*/
+			rect2.getComponent<Transform>().position.x = posBegin + i * rectSize.x;
+			// updateTextInRect(rect);
 		}
 	}
 
@@ -514,7 +537,7 @@ class ProjectSelectorApp: public Application {
 
 			auto line = testScene->newEntity();
 			line.addComponent<Transform>({
-				{ (windowWidth - lineThickness) / 2, (windowHeight + lineLength) / 2, -0.3f },
+				{ ((float)windowWidth - lineThickness) / 2.f, ((float)windowHeight + lineLength) / 2.f, -0.3f },
 				{ 0, 0, 0, 1 },
 				{ lineThickness, lineLength, 0 }
 			 });
@@ -639,29 +662,30 @@ class ProjectSelectorApp: public Application {
 				}
 			}
 		}
-		if (!finished && !speedup && !brake && !ongoing && !presentation) {
-			// finished = true;
-			speedup = true;
-			ongoing = true;
-			velocity = 0.01f;
-		}
+		// v AUTO SPIN v
+		// if (!finished && !speedup && !brake && !ongoing && !presentation) {
+		//	// finished = true;
+		//	speedup = true;
+		//	ongoing = true;
+		//	velocity = 0.01f;
+		//}
 
 		static float frame = 0;
 		auto&& domain = scene::SceneManager::get()->currentScene()->domain();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 
 		if (speedup) {
-			velocity *= 1.05f;
-		} else if (velocity > 0.1f && brake) {
-			if (velocity > 20.f) {
+			velocity *= 1.02f;
+		} else if (velocity > 0.01f && brake) {
+			if (velocity > 10.f) {
 				velocity *= 0.99;
-			} else if (velocity < 20.f && velocity > 5.f) {
+			} else if (velocity < 10.f && velocity > 2.5f) {
 				velocity *= 0.98;
-			} else if (velocity < 5.f) {
-				velocity *= 0.95;
+			} else if (velocity < 2.5f) {
+				velocity *= 0.97;
 			}
-			if (velocity < 0.1f) {
+			if (velocity < 0.01f) {
 				// FINISHED SPINNING
 				velocity = 0;
 				brake = false;
@@ -670,12 +694,12 @@ class ProjectSelectorApp: public Application {
 				// presentation = true;
 			}
 		}
-		if (velocity > 200.f && speedup) {
+		if (velocity > 150.f && speedup) {
 			speedup = false;
 			std::jthread([&]() {
 				auto random = std::mt19937(std::random_device()());
 				std::this_thread::sleep_for(
-					std::chrono::milliseconds(std::uniform_int_distribution<int>(1'000, 3'000)(random))
+					std::chrono::milliseconds(std::uniform_int_distribution<int>(2'000, 4'000)(random))
 				);
 				brake = true;
 			}).detach();
@@ -785,7 +809,7 @@ class ProjectSelectorApp: public Application {
 				 domain.view<Transform, Particle, physics::Moveable>().all()) {
 				transform.position.x += movable.velocity.x;
 				transform.position.y += movable.velocity.y;
-				movable.velocity.y -= 9.81 / 10;
+				movable.velocity.y -= 9.81 / 20;
 
 				transform.rotation = glm::angleAxis(glm::eulerAngles(transform.rotation).z + particle.rotation, zAx) *
 					transform.rotation;
