@@ -126,8 +126,7 @@ VIEW_CIE::View(DomainT* domain) noexcept:
 		_minIdx == (size_t)-1 ? _details::CommonComponentPool::_emptyEntitiesForView() :
 								_includedCPools[_minIdx]->_entitiesForView(),
 		std::bind(&View::contains, (const View*)this, std::placeholders::_1)
-	),
-	_domain{ domain } {}
+	) {}
 
 TEMPLATE_CIE
 VIEW_CIE::View(const View& other) noexcept:
@@ -217,12 +216,11 @@ bool VIEW_CE::_containsNoCheck(const Entity entity) const noexcept {
 
 TEMPLATE_CIE
 bool VIEW_CIE::contains(const Entity entity) const noexcept {
-	return _domain->alive(entity) &&
-		std::all_of(
+	return std::all_of(
 			   _includedCPools.begin(),
 			   _includedCPools.begin() + _minIdx,
 			   [entity](const auto cpool) { return cpool->contains(entity); }
-		) &&
+		   ) &&
 		std::all_of(
 			   _includedCPools.begin() + _minIdx + 1,
 			   _includedCPools.end(),

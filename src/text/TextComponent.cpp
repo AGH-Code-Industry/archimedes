@@ -7,37 +7,6 @@
 
 namespace arch::text {
 
-TextComponent::TextComponent(TextComponent&& other) noexcept {
-	if (other._pipeline.get() == nullptr || other._mesh.get() == nullptr || other.destroyed) {
-		Logger::critical("nullptr 1 or 2");
-		// int i = 0;
-	} // else {
-	_text = std::move(other._text);
-	_face = std::move(other._face);
-	_topLeft = std::move(other._topLeft);
-	_bottomRight = std::move(other._bottomRight);
-	_pipeline = std::move(other._pipeline);
-	_mesh = std::move(other._mesh);
-	destroyed = other.destroyed;
-	//}
-}
-
-TextComponent& TextComponent::operator=(TextComponent&& other) noexcept {
-	if (other._pipeline.get() == nullptr || other._mesh.get() == nullptr || other.destroyed) {
-		Logger::critical("nullptr 1 or 2");
-		// int i = 0;
-	} // else {
-	_text = std::move(other._text);
-	_face = std::move(other._face);
-	_topLeft = std::move(other._topLeft);
-	_bottomRight = std::move(other._bottomRight);
-	_pipeline = std::move(other._pipeline);
-	_mesh = std::move(other._mesh);
-	destroyed = other.destroyed;
-	//}
-	return *this;
-}
-
 TextComponent::TextComponent(std::u32string text, std::string_view familyName, std::string_view styleName):
 	TextComponent(std::move(text), {}, familyName, styleName) {}
 

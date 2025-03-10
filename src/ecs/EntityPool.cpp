@@ -1,7 +1,4 @@
-#include <print>
-
 #include "utils/Assert.h"
-#include <ecs/EntityFormatter.h>
 #include <ecs/EntityPool.h>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
@@ -63,37 +60,16 @@ void EntityPool::swap(EntityPool& other) noexcept {
 	std::swap(_size, other._size);
 }
 
-void EntityPool::printState(std::string_view msg) const noexcept {
-	if (!msg.empty()) {
-		std::println("{}", msg);
-	}
-	std::println("Sparse:");
-	for (auto i = 0u; i != _last; ++i) {
-		std::println("{:02} -> {:02|v}", i, _sparseGet(i));
-	}
-	std::println("Dense:");
-	for (auto i = 0u; i != _last; ++i) {
-		std::println("{:02} -> {:02|v}", i, _dense[i]);
-	}
-	std::println();
-}
-
 EntityPool::EntityT EntityPool::newEntity() noexcept {
-	// static size_t tempEntity = 0;
-
-	// printState("Before newEntity");
 	if (_size == Traits::Id::max + 1) { // entity limit achieved
 		return null;
 	}
-	if (_size == _dense.size() /*|| true*/) { // new entity
-		const auto entity = Traits::Ent::fromParts(_size++ /*tempEntity++*/, 0);
+	if (_size == _dense.size()) { // new entity
+		const auto entity = Traits::Ent::fromParts(_size++, 0);
 
 		_dense.push_back(entity);
 		_sparseAssure(Traits::Id::part(entity)) = entity;
-		++_last;
 
-		// Logger::debug("created {:|v}", entity);
-		// printState("After newEntity (new)");
 		return entity;
 	} else { // recycle
 		const auto entity = _dense[_size++];
@@ -102,8 +78,6 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 
 		inSparse = Traits::Ent::fromOthers(inSparse, entity);
 
-		// Logger::debug("created {:|v}", entity);
-		// printState("After newEntity (recycle)");
 		return entity;
 	}
 }
@@ -140,9 +114,7 @@ EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 }
 
 void EntityPool::kill(const EntityT entity) noexcept {
-	// return;
 	if (contains(entity)) {
-		// printState("Before kill");
 		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[--_size];
 
@@ -152,8 +124,6 @@ void EntityPool::kill(const EntityT entity) noexcept {
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
-		// Logger::debug("killed entity = {:|v}", entity);
-		// printState("After kill");
 	}
 }
 
@@ -166,10 +136,8 @@ void EntityPool::kill(const IdT id) noexcept {
 		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(temp)));
 
-		// toSwapDense = Traits::Version::withNext(toSwapDense);
+		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
-
-		Logger::debug("killed id = {}", id);
 	}
 }
 

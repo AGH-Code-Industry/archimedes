@@ -215,7 +215,6 @@ private:
 
 	View(DomainT* domain) noexcept;
 
-	const DomainT* _domain;
 	std::array<CCPoolPtr, includeCount> _includedCPools;
 	std::array<CCPoolPtr, excludeCount> _excludedCPools;
 	size_t _minIdx = (size_t)-1;

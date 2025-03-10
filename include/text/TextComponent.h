@@ -42,14 +42,12 @@ public:
 	/// @brief Copy constructor
 	TextComponent(const TextComponent&) noexcept = default;
 	/// @brief Move constructor
-	TextComponent(TextComponent&& other) noexcept;
-
-	~TextComponent() { destroyed = true; }
+	TextComponent(TextComponent&&) noexcept = default;
 
 	/// @brief Copy-assignment operator
 	TextComponent& operator=(const TextComponent&) noexcept = default;
 	/// @brief Move-assignment operator
-	TextComponent& operator=(TextComponent&& other) noexcept;
+	TextComponent& operator=(TextComponent&& other) noexcept = default;
 
 	/// @brief Swap function
 	void swap(TextComponent& other) noexcept;
@@ -96,8 +94,6 @@ public:
 	const Ref<gfx::pipeline::Pipeline>& pipeline() const noexcept;
 	/// @brief Returns Ref to mesh of text
 	const Ref<asset::mesh::Mesh>& mesh() const noexcept;
-
-	bool destroyed = false;
 
 private:
 

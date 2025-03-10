@@ -21,17 +21,17 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	// try {
-	_initialize();
+	try {
+		_initialize();
 
-	_mainLoop();
-	/*} catch (Exception& e) {
+		_mainLoop();
+	} catch (Exception& e) {
 		e.print();
 	} catch (std::exception& e) {
 		Logger::error("Crashed with exception: {}", e.what());
 	} catch (...) {
 		Logger::error("Unhandled exception occurred");
-	}*/
+	}
 }
 
 void Engine::_mainLoop() {

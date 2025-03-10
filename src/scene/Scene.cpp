@@ -27,14 +27,7 @@ Entity Scene::newEntity() noexcept {
 hier::HierarchyNode& Scene::_newEntity() noexcept {
 	const auto newEntity = _domain.newEntity();
 
-	// Logger::debug("newEntity = {:|v}", newEntity);
-
-	if (newEntity == ecs::_details::EntityTraits::Ent::fromParts(7, 2)) {
-		// Logger::error("WTF?");
-	}
-
 	auto& newNode = _domain.addComponent<Node>(newEntity, newEntity);
-	// Logger::debug("newNode = {:|v}", newNode.entity());
 	_domain.addComponent<utils::UUID>(newEntity, utils::UUID::fromTime());
 	_domain.addComponent<NameComponent>(newEntity, "New Entity");
 

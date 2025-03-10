@@ -163,17 +163,10 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 TEMPLATE_C
 bool POOL_C::removeComponent(const EntityT entity) noexcept {
 	const size_t id = ETraits::Id::part(entity);
-	if (id == 66 || id == 67) {
-		// Logger::error("66/67");
-	}
 
 	auto sparsePtr = _sparseTryGet(id);
 	if (!sparsePtr || *sparsePtr == ETraits::Ent::null) {
 		return false;
-	}
-
-	if (ETraits::Id::part(*sparsePtr) == 66 || ETraits::Id::part(*sparsePtr) == 67) {
-		// Logger::error("66/67");
 	}
 
 	if constexpr (Traits::inPlace) {
@@ -189,27 +182,12 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
-			sparseSwap = ETraits::Ent::fromRawParts(
-				ETraits::Id::rawPart(/*entity*/ *sparsePtr),
-				ETraits::Version::rawPart(sparseSwap)
-			);
+			sparseSwap =
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(*sparsePtr), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
 		const size_t idx = ETraits::Id::part(std::exchange(*sparsePtr, ETraits::Ent::null));
-
-		if (ETraits::Id::part(_dense[_listHead]) == 66 || ETraits::Id::part(_dense[_listHead]) == 67) {
-			// Logger::error("66/67");
-		}
-		if (ETraits::Id::part(_dense[_listHead]) == 66 || ETraits::Id::part(_dense[_listHead]) == 67) {
-			// Logger::error("66/67");
-		}
-		if (_listHead == 66 || _listHead == 67) {
-			// Logger::error("66/67");
-		}
-		if (_listHead + 1 == 66 || _listHead + 1 == 67) {
-			// Logger::error("66/67");
-		}
 
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
@@ -226,8 +204,6 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 			Traits::destroyAt(&atListHead);
 		}
 	}
-
-	ARCH_ASSERT(!contains(entity), "entity has component despite removal!");
 
 	return true;
 }

@@ -49,55 +49,6 @@ struct RectSpriteComponent {
 	int index;
 };
 
-template<int x>
-struct DebugComponent {
-	ecs::Entity entity;
-
-	DebugComponent(ecs::Entity e): entity{ e } { //
-		if (size_t(e) == 64) {
-			std::cout << "xd\n";
-			// Logger::debug("add {:v}", e);
-		}
-		Logger::debug("add {:v}", e);
-	}
-
-	DebugComponent(): entity{ ecs::nullEntity } {}
-
-	~DebugComponent() {
-		Logger::debug("destroyed {:v}", entity);
-		entity = ecs::nullEntity;
-	}
-
-	DebugComponent(const DebugComponent& other) {
-		Logger::debug("copy {:v} <- {:v}", entity, other.entity);
-		entity = other.entity;
-	}
-
-	DebugComponent(DebugComponent&& other) {
-		Logger::debug("move {:v} <- {:v}", entity, other.entity);
-		entity = other.entity;
-		other.entity = ecs::nullEntity;
-	}
-
-	DebugComponent& operator=(const DebugComponent& other) {
-		Logger::debug("copy= {:v} <- {:v}", entity, other.entity);
-		entity = other.entity;
-		return *this;
-	}
-
-	DebugComponent& operator=(DebugComponent&& other) {
-		Logger::debug("move= {:v} <- {:v}", entity, other.entity);
-		entity = other.entity;
-		other.entity = ecs::nullEntity;
-		return *this;
-	}
-
-	void swap(DebugComponent& other) {
-		Logger::debug("swap {:v} <-> {:v}", entity, other.entity);
-		std::swap(entity, other.entity);
-	}
-};
-
 std::vector<Vertex> defaultVertices{
 	{  { 0.f, 0.f, 0.1f }, { 0.f, 0.f } },
 	{ { -1.f, 0.f, 0.1f }, { 1.f, 0.f } },
@@ -118,18 +69,6 @@ void updateTextInRect(Entity rect) {
 	auto marginPercent = rect.getComponent<RectSpriteComponent>().marginPercent;
 	auto&& textComp = text.getComponent<text::TextComponent>();
 
-	/*if (rect.hasComponent<SelectionFlag>()) {
-		Logger::debug(
-			"\n\n({}, {}, {})\n({}, {}, {})\n",
-			textTransform.position.x,
-			textTransform.position.y,
-			textTransform.position.z,
-			textTransform.scale.x,
-			textTransform.scale.y,
-			textTransform.scale.z
-		);
-	}*/
-
 	auto bottomLeft = textComp.bottomLeft(tmat);
 	auto topRight = textComp.topRight(tmat);
 	auto size = topRight - bottomLeft;
@@ -148,18 +87,6 @@ void updateTextInRect(Entity rect) {
 				-bottomLeft.y - (rectTransform.scale.y + size.y) / 2.f,
 				rectTransform.position.z - 0.1f };
 	textTransform.scale *= fontSize;
-
-	/*if (rect.hasComponent<SelectionFlag>()) {
-		Logger::debug(
-			"\n\n({}, {}, {})\n({}, {}, {})\n",
-			textTransform.position.x,
-			textTransform.position.y,
-			textTransform.position.z,
-			textTransform.scale.x,
-			textTransform.scale.y,
-			textTransform.scale.z
-		);
-	}*/
 }
 
 Entity newRectWithText(
@@ -171,8 +98,6 @@ Entity newRectWithText(
 	float marginPercent = 0.05f
 ) {
 	auto rect = scene::SceneManager::get()->currentScene()->newEntity();
-
-	// Logger::debug("{:v}", rect.handle());
 
 	rect.addComponent<scene::components::TransformComponent>({
 		position,
@@ -201,11 +126,9 @@ Entity newRectWithText(
 	});
 
 	rect.addComponent<scene::components::MeshComponent>(mesh, pipeline);
-	rect.addComponent<DebugComponent<0>>(rect.handle());
 	rect.addComponent<RectSpriteComponent>(marginPercent, color, index);
 
 	auto text = rect.addChild();
-	text.addComponent<DebugComponent<1>>(text.handle());
 
 	auto&& tt = text.addComponent<scene::components::TransformComponent>({
 		{ 0, 0, -0.1f },
@@ -268,13 +191,10 @@ void present(
 	);
 
 	screenRect.addComponent<scene::components::MeshComponent>(mesh, pipeline);
-	screenRect.addComponent<DebugComponent<0>>(screenRect.handle());
 
 	// TEXT
 
 	auto text = scene::SceneManager::get()->currentScene()->newEntity();
-
-	text.addComponent<DebugComponent<1>>(text.handle());
 
 	auto&& tt = text.addComponent<Transform>({
 		{ 0.f, 0.f, 0.f },
@@ -356,7 +276,7 @@ void present(
 		auto randAngle1 = std::uniform_real_distribution(30.f, 85.f);
 		auto randAngle2 = std::uniform_real_distribution(95.f, 150.f);
 		auto randSpeed = std::uniform_real_distribution(15.f, 40.f);
-		auto randRotation = std::uniform_real_distribution(glm::radians(-2.f), glm::radians(2.f));
+		auto randRotation = std::uniform_real_distribution(glm::radians(-10.f), glm::radians(10.f));
 
 		std::vector<Vertex> particleVertices{
 			{  { 0.5f, -0.5f, 0.1f }, { 0.f, 0.f } },
@@ -384,7 +304,6 @@ void present(
 			auto&& movable = particle.addComponent<physics::Moveable>();
 			float angle = glm::radians(randAngle1(mt));
 			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt) / 1.f;
-			// Logger::debug("({}, {})", movable.velocity.x, movable.velocity.y);
 		}
 		for (int i = 0; i != 300; ++i) {
 			auto particle = scene::SceneManager::get()->currentScene()->newEntity();
@@ -403,7 +322,6 @@ void present(
 			auto&& movable = particle.addComponent<physics::Moveable>();
 			float angle = glm::radians(randAngle2(mt));
 			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt) / 1.f;
-			// Logger::debug("({}, {})", movable.velocity.x, movable.velocity.y);
 		}
 	}
 
@@ -550,7 +468,6 @@ class ProjectSelectorApp: public Application {
 				{ fullCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			cover1.addComponent<scene::components::MeshComponent>(mesh, coverPipeline);
-			cover1.addComponent<DebugComponent<0>>(cover1.handle());
 			auto cover2 = testScene->newEntity();
 			cover2.addComponent<Transform>({
 				{ windowWidth * (1.f - fullCoverSize), windowHeight, -0.2f },
@@ -558,7 +475,6 @@ class ProjectSelectorApp: public Application {
 				{ fullCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			cover2.addComponent<scene::components::MeshComponent>(mesh, coverPipeline);
-			cover2.addComponent<DebugComponent<0>>(cover2.handle());
 		}
 		{ // fades
 			auto fadePipeline = renderer->getPipelineManager()->create({
@@ -576,7 +492,6 @@ class ProjectSelectorApp: public Application {
 				{ fadeCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			fade1.addComponent<scene::components::MeshComponent>(mesh, fadePipeline);
-			fade1.addComponent<DebugComponent<0>>(fade1.handle());
 			auto fade2 = testScene->newEntity();
 			fade2.addComponent<Transform>({
 				{ windowWidth * (1.f - fullCoverSize - fadeCoverSize), windowHeight, -0.2f },
@@ -584,7 +499,6 @@ class ProjectSelectorApp: public Application {
 				{ fadeCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			fade2.addComponent<scene::components::MeshComponent>(mesh, fadePipeline);
-			fade2.addComponent<DebugComponent<0>>(fade2.handle());
 		}
 		{ // selection line
 			Color color = { 1, 0, 0, 1 };
@@ -605,7 +519,6 @@ class ProjectSelectorApp: public Application {
 				{ lineThickness, lineLength, 0 }
 			 });
 			line.addComponent<scene::components::MeshComponent>(mesh, selectionLinePipeline);
-			line.addComponent<DebugComponent<0>>(line.handle());
 		}
 
 		/*{
@@ -642,7 +555,6 @@ class ProjectSelectorApp: public Application {
 				std::vector{ uniformBuffer },
 				"Arial"
 			);
-			text.addComponent<DebugComponent<1>>(text.handle());
 
 			auto tmat = t.getTransformMatrix();
 			auto bottomLeft = tc.bottomLeft(tmat);
@@ -665,7 +577,6 @@ class ProjectSelectorApp: public Application {
 				{ 1, 1, 0 }
 			});
 			auto&& tc = text.addComponent<text::TextComponent>(U"(działa)", std::vector{ uniformBuffer }, "Arial");
-			text.addComponent<DebugComponent<1>>(text.handle());
 
 			auto tmat = t.getTransformMatrix();
 			auto bottomLeft = tc.bottomLeft(tmat);
@@ -692,7 +603,6 @@ class ProjectSelectorApp: public Application {
 				std::vector{ uniformBuffer },
 				"Arial"
 			);
-			text.addComponent<DebugComponent<1>>(text.handle());
 
 			auto tmat = t.getTransformMatrix();
 			auto bottomLeft = tc.bottomLeft(tmat);
@@ -776,13 +686,6 @@ class ProjectSelectorApp: public Application {
 			for (auto rect : rectParent.children()) {
 				auto&& t = rect.getComponent<Transform>();
 				if (t.position.x > windowWidth / 2 - rectSize.x && t.position.x <= windowWidth / 2) {
-					Logger::debug(
-						"{}",
-						text::convertTo<char>(
-							std::u32string_view(rect.firstChild().getComponent<text::TextComponent>().string())
-						)
-					);
-
 					present(
 						rect.firstChild().getComponent<text::TextComponent>().string(),
 						presentation,
@@ -886,15 +789,8 @@ class ProjectSelectorApp: public Application {
 
 				transform.rotation = glm::angleAxis(glm::eulerAngles(transform.rotation).z + particle.rotation, zAx) *
 					transform.rotation;
-				/*Logger::debug(
-					"particle: ({}, {}, {})",
-					transform.position.x,
-					transform.position.y,
-					transform.position.z
-				);*/
 				if (transform.position.y < -100) {
 					toRemove.push_back(entity);
-					// Logger::debug("particle- {}", entity);
 				}
 			}
 			for (auto e : toRemove) {
