@@ -238,7 +238,13 @@ struct Particle {
 	float rotation;
 };
 
-void present(std::u32string selected, bool& presentation, std::vector<Ref<gfx::Buffer>> buff) {
+void present(
+	std::u32string selected,
+	bool& presentation,
+	std::vector<Ref<gfx::Buffer>> buff,
+	std::vector<ecs::Entity>& toRemove,
+	std::mutex& mutex
+) {
 	presentation = true;
 
 	// SEE-THROUGH RECT
@@ -403,12 +409,21 @@ void present(std::u32string selected, bool& presentation, std::vector<Ref<gfx::B
 
 	// REMOVE AFTER 5s
 
-	std::thread([screenRect, text, &presentation]() mutable {
+	std::thread([&mutex, &toRemove, &presentation, text, screenRect]() mutable {
 		std::this_thread::sleep_for(std::chrono::seconds(5));
-		auto&& scene = scene::SceneManager::get()->currentScene();
+		// auto&& scene = scene::SceneManager::get()->currentScene();
 
-		scene->removeEntity(screenRect);
-		scene->removeEntity(text);
+		// vvv DEBILIZM vvv
+		// scene->removeEntity(screenRect);
+		// scene->removeEntity(text);
+		// ^^^ IDIOTYZM ^^^
+
+		{
+			auto lock = std::lock_guard(mutex);
+			toRemove.push_back(screenRect.handle());
+			toRemove.push_back(text.handle());
+		}
+
 		presentation = false;
 	}).detach();
 }
@@ -420,6 +435,9 @@ class ProjectSelectorApp: public Application {
 	bool speedup = false;
 
 	float combinedWidth = 0;
+
+	std::vector<ecs::Entity> toDeleteInUpdate;
+	std::mutex toDeleteInUpdateMutex;
 
 	Entity rectParent;
 
@@ -770,7 +788,9 @@ class ProjectSelectorApp: public Application {
 						presentation,
 						std::vector{ gfx::Renderer::getCurrent()
 										 ->getBufferManager()
-										 ->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer)) }
+										 ->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer)) },
+						toDeleteInUpdate,
+						toDeleteInUpdateMutex
 					);
 
 					int index = rect.getComponent<RectSpriteComponent>().index;
@@ -845,6 +865,14 @@ class ProjectSelectorApp: public Application {
 		frame += 0.025f;
 
 		//_physics->update();
+
+		{
+			auto lock = std::lock_guard(toDeleteInUpdateMutex);
+			for (auto&& e : toDeleteInUpdate) {
+				scene::SceneManager::get()->currentScene()->removeEntity(e);
+			}
+			toDeleteInUpdate.clear();
+		}
 
 		{
 			std::vector<ecs::Entity> toRemove;
