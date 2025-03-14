@@ -203,8 +203,6 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 		e.print();
 		throw;
 	}
-	ARCH_ASSERT(_mesh != nullptr, "dupa");
-	ARCH_ASSERT(_pipeline != nullptr, "dupa2");
 }
 
 } // namespace arch::text

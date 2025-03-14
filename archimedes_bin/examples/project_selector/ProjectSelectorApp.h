@@ -640,6 +640,36 @@ class ProjectSelectorApp: public Application {
 			t.position = { (windowWidth - textWidth) / 2, windowHeight * (1.0f - 0.9), -0.3f };
 			text.addComponent<std::pair<float, float>>((windowWidth - textWidth) / 2, size.x);
 		}
+
+		/*{
+			auto test = testScene->newEntity();
+			test.addComponent<Transform>({
+				{ windowWidth / 2, windowHeight / 2, -0.7f },
+				{ 0, 0, 0, 1 },
+				{ 100, 100, 0 }
+			});
+
+			struct UniformBuffer2 {
+				Mat4x4 projection;
+				float4 color;
+			};
+
+			UniformBuffer2 ubo2{
+				glm::ortho(0.f, (float)windowWidth, 0.f, (float)windowHeight),
+				Color{ 1, 0, 0, 1 }
+			};
+
+			auto uniformBuffer2 =
+				renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo2, sizeof(UniformBuffer2));
+
+			auto testPipeline = renderer->getPipelineManager()->create({
+				.vertexShaderPath = "shaders/vertex_colorTest.glsl",
+				.fragmentShaderPath = "shaders/fragment_colorTest.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer2 },
+			});
+			test.addComponent<scene::components::MeshComponent>(mesh, testPipeline);
+		}*/
 	}
 
 	bool brake = false;
@@ -779,8 +809,8 @@ class ProjectSelectorApp: public Application {
 		}
 		for (auto&& [entity, pair, transform, text] :
 			 domain.view<std::pair<float, float>, Transform, text::TextComponent>().all()) {
-			transform.scale = float3{ 50, 50, 0 } * (ongoing ? 0.f : (cos(frame) + 1) / 2.f) +
-				float3{ 50, 50, 0 } * (ongoing ? 0.f : 1.f);
+			transform.scale = float3{ 50, 50, 0 } * (ongoing || presentation ? 0.f : (cos(frame) + 1) / 2.f) +
+				float3{ 50, 50, 0 } * (ongoing || presentation ? 0.f : 1.f);
 
 			auto tmat = transform.getTransformMatrix();
 			auto bottomLeft = text.bottomLeft(tmat);
