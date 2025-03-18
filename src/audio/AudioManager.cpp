@@ -8,6 +8,7 @@ namespace arch::audio {
 AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank){
 	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
+		_sourceStates[i] = unused;
 	}
 	Logger::info("Audio system: opened audio manager");
 }
@@ -59,51 +60,51 @@ void AudioManager::stop() {
 	_isListening = false;
 }
 
-void AudioManager::playSource(AudioSourceComponent& source) {
-	if (source._id == -1) {
+void AudioManager::playSource(AudioSourceComponent* source) {
+	if (source->_id == -1) {
 		_assignSource(source);
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source._id];
+	SourceState currentState = _sourceStates[source->_id];
 	if (currentState == unused || currentState == paused) {
-		_sourceStates[source._id] = playing;
+		_sourceStates[source->_id] = playing;
 	}
 }
 
-void AudioManager::pauseSource(const AudioSourceComponent& source) {
-	if (source._id == -1) {
+void AudioManager::pauseSource(const AudioSourceComponent* source) {
+	if (source->_id == -1) {
 		throw AudioException("Audio manager can't pause not registered source");
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source._id];
+	SourceState currentState = _sourceStates[source->_id];
 	if (currentState == playing) {
-		_sourceStates[source._id] = paused;
+		_sourceStates[source->_id] = paused;
 	}
 }
 
-void AudioManager::stopSource(const AudioSourceComponent& source) {
-	if (source._id == -1) {
+void AudioManager::stopSource(const AudioSourceComponent* source) {
+	if (source->_id == -1) {
 		throw AudioException("Audio manager can't stop not registered source");
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source._id];
+	SourceState currentState = _sourceStates[source->_id];
 	if (currentState == playing || currentState == paused) {
-		_sourceStates[source._id] = stopped;
+		_sourceStates[source->_id] = stopped;
 	}
 }
 
-void AudioManager::_assignSource(AudioSourceComponent& source) {
+void AudioManager::_assignSource(AudioSourceComponent* source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
 	}
-	source._id = index;
-	_sources[index].setClipPath(source.path);
-	_sources[index].update(source);
+	source->_id = index;
+	_sources[index].setClipPath(source->path);
+	_sources[index].update(*source);
 	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
-void AudioManager::cleanSources(const ecs::Domain& domain) {
+void AudioManager::cleanSources(ecs::Domain& domain) {
 	auto view = domain.view<AudioSourceComponent>();
 	for (auto [entity, audioSource] : view.all()) {
 		if (audioSource._id == -1) {
@@ -111,22 +112,25 @@ void AudioManager::cleanSources(const ecs::Domain& domain) {
 		}
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
+			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
 			audioSource._id = -1;
 		}
 	}
 	for (int source = 0; source < 16; source++) {
 		if (_sourceStates[source] == removed) {
 			_sourceStates[source] = unused;
+			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(source));
+
 		}
 	}
 }
 
 
-void AudioManager::updateSource(const AudioSourceComponent& source) {
-	if (source._id == -1) {
+void AudioManager::updateSource(const AudioSourceComponent* source) {
+	if (source->_id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
 	}
-	_sources[source._id].update(source);
+	_sources[source->_id].update(*source);
 }
 
 void AudioManager::_updateListener() {

@@ -26,3 +26,4 @@ cmake-build-*
 venv/*
 cmake/conanfile.hash
 *cache*
+thirdparty/*

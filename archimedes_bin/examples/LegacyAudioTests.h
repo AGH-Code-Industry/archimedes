@@ -27,7 +27,7 @@ inline void testSimpleSound() {
 	soundBank.loadInitialGroups();
 
 	// initialize and start the audioManager
-	audio::AudioManager audioManager(&soundBank, &domain);
+	audio::AudioManager audioManager(&soundBank);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	while (getchar() != 'q') {
@@ -37,7 +37,7 @@ inline void testSimpleSound() {
 		source->path = filename;
 		source->gain = 0.5;
 		source->isLooped = false;
-		audioManager.play(source);
+		audioManager.playSource(source);
 		audioManager.cleanSources(domain);
 	}
 
@@ -63,7 +63,7 @@ inline void testControl() {
 
 
 	// initialize and start the audioManager
-	audio::AudioManager audioManager(&soundBank, &domain);
+	audio::AudioManager audioManager(&soundBank);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	auto entity = domain.newEntity();
@@ -72,6 +72,7 @@ inline void testControl() {
 	source->path = filename;
 	source->gain = 0.5;
 	source->isLooped = true;
+	audioManager.playSource(source);
 
 	char controlSign = 'x';
 	bool isPlaying = true;
@@ -142,7 +143,7 @@ inline void testSpatialAudio() {
 	source->positionY = 1.0f;
 
 	// initialize and start the audioManager
-	audio::AudioManager audioManager(&soundBank, &domain);
+	audio::AudioManager audioManager(&soundBank);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	audioManager.playSource(source);
@@ -153,13 +154,9 @@ inline void testSpatialAudio() {
 	for (int i = 0; i < steps; i++) {
 		const int stepsPerCircle = 100;
 		const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
-		{
-			auto lock = std::lock_guard(mutex);
-			{
-				source->positionX = distance * std::cos(i * 2 * std::numbers::pi / stepsPerCircle);
-				source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
-			}
-		}
+		source->positionX = distance * std::cos(i * 2 * std::numbers::pi / stepsPerCircle);
+		source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
+		audioManager.updateSource(source);
 		audioManager.cleanSources(domain);
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}

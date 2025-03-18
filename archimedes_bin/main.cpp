@@ -1,4 +1,4 @@
-#include "examples/NvrhiRendererTestApp.h"
+// #include "examples/NvrhiRendererTestApp.h"
 #include "examples/SpatialAudioTestApp.h"
 #include "examples/LegacyAudioTests.h"
 #include <Engine.h>

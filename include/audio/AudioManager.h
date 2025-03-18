@@ -18,7 +18,7 @@ class AudioManager {
 	SourcePlayer _sources[16];
 
 	///@brief Array of flags to tell if a SourcePlayer is in use.
-	SourceState _sourceStates[16] = { unused };
+	SourceState _sourceStates[16];
 
 	///@brief Listener object used for calculating relative distance and velocity.
 	/// Also controls loudness of all played sounds.
@@ -37,7 +37,7 @@ class AudioManager {
 	///@brief Finds an empty SourcePlayer and assign it to the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
-	void _assignSource(AudioSourceComponent& source);
+	void _assignSource(AudioSourceComponent* source);
 
 
 	///@brief Sends current parameters of the Listener to OpenAL.
@@ -69,17 +69,17 @@ public:
 	///@brief Stops the AudioManager.
 	void stop();
 
-	void playSource(AudioSourceComponent& source);
+	void playSource(AudioSourceComponent* source);
 
-	void pauseSource(const AudioSourceComponent& source);
+	void pauseSource(const AudioSourceComponent* source);
 
-	void stopSource(const AudioSourceComponent& source);
+	void stopSource(const AudioSourceComponent* source);
 
-	void cleanSources(const ecs::Domain& domain);
+	void cleanSources(ecs::Domain& domain);
 
 	///@brief Asks the assigned SourcePlayer to get all the sound parameters
 	/// from the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
-	void updateSource(const AudioSourceComponent& source);
+	void updateSource(const AudioSourceComponent* source);
 };
 } // namespace arch::audio
