@@ -56,6 +56,88 @@ std::vector<Vertex> defaultVertices{
 	{ { -1.f, 1.f, 0.1f }, { 1.f, 1.f } },
 };
 
+void centerTextInX(Transform& transform, float size, float slotSize, float3 slotTopLeft) noexcept {
+	transform.position = float3{ slotTopLeft.x + (slotSize - size) / 2.f, slotTopLeft.y, slotTopLeft.z };
+}
+
+void centerTextInY(Transform& transform, float size, float slotSize, float3 slotTopLeft) noexcept {
+	transform.position = float3{ slotTopLeft.x, slotTopLeft.y - (slotSize - size) / 2.f, slotTopLeft.z };
+}
+
+void centerText(Entity text, float3 slotTopLeft, float3 slotTottomRight) noexcept {
+	if (slotTopLeft.z != slotTottomRight.z) {
+		Logger::warn("slotTopLeft.z != slotTottomRight.z, using slotTopLeft.z");
+	}
+
+	auto&& transform = text.getComponent<Transform>();
+	auto&& textComp = text.getComponent<text::TextComponent>();
+	auto tmat = transform.getTransformMatrix();
+	auto slotSize = float3{ slotTottomRight.x - slotTopLeft.x, slotTopLeft.y - slotTottomRight.y, 0 };
+
+	auto bl = textComp.bottomLeftAdjusted(tmat);
+	auto tr = textComp.topRight(tmat);
+	auto size = tr - bl;
+
+	auto textW2HRatio = size.x / size.y;
+	auto slotW2HRatio = slotSize.x / slotSize.y;
+
+	if (textW2HRatio < slotW2HRatio) {
+		centerTextInX(transform, size.x, slotSize.x, slotTopLeft);
+	} else {
+		centerTextInY(transform, size.y, slotSize.y, slotTopLeft);
+	}
+}
+
+void scaleAndCenterText(Entity text, float3 slotTopLeft, float3 slotBottomRight) noexcept {
+	if (slotTopLeft.z != slotBottomRight.z) {
+		Logger::warn("slotTopLeft.z != slotBottomRight.z, using slotTopLeft.z");
+	}
+
+	auto&& transform = text.getComponent<Transform>();
+	auto&& textComp = text.getComponent<text::TextComponent>();
+	auto tmat = transform.getTransformMatrix();
+	auto slotSize = float3{ slotBottomRight.x - slotTopLeft.x, slotTopLeft.y - slotBottomRight.y, 0 };
+
+	auto bl = textComp.bottomLeftAdjusted(tmat);
+	auto tr = textComp.topRight(tmat);
+	auto size = tr - bl;
+
+	auto textW2HRatio = size.x / size.y;
+	auto slotW2HRatio = slotSize.x / slotSize.y;
+
+	float scale = 0;
+	float3 newPos = {};
+	auto centerFn = centerTextInX;
+	float axisSize;
+	float axisSlotSize;
+	if (textW2HRatio < slotW2HRatio) {
+		scale = slotSize.y / size.y;
+		axisSize = size.x;
+		axisSlotSize = slotSize.x;
+	} else {
+		scale = slotSize.x / size.x;
+		axisSize = size.y;
+		axisSlotSize = slotSize.y;
+		centerFn = centerTextInY;
+	}
+
+	size *= scale;
+	transform.scale *= scale;
+	centerFn(transform, axisSize, axisSlotSize, slotTopLeft);
+}
+
+float3 setTextWidth(Transform& transform, text::TextComponent& textComp, float width) noexcept {
+	auto tmat = transform.getTransformMatrix();
+	auto bottomLeft = textComp.bottomLeftAdjusted(tmat);
+	auto topRight = textComp.topRight(tmat);
+
+	auto size = topRight - bottomLeft;
+
+	auto scale = width / size.x;
+	transform.scale *= scale;
+	return size * scale;
+}
+
 void updateTextInRect(Entity rect) {
 	auto&& rectTransform = rect.getComponent<Transform>();
 
@@ -202,6 +284,7 @@ void present(
 		{ 1.f, 1.f, 0.f }
 	  });
 	auto&& tc = text.addComponent<text::TextComponent>(std::move(selected), buff, "Arial");
+
 	auto tmat = tt.getTransformMatrix();
 
 	auto bottomLeft = tc.bottomLeft(tmat);
@@ -579,17 +662,8 @@ class ProjectSelectorApp: public Application {
 				"Arial"
 			);
 
-			auto tmat = t.getTransformMatrix();
-			auto bottomLeft = tc.bottomLeft(tmat);
-			auto topRight = tc.topRight(tmat);
-			auto size = topRight - bottomLeft;
-
-			auto textWidth = 1200.f;
-			auto fontSize = textWidth / size.x;
-
-			size *= fontSize;
-			t.scale *= fontSize;
-			t.position = { (windowWidth - textWidth) / 2, windowHeight * (0.8), -0.3f };
+			auto width = setTextWidth(t, tc, 1200.f).x;
+			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * (0.8), -0.3f });
 		}
 
 		{
@@ -601,17 +675,8 @@ class ProjectSelectorApp: public Application {
 			});
 			auto&& tc = text.addComponent<text::TextComponent>(U"(działa)", std::vector{ uniformBuffer }, "Arial");
 
-			auto tmat = t.getTransformMatrix();
-			auto bottomLeft = tc.bottomLeft(tmat);
-			auto topRight = tc.topRight(tmat);
-			auto size = topRight - bottomLeft;
-
-			auto textWidth = 200.f;
-			auto fontSize = textWidth / size.x;
-
-			size *= fontSize;
-			t.scale *= fontSize;
-			t.position = { (windowWidth - textWidth) / 2, windowHeight * (0.7), -0.3f };
+			auto width = setTextWidth(t, tc, 200.f).x;
+			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * (0.7125), -0.3f });
 		}
 
 		{
@@ -627,49 +692,10 @@ class ProjectSelectorApp: public Application {
 				"Arial"
 			);
 
-			auto tmat = t.getTransformMatrix();
-			auto bottomLeft = tc.bottomLeft(tmat);
-			auto topRight = tc.topRight(tmat);
-			auto size = topRight - bottomLeft;
-
-			auto textWidth = 800.f;
-			auto fontSize = textWidth / size.x;
-
-			size *= fontSize;
-			t.scale *= fontSize;
-			t.position = { (windowWidth - textWidth) / 2, windowHeight * (1.0f - 0.9), -0.3f };
-			text.addComponent<std::pair<float, float>>((windowWidth - textWidth) / 2, size.x);
+			auto width = setTextWidth(t, tc, 800.f).x;
+			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * 0.1f, -0.3f });
+			text.addComponent<std::pair<float, float>>((windowWidth - width) / 2, width);
 		}
-
-		/*{
-			auto test = testScene->newEntity();
-			test.addComponent<Transform>({
-				{ windowWidth / 2, windowHeight / 2, -0.7f },
-				{ 0, 0, 0, 1 },
-				{ 100, 100, 0 }
-			});
-
-			struct UniformBuffer2 {
-				Mat4x4 projection;
-				float4 color;
-			};
-
-			UniformBuffer2 ubo2{
-				glm::ortho(0.f, (float)windowWidth, 0.f, (float)windowHeight),
-				Color{ 1, 0, 0, 1 }
-			};
-
-			auto uniformBuffer2 =
-				renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo2, sizeof(UniformBuffer2));
-
-			auto testPipeline = renderer->getPipelineManager()->create({
-				.vertexShaderPath = "shaders/vertex_colorTest.glsl",
-				.fragmentShaderPath = "shaders/fragment_colorTest.glsl",
-				.textures = {},
-				.buffers = { uniformBuffer2 },
-			});
-			test.addComponent<scene::components::MeshComponent>(mesh, testPipeline);
-		}*/
 	}
 
 	bool brake = false;
@@ -679,9 +705,8 @@ class ProjectSelectorApp: public Application {
 	const int minRects = floor(windowWidth / rectSize.x) + 2;
 
 	void update() {
-		char buffer[128] = {};
-
 		if (socket.dataAvalible()) {
+			char buffer[128] = {};
 			socket.recv(buffer, sizeof(buffer) - 1);
 			if (std::string_view(buffer) == "SPIN!") {
 				if (!finished && !speedup && !brake && !ongoing && !presentation) {
@@ -766,13 +791,14 @@ class ProjectSelectorApp: public Application {
 					while (rectParent.childrenCount() < minRects && rectParent.childrenCount() != 0) {
 						for (auto&& [i, child] : rectParent.children() | std::views::take(rectParent.childrenCount()) |
 								 std::views::enumerate) {
+							auto&& rsc = child.getComponent<RectSpriteComponent>();
 							newRectWithText(
-								child.getComponent<RectSpriteComponent>().color,
+								rsc.color,
 								child.firstChild().getComponent<text::TextComponent>().string(),
 								{ 0, (windowHeight + rectSize.y) / 2, 0 },
 								rectSize,
-								child.getComponent<RectSpriteComponent>().index,
-								child.getComponent<RectSpriteComponent>().marginPercent
+								rsc.index,
+								rsc.marginPercent
 							)
 								.setParent(rectParent);
 						}
@@ -780,15 +806,7 @@ class ProjectSelectorApp: public Application {
 					if (rectParent.childrenCount() != 0) {
 						const float posBegin = (windowWidth - rectSize.x * rectParent.childrenCount()) / 2.f;
 						for (auto [i, rect2] : rectParent.children() | std::views::enumerate) {
-							/*moveRect(
-							 rect2,
-							 (rect2.getComponent<Transform>().position.x < windowWidth / 2) ? rectSize.x / 2 :
-																							  -rectSize.x / 2,
-							 (windowWidth - rectParent.childrenCount() * rectSize.x) / 2.f,
-							 (windowWidth + rectParent.childrenCount() * rectSize.x) / 2.f
-							);*/
 							rect2.getComponent<Transform>().position.x = posBegin + i * rectSize.x;
-							// updateTextInRect(rect);
 						}
 					}
 
