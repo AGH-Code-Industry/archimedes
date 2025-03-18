@@ -50,7 +50,7 @@ public:
 	///@brief Constructor. Initializes all SourcePlayers.
 	///@param soundBank SoundBank object responsible for loading all sounds from the disk.
 	///@param domain ECS domain used to access all currently used AudioSourceComponents.
-	AudioManager(SoundBank* soundBank, ecs::Domain* domain);
+	AudioManager(SoundBank* soundBank);
 
 	///@brief Destructor.
 	/// Currently, it does almost nothing (apart from logging).

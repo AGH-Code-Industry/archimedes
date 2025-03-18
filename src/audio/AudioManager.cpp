@@ -5,7 +5,7 @@
 
 namespace arch::audio {
 
-AudioManager::AudioManager(SoundBank* soundBank, ecs::Domain* domain): _soundBank(soundBank){
+AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank){
 	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
 	}
