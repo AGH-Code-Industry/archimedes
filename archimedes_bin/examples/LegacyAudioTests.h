@@ -8,9 +8,7 @@
 #include <audio/AudioManager.h>
 #include <audio/SoundDevice.h>
 
-
-namespace audio = arch::audio;
-namespace ecs = arch::ecs;
+using namespace arch;
 
 inline void testSimpleSound() {
 	ecs::Domain domain;
@@ -39,7 +37,8 @@ inline void testSimpleSound() {
 		source->path = filename;
 		source->gain = 0.5;
 		source->isLooped = false;
-		// domain.addComponent<audio::AudioSourceActionComponent>(entity);
+		audioManager.play(source);
+		audioManager.cleanSources(domain);
 	}
 
 	// close the audioManager
@@ -73,7 +72,6 @@ inline void testControl() {
 	source->path = filename;
 	source->gain = 0.5;
 	source->isLooped = true;
-	domain.addComponent<audio::AudioSourceActionComponent>(entity);
 
 	char controlSign = 'x';
 	bool isPlaying = true;
@@ -82,17 +80,17 @@ inline void testControl() {
 		switch (controlSign) {
 			case 'p':
 				if (isPlaying) {
-					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::pause);
+					audioManager.pauseSource(source);
 				}
 				break;
 			case 'c':
 				if (isPlaying) {
-					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::play);
+					audioManager.playSource(source);
 				}
 				break;
 			case 's':
 				if (isPlaying) {
-					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::stop);
+					audioManager.stopSource(source);
 					isPlaying = false;
 				}
 				break;
@@ -102,12 +100,13 @@ inline void testControl() {
 					source->path = filename;
 					source->gain = 0.5;
 					source->isLooped = true;
-					domain.addComponent<audio::AudioSourceActionComponent>(entity, audio::play);
+					audioManager.playSource(source);
 					isPlaying = true;
 				}
 				break;
 			default: break;
 		}
+		audioManager.cleanSources(domain);
 	}
 
 	// close the audioManager
@@ -136,19 +135,17 @@ inline void testSpatialAudio() {
 	// create an entity and give it an audio source component
 	auto entity = domain.newEntity();
 	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
-	{
-		auto lock = std::lock_guard(mutex);
-		source->path = filename;
-		source->gain = 0.5;
-		source->isLooped = true;
-		source->positionX = 0.0f;
-		source->positionY = 1.0f;
-		domain.addComponent<audio::AudioSourceActionComponent>(entity);
-	}
+	source->path = filename;
+	source->gain = 0.5;
+	source->isLooped = true;
+	source->positionX = 0.0f;
+	source->positionY = 1.0f;
 
 	// initialize and start the audioManager
 	audio::AudioManager audioManager(&soundBank, &domain);
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
+
+	audioManager.playSource(source);
 
 	// during playing the sound, update the source every 50 ms.
 	// make the source hang around the listener while changing the distance from them.
@@ -163,6 +160,7 @@ inline void testSpatialAudio() {
 				source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
 			}
 		}
+		audioManager.cleanSources(domain);
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 

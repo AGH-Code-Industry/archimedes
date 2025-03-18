@@ -4,14 +4,12 @@
 #include <Engine.h>
 #include <Logger.h>
 
-namespace ecs = arch::ecs;
-
 int main() {
-	arch::Logger::init(arch::LogLevel::trace);
+	Logger::init(LogLevel::trace);
 
-	testSimpleSound();
+	testSpatialAudio();
 
-	// arch::Ref<arch::Application> myApp = arch::createRef<SpatialAudioTestApp>();
+	// arch::Ref<arch::Application> myApp = arch::createRef<NvrhiRendererTestApp>();
 	//
 	// arch::EngineConfig config{ .windowWidth = 600,
 	// 						   .windowHeight = 480,

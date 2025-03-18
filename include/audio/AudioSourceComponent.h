@@ -35,5 +35,10 @@ struct AudioSourceComponent {
 	/// @brief Velocity of the AudioSource on the map.
 	/// Used for calculating the Doppler Effect.
 	float velocityX = 0.0f, velocityY = 0.0f;
+
+private:
+	int _id = -1;
+
+	friend class AudioManager;
 };
 } // namespace arch::audio

@@ -1,12 +1,11 @@
 #include <Logger.h>
 #include <audio/AudioException.h>
 #include <audio/AudioManager.h>
-#include <ecs/Entity.h>
 #include <ecs/View.h>
 
 namespace arch::audio {
 
-AudioManager::AudioManager(SoundBank* soundBank, ecs::Domain* domain): _soundBank(soundBank), _domain(domain){
+AudioManager::AudioManager(SoundBank* soundBank, ecs::Domain* domain): _soundBank(soundBank){
 	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
 	}
@@ -19,49 +18,37 @@ AudioManager::~AudioManager() {
 
 int AudioManager::_findEmptyPlayer() const {
 	for (int i = 0; i < 16; i++) {
-		if (!_sourceUsed[i]) {
+		if (_sourceStates[i] == unused) {
 			return i;
 		}
 	}
 	return -1;
 }
 
-void AudioManager::_performAction(ecs::Entity& entity, AudioSourceComponent& source) {
-	Logger::debug("Found action");
-	auto actionComponent = _domain->getComponent<AudioSourceActionComponent>(entity);
-	switch (actionComponent.action){
-		case SourceAction::play:
-			Logger::debug("Playing action");
-			break;
-		case SourceAction::pause:
-			Logger::debug("Pausing action");
-			break;
-		case SourceAction::stop:
-			Logger::debug("Stopping action");
-			break;
-	}
-	if (!_sourceComponents.contains(&source)) {
-		if (actionComponent.action != SourceAction::play) {
-			throw AudioException("Can't pause/stop unregistered source");
-		}
-		_assignSource(source);
-	}
-	_changeState(source, actionComponent.action);
-	_domain->removeComponent<AudioSourceActionComponent>(entity);
-}
-
-
 void AudioManager::play() {
 	Logger::info("Audio system: audio manager started playing");
 	while (_isListening) {
 		_updateListener();
-		auto view = _domain->view<AudioSourceComponent>();
-		for (auto&& [entity, source] : view.all()) {
-			if (_domain->hasComponent<AudioSourceActionComponent>(entity)) {
-				_performAction(entity, source);
-			}
-			if (_sourceComponents.contains(&source)) {
-				_updateSource(source);
+		for (int source = 0; source < 16; source++) {
+			switch (_sourceStates[source]) {
+				case playing:
+					if (_sources[source].run()) {
+						_sourceStates[source] = stopped;
+					}
+					break;
+				case paused:
+					_sources[source].pausePlaying();
+					break;
+				case stopped:
+					if (_sources[source].stopPlaying()) {
+						_sourceStates[source] = removed;
+						_sources[source].cleanClipPath();
+					}
+					break;
+				case unused:
+					break;
+				case removed:
+					break;
 			}
 		}
 	}
@@ -72,56 +59,74 @@ void AudioManager::stop() {
 	_isListening = false;
 }
 
+void AudioManager::playSource(AudioSourceComponent& source) {
+	if (source._id == -1) {
+		_assignSource(source);
+	}
+	updateSource(source);
+	SourceState currentState = _sourceStates[source._id];
+	if (currentState == unused || currentState == paused) {
+		_sourceStates[source._id] = playing;
+	}
+}
+
+void AudioManager::pauseSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
+		throw AudioException("Audio system: can't pause not registered source");
+	}
+	updateSource(source);
+	SourceState currentState = _sourceStates[source._id];
+	if (currentState == playing) {
+		_sourceStates[source._id] = paused;
+	}
+}
+
+void AudioManager::stopSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
+		throw AudioException("Audio system: can't stop not registered source");
+	}
+	updateSource(source);
+	SourceState currentState = _sourceStates[source._id];
+	if (currentState == playing || currentState == paused) {
+		_sourceStates[source._id] = stopped;
+	}
+}
+
 void AudioManager::_assignSource(AudioSourceComponent& source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
-		throw AudioException("Cannot find empty source");
+		throw AudioException("Can't find empty source");
 	}
-	_sourceUsed[index] = true;
-	_sourceComponents.try_emplace(&source, playing, index);
+	source._id = index;
 	_sources[index].setClipPath(source.path);
+	_sources[index].update(source);
 	Logger::info("Audio system: assigned Source with index {}", std::to_string(index));
 }
 
-void AudioManager::_removeSource(AudioSourceComponent& source) {
-	SourceData& data = _sourceComponents[&source];
-	_sourceUsed[data.index] = false;
-	_sources[data.index].cleanClipPath();
-	Logger::info("Audio system: removed Source with index {}", std::to_string(data.index));
-	_sourceComponents.erase(&source);
-}
-
-void AudioManager::_changeState(AudioSourceComponent& source, SourceAction action) {
-	SourceData& data = _sourceComponents[&source];
-	if (action == SourceAction::stop) {
-		data.state = stopped;
+void AudioManager::cleanSources(const ecs::Domain& domain) {
+	auto view = domain.view<AudioSourceComponent>();
+	for (auto [entity, audioSource] : view.all()) {
+		if (audioSource._id == -1) {
+			continue;
+		}
+		if (_sourceStates[audioSource._id] == removed) {
+			_sourceStates[audioSource._id] = unused;
+			audioSource._id = -1;
+		}
 	}
-	else if (action == pause && data.state == playing) {
-		data.state = paused;
-	}
-	else if (action == SourceAction::play && data.state == paused) {
-		data.state = playing;
+	for (int source = 0; source < 16; source++) {
+		if (_sourceStates[source] == removed) {
+			_sourceStates[source] = unused;
+		}
 	}
 }
 
-void AudioManager::_updateSource(AudioSourceComponent& source) {
-	SourceData& data = _sourceComponents[&source];
-	_sources[data.index].update(source);
-	switch (data.state) {
-		case playing:
-			if (_sources[data.index].run()) {
-				_changeState(source, SourceAction::stop);
-			}
-			break;
-		case paused:
-			_sources[data.index].pausePlaying();
-			break;
-		case stopped:
-			if (_sources[data.index].stopPlaying()) {
-				_removeSource(source);
-			}
-			break;
+
+void AudioManager::updateSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
+		throw AudioException("Audio system: can't pause not registered source");
 	}
+	_sources[source._id].update(source);
 }
 
 void AudioManager::_updateListener() {
