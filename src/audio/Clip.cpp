@@ -12,7 +12,7 @@ ClipFormat Clip::getFormat() const {
 	if (_channelsNumber == 2) {
 		return stereo;
 	}
-	throw AudioException(_filePath + " - Wrong format");
+	throw AudioException("Clip can't get format for file: " + _filePath);
 }
 
 std::size_t Clip::getBufferElements() const {
@@ -24,7 +24,7 @@ bool Clip::fillBuffer(std::vector<short>& buffer, std::size_t& cursor, bool isLo
 	std::size_t sizeToCopy = bufferElements;
 
 	if (!_isLoaded) {
-		throw AudioException(_filePath + " - clip not loaded");
+		throw AudioException("Clip can't get data from file: " + _filePath + " - it's not loaded");
 	}
 
 	if (cursor + bufferElements > _soundData.size()) {
@@ -53,7 +53,7 @@ void Clip::load() {
 	SNDFILE* soundFile; // TODO: can be wrapped to own class
 	ALint samples;
 	if (_isLoaded) {
-		throw AudioException("Can't load clip: " + _filePath + " - it's already loaded");
+		throw AudioException("Can't load Clip: " + _filePath + " - it's already loaded");
 	}
 	soundInfo.format = 0;
 	soundFile = sf_open(_filePath.c_str(), SFM_READ, &soundInfo);
@@ -76,7 +76,7 @@ void Clip::load() {
 
 void Clip::unload() {
 	if (!_isLoaded) {
-		throw AudioException("Can't unload clip: " + _filePath + " - it's not loaded");
+		throw AudioException("Can't unload Clip: " + _filePath + " - it's not loaded");
 	}
 	_soundData.clear();
 }

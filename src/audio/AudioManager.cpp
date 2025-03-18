@@ -52,7 +52,7 @@ void AudioManager::play() {
 			}
 		}
 	}
-	Logger::info("Audio system: audio manager stopped working");
+	Logger::info("Audio system: audio manager stopped playing");
 }
 
 void AudioManager::stop() {
@@ -72,7 +72,7 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 
 void AudioManager::pauseSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
-		throw AudioException("Audio system: can't pause not registered source");
+		throw AudioException("Audio manager can't pause not registered source");
 	}
 	updateSource(source);
 	SourceState currentState = _sourceStates[source._id];
@@ -83,7 +83,7 @@ void AudioManager::pauseSource(const AudioSourceComponent& source) {
 
 void AudioManager::stopSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
-		throw AudioException("Audio system: can't stop not registered source");
+		throw AudioException("Audio manager can't stop not registered source");
 	}
 	updateSource(source);
 	SourceState currentState = _sourceStates[source._id];
@@ -95,12 +95,12 @@ void AudioManager::stopSource(const AudioSourceComponent& source) {
 void AudioManager::_assignSource(AudioSourceComponent& source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
-		throw AudioException("Can't find empty source");
+		throw AudioException("Audio manager can't find empty source slot");
 	}
 	source._id = index;
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source);
-	Logger::info("Audio system: assigned Source with index {}", std::to_string(index));
+	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
 void AudioManager::cleanSources(const ecs::Domain& domain) {
@@ -124,7 +124,7 @@ void AudioManager::cleanSources(const ecs::Domain& domain) {
 
 void AudioManager::updateSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
-		throw AudioException("Audio system: can't pause not registered source");
+		throw AudioException("Audio manager can't update not registered source");
 	}
 	_sources[source._id].update(source);
 }

@@ -99,7 +99,7 @@ bool SourcePlayer::run() {
 			isStopped = true;
 			break;
 		case AL_INITIAL: _startFromBeginning(); break;
-		default:		 throw AudioException("Invalid state");
+		default:		 throw AudioException("Source player has an invalid state");
 	}
 	return isStopped;
 }

@@ -16,7 +16,7 @@ void SoundBank::loadGroup(int group) {
 	for (auto& sound : sounds) {
 		auto clipFound = _clips.find(sound);
 		if (clipFound == _clips.end()) {
-			throw AudioException("Can't find clip with path " + sound);
+			throw AudioException("Can't find Clip with path " + sound);
 		}
 		clipFound->second.load();
 	}
@@ -37,7 +37,7 @@ void SoundBank::unloadGroup(int group) {
 	for (auto& sound : sounds) {
 		auto clipFound = _clips.find(sound);
 		if (clipFound == _clips.end()) {
-			throw AudioException("Can't find clip with path " + sound);
+			throw AudioException("Can't find Clip with path " + sound);
 		}
 		clipFound->second.unload();
 	}
@@ -95,7 +95,6 @@ void SoundBank::addClip(const std::string& sound, int group) {
 	}
 	fs::path clipPath = soundsDirectory / sound;
 	_clips.try_emplace(sound, clipPath.string());
-	Logger::debug("added clip: {}", clipPath.string());
 	_addToGroup(sound, group);
 	Logger::info("Audio system: added clip {} to sound bank group {}", sound, std::to_string(group));
 }
