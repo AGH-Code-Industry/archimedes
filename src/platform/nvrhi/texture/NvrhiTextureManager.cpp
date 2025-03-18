@@ -5,8 +5,7 @@
 
 namespace arch::gfx::nvrhi::texture {
 
-NvrhiTextureManager::NvrhiTextureManager(const WeakRef<NvrhiRenderer>& renderer):
-	_renderer(renderer) {
+NvrhiTextureManager::NvrhiTextureManager(const WeakRef<NvrhiRenderer>& renderer): _renderer(renderer) {
 	_stageCommandBuffer = renderer.lock()->getDevice()->createCommandList();
 }
 
@@ -25,17 +24,21 @@ Ref<gfx::texture::Texture> NvrhiTextureManager::_createTexture2DImpl(
 			format,
 			wrapMode,
 			filterMode,
-	}, weak_from_this());
+	},
+		weak_from_this()
+	);
 
-	if (data)
-		texture->setPixels((Color*)data, width, height);
+	if (data) {
+		texture->setPixels(data, width, height);
+	}
 
 	return texture;
 }
 
 void NvrhiTextureManager::_setTextureData(const NvrhiTexture& texture, const void* data) const {
 	_stageCommandBuffer->open();
-	_stageCommandBuffer->writeTexture(texture.getNativeHandle(), 0, 0, data, texture.getWidth() * sizeof(Color));
+	_stageCommandBuffer
+		->writeTexture(texture.getNativeHandle(), 0, 0, data, texture.getWidth() * getPixelSize(texture.getFormat()));
 	_stageCommandBuffer->close();
 
 	_renderer.lock()->getDevice()->executeCommandList(_stageCommandBuffer);

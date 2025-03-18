@@ -76,7 +76,7 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 			.addItem(::nvrhi::BindingSetItem::Sampler(i++, texture->getSampler()));
 	}
 
-	for (u64 i = 0; const auto& b : desc.buffers) {
+	for (u64 i = 1; const auto& b : desc.buffers) {
 		auto buffer = std::dynamic_pointer_cast<buffer::NvrhiBuffer>(b);
 		bindingSetDesc.addItem(::nvrhi::BindingSetItem::ConstantBuffer(i++, buffer->getNativeHandle()));
 	}
@@ -99,6 +99,17 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 							.setPixelShader(pixelShader)
 							.addBindingLayout(_bindingLayout);
 
+	auto renderTargetBlendStatge = ::nvrhi::BlendState::RenderTarget()
+									   .enableBlend()
+									   .setColorWriteMask(::nvrhi::ColorMask::All)
+									   .setSrcBlend(::nvrhi::BlendFactor::SrcAlpha)
+									   .setDestBlend(::nvrhi::BlendFactor::OneMinusSrcAlpha)
+									   .setBlendOp(::nvrhi::BlendOp::Add)
+									   .setSrcBlendAlpha(::nvrhi::BlendFactor::One)
+									   .setDestBlendAlpha(::nvrhi::BlendFactor::Zero)
+									   .setBlendOpAlpha(::nvrhi::BlendOp::Add);
+
+	pipelineDesc.renderState.blendState.setRenderTarget(0, renderTargetBlendStatge);
 	pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
 	_pipeline =

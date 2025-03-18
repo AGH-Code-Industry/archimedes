@@ -28,7 +28,7 @@ public:
 public:
 	void onResize(u32 width, u32 height) override;
 
-	void beginFrame() override;
+	bool beginFrame() override;
 	void present() override;
 
 	void usePipeline(const Ref<gfx::pipeline::Pipeline>& pipeline) override;

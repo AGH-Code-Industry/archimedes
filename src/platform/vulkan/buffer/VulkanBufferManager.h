@@ -13,7 +13,7 @@ public:
 private:
 	Ref<VertexBuffer> _createVertexBufferImpl(void* data, u64 size, u64 vertexSize) override;
 	Ref<IndexBuffer> _createIndexBufferImpl(std::span<u32> indices) override;
-	Ref<Buffer> _createBufferImpl(void* data, u64 size) override;
+	Ref<Buffer> _createBufferImpl(BufferType type, void* data, u64 size) override;
 
 private:
 	Ref<VulkanContext> _context;

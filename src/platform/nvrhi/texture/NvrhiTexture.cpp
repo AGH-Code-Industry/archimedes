@@ -19,14 +19,14 @@ NvrhiTexture::NvrhiTexture(const CreateInfo& info, const WeakRef<NvrhiTextureMan
 	return _sampler;
 }
 
-void NvrhiTexture::setPixels(Color* pixels, u32 width, u32 height) {
+void NvrhiTexture::setPixels(const void* pixels, u32 width, u32 height) {
 	if (getWidth() != width || getHeight() != height) {
 		throw exception::NvrhiException("Wrong texture ...");
 	}
 
 	const auto textureManager = _textureManager.lock();
 
-	if (!_handle ) {
+	if (!_handle) {
 		_handle = textureManager->_renderer.lock()->getDevice()->createTexture(_getDesc());
 	}
 
@@ -49,28 +49,18 @@ void NvrhiTexture::setPixels(Color* pixels, u32 width, u32 height) {
 
 	switch (getFilter()) {
 		case gfx::texture::TextureFilterMode::nearestMipmapNearest:
-		case gfx::texture::TextureFilterMode::nearest:
-			desc.setAllFilters(false);
-			break;
+		case gfx::texture::TextureFilterMode::nearest:				desc.setAllFilters(false); break;
 
 		case gfx::texture::TextureFilterMode::linearMipmapLinear:
-		case gfx::texture::TextureFilterMode::linear:
-			desc.setAllFilters(true);
-			break;
+		case gfx::texture::TextureFilterMode::linear:			  desc.setAllFilters(true); break;
 
-		case gfx::texture::TextureFilterMode::linearMipmapNearest:
-			desc.setAllFilters(true).setMipFilter(false);
-			break;
+		case gfx::texture::TextureFilterMode::linearMipmapNearest: desc.setAllFilters(true).setMipFilter(false); break;
 
-		case gfx::texture::TextureFilterMode::nearestMipmapLinear:
-			desc.setAllFilters(false).setMipFilter(true);
-			break;
+		case gfx::texture::TextureFilterMode::nearestMipmapLinear: desc.setAllFilters(false).setMipFilter(true); break;
 	}
 
 	switch (getWrap()) {
-		case gfx::texture::TextureWrapMode::repeat:
-			desc.setAllAddressModes(::nvrhi::SamplerAddressMode::Repeat);
-			break;
+		case gfx::texture::TextureWrapMode::repeat: desc.setAllAddressModes(::nvrhi::SamplerAddressMode::Repeat); break;
 
 		case gfx::texture::TextureWrapMode::mirroredRepeat:
 			desc.setAllAddressModes(::nvrhi::SamplerAddressMode::MirroredRepeat);

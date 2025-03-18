@@ -43,12 +43,20 @@ class NvrhiRendererTestApp: public Application {
 
 		Ref<gfx::texture::Texture> texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
 
+		struct UniformBuffer {
+			Mat4x4 projection;
+		};
+
+		UniformBuffer ubo{ glm::ortho(0.f, 640.f, 0.f, 400.f) };
+		auto uniformBuffer =
+			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+
 		auto pipeline = renderer->getPipelineManager()->create(
 			{
 				.vertexShaderPath = "shaders/vertex_default.glsl",
 				.fragmentShaderPath = "shaders/fragment_default.glsl",
 				.textures = { texture },
-				.buffers = {},
+				.buffers = { uniformBuffer },
 			}
 		);
 		auto pipeline2 = renderer->getPipelineManager()->create(
@@ -56,7 +64,7 @@ class NvrhiRendererTestApp: public Application {
 				.vertexShaderPath = "shaders/vertex_default.glsl",
 				.fragmentShaderPath = "shaders/fragment_default2.glsl",
 				.textures = {},
-				.buffers = {},
+				.buffers = { uniformBuffer },
 			}
 		);
 
@@ -69,26 +77,26 @@ class NvrhiRendererTestApp: public Application {
 				{
 					{ 0.0f, 0.0f, 0.0f },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
-					{ 1.0f, .5f, 0.0f },
+					{ 100.0f, 50.0f, 0.0f },
 			}
 			);
 
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline });
-			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.01f, .01f, 0.0f });
+			testScene->domain().addComponent<VelocityComponent>(e, float3{ 1.f, 1.f, 0.0f });
 		}
 
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 10; i++) {
 			ecs::Entity e = testScene->newEntity();
 			testScene->domain().addComponent<scene::components::TransformComponent>(
 				e,
 				{
-					{ -1 + 0.5f * i, 0.25f * i, 0.0f },
+					{ 100.f + 50.f * i, 100.f + 50.f * i, 0.0f },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
-					float3(1)
-			  }
+					{ 100.0f, 50.0f, 0.0f },
+			}
 			);
 			testScene->domain().addComponent<scene::components::MeshComponent>(e, { mesh, pipeline2 });
-			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, -.01f, 0.0f });
+			testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, -1.f, 0.0f });
 		}
 
 		scene::SceneManager::get()->changeScene(testScene);
@@ -101,12 +109,12 @@ class NvrhiRendererTestApp: public Application {
 						.view<scene::components::TransformComponent, VelocityComponent>();
 
 		for (auto [entity, transform, velocity] : view.all()) {
-			if ((transform.position.y < -.5f && velocity.velocity.y < 0) ||
-				(transform.position.y > .5f && velocity.velocity.y > 0)) {
+			if ((transform.position.y < 100.f && velocity.velocity.y < 0) ||
+				(transform.position.y > 300.f && velocity.velocity.y > 0)) {
 				velocity.velocity.y *= -1;
 			}
-			if ((transform.position.x < -.5f && velocity.velocity.x < 0) ||
-				(transform.position.x > .5f && velocity.velocity.x > 0)) {
+			if ((transform.position.x < 100.f && velocity.velocity.x < 0) ||
+				(transform.position.x > 500.f && velocity.velocity.x > 0)) {
 				velocity.velocity.x *= -1;
 			}
 

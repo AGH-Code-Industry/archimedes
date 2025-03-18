@@ -25,3 +25,4 @@ CMakeSettings.json
 cmake-build-*
 venv/*
 cmake/conanfile.hash
+*cache*

@@ -38,7 +38,7 @@ private:
 public:
 	void onResize(u32 width, u32 height) override;
 
-	void beginFrame() override;
+	bool beginFrame() override;
 	void present() override;
 
 private:

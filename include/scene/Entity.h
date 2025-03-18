@@ -69,10 +69,14 @@ public:
 	template<class C>
 	using GetResultOpt = std::conditional_t<ARCH_CTRAITS<C>::flag, Res<bool, Error>, RefRes<C, Error>>;
 
+	template<class C>
+	GetResult<C> addComponent(C&& component);
 	template<class C, class... Args>
 	GetResult<C> addComponent(Args&&... args);
 	template<class C, class... Args>
 	GetResultOpt<C> addComponentOpt(Args&&... args) noexcept;
+	template<class C>
+	GetResultOpt<C> addComponentOpt(C&& component) noexcept;
 
 	template<class C>
 	requires(!std::is_const_v<C> && !ARCH_CTRAITS<C>::flag)
