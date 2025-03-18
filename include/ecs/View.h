@@ -218,7 +218,7 @@ private:
 	std::array<CCPoolPtr, includeCount> _includedCPools;
 	std::array<CCPoolPtr, excludeCount> _excludedCPools;
 	size_t _minIdx = (size_t)-1;
-	EntitesViewT _entities;
+	mutable EntitesViewT _entities;
 };
 
 /// @brief Domain's exclude-only view
@@ -315,7 +315,7 @@ private:
 	View(DomainT* domain) noexcept;
 
 	std::array<CCPoolPtr, excludeCount> _excludedCPools;
-	EntitesViewT _entities;
+	mutable EntitesViewT _entities;
 	DomainT* _domain;
 };
 
