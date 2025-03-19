@@ -1,6 +1,7 @@
 #include "physics/System.h"
 
 #include "ecs/Domain.h"
+#include "ecs/EntityFormatter.h"
 #include "ecs/View.h"
 #include "math/Math.h"
 #include "physics/components/Colliding.h"
@@ -81,7 +82,17 @@ void System::_collisionDetection(f32 t) const {
 	// collide every Colliding object with all BBoxes
 	viewColliding.forEach([&](const ecs::Entity lhs, const Colliding& c) {
 		viewBBoxes.forEach([&](const ecs::Entity rhs, const BBox& b) {
-			if (areColliding(c.box, b)) {
+			/*Logger::debug(
+				"({}, {}) ({}, {})",
+				c.box.topLeft.x,
+				c.box.topLeft.y,
+				c.box.bottomRight.x,
+				c.box.bottomRight.y
+			);
+			Logger::debug("({}, {}) ({}, {})", b.topLeft.x, b.topLeft.y, b.bottomRight.x, b.bottomRight.y);
+			Logger::debug("");*/
+			if (areColliding(c.box, b) || areColliding(b, c.box)) {
+				Logger::debug("collision");
 				c.action(lhs, rhs);
 			}
 		});
