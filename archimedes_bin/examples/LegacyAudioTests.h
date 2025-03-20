@@ -1,6 +1,5 @@
 #pragma once
 #include <cmath>
-#include <mutex>
 #include <thread>
 
 #include <Ecs.h>
@@ -130,9 +129,6 @@ inline void testSpatialAudio() {
 	soundBank.addClip(filename);
 	soundBank.loadInitialGroups();
 
-	std::mutex mutex;
-
-
 	// create an entity and give it an audio source component
 	auto entity = domain.newEntity();
 	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
@@ -150,15 +146,21 @@ inline void testSpatialAudio() {
 
 	// during playing the sound, update the source every 50 ms.
 	// make the source hang around the listener while changing the distance from them.
-	const int steps = 1'000;
-	for (int i = 0; i < steps; i++) {
-		const int stepsPerCircle = 100;
-		const float distance = 5.0f + 5.0 * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
-		source->positionX = distance * std::cos(i * 2 * std::numbers::pi / stepsPerCircle);
-		source->positionY = distance * std::sin(i * 2 * std::numbers::pi / stepsPerCircle);
+	int steps = 0;
+	const int stepsPerCircle = 1'000'000;
+	const auto startTime = std::chrono::high_resolution_clock::now();
+	while (true){
+		const float distance = 5.0f + 5.0 * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source->positionX = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source->positionY = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
 		audioManager.updateSource(source);
 		audioManager.cleanSources(domain);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		steps = (steps + 1) % stepsPerCircle;
+		const auto currentTime = std::chrono::high_resolution_clock::now();
+		if (currentTime - startTime > std::chrono::seconds(30)) {
+			break;
+		}
+
 	}
 
 	// close the audioManager
