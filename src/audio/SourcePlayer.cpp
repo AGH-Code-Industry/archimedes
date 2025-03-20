@@ -4,19 +4,6 @@
 
 namespace arch::audio {
 
-void SourcePlayer::update(const AudioSourceComponent& source) {
-	_pitch = source.pitch;
-	_gain = source.gain;
-	_positionX = source.positionX;
-	_positionY = source.positionY;
-	_velocityX = source.velocityX;
-	_velocityY = source.velocityY;
-	_isLooped = source.isLooped;
-	if (source.path != _clipPath) {
-		throw AudioException("Clip path should be changed only once per source");
-	}
-}
-
 void SourcePlayer::setClipPath(const std::string& clipPath) {
 	_clipPath = clipPath;
 }
@@ -25,12 +12,16 @@ void SourcePlayer::cleanClipPath() {
 	_clipPath = "";
 }
 
-void SourcePlayer::_updateSoundAttributes() {
-	alCall(alSourcef, _source, AL_PITCH, _pitch);
-	alCall(alSourcef, _source, AL_GAIN, _gain);
-	alCall(alSource3f, _source, AL_POSITION, _positionX, _positionY, 0);
-	alCall(alSource3f, _source, AL_VELOCITY, _velocityX, _velocityY, 0);
-	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
+void SourcePlayer::update(const AudioSourceComponent& source) {
+	if (source.path != _clipPath) {
+		throw AudioException("Clip path shouldn't be changed during playback");
+	}
+	alCall(alSourcef, _source, AL_PITCH, source.pitch);
+	alCall(alSourcef, _source, AL_GAIN, source.gain);
+	alCall(alSource3f, _source, AL_POSITION, source.positionX, source.positionY, 0);
+	alCall(alSource3f, _source, AL_VELOCITY, source.velocityX, source.velocityY, 0);
+	_isLooped = source.isLooped;
+	alCall(alSourcei, _source, AL_LOOPING, _isLooped ? AL_TRUE : AL_FALSE);
 }
 
 bool SourcePlayer::_initiallyLoadSound() {
@@ -90,7 +81,6 @@ void SourcePlayer::_prepareLoadingBuffer() {
 bool SourcePlayer::run() {
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
-	_updateSoundAttributes();
 	bool isStopped = false;
 	switch (alState) {
 		case AL_PLAYING: _doNextFrame(); break;
@@ -118,13 +108,12 @@ void SourcePlayer::_doNextFrame() {
 }
 
 bool SourcePlayer::stopPlaying() {
-	_gain = 0.0f;
 	ALenum alState;
 	alCall(alGetSourcei, _source, AL_SOURCE_STATE, &alState);
 	if (alState == AL_PAUSED) {
 		_continuePlaying();
 	}
-	alCall(alSourcef, _source, AL_GAIN, _gain);
+	alCall(alSourcef, _source, AL_GAIN, 0.0f);
 	ALint buffersProcessed, buffersQueued;
 	alCall(alGetSourcei, _source, AL_BUFFERS_PROCESSED, &buffersProcessed);
 	alCall(alGetSourcei, _source, AL_BUFFERS_QUEUED, &buffersQueued);
@@ -133,7 +122,9 @@ bool SourcePlayer::stopPlaying() {
 	}
 	alCall(alSourceUnqueueBuffers, _source, 4, &_buffers[0]);
 	alCall(alSourceRewind, _source);
-	_clipPath = "";
+	cleanClipPath();
+	_isEndFound = false;
+	_isLooped = false;
 	return true;
 }
 

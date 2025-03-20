@@ -40,10 +40,6 @@ class AudioManager {
 	void _assignSource(AudioSourceComponent* source);
 
 
-	///@brief Sends current parameters of the Listener to OpenAL.
-	void _updateListener();
-
-
 
 public:
 
@@ -81,5 +77,7 @@ public:
 	/// from the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
 	void updateSource(const AudioSourceComponent* source);
+
+	void updateListener(const ListenerComponent* listener);
 };
 } // namespace arch::audio

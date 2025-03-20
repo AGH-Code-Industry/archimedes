@@ -33,25 +33,8 @@ class SourcePlayer {
 	/// @brief True if end of the sound file was reached.
 	bool _isEndFound = false;
 
-	/// @brief Pitch modifier of the sound.
-	float _pitch = 1.0f;
-
-	/// @brief Gain modifier of the sound.
-	float _gain = 1.0f;
-
-	/// @brief Position of the Source on the map.
-	/// Used for spatial effects.
-	float _positionX = 0.0f, _positionY = 0.0f;
-
-	/// @brief Velocity of the Source on the map.
-	/// Used for calculating the Doppler Effect.
-	float _velocityX = 0.0f, _velocityY = 0.0f;
-
 	/// @brief Tells if the sound's playback has to be looped.
 	bool _isLooped = false;
-
-	/// @brief Passes all the sound's parameters to OpenAL.
-	void _updateSoundAttributes();
 
 	/// @brief Loads first 4 buffers with audio.
 	/// @returns True if the end of sound was reached, false otherwise.

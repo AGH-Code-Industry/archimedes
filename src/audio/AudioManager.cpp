@@ -29,7 +29,6 @@ int AudioManager::_findEmptyPlayer() const {
 void AudioManager::play() {
 	Logger::info("Audio system: audio manager started playing");
 	while (_isListening) {
-		_updateListener();
 		for (int source = 0; source < 16; source++) {
 			switch (_sourceStates[source]) {
 				case playing:
@@ -133,8 +132,8 @@ void AudioManager::updateSource(const AudioSourceComponent* source) {
 	_sources[source->_id].update(*source);
 }
 
-void AudioManager::_updateListener() {
-	_listener.update();
+void AudioManager::updateListener(const ListenerComponent* listener) {
+	_listener.update(*listener);
 }
 
 } // namespace arch::audio
