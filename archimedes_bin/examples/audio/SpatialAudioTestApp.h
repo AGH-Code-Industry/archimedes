@@ -178,23 +178,23 @@ struct SpatialAudioTestApp: arch::Application {
 
 		auto view = domain.view<scene::components::TransformComponent, VelocityComponent, audio::AudioSourceComponent>();
 
-	for (auto [entity, transform, velocity, audioSource] : view.all()) {
-		float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
-		sourcePosition.x = radius * std::cos(angle);
-		sourcePosition.y = radius * std::sin(angle);
+		for (auto [entity, transform, velocity, audioSource] : view.all()) {
+			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
+			sourcePosition.x = radius * std::cos(angle);
+			sourcePosition.y = radius * std::sin(angle);
 
-		sourceVelocity.x = radius * std::sin(angle);
-		sourceVelocity.y = radius * std::cos(angle);
+			sourceVelocity.x = radius * std::sin(angle);
+			sourceVelocity.y = radius * std::cos(angle);
 
-		audioSource.positionX = sourcePosition.x;
-		audioSource.positionY = sourcePosition.y;
-		audioSource.velocityX = sourceVelocity.x;
-		audioSource.velocityY = sourceVelocity.y;
+			audioSource.positionX = sourcePosition.x;
+			audioSource.positionY = sourcePosition.y;
+			audioSource.velocityX = sourceVelocity.x;
+			audioSource.velocityY = sourceVelocity.y;
 
-		transform.position = { sourcePosition.x, sourcePosition.y, 0.0f };
-		velocity.velocity = { sourceVelocity.x, sourceVelocity.y, 0.0f };
-	}
-	circleStep = (circleStep + 1) % stepsLimit;
-	soundManager.audioManager->synchronize(domain);
+			transform.position = { sourcePosition.x, sourcePosition.y, 0.0f };
+			velocity.velocity = { sourceVelocity.x, sourceVelocity.y, 0.0f };
+		}
+		circleStep = (circleStep + 1) % stepsLimit;
+		soundManager.audioManager->synchronize(domain);
 }
 };
