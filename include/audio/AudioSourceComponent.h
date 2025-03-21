@@ -5,12 +5,6 @@
 
 namespace arch::audio {
 
-/// @brief Tells the AudioManager what to do with the AudioSource.
-enum SourceAction {
-	play,
-	pause,
-	stop
-};
 
 /// @brief ECS component used to store all data about a sound source on the scene.
 /// It also allows to specify what the AudioManager should do with it.
