@@ -14,94 +14,187 @@ namespace audio = arch::audio;
 namespace ecs = arch::ecs;
 namespace scene = arch::scene;
 
+struct GraphicsManager {
+	struct Vertex {
+		float3 position;
+		float2 tex_coords;
+	};
+
+	std::vector<Vertex> vertices{
+		{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
+		{	  { 0.f, .25f, 0.1f }, { .5f, 1.f } },
+		{  { .25f, -.25f, 0.1f }, { 1.f, 0.f } },
+	};
+
+	std::vector<u32> indices{ 0, 1, 2 };
+
+	Color pixels[1] = {
+		Color{ 1, .5, 1, 1 }
+	};
+
+	Ref<gfx::Renderer> renderer;
+
+	Ref<gfx::texture::Texture> texture;
+
+	struct UniformBuffer {
+		Mat4x4 projection;
+	};
+
+	Ref<gfx::Buffer> uniformBuffer;
+
+	UniformBuffer ubo{ glm::ortho(0.f, 640.f, 0.f, 400.f) };
+
+	Ref<gfx::pipeline::Pipeline> pipeline, pipeline2;
+
+	Ref<asset::mesh::Mesh> mesh;
+
+	GraphicsManager(){
+		 renderer = gfx::Renderer::getCurrent();
+		 texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
+		 uniformBuffer = renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+		 pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default.glsl",
+				.textures = { texture },
+				.buffers = { uniformBuffer },
+			}
+		);
+		pipeline2 = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
+		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+	}
+};
+
+struct SoundManager {
+	std::string soundFile;
+	audio::SoundDevice device;
+	audio::SoundBank soundBank;
+	audio::AudioManager* audioManager{};
+	std::jthread* audioThread{};
+
+	SoundManager();
+
+	void init(const std::string& sound){
+		soundFile = sound;
+		audioManager = new audio::AudioManager(&soundBank);
+	 	audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
+	 	soundBank.addClip(soundFile);
+	 	soundBank.loadInitialGroups();
+	}
+
+	~SoundManager(){
+		audioManager->stop();
+		audioThread->join();
+		delete audioManager;
+	}
+
+};
+
 struct SpatialAudioTestApp: arch::Application {
-//	const std::string _soundFile = "wind.mp3";
-//
-//	// initialize OpenAL context
-//	audio::SoundDevice _device;
-//
-//	// initialize SoundBank
-//	audio::SoundBank _soundBank;
-//
-//	// AudioManager should be initialized after launching the app
-//	audio::AudioManager* _audioManager{};
-//	std::jthread* _audioThread{};
-//
-//	// counter variable using in sound's source's movement calculation
-//	int _currentStep{};
+
+	const std::string soundFile = "wind.mp3";
+	GraphicsManager graphicsManager;
+	SoundManager soundManager;
+
+	float3 sourcePosition;
+	float3 sourceVelocity;
+
+	int circleStep = 0;
+	const int stepsPerCircle = 1'000;
+	const int stepsLimit = 1'000'000;
+
+	const float radius = 0.8f;
+	const float speed = 1.0f;
+
+
+	void createListener(arch::Ref<scene::Scene> testScene) {
+		ecs::Entity e = testScene->newEntity();
+	 	testScene->domain().addComponent<scene::components::TransformComponent>(
+	 		e,
+	 		{
+	 			{ 0.0f, 0.0f, 0.0f },
+	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
+	 			{ .5f, .5f, .5f },
+	 	}
+	 	);
+		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager.mesh, graphicsManager.pipeline});
+		testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
+//		testScene->domain().addComponent<audio::ListenerComponent>(e);
+	}
+
+	void createSource(arch::Ref<scene::Scene> testScene) {
+		ecs::Entity e = testScene->newEntity();
+		sourcePosition = {0.0f, 1.0f, 0.0f};
+		sourceVelocity = {1.0f, 0.0f, 0.0f};
+	 	testScene->domain().addComponent<scene::components::TransformComponent>(
+	 		e,
+	 		{
+	 			sourcePosition,
+	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
+	 			arch::float3(0.2f)
+	 	   }
+	 	);
+		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager.mesh, graphicsManager.pipeline2 });
+		testScene->domain().addComponent<VelocityComponent>(e, sourceVelocity);
+	 	auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e);
+	 	source->path = soundFile;
+	 	source->isLooped = true;
+	 	source->positionX = sourcePosition.x;
+	 	source->positionY = sourcePosition.y;
+		source->velocityX = sourceVelocity.x;
+		source->velocityY = sourceVelocity.y;
+		soundManager.audioManager->playSource(source);
+	}
 
 	void init() override {
-	// 	// initialize test scene
-	// 	arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
-	// 	// initialize AudioManager
-	// 	ecs::Domain* domain = &testScene->domain();
-	// 	_audioManager = new audio::AudioManager(&_soundBank, domain);
-	// 	_audioThread = new std::jthread(&audio::AudioManager::play, _audioManager);
-	//
-	// 	// add a sound to SoundBank and load it
-	// 	_soundBank.addClip(_soundFile);
-	// 	_soundBank.loadInitialGroups();
-	//
-	// 	// add a "listening" triangle which will be in center of the scene
-	// 	// it resembles the Listener of the sound
-	// 	ecs::Entity e1 = testScene->newEntity();
-	// 	testScene->domain().addComponent<scene::components::TransformComponent>(
-	// 		e1,
-	// 		{
-	// 			{ 0.0f, 0.0f, 0.0f },
-	// 			{ 0.0f, 0.0f, 0.0f, 1.0f },
-	// 			{ .5f, .5f, .5f },
-	// 	}
-	// 	);
-	// 	testScene->domain().addComponent<scene::components::MeshComponent>(e1, { /*mesh*/ });
-	//
-	// 	// add a "source" triangle - this resembles the sound's source
-	// 	// it will be moved while moving the source
-	// 	ecs::Entity e2 = testScene->newEntity();
-	// 	testScene->domain().addComponent<scene::components::TransformComponent>(
-	// 		e2,
-	// 		{
-	// 			{ 0.0f, 2.0f, 0.0f },
-	// 			{ 0.0f, 0.0f, 0.0f, 1.0f },
-	// 			arch::float3(0.2f)
-	// 	   }
-	// 	);
-	// 	testScene->domain().addComponent<scene::components::MeshComponent>(e2, { /*mesh*/ });
-	// 	auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e2);
-	// 	source->path = _soundFile;
-	// 	source->gain = 1.0f;
-	// 	source->isLooped = true;
-	// 	source->positionX = 1.0f;
-	// 	source->positionY = 0.0f;
-	// 	// source->play();
-	// 	testScene->domain().addComponent<audio::AudioSourceActionComponent>(e2);
-	//
-	// 	scene::SceneManager::get()->changeScene(testScene);
-	// }
-	//
-	// void update() override {
-	// 	auto view = scene::SceneManager::get()
-	// 					->currentScene()
-	// 					->domain()
-	// 					.view<scene::components::TransformComponent, audio::AudioSourceComponent>();
-	//
-	// 	for (auto [entity, transform, audioSource] : view.all()) {
-	// 		// tells how many steps a triangle needs to take to do a full circle
-	// 		const int stepsPerCircle = 1'000;
-	// 		// const float distance = 1.0f + 1.0f * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
-	// 		const float distance = 0.8f;
-	// 		float positionX = distance * std::cos(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
-	// 		float positionY = distance * std::sin(_currentStep * 2 * std::numbers::pi / stepsPerCircle);
-	// 		audioSource.positionX = positionX;
-	// 		audioSource.positionY = positionY;
-	// 		transform.position = { positionX, positionY, 0.0f };
-	// 	}
-	// 	_currentStep = (_currentStep + 1) % 10'000;
-	}
+		soundManager.init(soundFile);
 
-	~SpatialAudioTestApp() override {
-//		_audioManager->stop();
-//		_audioThread->join();
-//		delete _audioManager;
+	 	// initialize test scene
+	 	arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
+	 	// initialize AudioManager
+	 	ecs::Domain* domain = &testScene->domain();
+
+	 	// add a "listening" triangle which will be in center of the scene
+	 	// it resembles the Listener of the sound
+	 	createListener(testScene);
+
+	 	// add a "source" triangle - this resembles the sound's source
+	 	// it will be moved while moving the source
+	 	createSource(testScene);
+
+	 	scene::SceneManager::get()->changeScene(testScene);
+	 }
+
+	void update() override {
+
+		auto domain = scene::SceneManager::get()->currentScene()->domain();
+
+		auto view = domain.view<scene::components::TransformComponent, VelocityComponent, audio::AudioSourceComponent>();
+
+	for (auto [entity, transform, velocity, audioSource] : view.all()) {
+		float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
+		sourcePosition.x = radius * std::cos(angle);
+		sourcePosition.y = radius * std::sin(angle);
+
+		sourceVelocity.x = radius * std::sin(angle);
+		sourceVelocity.y = radius * std::cos(angle);
+
+		audioSource.positionX = sourcePosition.x;
+		audioSource.positionY = sourcePosition.y;
+		audioSource.velocityX = sourceVelocity.x;
+		audioSource.velocityY = sourceVelocity.y;
+
+		transform.position = { sourcePosition.x, sourcePosition.y, 0.0f };
+		velocity.velocity = { sourceVelocity.x, sourceVelocity.y, 0.0f };
 	}
+	circleStep = (circleStep + 1) % stepsLimit;
+	soundManager.audioManager->synchronize(domain);
+}
 };
