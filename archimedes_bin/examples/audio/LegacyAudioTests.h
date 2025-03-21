@@ -38,7 +38,7 @@ inline void testSimpleSound() {
 		source->gain = 0.5;
 		source->isLooped = false;
 		audioManager.playSource(source);
-		audioManager.cleanSources(domain);
+		audioManager.synchronize(domain);
 	}
 
 	// close the audioManager
@@ -107,7 +107,7 @@ inline void testControl() {
 				break;
 			default: break;
 		}
-		audioManager.cleanSources(domain);
+		audioManager.synchronize(domain);
 	}
 
 	// close the audioManager
@@ -155,7 +155,7 @@ inline void testSpatialAudio() {
 		source->positionX = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
 		source->positionY = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
 		audioManager.updateSource(source);
-		audioManager.cleanSources(domain);
+		audioManager.synchronize(domain);
 		steps = (steps + 1) % stepsPerCircle;
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 		if (currentTime - startTime > std::chrono::seconds(30)) {

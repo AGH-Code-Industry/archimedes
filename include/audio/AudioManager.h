@@ -71,7 +71,7 @@ public:
 
 	void stopSource(const AudioSourceComponent* source);
 
-	void cleanSources(ecs::Domain& domain);
+	void synchronize(ecs::Domain& domain);
 
 	///@brief Asks the assigned SourcePlayer to get all the sound parameters
 	/// from the AudioSourceComponent.

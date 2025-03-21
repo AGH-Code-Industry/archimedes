@@ -103,7 +103,7 @@ void AudioManager::_assignSource(AudioSourceComponent* source) {
 	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
-void AudioManager::cleanSources(ecs::Domain& domain) {
+void AudioManager::synchronize(ecs::Domain& domain) {
 	auto view = domain.view<AudioSourceComponent>();
 	for (auto [entity, audioSource] : view.all()) {
 		if (audioSource._id == -1) {
@@ -113,6 +113,9 @@ void AudioManager::cleanSources(ecs::Domain& domain) {
 			_sourceStates[audioSource._id] = unused;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
 			audioSource._id = -1;
+		}
+		else {
+			updateSource(&audioSource);
 		}
 	}
 	for (int source = 0; source < 16; source++) {
