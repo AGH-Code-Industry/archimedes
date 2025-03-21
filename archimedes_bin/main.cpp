@@ -1,6 +1,5 @@
 // #include "examples/NvrhiRendererTestApp.h"
-#include "examples/SpatialAudioTestApp.h"
-#include "examples/LegacyAudioTests.h"
+#include "examples/Examples.h"
 #include <Engine.h>
 #include <Logger.h>
 

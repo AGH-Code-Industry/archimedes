@@ -15,20 +15,20 @@ namespace ecs = arch::ecs;
 namespace scene = arch::scene;
 
 struct SpatialAudioTestApp: arch::Application {
-	// const std::string _soundFile = "wind.mp3";
-	//
-	// // initialize OpenAL context
-	// audio::SoundDevice _device;
-	//
-	// // initialize SoundBank
-	// audio::SoundBank _soundBank;
-	//
-	// // AudioManager should be initialized after launching the app
-	// audio::AudioManager* _audioManager{};
-	// std::jthread* _audioThread{};
-	//
-	// // counter variable using in sound's source's movement calculation
-	// int _currentStep{};
+//	const std::string _soundFile = "wind.mp3";
+//
+//	// initialize OpenAL context
+//	audio::SoundDevice _device;
+//
+//	// initialize SoundBank
+//	audio::SoundBank _soundBank;
+//
+//	// AudioManager should be initialized after launching the app
+//	audio::AudioManager* _audioManager{};
+//	std::jthread* _audioThread{};
+//
+//	// counter variable using in sound's source's movement calculation
+//	int _currentStep{};
 
 	void init() override {
 	// 	// initialize test scene
@@ -100,8 +100,8 @@ struct SpatialAudioTestApp: arch::Application {
 	}
 
 	~SpatialAudioTestApp() override {
-		// _audioManager->stop();
-		// _audioThread->join();
-		// delete _audioManager;
+//		_audioManager->stop();
+//		_audioThread->join();
+//		delete _audioManager;
 	}
 };

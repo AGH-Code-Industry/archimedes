@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <thread>
+#include <numbers>
 
 #include <Ecs.h>
 #include <Logger.h>
