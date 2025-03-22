@@ -79,8 +79,6 @@ struct SoundManager {
 	audio::AudioManager* audioManager{};
 	std::jthread* audioThread{};
 
-	SoundManager();
-
 	void init(const std::string& sound){
 		soundFile = sound;
 		audioManager = new audio::AudioManager(&soundBank);
@@ -174,7 +172,7 @@ struct SpatialAudioTestApp: arch::Application {
 
 	void update() override {
 
-		auto domain = scene::SceneManager::get()->currentScene()->domain();
+		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 
 		auto view = domain.view<scene::components::TransformComponent, VelocityComponent, audio::AudioSourceComponent>();
 
