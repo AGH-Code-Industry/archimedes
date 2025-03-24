@@ -141,13 +141,13 @@ struct SpatialAudioTestApp: arch::Application {
 		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline2 });
 		testScene->domain().addComponent<VelocityComponent>(e, sourceVelocity);
 	 	auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e);
-		source->gain = 1.0f;
 	 	source->path = soundFile;
 	 	source->isLooped = true;
 	 	source->positionX = sourcePosition.x;
 	 	source->positionY = sourcePosition.y;
 		source->velocityX = sourceVelocity.x;
 		source->velocityY = sourceVelocity.y;
+		source->rolloffFactor = 0.01f;
 		soundManager.audioManager->playSource(source);
 	}
 

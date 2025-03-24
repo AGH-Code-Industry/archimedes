@@ -22,6 +22,8 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 	alCall(alSource3f, _source, AL_VELOCITY, source.velocityX, source.velocityY, 0);
 	_isLooped = source.isLooped;
 	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
+	alCall(alSourcef, _source, AL_MAX_DISTANCE, source.maxDistance);
+	alCall(alSourcef, _source, AL_ROLLOFF_FACTOR, source.rolloffFactor);
 }
 
 bool SourcePlayer::_initiallyLoadSound() {

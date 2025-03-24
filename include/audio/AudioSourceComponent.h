@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <limits>
 
 #include <Logger.h>
 
@@ -29,6 +30,10 @@ struct AudioSourceComponent {
 	/// @brief Velocity of the AudioSource on the map.
 	/// Used for calculating the Doppler Effect.
 	float velocityX = 0.0f, velocityY = 0.0f;
+
+	float maxDistance = std::numeric_limits<float>::max();
+
+	float rolloffFactor = 1.0f;
 
 private:
 	int _id = -1;
