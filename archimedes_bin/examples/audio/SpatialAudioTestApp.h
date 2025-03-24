@@ -115,7 +115,8 @@ struct SpatialAudioTestApp: arch::Application {
 
 	void createListener(arch::Ref<scene::Scene> testScene) {
 		ecs::Entity e = testScene->newEntity();
-	 	testScene->domain().addComponent<scene::components::TransformComponent>(
+		auto& domain = testScene->domain();
+	 	domain.addComponent<scene::components::TransformComponent>(
 	 		e,
 	 		{
 	 			listenerPosition,
@@ -123,17 +124,18 @@ struct SpatialAudioTestApp: arch::Application {
 	 			{ 100.0f, 50.0f, 0.0f },
 	 	}
 	 	);
-		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline});
-		testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
-		auto listener = &testScene->domain().addComponent<audio::ListenerComponent>(e);
-		listener->positionX = listenerPosition.x;
-		listener->positionY = listenerPosition.y;
-		soundManager.audioManager->updateListener(listener);
+		domain.addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline});
+		domain.addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
+		auto& listener = domain.addComponent<audio::ListenerComponent>(e);
+		listener.positionX = listenerPosition.x;
+		listener.positionY = listenerPosition.y;
+		soundManager.audioManager->setListener(&listener, domain);
 	}
 
 	void createSource(arch::Ref<scene::Scene> testScene) {
 		ecs::Entity e = testScene->newEntity();
-	 	testScene->domain().addComponent<scene::components::TransformComponent>(
+		auto& domain = testScene->domain();
+	 	domain.addComponent<scene::components::TransformComponent>(
 	 		e,
 	 		{
 	 			sourcePosition,
@@ -141,17 +143,17 @@ struct SpatialAudioTestApp: arch::Application {
 	 			{100.0f, 50.0f, 0.0f}
 	 	   }
 	 	);
-		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline2 });
-		testScene->domain().addComponent<VelocityComponent>(e, sourceVelocity);
-	 	auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e);
-	 	source->path = soundFile;
-	 	source->isLooped = true;
-	 	source->positionX = sourcePosition.x;
-	 	source->positionY = sourcePosition.y;
-		source->velocityX = sourceVelocity.x;
-		source->velocityY = sourceVelocity.y;
-		source->rolloffFactor = 0.01f;
-		soundManager.audioManager->playSource(source);
+		domain.addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline2 });
+		domain.addComponent<VelocityComponent>(e, sourceVelocity);
+	 	auto& source = domain.addComponent<audio::AudioSourceComponent>(e);
+	 	source.path = soundFile;
+	 	source.isLooped = true;
+	 	source.positionX = sourcePosition.x;
+	 	source.positionY = sourcePosition.y;
+		source.velocityX = sourceVelocity.x;
+		source.velocityY = sourceVelocity.y;
+		source.rolloffFactor = 0.01f;
+		soundManager.audioManager->playSource(&source);
 	}
 
 	void init() override {
@@ -160,8 +162,6 @@ struct SpatialAudioTestApp: arch::Application {
 
 	 	// initialize test scene
 	 	arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
-	 	// initialize AudioManager
-	 	ecs::Domain* domain = &testScene->domain();
 
 	 	// add a "listening" triangle which will be in center of the scene
 	 	// it resembles the Listener of the sound

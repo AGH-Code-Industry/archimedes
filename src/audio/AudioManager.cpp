@@ -104,8 +104,9 @@ void AudioManager::_assignSource(AudioSourceComponent* source) {
 }
 
 void AudioManager::synchronize(ecs::Domain& domain) {
-	auto view = domain.view<AudioSourceComponent>();
-	for (auto [entity, audioSource] : view.all()) {
+	// synchronize Sources
+	auto sourcesView = domain.view<AudioSourceComponent>();
+	for (auto [entity, audioSource] : sourcesView.all()) {
 		if (audioSource._id == -1) {
 			continue;
 		}
@@ -125,6 +126,27 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 
 		}
 	}
+
+	// synchronize Listener
+	auto listenersView = domain.view<ListenerComponent>();
+	bool activeListenerFound = false;
+	for (auto [entity, listener] : listenersView.all()) {
+		if (listener._isActive) {
+			if (activeListenerFound) {
+				throw AudioException("Audio system: there are two active Listeners");
+			}
+			activeListenerFound = true;
+			updateListener(&listener);
+			if (!_listenerSet) {
+				_listenerSet = true;
+				Logger::info("Audio system: audio manager set the listener");
+			}
+		}
+	}
+	if (!activeListenerFound && _listenerSet) {
+		_listenerSet = false;
+		Logger::info("Audio system: audio manager unset the listener");
+	}
 }
 
 
@@ -137,6 +159,15 @@ void AudioManager::updateSource(const AudioSourceComponent* source) {
 
 void AudioManager::updateListener(const ListenerComponent* listener) {
 	_listener.update(*listener);
+}
+
+void AudioManager::setListener(ListenerComponent* listener, ecs::Domain& domain) {
+	auto view = domain.view<ListenerComponent>();
+	for (auto [entity, listener] : view.all()) {
+		listener._isActive = false;
+	}
+	listener->_isActive = true;
+	updateListener(listener);
 }
 
 } // namespace arch::audio

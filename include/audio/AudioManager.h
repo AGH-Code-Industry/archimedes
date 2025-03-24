@@ -24,6 +24,8 @@ class AudioManager {
 	/// Also controls loudness of all played sounds.
 	Listener _listener;
 
+	bool _listenerSet = false;
+
 	///@brief Sound bank storing all clips.
 	SoundBank* _soundBank;
 
@@ -79,5 +81,7 @@ public:
 	void updateSource(const AudioSourceComponent* source);
 
 	void updateListener(const ListenerComponent* listener);
+
+	void setListener(ListenerComponent* listener, ecs::Domain& domain);
 };
 } // namespace arch::audio

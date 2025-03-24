@@ -14,5 +14,10 @@ struct ListenerComponent {
 	///@brief Velocity of the Listener.
 	/// Used for calculating the Doppler effect.
 	float velocityX = 0.0f, velocityY = 0.0f;
+
+private:
+	bool _isActive = false;
+
+	friend class AudioManager;
 };
 }
