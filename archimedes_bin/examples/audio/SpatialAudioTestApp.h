@@ -101,14 +101,14 @@ struct SpatialAudioTestApp: arch::Application {
 	Ref<GraphicsManager> graphicsManager;
 	SoundManager soundManager;
 
-	float3 sourcePosition = {400.0f, 200.0f, 0.0f};
+	float3 sourcePosition = {450.0f, 200.0f, 0.0f};
 	float3 sourceVelocity = {1.0f, 0.0f, 0.0f};
 
 	int circleStep = 0;
 	const int stepsPerCircle = 1'000;
 	const int stepsLimit = 1'000'000;
 
-	const float radius = 100.0f;
+	const float radius = 150.0f;
 	const float speed = 10.0f;
 	float3 listenerPosition = {300.0f, 200.0f, 0.0f};
 
@@ -125,7 +125,10 @@ struct SpatialAudioTestApp: arch::Application {
 	 	);
 		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline});
 		testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
-//		testScene->domain().addComponent<audio::ListenerComponent>(e);
+		auto listener = &testScene->domain().addComponent<audio::ListenerComponent>(e);
+		listener->positionX = listenerPosition.x;
+		listener->positionY = listenerPosition.y;
+		soundManager.audioManager->updateListener(listener);
 	}
 
 	void createSource(arch::Ref<scene::Scene> testScene) {
