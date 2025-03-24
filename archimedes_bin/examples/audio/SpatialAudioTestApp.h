@@ -49,26 +49,26 @@ struct GraphicsManager {
 	Ref<asset::mesh::Mesh> mesh;
 
 	GraphicsManager(){
-		 renderer = gfx::Renderer::getCurrent();
-		 texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
-		 uniformBuffer = renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
-		 pipeline = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default.glsl",
-				.textures = { texture },
-				.buffers = { uniformBuffer },
-			}
+		renderer = gfx::Renderer::getCurrent();
+		texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
+		uniformBuffer = renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+		pipeline = renderer->getPipelineManager()->create(
+		{
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default.glsl",
+			.textures = { texture },
+			.buffers = { uniformBuffer },
+		}
 		);
 		pipeline2 = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default2.glsl",
-				.textures = {},
-				.buffers = { uniformBuffer },
-			}
+		{
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default2.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		}
 		);
-		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 	}
 };
 
@@ -98,18 +98,19 @@ struct SoundManager {
 struct SpatialAudioTestApp: arch::Application {
 
 	const std::string soundFile = "wind.mp3";
-	GraphicsManager graphicsManager;
+	Ref<GraphicsManager> graphicsManager;
 	SoundManager soundManager;
 
-	float3 sourcePosition;
-	float3 sourceVelocity;
+	float3 sourcePosition = {400.0f, 200.0f, 0.0f};
+	float3 sourceVelocity = {1.0f, 0.0f, 0.0f};
 
 	int circleStep = 0;
 	const int stepsPerCircle = 1'000;
 	const int stepsLimit = 1'000'000;
 
-	const float radius = 0.8f;
-	const float speed = 1.0f;
+	const float radius = 100.0f;
+	const float speed = 10.0f;
+	float3 listenerPosition = {300.0f, 200.0f, 0.0f};
 
 
 	void createListener(arch::Ref<scene::Scene> testScene) {
@@ -117,31 +118,30 @@ struct SpatialAudioTestApp: arch::Application {
 	 	testScene->domain().addComponent<scene::components::TransformComponent>(
 	 		e,
 	 		{
-	 			{ 0.0f, 0.0f, 0.0f },
+	 			listenerPosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
-	 			{ .5f, .5f, .5f },
+	 			{ 100.0f, 50.0f, 0.0f },
 	 	}
 	 	);
-		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager.mesh, graphicsManager.pipeline});
+		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline});
 		testScene->domain().addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
 //		testScene->domain().addComponent<audio::ListenerComponent>(e);
 	}
 
 	void createSource(arch::Ref<scene::Scene> testScene) {
 		ecs::Entity e = testScene->newEntity();
-		sourcePosition = {0.0f, 1.0f, 0.0f};
-		sourceVelocity = {1.0f, 0.0f, 0.0f};
 	 	testScene->domain().addComponent<scene::components::TransformComponent>(
 	 		e,
 	 		{
 	 			sourcePosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
-	 			arch::float3(0.2f)
+	 			{100.0f, 50.0f, 0.0f}
 	 	   }
 	 	);
-		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager.mesh, graphicsManager.pipeline2 });
+		testScene->domain().addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline2 });
 		testScene->domain().addComponent<VelocityComponent>(e, sourceVelocity);
 	 	auto source = &testScene->domain().addComponent<audio::AudioSourceComponent>(e);
+		source->gain = 1.0f;
 	 	source->path = soundFile;
 	 	source->isLooped = true;
 	 	source->positionX = sourcePosition.x;
@@ -152,6 +152,7 @@ struct SpatialAudioTestApp: arch::Application {
 	}
 
 	void init() override {
+		graphicsManager = createRef<GraphicsManager>();
 		soundManager.init(soundFile);
 
 	 	// initialize test scene
@@ -178,8 +179,8 @@ struct SpatialAudioTestApp: arch::Application {
 
 		for (auto [entity, transform, velocity, audioSource] : view.all()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
-			sourcePosition.x = radius * std::cos(angle);
-			sourcePosition.y = radius * std::sin(angle);
+			sourcePosition.x = listenerPosition.x + radius * std::cos(angle);
+			sourcePosition.y = listenerPosition.y + radius * std::sin(angle);
 
 			sourceVelocity.x = radius * std::sin(angle);
 			sourceVelocity.y = radius * std::cos(angle);
