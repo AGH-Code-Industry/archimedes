@@ -23,10 +23,7 @@ elseif(
     
     add_compile_definitions(ARCHIMEDES_DEBUG=0)
     add_compile_definitions(ARCHIMEDES_RELEASE=1)
-elseif(
-    "${CMAKE_CONFIGURATION_TYPES}" STREQUAL "Release" OR
-    "${CMAKE_BUILD_TYPE}" STREQUAL "Release"
-)
+else()
     set(ARCHIMEDES_DEBUG FALSE)
     set(ARCHIMEDES_RELEASE TRUE)
     
