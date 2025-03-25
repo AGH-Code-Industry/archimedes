@@ -114,38 +114,35 @@ struct SpatialAudioTestApp: arch::Application {
 
 
 	void createListener(arch::Ref<scene::Scene> testScene) {
-		ecs::Entity e = testScene->newEntity();
+		Entity e = testScene->newEntity();
 		auto& domain = testScene->domain();
-	 	domain.addComponent<scene::components::TransformComponent>(
-	 		e,
+	 	e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			listenerPosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
 	 			{ 100.0f, 50.0f, 0.0f },
 	 	}
 	 	);
-		domain.addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline});
-		domain.addComponent<VelocityComponent>(e, float3{ 0.0f, 0.0f, 0.0f });
-		auto& listener = domain.addComponent<audio::ListenerComponent>(e);
+		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline});
+		e.addComponent<VelocityComponent>(float3{ 0.0f, 0.0f, 0.0f });
+		auto& listener = e.addComponent<audio::ListenerComponent>();
 		listener.positionX = listenerPosition.x;
 		listener.positionY = listenerPosition.y;
 		soundManager.audioManager->setListener(&listener, domain);
 	}
 
 	void createSource(arch::Ref<scene::Scene> testScene) {
-		ecs::Entity e = testScene->newEntity();
-		auto& domain = testScene->domain();
-	 	domain.addComponent<scene::components::TransformComponent>(
-	 		e,
+		Entity e = testScene->newEntity();
+	 	e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			sourcePosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
 	 			{100.0f, 50.0f, 0.0f}
 	 	   }
 	 	);
-		domain.addComponent<scene::components::MeshComponent>(e, { graphicsManager->mesh, graphicsManager->pipeline2 });
-		domain.addComponent<VelocityComponent>(e, sourceVelocity);
-	 	auto& source = domain.addComponent<audio::AudioSourceComponent>(e);
+		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
+		e.addComponent<VelocityComponent>(sourceVelocity);
+	 	auto& source = e.addComponent<audio::AudioSourceComponent>();
 	 	source.path = soundFile;
 	 	source.isLooped = true;
 	 	source.positionX = sourcePosition.x;
