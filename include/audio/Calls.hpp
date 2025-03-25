@@ -2,15 +2,21 @@
 
 #include <concepts>
 #include <sstream>
+#include <source_location>
 
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <audio/AudioException.h>
 
+#define alCall(function, ...) arch::audio::alCallImplementation(std::source_location::current(), \
+																function, __VA_ARGS__)
+#define alcCall(function, device, ...) alcCallImplementation(std::source_location::current(), function, \
+																device, __VA_ARGS__)
+
 namespace arch::audio {
 /// @brief Check for errors after "al" function call.
 /// @throws AudioException if an error is found
-void inline checkAlErrors() {
+void inline checkAlErrors(const std::source_location location) {
 	const ALenum error = alGetError();
 	if (error == AL_NO_ERROR) {
 		return;
@@ -31,13 +37,13 @@ void inline checkAlErrors() {
 		default: errorStream << "UNKNOWN AL ERROR: " << error;
 	}
 	const std::string errorText = errorStream.str();
-	throw AudioException(errorText);
+	throw AudioException(errorText, location);
 }
 
 /// @brief Check for errors after "alc" function call
 /// @param device ALCDevice returned by alcOpenDevice call
 /// @throws AudioException if an error is found
-void inline checkAlcErrors(ALCdevice* device) {
+void inline checkAlcErrors(ALCdevice* device, const std::source_location location) {
 	const ALCenum error = alcGetError(device);
 	if (error == ALC_NO_ERROR) {
 		return;
@@ -62,7 +68,7 @@ void inline checkAlcErrors(ALCdevice* device) {
 		default: errorStream << "UNKNOWN ALC ERROR: " << error;
 	}
 	const std::string errorText = errorStream.str();
-	throw AudioException(errorText);
+	throw AudioException(errorText, location);
 }
 
 template<typename Function, typename... Params>
@@ -82,9 +88,9 @@ concept normalReturn = not voidReturn<Function, Params...>;
 /// @param params wrapped function's parameters
 template<typename AlFunction, typename... Params>
 requires voidReturn<AlFunction, Params...>
-auto alCall(AlFunction function, Params&&... params) {
+auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	function(std::forward<Params>(params)...);
-	checkAlErrors();
+	checkAlErrors(location);
 }
 
 /// @brief Wrapper for OpenAL "al" functions with return type other than void
@@ -95,9 +101,9 @@ auto alCall(AlFunction function, Params&&... params) {
 /// @return return value of wrapped function
 template<typename AlFunction, typename... Params>
 requires normalReturn<AlFunction, Params...>
-auto alCall(AlFunction function, Params&&... params) {
+auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
-	checkAlErrors();
+	checkAlErrors(location);
 	return returnValue;
 }
 
@@ -109,9 +115,10 @@ auto alCall(AlFunction function, Params&&... params) {
 /// @param params wrapped function's parameters
 template<typename AlcFunction, typename... Params>
 requires voidReturn<AlcFunction, Params...>
-auto alcCall(AlcFunction function, ALCdevice* device, Params&&... params) {
+auto alcCallImplementation(const std::source_location location, AlcFunction function,
+							ALCdevice* device, Params&&... params) {
 	function(std::forward<Params>(params)...);
-	checkAlcErrors(device);
+	checkAlcErrors(device, location);
 }
 
 /// @brief Wrapper for OpenAL "alc" functions with return type other than void
@@ -123,9 +130,10 @@ auto alcCall(AlcFunction function, ALCdevice* device, Params&&... params) {
 /// @return return value of wrapped function
 template<typename AlcFunction, typename... Params>
 requires normalReturn<AlcFunction, Params...>
-auto alcCall(AlcFunction function, ALCdevice* device, Params&&... params) {
+auto alcCallImplementation(const std::source_location location, AlcFunction function,
+							ALCdevice* device, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
-	checkAlcErrors(device);
+	checkAlcErrors(device, location);
 	return returnValue;
 }
 } // namespace arch::audio
