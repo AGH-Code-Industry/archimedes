@@ -19,7 +19,7 @@ elseif(
     set(ARCHIMEDES_DEBUG FALSE)
     set(ARCHIMEDES_RELEASE TRUE)
     
-    set(ARCHIMEDES_BUILD_TYPE "Release")
+    set(ARCHIMEDES_BUILD_TYPE "RelWithDebInfo")
     
     add_compile_definitions(ARCHIMEDES_DEBUG=0)
     add_compile_definitions(ARCHIMEDES_RELEASE=1)
