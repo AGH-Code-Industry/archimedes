@@ -28,3 +28,6 @@ function(GitDepDownload PackageName Git GitTag)
         message(STATUS "${PackageName} downloaded")
     endif()
 endfunction()
+
+GitDepDownload(nvrhi https://github.com/NVIDIAGameWorks/NvRhi.git main)
+target_link_libraries(${PROJECT_NAME} PRIVATE nvrhi_vk nvrhi)
