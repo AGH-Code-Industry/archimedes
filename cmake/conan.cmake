@@ -21,10 +21,10 @@ endif()
 if(ARCHIMEDES_FORCE_CONAN_INSTALL OR ARCHIMEDES_CONAN_INSTALL_HASH_NEQ OR NOT EXISTS ${ARCHIMEDES_CONAN_TOOLCHAIN_PATH} OR NOT EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
 	if(ARCHIMEDES_FORCE_CONAN_INSTALL)
 		message(STATUS "Forced Conan configuration for ${ARCHIMEDES_BUILD_TYPE} mode")
+	elseif(NOT EXISTS ${ARCHIMEDES_CONAN_TOOLCHAIN_PATH} OR NOT EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
+		message(STATUS "Conan files not found for ${ARCHIMEDES_BUILD_TYPE} mode, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
 	elseif(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ)
 		message(STATUS "conanfile.py was edited, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
-	else()
-		message(STATUS "Conan files not found for ${ARCHIMEDES_BUILD_TYPE} mode, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
 	endif()
 
 	# check if conan is installed
