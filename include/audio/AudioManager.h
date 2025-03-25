@@ -39,7 +39,7 @@ class AudioManager {
 	///@brief Finds an empty SourcePlayer and assign it to the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
-	void _assignSource(AudioSourceComponent* source);
+	void _assignSource(AudioSourceComponent& source);
 
 
 
@@ -67,21 +67,21 @@ public:
 	///@brief Stops the AudioManager.
 	void stop();
 
-	void playSource(AudioSourceComponent* source);
+	void playSource(AudioSourceComponent& source);
 
-	void pauseSource(const AudioSourceComponent* source);
+	void pauseSource(const AudioSourceComponent& source);
 
-	void stopSource(const AudioSourceComponent* source);
+	void stopSource(const AudioSourceComponent& source);
 
 	void synchronize(ecs::Domain& domain);
 
 	///@brief Asks the assigned SourcePlayer to get all the sound parameters
 	/// from the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
-	void updateSource(const AudioSourceComponent* source);
+	void updateSource(const AudioSourceComponent& source);
 
-	void updateListener(const ListenerComponent* listener);
+	void updateListener(const ListenerComponent& listener);
 
-	void setListener(ListenerComponent* listener, ecs::Domain& domain);
+	void setListener(ListenerComponent& listener, ecs::Domain& domain);
 };
 } // namespace arch::audio

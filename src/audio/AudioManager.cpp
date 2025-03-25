@@ -59,47 +59,47 @@ void AudioManager::stop() {
 	_isListening = false;
 }
 
-void AudioManager::playSource(AudioSourceComponent* source) {
-	if (source->_id == -1) {
+void AudioManager::playSource(AudioSourceComponent& source) {
+	if (source._id == -1) {
 		_assignSource(source);
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source->_id];
+	SourceState currentState = _sourceStates[source._id];
 	if (currentState == unused || currentState == paused) {
-		_sourceStates[source->_id] = playing;
+		_sourceStates[source._id] = playing;
 	}
 }
 
-void AudioManager::pauseSource(const AudioSourceComponent* source) {
-	if (source->_id == -1) {
+void AudioManager::pauseSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
 		throw AudioException("Audio manager can't pause not registered source");
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source->_id];
+	SourceState currentState = _sourceStates[source._id];
 	if (currentState == playing) {
-		_sourceStates[source->_id] = paused;
+		_sourceStates[source._id] = paused;
 	}
 }
 
-void AudioManager::stopSource(const AudioSourceComponent* source) {
-	if (source->_id == -1) {
+void AudioManager::stopSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
 		throw AudioException("Audio manager can't stop not registered source");
 	}
 	updateSource(source);
-	SourceState currentState = _sourceStates[source->_id];
+	SourceState currentState = _sourceStates[source._id];
 	if (currentState == playing || currentState == paused) {
-		_sourceStates[source->_id] = stopped;
+		_sourceStates[source._id] = stopped;
 	}
 }
 
-void AudioManager::_assignSource(AudioSourceComponent* source) {
+void AudioManager::_assignSource(AudioSourceComponent& source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
 	}
-	source->_id = index;
-	_sources[index].setClipPath(source->path);
-	_sources[index].update(*source);
+	source._id = index;
+	_sources[index].setClipPath(source.path);
+	_sources[index].update(source);
 	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
@@ -116,7 +116,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			audioSource._id = -1;
 		}
 		else {
-			updateSource(&audioSource);
+			updateSource(audioSource);
 		}
 	}
 	for (int source = 0; source < 16; source++) {
@@ -136,7 +136,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 				throw AudioException("Audio system: there are two active Listeners");
 			}
 			activeListenerFound = true;
-			updateListener(&listener);
+			updateListener(listener);
 			if (!_listenerSet) {
 				_listenerSet = true;
 				Logger::info("Audio system: audio manager set the listener");
@@ -150,23 +150,23 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 }
 
 
-void AudioManager::updateSource(const AudioSourceComponent* source) {
-	if (source->_id == -1) {
+void AudioManager::updateSource(const AudioSourceComponent& source) {
+	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
 	}
-	_sources[source->_id].update(*source);
+	_sources[source._id].update(source);
 }
 
-void AudioManager::updateListener(const ListenerComponent* listener) {
-	_listener.update(*listener);
+void AudioManager::updateListener(const ListenerComponent& listener) {
+	_listener.update(listener);
 }
 
-void AudioManager::setListener(ListenerComponent* listener, ecs::Domain& domain) {
+void AudioManager::setListener(ListenerComponent& listener, ecs::Domain& domain) {
 	auto view = domain.view<ListenerComponent>();
 	for (auto [entity, listener] : view.all()) {
 		listener._isActive = false;
 	}
-	listener->_isActive = true;
+	listener._isActive = true;
 	updateListener(listener);
 }
 

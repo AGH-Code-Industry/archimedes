@@ -32,11 +32,11 @@ inline void testSimpleSound() {
 
 	while (getchar() != 'q') {
 		auto entity = domain.newEntity();
-		auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+		auto& source = domain.addComponent<audio::AudioSourceComponent>(entity);
 
-		source->path = filename;
-		source->gain = 0.5;
-		source->isLooped = false;
+		source.path = filename;
+		source.gain = 0.5;
+		source.isLooped = false;
 		audioManager.playSource(source);
 		audioManager.synchronize(domain);
 	}
@@ -67,11 +67,11 @@ inline void testControl() {
 	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
 
 	auto entity = domain.newEntity();
-	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
+	auto& source = domain.addComponent<audio::AudioSourceComponent>(entity);
 
-	source->path = filename;
-	source->gain = 0.5;
-	source->isLooped = true;
+	source.path = filename;
+	source.gain = 0.5;
+	source.isLooped = true;
 	audioManager.playSource(source);
 
 	char controlSign = 'x';
@@ -97,10 +97,10 @@ inline void testControl() {
 				break;
 			case 'r':
 				if (!isPlaying) {
-					auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
-					source->path = filename;
-					source->gain = 0.5;
-					source->isLooped = true;
+					source = domain.addComponent<audio::AudioSourceComponent>(entity);
+					source.path = filename;
+					source.gain = 0.5;
+					source.isLooped = true;
 					audioManager.playSource(source);
 					isPlaying = true;
 				}
@@ -132,12 +132,12 @@ inline void testSpatialAudio() {
 
 	// create an entity and give it an audio source component
 	auto entity = domain.newEntity();
-	auto source = &domain.addComponent<audio::AudioSourceComponent>(entity);
-	source->path = filename;
-	source->gain = 0.5;
-	source->isLooped = true;
-	source->positionX = 0.0f;
-	source->positionY = 1.0f;
+	auto& source = domain.addComponent<audio::AudioSourceComponent>(entity);
+	source.path = filename;
+	source.gain = 0.5;
+	source.isLooped = true;
+	source.positionX = 0.0f;
+	source.positionY = 1.0f;
 
 	// initialize and start the audioManager
 	audio::AudioManager audioManager(&soundBank);
@@ -152,8 +152,8 @@ inline void testSpatialAudio() {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	while (true){
 		const float distance = 5.0f + 5.0 * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
-		source->positionX = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
-		source->positionY = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source.positionX = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source.positionY = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
 		audioManager.updateSource(source);
 		audioManager.synchronize(domain);
 		steps = (steps + 1) % stepsPerCircle;

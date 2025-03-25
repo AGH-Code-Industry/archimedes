@@ -128,7 +128,7 @@ struct SpatialAudioTestApp: arch::Application {
 		auto& listener = e.addComponent<audio::ListenerComponent>();
 		listener.positionX = listenerPosition.x;
 		listener.positionY = listenerPosition.y;
-		soundManager.audioManager->setListener(&listener, domain);
+		soundManager.audioManager->setListener(listener, domain);
 	}
 
 	void createSource(arch::Ref<scene::Scene> testScene) {
@@ -150,7 +150,7 @@ struct SpatialAudioTestApp: arch::Application {
 		source.velocityX = sourceVelocity.x;
 		source.velocityY = sourceVelocity.y;
 		source.rolloffFactor = 0.01f;
-		soundManager.audioManager->playSource(&source);
+		soundManager.audioManager->playSource(source);
 	}
 
 	void init() override {
