@@ -5,6 +5,7 @@
 #include "InputHandler.h"
 #include "Logger.h"
 #include "font/FontDB.h"
+#include "net/Init.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 #include "scene/SceneManager.h"
@@ -16,7 +17,6 @@ Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
 	_application{ application } {}
 
 Engine::~Engine() {
-	font::FontDB::_singleton.release();
 	_shutdown();
 }
 
@@ -57,6 +57,7 @@ void Engine::_mainLoop() {
 }
 
 void Engine::_initialize() {
+	net::Init::init();
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
 	_renderer = gfx::Renderer::create(_engineConfig.renderingApi);
@@ -73,6 +74,7 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	font::FontDB::_singleton.release();
 	scene::SceneManager::get()->shutdown();
 
 	Logger::info("Engine shutingdown");
@@ -87,6 +89,7 @@ void Engine::_shutdown() {
 	}
 
 	Logger::info("Engine shutdown");
+	net::Init::cleanup();
 }
 
 } // namespace arch
