@@ -43,6 +43,12 @@ TRAITS_C::ComponentT& TRAITS_C::constructAt(ComponentT* component, Args&&... arg
 	return *new (component) ComponentT(std::forward<Args>(args)...);
 }
 
+TEMPLATE_C
+template<class... Args>
+TRAITS_C::ComponentT& TRAITS_C::constructAt(ComponentT* component, ComponentT&& toMove) noexcept {
+	return *new (component) ComponentT(std::move(toMove));
+}
+
 } // namespace arch::ecs::_details
 
 #undef TEMPLATE_C

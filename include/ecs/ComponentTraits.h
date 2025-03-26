@@ -54,6 +54,8 @@ struct ComponentTraits {
 	/// @param ...args - arguments for constructor
 	template<class... Args>
 	static inline ComponentT& constructAt(ComponentT* component, Args&&... args) noexcept;
+	template<class... Args>
+	static inline ComponentT& constructAt(ComponentT* component, ComponentT&& toMove) noexcept;
 };
 
 } // namespace arch::ecs::_details
