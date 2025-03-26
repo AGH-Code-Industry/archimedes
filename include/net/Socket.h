@@ -55,9 +55,9 @@ public:
 	/// @brief Deleted assignment operator.
 	///
 	Socket& operator=(Socket&) = delete;
-	/// @brief Defaulted move assignment operator.
+	/// @brief Move assignment operator.
 	///
-	Socket& operator=(Socket&&) = default;
+	Socket& operator=(Socket&& other);
 
 	/// @brief Returns address of socket or any_address if bound to all interfaces.
 	///
@@ -121,18 +121,22 @@ public:
 	///
 	void reuse(bool newVal);
 
+	bool multicastSubscribe(IPv4 multicastAddress);
+	void multicastUnsubscribe();
+
 protected:
 	Socket(Protocol protocol);
 	Socket(Protocol protocol, IPv4 address, Port port);
 	Socket(Protocol protocol, Port port);
 	Socket(const Socket&) = delete;
 	Socket(Socket&) = delete;
-	Socket(Socket&&) = default;
+	Socket(Socket&& other);
 	~Socket();
 
 	SockType _socket = INVALID_SOCKET;
 	IPv4 _address{ (uint32_t)0 };
 	Port _port = 0;
 	Protocol _proto = Protocol::none;
+	ip_mreq _multicast = {};
 };
 } // namespace arch::net

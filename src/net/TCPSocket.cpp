@@ -17,6 +17,29 @@ TCPSocket::~TCPSocket() {
 	Socket::~Socket();
 }
 
+TCPSocket::TCPSocket(TCPSocket&& other): Socket(std::move(other)) {
+	_peerAddr = other._peerAddr;
+	_status = other._status;
+
+	other._peerAddr = {};
+	other._status = {};
+}
+
+TCPSocket& TCPSocket::operator=(TCPSocket&& other) {
+	Socket::operator=(std::move(other));
+	_peerAddr = other._peerAddr;
+	_status = other._status;
+
+	other._peerAddr = {};
+	other._status = {};
+
+	return *this;
+}
+
+IPv4 TCPSocket::peer() const noexcept {
+	return _peerAddr;
+}
+
 TCPSocket::LingerData TCPSocket::linger() const {
 	::linger optval;
 	socklen_t optlen = sizeof(optval);
@@ -26,11 +49,11 @@ TCPSocket::LingerData TCPSocket::linger() const {
 		throw NetException(gai_strerror(netErrno(result)));
 	}
 
-	return {(bool)optval.l_onoff, optval.l_linger};
+	return { (bool)optval.l_onoff, optval.l_linger };
 }
 
 void TCPSocket::linger(LingerData data) {
-	::linger optval{data.linger, data.seconds};
+	::linger optval{ data.linger, data.seconds };
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
 	if (result != 0) {
@@ -108,24 +131,25 @@ bool TCPSocket::connectedForce() {
 
 	pollfd pfd;
 	pfd.fd = _socket;
-	pfd.events = POLLRDNORM;
-	pfd.revents = 0;
+	pfd.events = POLLIN;
 	int result = poll(&pfd, 1, 0);
-	if (result != 1) {
-		_status = 0;
-		return false;
+	if (result == 0) {
+		return _status & 1;
 	}
 
-	if (pfd.revents & POLLRDNORM) {
-		char buf;
-		result = ::recv(_socket, &buf, 0, MSG_PEEK);
-		if (result == 0) {
-			_status = 0;
-			return false;
-		}
-
+	char buf;
+	result = ::recv(_socket, &buf, 1, MSG_PEEK);
+	if (result > 0) {
 		_status = 1;
-		return true;
+	} else if (result == 0) {
+		_status = 0;
+	} else {
+		auto err = netErrno();
+		if (err == EWOULDBLOCK || err == EAGAIN) {
+			_status = 1;
+		} else {
+			_status = 0;
+		}
 	}
 
 	return _status & 1;
@@ -240,7 +264,7 @@ bool TCPSocket::recv(char* buf, int buflen, int& length, bool peek) {
 		return false;
 	}
 
-	int result = ::recv(_socket, buf, buflen, 0);
+	int result = ::recv(_socket, buf, buflen, peek ? MSG_PEEK : 0);
 	if (result == SOCKET_ERROR) {
 		throw NetException(gai_strerror(netErrno()));
 	}
