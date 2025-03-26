@@ -3,6 +3,7 @@
 #include <string>
 
 #include <GLFW/glfw3.h>
+#include <Mmath.h>
 
 namespace arch {
 
@@ -35,6 +36,8 @@ public:
 	void swapBuffers() const;
 	void resize(int width, int height) const;
 	void setTitle(const std::string& title) const;
+
+	int2 getSize() const;
 
 	bool shouldClose() const;
 	Window& operator=(const Window& w) = delete;

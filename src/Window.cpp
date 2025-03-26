@@ -43,6 +43,12 @@ void Window::setTitle(const std::string& title) const {
 	glfwSetWindowTitle(_window, title.c_str());
 }
 
+int2 Window::getSize() const {
+	int2 result;
+	glfwGetWindowSize(_window, &result.x, &result.y);
+	return result;
+}
+
 GLFWwindow* Window::get() const {
 	return _window;
 }
