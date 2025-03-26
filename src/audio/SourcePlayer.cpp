@@ -135,6 +135,13 @@ bool SourcePlayer::stopPlaying() {
 	return true;
 }
 
+void SourcePlayer::rewindPlaying() {
+	_cursor = 0;
+	_isEndFound = false;
+	alCall(alSourcePlay, _source);
+}
+
+
 void SourcePlayer::pausePlaying() {
 	alCall(alSourcePause, _source);
 }

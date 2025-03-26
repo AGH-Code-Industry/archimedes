@@ -45,6 +45,48 @@ inline void testSimpleSound() {
 	audioManager.stop();
 }
 
+inline void testRewind() {
+	ecs::Domain domain;
+
+	// initialize OpenAL context
+	audio::SoundDevice device;
+
+	// initialize SoundBank
+	audio::SoundBank soundBank;
+
+	// audio file name
+	const std::string filename = "Chiptone A4.wav";
+
+	// load audio files that we can play
+	soundBank.addClip(filename);
+	soundBank.loadInitialGroups();
+
+	// initialize and start the audioManager
+	audio::AudioManager audioManager(&soundBank);
+	std::jthread audioThread(&audio::AudioManager::play, &audioManager);
+
+	auto entity = domain.newEntity();
+	auto& source = domain.addComponent<audio::AudioSourceComponent>(entity);
+
+	source.path = filename;
+	source.gain = 0.5;
+	source.isLooped = false;
+	source.dontRemoveFinished = true;
+	audioManager.playSource(source);
+
+	while (getchar() != 'q') {
+		audioManager.playSource(source);
+		audioManager.synchronize(domain);
+	}
+	audioManager.stopSource(source);
+	while (getchar() != 'q') {
+		audioManager.synchronize(domain);
+	}
+
+	// close the audioManager
+	audioManager.stop();
+}
+
 inline void testControl() {
 	ecs::Domain domain;
 

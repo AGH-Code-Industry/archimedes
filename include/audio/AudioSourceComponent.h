@@ -37,6 +37,8 @@ struct AudioSourceComponent {
 	float coneInnerAngle = 360.0f, coneOuterAngle = 360.0f;
 	float coneOuterGain = 0.0f;
 
+	bool dontRemoveFinished = false;
+
 
 private:
 	int _id = -1;

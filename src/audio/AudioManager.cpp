@@ -32,7 +32,8 @@ void AudioManager::play() {
 		for (int source = 0; source < 16; source++) {
 			switch (_sourceStates[source]) {
 				case playing:
-					if (_sources[source].run()) {
+					if (_sources[source].run() && !_dontRemoveFinished[source]) {
+						Logger::debug("stopped source {}", source);
 						_sourceStates[source] = stopped;
 					}
 					break;
@@ -67,6 +68,9 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 	SourceState currentState = _sourceStates[source._id];
 	if (currentState == unused || currentState == paused) {
 		_sourceStates[source._id] = playing;
+	}
+	else if (currentState == playing) {
+		_sources[source._id].rewindPlaying();
 	}
 }
 
@@ -112,6 +116,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		}
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
+			_dontRemoveFinished[audioSource._id] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
 			audioSource._id = -1;
 		}
@@ -122,6 +127,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 	for (int source = 0; source < 16; source++) {
 		if (_sourceStates[source] == removed) {
 			_sourceStates[source] = unused;
+			_dontRemoveFinished[source] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(source));
 
 		}
@@ -154,6 +160,7 @@ void AudioManager::updateSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
 	}
+	_dontRemoveFinished[source._id] = source.dontRemoveFinished;
 	_sources[source._id].update(source);
 }
 
