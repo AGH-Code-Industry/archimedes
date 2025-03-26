@@ -136,8 +136,8 @@ inline void testSpatialAudio() {
 	source.path = filename;
 	source.gain = 0.5;
 	source.isLooped = true;
-	source.positionX = 0.0f;
-	source.positionY = 1.0f;
+	source.position.x = 0.0f;
+	source.position.y = 1.0f;
 
 	// initialize and start the audioManager
 	audio::AudioManager audioManager(&soundBank);
@@ -152,8 +152,8 @@ inline void testSpatialAudio() {
 	const auto startTime = std::chrono::high_resolution_clock::now();
 	while (true){
 		const float distance = 5.0f + 5.0 * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
-		source.positionX = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
-		source.positionY = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source.position.x = distance * std::cos(steps * 2 * std::numbers::pi / stepsPerCircle);
+		source.position.y = distance * std::sin(steps * 2 * std::numbers::pi / stepsPerCircle);
 		audioManager.updateSource(source);
 		audioManager.synchronize(domain);
 		steps = (steps + 1) % stepsPerCircle;

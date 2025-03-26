@@ -126,8 +126,8 @@ struct SpatialAudioTestApp: arch::Application {
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline});
 		e.addComponent<VelocityComponent>(float3{ 0.0f, 0.0f, 0.0f });
 		auto& listener = e.addComponent<audio::ListenerComponent>();
-		listener.positionX = listenerPosition.x;
-		listener.positionY = listenerPosition.y;
+		listener.position.x = listenerPosition.x;
+		listener.position.y = listenerPosition.y;
 		soundManager.audioManager->setListener(listener, domain);
 	}
 
@@ -145,10 +145,10 @@ struct SpatialAudioTestApp: arch::Application {
 	 	auto& source = e.addComponent<audio::AudioSourceComponent>();
 	 	source.path = soundFile;
 	 	source.isLooped = true;
-	 	source.positionX = sourcePosition.x;
-	 	source.positionY = sourcePosition.y;
-		source.velocityX = sourceVelocity.x;
-		source.velocityY = sourceVelocity.y;
+	 	source.position.x = sourcePosition.x;
+	 	source.position.y = sourcePosition.y;
+		source.velocity.x = sourceVelocity.x;
+		source.velocity.y = sourceVelocity.y;
 		source.rolloffFactor = 0.01f;
 		soundManager.audioManager->playSource(source);
 	}
@@ -185,10 +185,10 @@ struct SpatialAudioTestApp: arch::Application {
 			sourceVelocity.x = radius * std::sin(angle);
 			sourceVelocity.y = radius * std::cos(angle);
 
-			audioSource.positionX = sourcePosition.x;
-			audioSource.positionY = sourcePosition.y;
-			audioSource.velocityX = sourceVelocity.x;
-			audioSource.velocityY = sourceVelocity.y;
+			audioSource.position.x = sourcePosition.x;
+			audioSource.position.y = sourcePosition.y;
+			audioSource.velocity.x = sourceVelocity.x;
+			audioSource.velocity.y = sourceVelocity.y;
 
 			transform.position = { sourcePosition.x, sourcePosition.y, 0.0f };
 			velocity.velocity = { sourceVelocity.x, sourceVelocity.y, 0.0f };
