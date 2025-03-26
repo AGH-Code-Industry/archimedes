@@ -52,6 +52,7 @@ public:
 	virtual Ref<buffer::BufferManager> getBufferManager() = 0;
 	virtual Ref<texture::TextureManager> getTextureManager() = 0;
 	virtual Ref<pipeline::PipelineManager> getPipelineManager() = 0;
+	Ref<Window> getWindow();
 
 protected:
 	Ref<Window> _window = nullptr;

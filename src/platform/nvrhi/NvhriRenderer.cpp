@@ -21,6 +21,7 @@ NvrhiRenderer::~NvrhiRenderer() {
 }
 
 void NvrhiRenderer::init(const Ref<Window>& window) {
+	_window = window;
 	switch (_api) {
 		case RenderingAPI::Nvrhi_VK:
 			{
