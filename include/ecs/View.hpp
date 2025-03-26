@@ -51,7 +51,7 @@ TEMPLATE_CIE
 size_t VIEW_CIE::_minInclude() const noexcept {
 	if constexpr (includeCount != 1) {
 		const auto min = std::ranges::min_element(_includedCPools, [&](const auto lhs, const auto rks) {
-			return !lhs ? true : (!rks ? true : lhs->count() < rks->count());
+			return !lhs ? true : (!rks ? false : lhs->count() < rks->count());
 		});
 		if (!(*min)) { // at least one cpool is empty
 			return (size_t)-1;
@@ -226,7 +226,7 @@ bool VIEW_CIE::contains(const Entity entity) const noexcept {
 			   _includedCPools.end(),
 			   [&](const auto cpool) { return cpool->contains(entity); }
 		) &&
-		std::ranges::none_of(_excludedCPools, [&](const auto cpool) { return cpool->contains(entity); });
+		std::ranges::none_of(_excludedCPools, [&](const auto cpool) { return cpool && cpool->contains(entity); });
 }
 
 TEMPLATE_CE
