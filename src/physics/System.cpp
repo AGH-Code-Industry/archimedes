@@ -92,14 +92,14 @@ void System::_collisionDetection(f32 t) const {
 			Logger::debug("({}, {}) ({}, {})", b.topLeft.x, b.topLeft.y, b.bottomRight.x, b.bottomRight.y);
 			Logger::debug("");*/
 			if (areColliding(c.box, b) || areColliding(b, c.box)) {
-				Logger::debug("collision");
+				// Logger::debug("collision");
 				c.action(lhs, rhs);
 			}
 		});
 	});
 
 	// collide every Colliding with every other Colliding
-	for (auto lhsIt = viewColliding.begin(); lhsIt != viewColliding.end(); ++lhsIt) {
+	/*for (auto lhsIt = viewColliding.begin(); lhsIt != viewColliding.end(); ++lhsIt) {
 		if (std::next(lhsIt) == viewColliding.end()) {
 			break;
 		}
@@ -114,7 +114,7 @@ void System::_collisionDetection(f32 t) const {
 				c1.action(lhs, rhs);
 			}
 		}
-	}
+	}*/
 }
 
 } // namespace arch::physics
