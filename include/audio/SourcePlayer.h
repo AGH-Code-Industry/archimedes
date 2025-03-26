@@ -94,6 +94,8 @@ public:
 	///@brief Pauses playing the sound.
 	void pausePlaying();
 
+	void rewindPlaying();
+
 	void setClipPath(const std::string& clipPath);
 
 	void cleanClipPath();

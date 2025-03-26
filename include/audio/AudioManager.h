@@ -24,6 +24,8 @@ class AudioManager {
 	/// Also controls loudness of all played sounds.
 	Listener _listener;
 
+	bool _dontRemoveFinished[16]{};
+
 	bool _listenerSet = false;
 
 	///@brief Sound bank storing all clips.
