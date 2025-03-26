@@ -9,9 +9,9 @@
 namespace arch::physics {
 
 struct Colliding {
-	BBox box;
-	Moveable body;
 	std::function<void(ecs::Entity, ecs::Entity)> action;
+	Moveable body;
+	BBox box;
 };
 
-}
+} // namespace arch::physics
