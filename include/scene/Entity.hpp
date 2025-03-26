@@ -13,7 +13,7 @@ Entity::GetResult<C> Entity::addComponent(Args&&... args) {
 template<class C>
 Entity::GetResult<C> Entity::addComponent(C&& component) {
 	_assertValid();
-	return _scene->domain().addComponent<C>(_entity, component);
+	return _scene->domain().addComponent<C>(_entity, std::forward<C>(component));
 }
 
 template<class C, class... Args>
