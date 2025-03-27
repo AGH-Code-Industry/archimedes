@@ -18,20 +18,29 @@ static std::string readFile(const std::string& path) {
 	return buffer.str();
 }
 
-static shaderc::SpvCompilationResult compileShader(const std::string& shaderPath, shaderc_shader_kind shaderKind) {
+static shaderc::SpvCompilationResult& compileShader(const std::string& shaderPath, shaderc_shader_kind shaderKind) {
 	static shaderc::CompileOptions options;
 	static shaderc::Compiler compiler;
 
-	std::string shaderCode = readFile(shaderPath);
+	static std::unordered_map<std::string, shaderc::SpvCompilationResult> shaderCache;
 
-	auto result =
-		compiler.CompileGlslToSpv(shaderCode.data(), shaderCode.size(), shaderKind, shaderPath.c_str(), options);
+	auto found = shaderCache.find(shaderPath);
+	if (found != shaderCache.end()) {
+		return found->second;
+	} else {
+		std::string shaderCode = readFile(shaderPath);
 
-	if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-		throw exception::NvrhiException(result.GetErrorMessage());
+		auto result =
+			compiler.CompileGlslToSpv(shaderCode.data(), shaderCode.size(), shaderKind, shaderPath.c_str(), options);
+
+		if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
+			throw exception::NvrhiException(result.GetErrorMessage());
+		}
+
+		auto [it, inserted] = shaderCache.insert({ shaderPath, std::move(result) });
+
+		return it->second;
 	}
-
-	return result;
 }
 
 NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& renderer): Pipeline(desc) {
@@ -49,7 +58,7 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 													  .setOffset(sizeof(float) * 3)
 													  .setElementStride(sizeof(float) * 5) };
 
-	auto vertexCode = compileShader(desc.vertexShaderPath, shaderc_glsl_vertex_shader);
+	auto& vertexCode = compileShader(desc.vertexShaderPath, shaderc_glsl_vertex_shader);
 	::nvrhi::ShaderHandle vertexShader = _renderer->getDevice()->createShader(
 		::nvrhi::ShaderDesc(::nvrhi::ShaderType::Vertex),
 		vertexCode.begin(),
@@ -59,7 +68,7 @@ NvrhiPipeline::NvrhiPipeline(const Desc& desc, const WeakRef<NvrhiRenderer>& ren
 	::nvrhi::InputLayoutHandle inputLayout =
 		_renderer->getDevice()->createInputLayout(attributes, std::size(attributes), vertexShader);
 
-	auto fragmentCode = compileShader(desc.fragmentShaderPath, shaderc_glsl_fragment_shader);
+	auto& fragmentCode = compileShader(desc.fragmentShaderPath, shaderc_glsl_fragment_shader);
 	::nvrhi::ShaderHandle pixelShader = _renderer->getDevice()->createShader(
 		::nvrhi::ShaderDesc(::nvrhi::ShaderType::Pixel),
 		fragmentCode.begin(),
