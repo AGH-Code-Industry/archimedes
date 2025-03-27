@@ -4,9 +4,12 @@
 
 #include <Application.h>
 #include <Ecs.h>
+#include <Font.h>
 #include <Net.h>
 #include <Scene.h>
 #include <Text.h>
+#include <audio/AudioManager.h>
+#include <audio/SoundDevice.h>
 #include <physics/System.h>
 #include <physics/components/Colliding.h>
 #include <stb_image.h>
@@ -22,6 +25,8 @@ namespace rgs = std::ranges;
 namespace vws = std::views;
 using Clk = chr::high_resolution_clock;
 using namespace std::chrono_literals;
+
+using ClkNow = decltype(Clk::now());
 
 const auto zAxis = float3{ 0, 0, 1 };
 
@@ -142,10 +147,12 @@ inline void setupWulkan(Entity wulkan) noexcept {
 		.scale = float3{ texWidth, texHeight, 0 }
 		  * scale
 	  });
+
 	wulkan.addComponent(MeshComp{ .mesh = mesh, .pipeline = pipeline });
+
 	auto&& wulkanComp = wulkan.addComponent(WulkanComponent{
 		.socket = net::UDPSocket(30'420),
-		.particleCount = 50,
+		.particleCount = 200,
 		.explosionAngleDistrib = std::uniform_real_distribution(glm::radians(-45.f), glm::radians(45.f)),
 		.velocityDistrib = std::uniform_real_distribution(600.f, 1000.f),
 		.rotationSpeedDistrib = std::uniform_real_distribution(glm::radians(-4.5f), glm::radians(4.5f)),
@@ -261,6 +268,51 @@ inline void setupParticle(
 	// addRedBox(particle);
 }
 
+struct SoundManager {
+	std::string soundFile;
+	audio::SoundDevice device;
+	audio::SoundBank soundBank;
+	audio::AudioManager* audioManager{};
+	std::jthread* audioThread{};
+
+	void init(const std::string& sound) {
+		soundFile = sound;
+		audioManager = new audio::AudioManager(&soundBank);
+		audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
+		soundBank.addClip(soundFile);
+		soundBank.loadInitialGroups();
+	}
+
+	~SoundManager() {
+		audioManager->stop();
+		audioThread->join();
+		delete audioManager;
+	}
+};
+
+inline void explosionText(Scene& scene) noexcept {
+	static auto rng = std::mt19937(std::random_device{}());
+	static auto fontSizeDistrib = std::uniform_real_distribution(75.f, 150.f);
+	static auto angleDistrib = std::uniform_real_distribution(glm::radians(-45.f), glm::radians(45.f));
+	static const auto margin = 100.f;
+	static auto xDistrib =
+		std::uniform_real_distribution(0.f, (float)gfx::Renderer::getCurrent()->getWindow()->getSize().x - margin);
+	static auto yDistrib =
+		std::uniform_real_distribution(0.f, (float)gfx::Renderer::getCurrent()->getWindow()->getSize().y - margin);
+
+	auto boomText = scene.newEntity();
+	boomText.addComponent(Transform{
+		.position = float3{ xDistrib(rng), yDistrib(rng), -0.2f },
+		.rotation = glm::angleAxis(angleDistrib(rng), zAxis) * Quat{ 0, 0, 0, 1 },
+		.scale = float3{ 1, 1, 0 }
+		   * fontSizeDistrib(rng)
+	  });
+	boomText.addComponent(
+		text::TextComponent(U"BOOM!", { defaultUniformBuffer() }, *font::FontDB::get()["Arial"]->bold())
+	);
+	boomText.addComponent<ClkNow>(Clk::now());
+}
+
 inline void explosion(Scene& scene, Entity wulkan) noexcept {
 	auto&& wulkanComp = wulkan.getComponent<WulkanComponent>();
 
@@ -278,6 +330,17 @@ inline void explosion(Scene& scene, Entity wulkan) noexcept {
 			wulkanComp.particleMesh
 		);
 	}
+
+	auto&& sm = scene.domain().global<SoundManager>();
+	auto&& ac = wulkan.getComponent<audio::AudioSourceComponent>();
+
+	explosionText(scene);
+
+	/*try {
+		sm.audioManager->stopSource(ac);
+	} catch (...) {}
+	sm.audioManager->synchronize(scene.domain());*/
+	sm.audioManager->playSource(ac);
 }
 
 inline void wulkanSystem(Scene& scene) noexcept {
@@ -303,19 +366,108 @@ inline void setupGround(Entity ground) noexcept {
 	 });
 }
 
+struct CompetitionMaxFlag {
+	static constexpr bool flagComponent = true;
+};
+
+struct CompetitionCurrentFlag {
+	static constexpr bool flagComponent = true;
+};
+
+inline void setupCompetition(Scene& scene) noexcept {
+	auto buffer = defaultUniformBuffer();
+	auto windowHeight = gfx::Renderer::getCurrent()->getWindow()->getSize().y;
+
+	auto max = scene.newEntity();
+	max.addComponent(Transform{
+		.position = { 10.f, windowHeight - 100.f, -0.2f },
+		.rotation = { 0, 0, 0, 1 },
+		.scale = { 100, 100, 0 }
+	 });
+	// max.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+	max.addComponent<CompetitionMaxFlag>();
+
+	auto curr = scene.newEntity();
+	curr.addComponent(Transform{
+		.position = { 10.f, windowHeight - 200.f, -0.2f },
+		.rotation = { 0, 0, 0, 1 },
+		.scale = { 100, 100, 0 }
+	 });
+	// curr.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+	curr.addComponent<CompetitionCurrentFlag>();
+}
+
+inline void competitionSystem(Scene& scene) noexcept {
+	static u32 maxParticles = 0;
+	static bool firstTime = true;
+	/*static ClkNow lastTime = Clk::now();
+
+	auto now = Clk::now();
+	if (now - lastTime < 1s) {
+		return;
+	}*/
+
+	if (firstTime) {
+		firstTime = false;
+		setupCompetition(scene);
+	}
+
+	auto max = scene.entitiesWith<CompetitionMaxFlag>().front();
+	auto curr = scene.entitiesWith<CompetitionCurrentFlag>().front();
+
+	u32 currParticles = scene.domain().components<ParticleComponent>().base().count();
+	maxParticles = std::max(maxParticles, currParticles);
+
+	auto buffer = defaultUniformBuffer();
+
+	max.removeComponent<text::TextComponent>();
+	max.addComponent(
+		text::TextComponent(text::convertTo<char32_t>(std::format("Max: {}", maxParticles)), { buffer }, "Arial")
+	);
+
+	curr.removeComponent<text::TextComponent>();
+	curr.addComponent(
+		text::TextComponent(text::convertTo<char32_t>(std::format("Current: {}", currParticles)), { buffer }, "Arial")
+	);
+}
+
 class WulkanApp: public Application {
 public:
 
+	std::string explosionPath = "Explosion1.ogg";
 	Ref<phy::System> physicsSystem;
 
 	void init() {
-		scene::SceneManager::get()->changeScene(createRef<Scene>());
-		physicsSystem = createRef<phy::System>(scene::SceneManager::get()->currentScene()->domain());
+		font::FontDB::get()["Arial"]->bold()->assure();
 
-		auto wulkan = scene::SceneManager::get()->currentScene()->newEntity();
+		auto scene = createRef<Scene>();
+		scene::SceneManager::get()->changeScene(scene);
+
+		physicsSystem = createRef<phy::System>(scene->domain());
+
+		auto&& soundManager = scene->domain().global<SoundManager>();
+		soundManager.init(explosionPath);
+
+		auto wulkan = scene->newEntity();
 		setupWulkan(wulkan);
+		auto&& wulkanComp = wulkan.getComponent<WulkanComponent>();
 
-		auto ground = scene::SceneManager::get()->currentScene()->newEntity();
+		auto&& listenerComp = wulkan.addComponent<audio::ListenerComponent>();
+		listenerComp.position.x = wulkanComp.particlePosition.x;
+		listenerComp.position.y = wulkanComp.particlePosition.y;
+		soundManager.audioManager->setListener(listenerComp, scene->domain());
+
+		auto&& source = wulkan.addComponent<audio::AudioSourceComponent>();
+		source.path = explosionPath;
+		source.isLooped = false;
+		source.position.x = listenerComp.position.x;
+		source.position.y = listenerComp.position.y;
+		source.velocity.x = 0;
+		source.velocity.y = 0;
+		source.rolloffFactor = 0.f;
+		source.dontRemoveFinished = true;
+
+		auto ground = scene->newEntity();
 		setupGround(ground);
 	}
 
@@ -339,6 +491,12 @@ public:
 		}
 
 		std::vector<ecs::Entity> toRemove;
+		auto now = Clk::now();
+		for (auto&& [entity, text, timePoint] : domain.view<text::TextComponent, ClkNow>().all()) {
+			if (now - timePoint >= 1s) {
+				toRemove.push_back(entity);
+			}
+		}
 		for (auto&& entity : domain.view<KillParticleFlag>()) {
 			toRemove.push_back(entity);
 		}
@@ -347,5 +505,7 @@ public:
 		}
 
 		wulkanSystem(*scene);
+		competitionSystem(*scene);
+		domain.global<SoundManager>().audioManager->synchronize(domain);
 	}
 };
