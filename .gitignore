@@ -27,3 +27,6 @@ venv/*
 cmake/conanfile.hash
 *cache*
 thirdparty/*
+run/archimedes_bin.exe
+run/archimedes_bin.ilk
+run/archimedes_bin.pdb
