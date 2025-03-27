@@ -27,3 +27,6 @@ venv/*
 cmake/conanfile.hash
 *cache*
 thirdparty/*
+*.exe
+*.pdb
+*.ilk
