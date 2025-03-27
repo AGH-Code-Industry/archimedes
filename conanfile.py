@@ -17,6 +17,10 @@ class Archimedes(ConanFile):
         self.requires("ctre/3.9.0")
         self.requires("openssl/3.3.2")
 
+        # Audio system
+        self.requires("openal-soft/1.23.1")
+        self.requires("libsndfile/1.2.2")
+
         self.requires("freetype/2.13.2")
         self.requires("jsoncpp/1.9.6")
 

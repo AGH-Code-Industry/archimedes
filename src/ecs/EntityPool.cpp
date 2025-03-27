@@ -73,7 +73,6 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 		return entity;
 	} else { // recycle
 		const auto entity = _dense[_size++];
-
 		auto&& inSparse = _sparseGet(Traits::Id::part(entity));
 
 		inSparse = Traits::Ent::fromOthers(inSparse, entity);

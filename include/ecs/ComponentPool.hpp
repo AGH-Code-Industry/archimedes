@@ -133,7 +133,7 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 		if (&sparseSwap != &fromSparse) {
 			// first sparse swap, id at listHead = id of given entity
 			sparseSwap =
-				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(entity), ETraits::Version::rawPart(sparseSwap));
+				ETraits::Ent::fromRawParts(ETraits::Id::rawPart(fromSparse), ETraits::Version::rawPart(sparseSwap));
 		}
 		// second sparse swap, entity at id = null
 		// also obtain index to dense
