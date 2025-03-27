@@ -1,8 +1,8 @@
 #pragma once
+#include <filesystem>
 #include <map>
 #include <set>
 #include <string>
-#include <filesystem>
 
 #include <audio/Clip.h>
 
@@ -13,7 +13,6 @@ namespace arch::audio {
 /// Thanks to this, you can save each audio file just once for all Sources,
 /// even if some play the same sound.
 class SoundBank {
-
 	fs::path soundsDirectory;
 
 	/// @brief A map storing all Clip objects.
@@ -100,7 +99,7 @@ public:
 	/// @param path Path to the sound file.
 	/// @param group The group you want to add the Clip to.
 	/// @throws AudioException if the group is loaded or the clip is already in the bank.
-	void addClip(const std::string& path, int group = 0);
+	void addClip(const std::string& path, size_t size = 2'048 / 4, int group = 0);
 
 	/// @brief Removes a Clip from the SoundBank.
 	/// @param path Path to the sound file.

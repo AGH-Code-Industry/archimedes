@@ -5,7 +5,7 @@
 
 namespace arch::audio {
 
-AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank){
+AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank) {
 	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
 		_sourceStates[i] = unused;
@@ -29,6 +29,7 @@ int AudioManager::_findEmptyPlayer() const {
 void AudioManager::play() {
 	Logger::info("Audio system: audio manager started playing");
 	while (_isListening) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(0));
 		for (int source = 0; source < 16; source++) {
 			switch (_sourceStates[source]) {
 				case playing:
@@ -37,19 +38,15 @@ void AudioManager::play() {
 						_sourceStates[source] = stopped;
 					}
 					break;
-				case paused:
-					_sources[source].pausePlaying();
-					break;
+				case paused: _sources[source].pausePlaying(); break;
 				case stopped:
 					if (_sources[source].stopPlaying()) {
 						_sourceStates[source] = removed;
 						_sources[source].cleanClipPath();
 					}
 					break;
-				case unused:
-					break;
-				case removed:
-					break;
+				case unused:  break;
+				case removed: break;
 			}
 		}
 	}
@@ -68,8 +65,7 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 	SourceState currentState = _sourceStates[source._id];
 	if (currentState == unused || currentState == paused) {
 		_sourceStates[source._id] = playing;
-	}
-	else if (currentState == playing) {
+	} else if (currentState == playing) {
 		_sources[source._id].rewindPlaying();
 	}
 }
@@ -119,8 +115,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			_dontRemoveFinished[audioSource._id] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
 			audioSource._id = -1;
-		}
-		else {
+		} else {
 			updateSource(audioSource);
 		}
 	}
@@ -129,7 +124,6 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			_sourceStates[source] = unused;
 			_dontRemoveFinished[source] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(source));
-
 		}
 	}
 
@@ -154,7 +148,6 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		Logger::info("Audio system: audio manager unset the listener");
 	}
 }
-
 
 void AudioManager::updateSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {

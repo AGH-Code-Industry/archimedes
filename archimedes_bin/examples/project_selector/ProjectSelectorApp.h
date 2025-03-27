@@ -16,6 +16,8 @@
 #include <Net.h>
 #include <Scene.h>
 #include <Text.h>
+#include <audio/AudioManager.h>
+#include <audio/SoundDevice.h>
 #include <physics/System.h>
 #include <physics/components/Colliding.h>
 
@@ -54,6 +56,31 @@ std::vector<Vertex> defaultVertices{
 	{ { -1.f, 0.f, 0.1f }, { 1.f, 0.f } },
 	{  { 0.f, 1.f, 0.1f }, { 0.f, 1.f } },
 	{ { -1.f, 1.f, 0.1f }, { 1.f, 1.f } },
+};
+
+struct SoundManager {
+	std::string soundFile1;
+	std::string soundFile2;
+	audio::SoundDevice device;
+	audio::SoundBank soundBank;
+	audio::AudioManager* audioManager{};
+	std::jthread* audioThread{};
+
+	void init(const std::string& hornSoundPath, const std::string& switchSoundPath) {
+		soundFile1 = hornSoundPath;
+		soundFile2 = switchSoundPath;
+		audioManager = new audio::AudioManager(&soundBank);
+		audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
+		soundBank.addClip(soundFile1);
+		soundBank.addClip(soundFile2, 2'048 / 32);
+		soundBank.loadInitialGroups();
+	}
+
+	~SoundManager() {
+		audioManager->stop();
+		audioThread->join();
+		delete audioManager;
+	}
 };
 
 void centerTextInX(Transform& transform, float size, float slotSize, float3 slotTopLeft) noexcept {
@@ -406,6 +433,19 @@ void present(
 			float angle = glm::radians(randAngle2(mt));
 			movable.velocity += float2{ cos(angle), sin(angle) } * randSpeed(mt);
 		}
+
+		// PLAY HORN
+		{
+			auto&& source = screenRect.addComponent<audio::AudioSourceComponent>();
+			source.path = "horn.ogg";
+			source.isLooped = false;
+			source.position = { 0, 0 };
+			source.velocity = { 0, 0 };
+			source.rolloffFactor = 0;
+
+			scene::SceneManager::get()->currentScene()->domain().global<SoundManager>().audioManager->playSource(source
+			);
+		}
 	}
 
 	// REMOVE AFTER 5s
@@ -534,14 +574,35 @@ class ProjectSelectorApp: public Application {
 		}
 	}
 
+	Entity switchPlayer;
+
 	void init() override {
 		socket.bind(30'420);
 
-		Ref<Scene> testScene = createRef<Scene>();
+		Ref<Scene> scene = createRef<Scene>();
 
-		_physics = createRef<physics::System>(testScene->domain());
+		_physics = createRef<physics::System>(scene->domain());
 
-		scene::SceneManager::get()->changeScene(testScene);
+		scene::SceneManager::get()->changeScene(scene);
+
+		auto&& soundManager = scene->domain().global<SoundManager>();
+		soundManager.init("horn.ogg", "switch.ogg");
+
+		auto&& listener = scene->domain().global<audio::ListenerComponent>();
+		listener.position = { 0, 0 };
+		soundManager.audioManager->setListener(listener, scene->domain());
+
+		switchPlayer = scene->newEntity();
+		{
+			auto&& switchSource = switchPlayer.addComponent<audio::AudioSourceComponent>();
+			switchSource.path = "switch.ogg";
+			switchSource.isLooped = false;
+			switchSource.position = { 0, 0 };
+			switchSource.velocity = { 0, 0 };
+			switchSource.rolloffFactor = 0;
+			switchSource.dontRemoveFinished = true;
+			soundManager.audioManager->playSource(switchSource);
+		}
 
 		std::vector<Vertex> vertices{
 			{  { 0.f, 0.f, 0.1f }, { 0.f, 0.f } },
@@ -567,14 +628,14 @@ class ProjectSelectorApp: public Application {
 				.buffers = { uniformBuffer },
 			});
 
-			auto cover1 = testScene->newEntity();
+			auto cover1 = scene->newEntity();
 			cover1.addComponent<Transform>({
 				{ 0.f, windowHeight, -0.2f },
 				{ 0, 0, 0, 1 },
 				{ fullCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			cover1.addComponent<scene::components::MeshComponent>(mesh, coverPipeline);
-			auto cover2 = testScene->newEntity();
+			auto cover2 = scene->newEntity();
 			cover2.addComponent<Transform>({
 				{ windowWidth * (1.f - fullCoverSize), windowHeight, -0.2f },
 				{ 0, 0, 0, 1 },
@@ -590,7 +651,7 @@ class ProjectSelectorApp: public Application {
 				.buffers = { uniformBuffer },
 			});
 
-			auto fade1 = testScene->newEntity();
+			auto fade1 = scene->newEntity();
 			fade1.addComponent<Transform>({
 				{ windowWidth * (fullCoverSize + fadeCoverSize), 0, -0.2f },
 				glm::angleAxis(glm::radians(180.f), float3{ 0.f, 0.f, 1.f }
@@ -598,7 +659,7 @@ class ProjectSelectorApp: public Application {
 				{ fadeCoverSize * windowWidth, windowHeight, 0.f }
 			   });
 			fade1.addComponent<scene::components::MeshComponent>(mesh, fadePipeline);
-			auto fade2 = testScene->newEntity();
+			auto fade2 = scene->newEntity();
 			fade2.addComponent<Transform>({
 				{ windowWidth * (1.f - fullCoverSize - fadeCoverSize), windowHeight, -0.2f },
 				{ 0, 0, 0, 1 },
@@ -618,7 +679,7 @@ class ProjectSelectorApp: public Application {
 			const auto lineLength = windowHeight / 2;
 			const auto lineThickness = 2.f;
 
-			auto line = testScene->newEntity();
+			auto line = scene->newEntity();
 			line.addComponent<Transform>({
 				{ ((float)windowWidth - lineThickness) / 2.f, ((float)windowHeight + lineLength) / 2.f, -0.3f },
 				{ 0, 0, 0, 1 },
@@ -628,7 +689,7 @@ class ProjectSelectorApp: public Application {
 		}
 
 		/*{
-			auto gradient = testScene->newEntity();
+			auto gradient = scene->newEntity();
 			auto&& t = gradient.addComponent<scene::components::TransformComponent>({
 				{ 0, windowHeight, -0.2f },
 				{ 0, 0, 0, 1 },
@@ -650,24 +711,21 @@ class ProjectSelectorApp: public Application {
 		});
 
 		{
-			auto text = testScene->newEntity();
+			auto text = scene->newEntity();
 			auto&& t = text.addComponent<Transform>({
 				{ 0, 0, 0 },
 				{ 0, 0, 0, 1 },
 				{ 1, 1, 0 }
 			});
-			auto&& tc = text.addComponent<text::TextComponent>(
-				U"Demo silnika Archimedes",
-				std::vector{ uniformBuffer },
-				"Arial"
-			);
+			auto&& tc =
+				text.addComponent<text::TextComponent>(U"Koło fortuny 2.0", std::vector{ uniformBuffer }, "Arial");
 
-			auto width = setTextWidth(t, tc, 1200.f).x;
-			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * (0.8), -0.3f });
+			auto width = setTextWidth(t, tc, 1000.f).x;
+			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * (0.775), -0.3f });
 		}
 
-		{
-			auto text = testScene->newEntity();
+		/*{
+			auto text = scene->newEntity();
 			auto&& t = text.addComponent<Transform>({
 				{ 0, 0, 0 },
 				{ 0, 0, 0, 1 },
@@ -677,10 +735,10 @@ class ProjectSelectorApp: public Application {
 
 			auto width = setTextWidth(t, tc, 200.f).x;
 			centerTextInX(t, width, windowWidth, float3{ 0, windowHeight * (0.7125), -0.3f });
-		}
+		}*/
 
 		{
-			auto text = testScene->newEntity();
+			auto text = scene->newEntity();
 			auto&& t = text.addComponent<Transform>({
 				{ 0, 0, 0 },
 				{ 0, 0, 0, 1 },
@@ -816,7 +874,15 @@ class ProjectSelectorApp: public Application {
 		}
 
 		if (rectParent.childrenCount() != 0) {
+			bool played = false;
 			for (auto rect : rectParent.children()) {
+				auto&& t = rect.getComponent<Transform>();
+				if (!played && t.position.x > windowWidth / 2 && t.position.x - velocity <= windowWidth / 2) {
+					domain.global<SoundManager>().audioManager->playSource(
+						switchPlayer.getComponent<audio::AudioSourceComponent>()
+					);
+				}
+
 				moveRect(
 					rect,
 					-velocity,

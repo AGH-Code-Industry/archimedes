@@ -85,7 +85,7 @@ Clip& SoundBank::getClip(const std::string& sound) {
 	return foundEntry->second;
 }
 
-void SoundBank::addClip(const std::string& sound, int group) {
+void SoundBank::addClip(const std::string& sound, size_t size, int group) {
 	auto foundEntry = _clips.find(sound);
 	if (_isLoaded[group]) {
 		throw AudioException("Can't modify sound bank group " + std::to_string(group) + " - it's loaded");
@@ -94,7 +94,7 @@ void SoundBank::addClip(const std::string& sound, int group) {
 		throw AudioException("Can't add clip: " + sound + " it's already in the bank");
 	}
 	fs::path clipPath = soundsDirectory / sound;
-	_clips.try_emplace(sound, clipPath.string());
+	_clips.try_emplace(sound, clipPath.string(), size);
 	_addToGroup(sound, group);
 	Logger::info("Audio system: added clip {} to sound bank group {}", sound, std::to_string(group));
 }

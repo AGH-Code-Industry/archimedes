@@ -12,7 +12,7 @@ int main() {
 
 		arch::EngineConfig config{ .windowWidth = 1'280,
 								   .windowHeight = 720,
-								   .windowTitle = "Archimedes Test",
+								   .windowTitle = "Koło Fortuny",
 								   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
 								   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
 
