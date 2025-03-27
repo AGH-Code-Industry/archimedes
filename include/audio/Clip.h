@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-
 namespace arch::audio {
 
 /// @brief Tells the format of sound file.
@@ -32,7 +31,7 @@ class Clip {
 	/// @brief Number of items per buffer.
 	/// An item is a block of samples, one for each channel.
 	// const std::size_t _sampleItems = 16'384;
-	const std::size_t _sampleItems = 2048;
+	const std::size_t _sampleItems = 2'048 / 4;
 
 	/// @brief Tells if the Clip's data is loaded.
 	bool _isLoaded = false;
