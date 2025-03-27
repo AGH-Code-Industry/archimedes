@@ -72,7 +72,7 @@ struct SoundManager {
 		audioManager = new audio::AudioManager(&soundBank);
 		audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
 		soundBank.addClip(soundFile1);
-		soundBank.addClip(soundFile2, 2'048 / 32);
+		soundBank.addClip(soundFile2, 2'048 / 16);
 		soundBank.loadInitialGroups();
 	}
 
@@ -939,6 +939,8 @@ class ProjectSelectorApp: public Application {
 		if (rectParent.childrenCount() == 0) {
 			initRects();
 		}
+
+		domain.global<SoundManager>().audioManager->synchronize(domain);
 	}
 
 	Ref<physics::System> _physics;
