@@ -72,7 +72,7 @@ struct SoundManager {
 		audioManager = new audio::AudioManager(&soundBank);
 		audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
 		soundBank.addClip(soundFile1);
-		soundBank.addClip(soundFile2, 2'048 / 16);
+		soundBank.addClip(soundFile2);
 		soundBank.loadInitialGroups();
 	}
 
@@ -873,11 +873,17 @@ class ProjectSelectorApp: public Application {
 			}
 		}
 
+		using clk = std::chrono::high_resolution_clock;
+		auto now = clk::now();
 		if (rectParent.childrenCount() != 0) {
 			bool played = false;
+			static auto sinceLast = clk::now();
+			bool play = !played && (now - sinceLast) > std::chrono::seconds(1) / 25.f;
 			for (auto rect : rectParent.children()) {
 				auto&& t = rect.getComponent<Transform>();
-				if (!played && t.position.x > windowWidth / 2 && t.position.x - velocity <= windowWidth / 2) {
+				if (play && t.position.x > windowWidth / 2 && t.position.x - velocity <= windowWidth / 2) {
+					sinceLast = now;
+					played = true;
 					domain.global<SoundManager>().audioManager->playSource(
 						switchPlayer.getComponent<audio::AudioSourceComponent>()
 					);
