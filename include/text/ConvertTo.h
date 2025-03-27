@@ -13,6 +13,8 @@ namespace arch::text {
 /// @param string - string to convert
 template<class CharOut, class CharIn>
 std::basic_string<CharOut> convertTo(std::basic_string_view<CharIn> string) noexcept;
+template<class CharOut, class CharIn>
+std::basic_string<CharOut> convertTo(std::basic_string<CharIn> string) noexcept;
 
 } // namespace arch::text
 

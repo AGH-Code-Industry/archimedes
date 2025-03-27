@@ -17,3 +17,8 @@ std::basic_string<CharOut> arch::text::convertTo(std::basic_string_view<CharIn> 
 		return outConverter.from_bytes(inConverter.to_bytes(string.data(), string.data() + string.length()));
 	}
 }
+
+template<class CharOut, class CharIn>
+std::basic_string<CharOut> arch::text::convertTo(std::basic_string<CharIn> string) noexcept {
+	return convertTo<CharOut, CharIn>(std::basic_string_view(string.data(), string.length()));
+}
