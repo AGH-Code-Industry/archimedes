@@ -138,7 +138,7 @@ inline void setupWulkan(Entity wulkan) noexcept {
 		.textures = { particleTexture },
 		.buffers = { defaultUniformBuffer() } });
 
-	float scale = 0.2f;
+	float scale = 0.25f;
 	auto&& transform = wulkan.addComponent(Transform{
 		.position = float3{ (gfx::Renderer::getCurrent()->getWindow()->getSize().x - texWidth * scale) / 2.f,
 							texHeight * scale,
@@ -155,7 +155,7 @@ inline void setupWulkan(Entity wulkan) noexcept {
 		.particleCount = 200,
 		.explosionAngleDistrib = std::uniform_real_distribution(glm::radians(-45.f), glm::radians(45.f)),
 		.velocityDistrib = std::uniform_real_distribution(600.f, 1000.f),
-		.rotationSpeedDistrib = std::uniform_real_distribution(glm::radians(-4.5f), glm::radians(4.5f)),
+		.rotationSpeedDistrib = std::uniform_real_distribution(glm::radians(-9.f), glm::radians(9.f)),
 		.sizeDistrib = std::uniform_real_distribution(20.f, 40.f),
 		.eDistrib = std::uniform_real_distribution(0.25f, 0.4f),
 		.texture = wulkanTexture,
