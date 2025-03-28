@@ -11,6 +11,7 @@ struct ListenerComponent {
 
 	math::float2 position = {0.0f, 0.0f};
 	math::float2 velocity = {0.0f, 0.0f};
+	math::float2 orientation = {0.0f, 1.0f};
 
 private:
 	bool _isActive = false;
