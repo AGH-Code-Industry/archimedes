@@ -33,7 +33,6 @@ void AudioManager::play() {
 			switch (_sourceStates[source]) {
 				case playing:
 					if (_sources[source].run() && !_dontRemoveFinished[source]) {
-						Logger::debug("stopped source {}", source);
 						_sourceStates[source] = stopped;
 					}
 					break;
@@ -175,6 +174,13 @@ void AudioManager::setListener(ListenerComponent& listener, ecs::Domain& domain)
 	}
 	listener._isActive = true;
 	updateListener(listener);
+}
+
+SourceState AudioManager::getState(const AudioSourceComponent& source) const {
+	if (source._id == -1) {
+		return unused;
+	}
+	return _sourceStates[source._id];
 }
 
 } // namespace arch::audio

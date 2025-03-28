@@ -2,7 +2,7 @@
 #include <audio/ListenerComponent.h>
 
 namespace arch::audio {
-///@brief Stores data about the listener of all played sounds.
+///@brief Updates data about the listener of all played sounds.
 /// Used for calculating effects of relative speed and distance,
 /// also controls how loud all the sounds will be.
 class Listener {
