@@ -15,7 +15,7 @@ include("cmake/msvc.cmake")
 include("cmake/defines.cmake")
 
 # uncomment below to force conan reinstallation
-set(ARCHIMEDES_FORCE_CONAN_INSTALL TRUE)
+#set(ARCHIMEDES_FORCE_CONAN_INSTALL TRUE)
 include("cmake/conan.cmake")
 
 include("cmake/library.cmake")
