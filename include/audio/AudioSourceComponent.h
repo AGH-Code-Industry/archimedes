@@ -3,7 +3,6 @@
 #include <string>
 
 #include <Logger.h>
-#include <math/Math.h>
 
 namespace arch::audio {
 

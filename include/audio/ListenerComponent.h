@@ -1,7 +1,5 @@
 #pragma once
 
-#include <math/Math.h>
-
 namespace arch::audio{
 
 /// @brief ECS component used to store all data about a sound listener on the scene.
