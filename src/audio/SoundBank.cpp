@@ -12,7 +12,7 @@ void SoundBank::loadGroup(int group) {
 	if (_isLoaded[entryFound->first]) {
 		throw AudioException("Can't load sound bank group: " + std::to_string(group) + " - it's already loaded");
 	}
-	std::set<std::string> sounds = entryFound->second;
+	auto&& sounds = entryFound->second;
 	for (auto& sound : sounds) {
 		auto clipFound = _clips.find(sound);
 		if (clipFound == _clips.end()) {
@@ -33,7 +33,7 @@ void SoundBank::unloadGroup(int group) {
 		throw AudioException("Can't unload sound bank group: " + std::to_string(group) + " - it's not loaded");
 	}
 
-	std::set<std::string> sounds = entryFound->second;
+	auto&& sounds = entryFound->second;
 	for (auto& sound : sounds) {
 		auto clipFound = _clips.find(sound);
 		if (clipFound == _clips.end()) {
@@ -147,7 +147,7 @@ void SoundBank::removeGroup(int group) {
 	if (entryFound == _groups.end()) {
 		throw AudioException("Can't find sound bank group with id " + std::to_string(group));
 	}
-	std::set<std::string> sounds = entryFound->second;
+	auto&& sounds = entryFound->second;
 	for (auto& sound : sounds) {
 		moveClipToGroup(sound, 0);
 	}
