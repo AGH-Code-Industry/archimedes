@@ -51,6 +51,7 @@ void AudioManager::play() {
 					break;
 			}
 		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	Logger::info("Audio system: audio manager stopped playing");
 }
