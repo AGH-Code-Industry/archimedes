@@ -1,5 +1,7 @@
 #pragma once
 #include <audio/ListenerComponent.h>
+#include <physics/components/Velocity.h>
+#include <scene/components/TransformComponent.h>
 
 namespace arch::audio {
 ///@brief Updates data about the listener of all played sounds.
@@ -8,7 +10,15 @@ namespace arch::audio {
 class Listener {
 public:
 	///@brief Sends the parameters to the OpenAL context.
-	///@warning Should be called each audio frame.
+	///@param listener ECS component with sound data.
+	///@param transform ECS component with position.
+	///@param velocity ECS component with velocity.
+	void update(const ListenerComponent& listener, const scene::components::TransformComponent& transform,
+		const physics::Velocity& velocity);
+
+	///@brief Sends the parameters to the OpenAL context.
+	///Doesn't use spatial data.
+	///@param listener ECS component with sound data.
 	void update(const ListenerComponent& listener);
 };
 } // namespace arch::audio

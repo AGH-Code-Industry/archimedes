@@ -22,6 +22,7 @@ struct AudioSourceComponent {
 	float gain = 1.0f;
 
 	/// @brief Pitch modifier of the sound.
+	/// @warning Should be positive.
 	float pitch = 1.0f;
 
 	/// @brief Min value of gain after attenuation.
@@ -34,15 +35,8 @@ struct AudioSourceComponent {
 	/// @warning Should be between 0.0 and 1.0.
 	float maxGain = 1.0f;
 
-	///@brief Position in 2D.
-	math::float2 position = {0.0f, 0.0f};
-
-	///@brief Velocity vector in 2D.
-	math::float2 velocity = {0.0f, 0.0f};
-
-	///@brief A direction vector telling where is the Source looking at.
-	///If it's a zero vector, the source isn't directional.
-	math::float2 direction = {0.0f, 0.0f};
+	///@brief Tells if the source is directional
+	bool isDirectional = false;
 
 	///@brief Max distance between the listener and this source to hear the sound.
 	///@warning Should be positive.

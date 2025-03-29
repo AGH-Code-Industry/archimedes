@@ -9,6 +9,7 @@
 #include <Scene.h>
 #include <audio/AudioManager.h>
 #include <audio/SoundDevice.h>
+#include <physics/components/Velocity.h>
 
 struct GraphicsManager {
 	struct Vertex {
@@ -107,7 +108,7 @@ struct SpatialAudioTestApp: Application {
 	SoundManager soundManager;
 
 	float3 sourcePosition = {450.0f, 200.0f, 0.0f};
-	float3 sourceVelocity = {1.0f, 0.0f, 0.0f};
+	float2 sourceVelocity = {1.0f, 0.0f};
 
 	int circleStep = 0;
 	const int stepsPerCircle = 1'000;
@@ -121,7 +122,7 @@ struct SpatialAudioTestApp: Application {
 	void createListener(Ref<Scene> testScene) {
 		Entity e = testScene->newEntity();
 		auto& domain = testScene->domain();
-	 	e.addComponent<scene::components::TransformComponent>(
+	 	auto& transform = e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			listenerPosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
@@ -129,16 +130,14 @@ struct SpatialAudioTestApp: Application {
 	 	}
 	 	);
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline});
-		e.addComponent<VelocityComponent>(float3{ 0.0f, 0.0f, 0.0f });
+		auto& velocity = e.addComponent<physics::Velocity>(float2{ 0.0f, 0.0f });
 		auto& listener = e.addComponent<audio::ListenerComponent>();
-		listener.position.x = listenerPosition.x;
-		listener.position.y = listenerPosition.y;
-		soundManager.audioManager->setListener(listener, domain);
+		soundManager.audioManager->setListener(domain, listener, transform, velocity);
 	}
 
 	void createSource(Ref<Scene> testScene) {
 		Entity e = testScene->newEntity();
-	 	e.addComponent<scene::components::TransformComponent>(
+	 	auto& transform = e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			sourcePosition,
 	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
@@ -146,15 +145,12 @@ struct SpatialAudioTestApp: Application {
 	 	   }
 	 	);
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
-		e.addComponent<VelocityComponent>(sourceVelocity);
+		auto& velocity = e.addComponent<physics::Velocity>(sourceVelocity);
 	 	auto& source = e.addComponent<audio::AudioSourceComponent>();
 	 	source.path = soundFile;
 	 	source.isLooped = true;
-	 	source.position.x = sourcePosition.x;
-	 	source.position.y = sourcePosition.y;
-		source.velocity.x = sourceVelocity.x;
-		source.velocity.y = sourceVelocity.y;
 		source.rolloffFactor = 0.01f;
+		soundManager.audioManager->assignSource(source, transform, velocity);
 		soundManager.audioManager->playSource(source);
 	}
 
@@ -182,23 +178,14 @@ struct SpatialAudioTestApp: Application {
 
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 
-		auto view = domain.view<scene::components::TransformComponent, VelocityComponent, audio::AudioSourceComponent>();
+		auto view = domain.view<scene::components::TransformComponent, physics::Velocity, audio::AudioSourceComponent>();
 
 		for (auto [entity, transform, velocity, audioSource] : view.all()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
-			sourcePosition.x = listenerPosition.x + radius * std::cos(angle);
-			sourcePosition.y = listenerPosition.y + radius * std::sin(angle);
-
-			sourceVelocity.x = radius * std::sin(angle);
-			sourceVelocity.y = radius * std::cos(angle);
-
-			audioSource.position.x = sourcePosition.x;
-			audioSource.position.y = sourcePosition.y;
-			audioSource.velocity.x = sourceVelocity.x;
-			audioSource.velocity.y = sourceVelocity.y;
-
-			transform.position = { sourcePosition.x, sourcePosition.y, 0.0f };
-			velocity.velocity = { sourceVelocity.x, sourceVelocity.y, 0.0f };
+			transform.position.x = listenerPosition.x + radius * std::cos(angle);
+			transform.position.y = listenerPosition.y + radius * std::sin(angle);
+			velocity.value.x = radius * std::sin(angle);
+			velocity.value.y = radius * std::cos(angle);
 		}
 		circleStep = (circleStep + 1) % stepsLimit;
 		soundManager.audioManager->synchronize(domain);

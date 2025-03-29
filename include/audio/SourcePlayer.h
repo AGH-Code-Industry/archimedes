@@ -2,6 +2,11 @@
 
 #include <audio/AudioSourceComponent.h>
 #include <audio/SoundBank.h>
+#include <scene/components/TransformComponent.h>
+
+namespace arch::physics {
+struct Velocity;
+}
 
 namespace arch::audio {
 
@@ -62,9 +67,20 @@ class SourcePlayer {
 public:
 
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
-	/// @param source ECS component with info about the sound source.
+	/// @param source ECS component with info about the sound.
+	/// @param transform ECS component with info about the source position.
+	/// @param velocity ECS component with info about velocity.
+	/// @throws AudioException if the clip path was modified during the playback.
+	void update(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
+				const physics::Velocity& velocity);
+
+	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
+	/// Doesn't use spatial data.
+	/// @param source ECS component with info about the sound.
 	/// @throws AudioException if the clip path was modified during the playback.
 	void update(const AudioSourceComponent& source);
+
+	//TODO add clean method to use after stop
 
 	/// @brief Initializes the _soundBank variable, OpenAL source and OpenAL buffers.
 	/// @param soundBank SoundBank responsible for loading the files.
@@ -101,7 +117,8 @@ public:
 	void setClipPath(const std::string& clipPath);
 
 	///@brief Deletes the clip path.
-	void cleanClipPath();
+	///Sets all parameters to default values.
+	void clean();
 };
 
 } // namespace arch::audio

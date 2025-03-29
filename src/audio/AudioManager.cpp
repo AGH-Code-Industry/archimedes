@@ -33,7 +33,8 @@ void AudioManager::play() {
 			switch (_sourceStates[source]) {
 				case playing:
 					if (_sources[source].run() && !_dontRemoveFinished[source]) {
-						_sourceStates[source] = stopped;
+						_sourceStates[source] = removed;
+						_sources[source].clean();
 					}
 					break;
 				case paused:
@@ -42,12 +43,10 @@ void AudioManager::play() {
 				case stopped:
 					if (_sources[source].stopPlaying()) {
 						_sourceStates[source] = removed;
-						_sources[source].cleanClipPath();
+						_sources[source].clean();
 					}
 					break;
-				case unused:
-					break;
-				case removed:
+				default:
 					break;
 			}
 		}
@@ -62,11 +61,10 @@ void AudioManager::stop() {
 
 void AudioManager::playSource(AudioSourceComponent& source) {
 	if (source._id == -1) {
-		_assignSource(source);
+		throw AudioException("Audio manager can't play not registered source");
 	}
-	updateSource(source);
 	SourceState currentState = _sourceStates[source._id];
-	if (currentState == unused || currentState == paused) {
+	if (currentState == unused || currentState == paused || currentState == assigned) {
 		_sourceStates[source._id] = playing;
 	}
 	else if (currentState == playing) {
@@ -78,7 +76,6 @@ void AudioManager::pauseSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't pause not registered source");
 	}
-	updateSource(source);
 	SourceState currentState = _sourceStates[source._id];
 	if (currentState == playing) {
 		_sourceStates[source._id] = paused;
@@ -89,14 +86,13 @@ void AudioManager::stopSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't stop not registered source");
 	}
-	updateSource(source);
 	SourceState currentState = _sourceStates[source._id];
 	if (currentState == playing || currentState == paused) {
 		_sourceStates[source._id] = stopped;
 	}
 }
 
-void AudioManager::_assignSource(AudioSourceComponent& source) {
+void AudioManager::assignSource(AudioSourceComponent& source) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
@@ -104,6 +100,20 @@ void AudioManager::_assignSource(AudioSourceComponent& source) {
 	source._id = index;
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source);
+	_sourceStates[index] = assigned;
+	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
+}
+
+
+void AudioManager::assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
+	const physics::Velocity& velocity) {
+	int index = _findEmptyPlayer();
+	if (index == -1) {
+		throw AudioException("Audio manager can't find empty source slot");
+	}
+	source._id = index;
+	_sources[index].setClipPath(source.path);
+	_sources[index].update(source, transform, velocity);
 	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
@@ -114,11 +124,18 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		if (audioSource._id == -1) {
 			continue;
 		}
+
+		auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
+		auto velocity = domain.tryGetComponent<physics::Velocity>(entity);
+
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
 			_dontRemoveFinished[audioSource._id] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
 			audioSource._id = -1;
+		}
+		else if (transform.hasValue() && velocity.hasValue()) {
+			updateSource(audioSource, transform.get(), velocity.get());
 		}
 		else {
 			updateSource(audioSource);
@@ -142,7 +159,14 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 				throw AudioException("Audio system: there are two active Listeners");
 			}
 			activeListenerFound = true;
-			updateListener(listener);
+			auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
+			auto velocity = domain.tryGetComponent<physics::Velocity>(entity);
+			if (transform.hasValue() && velocity.hasValue()) {
+				updateListener(listener, transform.get(), velocity.get());
+			}
+			else {
+				updateListener(listener);
+			}
 			if (!_listenerSet) {
 				_listenerSet = true;
 				Logger::info("Audio system: audio manager set the listener");
@@ -155,7 +179,6 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 	}
 }
 
-
 void AudioManager::updateSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
@@ -164,17 +187,47 @@ void AudioManager::updateSource(const AudioSourceComponent& source) {
 	_sources[source._id].update(source);
 }
 
+void AudioManager::updateSource(
+	const AudioSourceComponent& source,
+	const scene::components::TransformComponent& transform,
+	const physics::Velocity& velocity
+) {
+	if (source._id == -1) {
+		throw AudioException("Audio manager can't update not registered source");
+	}
+	_dontRemoveFinished[source._id] = source.dontRemoveFinished;
+	_sources[source._id].update(source, transform, velocity);
+}
+
 void AudioManager::updateListener(const ListenerComponent& listener) {
 	_listener.update(listener);
 }
 
-void AudioManager::setListener(ListenerComponent& listener, ecs::Domain& domain) {
+void AudioManager::updateListener(
+	const ListenerComponent& listener,
+	const scene::components::TransformComponent& transform,
+	const physics::Velocity& velocity
+) {
+	_listener.update(listener, transform, velocity);
+}
+
+void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener) {
 	auto view = domain.view<ListenerComponent>();
 	for (auto [entity, listener] : view.all()) {
 		listener._isActive = false;
 	}
 	listener._isActive = true;
 	updateListener(listener);
+}
+
+void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener, const scene::components::TransformComponent& transform,
+	const physics::Velocity& velocity) {
+	auto view = domain.view<ListenerComponent>();
+	for (auto [entity, listener] : view.all()) {
+		listener._isActive = false;
+	}
+	listener._isActive = true;
+	updateListener(listener, transform, velocity);
 }
 
 SourceState AudioManager::getState(const AudioSourceComponent& source) const {
