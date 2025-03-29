@@ -83,13 +83,13 @@ void inline checkAlcErrors(ALCdevice* device, const std::source_location& locati
 
 template<typename Function, typename... Params>
 /// @brief Check if function returns void.
-concept voidReturn = requires(Function function, Params... params) {
+concept VoidReturn = requires(Function function, Params... params) {
 	{ function(std::forward<Params>(params)...) } -> std::same_as<void>;
 };
 
 template<typename Function, typename... Params>
 /// @brief Check if function returns something other than void.
-concept normalReturn = not voidReturn<Function, Params...>;
+concept NormalReturn = not VoidReturn<Function, Params...>;
 
 /// @brief Wrapper for OpenAL "al" functions with void return type.
 /// @tparam AlFunction function to be wrapped.
@@ -98,7 +98,7 @@ concept normalReturn = not voidReturn<Function, Params...>;
 /// @param function wrapped function.
 /// @param params wrapped function's parameters.
 template<typename AlFunction, typename... Params>
-requires voidReturn<AlFunction, Params...>
+requires VoidReturn<AlFunction, Params...>
 auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	function(std::forward<Params>(params)...);
 	checkAlErrors(location);
@@ -112,7 +112,7 @@ auto alCallImplementation(const std::source_location location, AlFunction functi
 /// @param params wrapped function's parameters.
 /// @return return value of wrapped function.
 template<typename AlFunction, typename... Params>
-requires normalReturn<AlFunction, Params...>
+requires NormalReturn<AlFunction, Params...>
 auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
 	checkAlErrors(location);
@@ -127,7 +127,7 @@ auto alCallImplementation(const std::source_location location, AlFunction functi
 /// @param device ALCDevice returned by alcOpenDevice call.
 /// @param params wrapped function's parameters.
 template<typename AlcFunction, typename... Params>
-requires voidReturn<AlcFunction, Params...>
+requires VoidReturn<AlcFunction, Params...>
 auto alcCallImplementation(const std::source_location location, AlcFunction function,
 							ALCdevice* device, Params&&... params) {
 	function(std::forward<Params>(params)...);
@@ -143,7 +143,7 @@ auto alcCallImplementation(const std::source_location location, AlcFunction func
 /// @param params wrapped function's parameters.
 /// @return return value of wrapped function.
 template<typename AlcFunction, typename... Params>
-requires normalReturn<AlcFunction, Params...>
+requires NormalReturn<AlcFunction, Params...>
 auto alcCallImplementation(const std::source_location location, AlcFunction function,
 							ALCdevice* device, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
