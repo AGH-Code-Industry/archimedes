@@ -6,8 +6,8 @@
 namespace arch::physics {
 
 struct MassCenter {
-	f32 mass;
-	float2 position;
+	math::f32 mass;
+	math::float2 position;
 };
 
 }
