@@ -10,10 +10,6 @@
 #include <audio/AudioManager.h>
 #include <audio/SoundDevice.h>
 
-namespace audio = arch::audio;
-namespace ecs = arch::ecs;
-namespace scene = arch::scene;
-
 struct GraphicsManager {
 	struct Vertex {
 		float3 position;
@@ -68,7 +64,16 @@ struct GraphicsManager {
 			.buffers = { uniformBuffer },
 		}
 		);
-mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+	}
+
+	void clean() {
+		mesh = nullptr;
+		pipeline = nullptr;
+		pipeline2 = nullptr;
+		uniformBuffer = nullptr;
+		texture = nullptr;
+		renderer = nullptr;
 	}
 };
 
@@ -95,7 +100,7 @@ struct SoundManager {
 
 };
 
-struct SpatialAudioTestApp: arch::Application {
+struct SpatialAudioTestApp: Application {
 
 	const std::string soundFile = "wind.mp3";
 	Ref<GraphicsManager> graphicsManager;
@@ -113,7 +118,7 @@ struct SpatialAudioTestApp: arch::Application {
 	float3 listenerPosition = {300.0f, 200.0f, 0.0f};
 
 
-	void createListener(arch::Ref<scene::Scene> testScene) {
+	void createListener(Ref<Scene> testScene) {
 		Entity e = testScene->newEntity();
 		auto& domain = testScene->domain();
 	 	e.addComponent<scene::components::TransformComponent>(
@@ -131,7 +136,7 @@ struct SpatialAudioTestApp: arch::Application {
 		soundManager.audioManager->setListener(listener, domain);
 	}
 
-	void createSource(arch::Ref<scene::Scene> testScene) {
+	void createSource(Ref<Scene> testScene) {
 		Entity e = testScene->newEntity();
 	 	e.addComponent<scene::components::TransformComponent>(
 	 		{
@@ -158,7 +163,7 @@ struct SpatialAudioTestApp: arch::Application {
 		soundManager.init(soundFile);
 
 	 	// initialize test scene
-	 	arch::Ref<scene::Scene> testScene = arch::createRef<scene::Scene>();
+	 	Ref<Scene> testScene = arch::createRef<Scene>();
 
 	 	// add a "listening" triangle which will be in center of the scene
 	 	// it resembles the Listener of the sound
@@ -167,6 +172,8 @@ struct SpatialAudioTestApp: arch::Application {
 	 	// add a "source" triangle - this resembles the sound's source
 	 	// it will be moved while moving the source
 	 	createSource(testScene);
+
+		graphicsManager->clean();
 
 	 	scene::SceneManager::get()->changeScene(testScene);
 	 }
