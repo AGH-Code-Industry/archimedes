@@ -1,7 +1,5 @@
 #include <audio/Calls.hpp>
-
 #include <audio/SourcePlayer.h>
-#include <physics/components/Velocity.h>
 
 namespace arch::audio {
 
@@ -47,11 +45,11 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 void SourcePlayer::update(
 	const AudioSourceComponent& source,
 	const scene::components::TransformComponent& transform,
-	const physics::Velocity& velocity
+	const physics::Moveable& moveable
 ) {
 	update(source);
 	alCall(alSource3f, _source, AL_POSITION, transform.position.x, transform.position.y, 0.0f);
-	alCall(alSource3f, _source, AL_VELOCITY, velocity.value.x, velocity.value.y, 0.0f);
+	alCall(alSource3f, _source, AL_VELOCITY, moveable.velocity.x, moveable.velocity.y, 0.0f);
 	if (source.isDirectional) {
 		float3 direction = transform.rotation * float3(0.0f, 1.0f, 0.0f);
 		alCall(alSource3f, _source, AL_DIRECTION, direction.x, direction.y, 0.0f);

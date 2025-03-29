@@ -1,6 +1,6 @@
 #pragma once
 #include <audio/ListenerComponent.h>
-#include <physics/components/Velocity.h>
+#include <physics/components/Moveable.h>
 #include <scene/components/TransformComponent.h>
 
 namespace arch::audio {
@@ -12,9 +12,9 @@ public:
 	///@brief Sends the parameters to the OpenAL context.
 	///@param listener ECS component with sound data.
 	///@param transform ECS component with position.
-	///@param velocity ECS component with velocity.
+	///@param moveable ECS component with velocity.
 	void update(const ListenerComponent& listener, const scene::components::TransformComponent& transform,
-		const physics::Velocity& velocity);
+		const physics::Moveable& moveable);
 
 	///@brief Sends the parameters to the OpenAL context.
 	///Doesn't use spatial data.

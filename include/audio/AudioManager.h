@@ -4,6 +4,7 @@
 #include <audio/Listener.h>
 #include <audio/SourcePlayer.h>
 #include <ecs/Domain.h>
+#include <physics/components/Moveable.h>
 
 namespace arch::audio {
 
@@ -77,10 +78,10 @@ public:
 	///@brief Finds an empty SourcePlayer and assign it to the AudioSourceComponent.
 	///@param source ECS component with info about the sound source.
 	///@param transform ECS component with info about position.
-	///@param velocity ECS component with info about velocity.
+	///@param moveable ECS component with info about velocity.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
 	void assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-		const physics::Velocity& velocity);
+		const physics::Moveable& moveable);
 
 	///@brief Starts playing the sound. If the source hasn't an assigned SourcePlayer yet,
 	///assigns it. If the sound is already playing, rewinds it. If it's paused, continues it.
@@ -111,10 +112,10 @@ public:
 	///to the SourcePlayer.
 	///@param source ECS component of the audio source.
 	///@param transform ECS component of the source's position.
-	///@param velocity ECS component of the source's velocity.
+	///@param moveable ECS component of the source's velocity.
 	///@throws AudioException if the source isn't assigned.
 	void updateSource(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-		const physics::Velocity& velocity);
+		const physics::Moveable& moveable);
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
 	///to the SourcePlayer. A version that doesn't use spatial data.
@@ -131,9 +132,9 @@ public:
 	///to the Listener.
 	///@param listener ECS component of the listener.
 	///@param transform ECS component with info about position.
-	///@param velocity ECS component with info about velocity.
+	///@param moveable ECS component with info about velocity.
 	void updateListener(const ListenerComponent& listener, const scene::components::TransformComponent& transform,
-		const physics::Velocity& velocity);
+		const physics::Moveable& moveable);
 
 	///@brief Assign Listener to a ListenerComponent. Unassign it from
 	///all other components. Doesn't use spatial data.
@@ -145,10 +146,10 @@ public:
 	///all other components.
 	///@param listener ECS component of the listener.
 	///@param transform ECS component with position data.
-	///@param velocity ECS component with velocity data.
+	///@param moveable ECS component with velocity data.
 	///@param domain ECS domain of the scene.
 	void setListener(ecs::Domain& domain, ListenerComponent& listener, const scene::components::TransformComponent& transform,
-		const physics::Velocity& velocity);
+		const physics::Moveable& moveable);
 
 	///@brief Get state of a SourcePlayer assigned to the AudioSourceComponent.
 	///Returns 'unused' if a player isn't assigned.

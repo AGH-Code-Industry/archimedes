@@ -2,11 +2,8 @@
 
 #include <audio/AudioSourceComponent.h>
 #include <audio/SoundBank.h>
+#include <physics/components/Moveable.h>
 #include <scene/components/TransformComponent.h>
-
-namespace arch::physics {
-struct Velocity;
-}
 
 namespace arch::audio {
 
@@ -69,10 +66,10 @@ public:
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
 	/// @param source ECS component with info about the sound.
 	/// @param transform ECS component with info about the source position.
-	/// @param velocity ECS component with info about velocity.
+	/// @param moveable ECS component with info about velocity.
 	/// @throws AudioException if the clip path was modified during the playback.
 	void update(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-				const physics::Velocity& velocity);
+				const physics::Moveable& moveable);
 
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
 	/// Doesn't use spatial data.

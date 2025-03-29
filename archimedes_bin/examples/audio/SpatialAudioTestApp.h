@@ -125,14 +125,15 @@ struct SpatialAudioTestApp: Application {
 	 	auto& transform = e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			listenerPosition,
-	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
+	 			{ 0.0f, 0.0f, 0.0f, 0.0f },
 	 			{ 100.0f, 50.0f, 0.0f },
 	 	}
 	 	);
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline});
-		auto& velocity = e.addComponent<physics::Velocity>(float2{ 0.0f, 0.0f });
+		auto& moveable = e.addComponent<physics::Moveable>();
+		moveable.velocity = float2{ 0.0f, 0.0f };
 		auto& listener = e.addComponent<audio::ListenerComponent>();
-		soundManager.audioManager->setListener(domain, listener, transform, velocity);
+		soundManager.audioManager->setListener(domain, listener, transform, moveable);
 	}
 
 	void createSource(Ref<Scene> testScene) {
@@ -140,17 +141,18 @@ struct SpatialAudioTestApp: Application {
 	 	auto& transform = e.addComponent<scene::components::TransformComponent>(
 	 		{
 	 			sourcePosition,
-	 			{ 0.0f, 0.0f, 0.0f, 1.0f },
+	 			{ 0.0f, 0.0f, 0.0f, 0.0f },
 	 			{100.0f, 50.0f, 0.0f}
 	 	   }
 	 	);
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
-		auto& velocity = e.addComponent<physics::Velocity>(sourceVelocity);
+		auto& moveable = e.addComponent<physics::Moveable>();
+		moveable.velocity = sourceVelocity;
 	 	auto& source = e.addComponent<audio::AudioSourceComponent>();
 	 	source.path = soundFile;
 	 	source.isLooped = true;
 		source.rolloffFactor = 0.01f;
-		soundManager.audioManager->assignSource(source, transform, velocity);
+		soundManager.audioManager->assignSource(source, transform, moveable);
 		soundManager.audioManager->playSource(source);
 	}
 
@@ -178,14 +180,14 @@ struct SpatialAudioTestApp: Application {
 
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 
-		auto view = domain.view<scene::components::TransformComponent, physics::Velocity, audio::AudioSourceComponent>();
+		auto view = domain.view<scene::components::TransformComponent, physics::Moveable, audio::AudioSourceComponent>();
 
-		for (auto [entity, transform, velocity, audioSource] : view.all()) {
+		for (auto [entity, transform, moveable, audioSource] : view.all()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
 			transform.position.x = listenerPosition.x + radius * std::cos(angle);
 			transform.position.y = listenerPosition.y + radius * std::sin(angle);
-			velocity.value.x = radius * std::sin(angle);
-			velocity.value.y = radius * std::cos(angle);
+			moveable.velocity.x = radius * std::sin(angle);
+			moveable.velocity.y = radius * std::cos(angle);
 		}
 		circleStep = (circleStep + 1) % stepsLimit;
 		soundManager.audioManager->synchronize(domain);
