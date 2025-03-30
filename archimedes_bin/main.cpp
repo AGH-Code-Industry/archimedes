@@ -5,7 +5,7 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<TextRenderTestApp>();
+	arch::UniqueRef<arch::Application> myApp = arch::createUnique<TextRenderTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
@@ -13,6 +13,6 @@ int main() {
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
 							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
 
-	arch::Engine engine{ config, myApp };
+	arch::Engine engine{ config, std::move(myApp) };
 	engine.start();
 }
