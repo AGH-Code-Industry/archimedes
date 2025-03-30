@@ -16,7 +16,6 @@ Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
 	_application{ application } {}
 
 Engine::~Engine() {
-	font::FontDB::_singleton.release();
 	_shutdown();
 }
 
@@ -73,6 +72,7 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	font::FontDB::_singleton.reset();
 	scene::SceneManager::get()->shutdown();
 
 	Logger::info("Engine shutingdown");
