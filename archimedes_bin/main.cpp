@@ -13,6 +13,6 @@ int main() {
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
 							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
 
-	arch::Engine engine{ config, std::move(myApp) };
+	arch::Engine engine{ config, myApp };
 	engine.start();
 }

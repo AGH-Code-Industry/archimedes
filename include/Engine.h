@@ -26,7 +26,7 @@ struct EngineConfig {
  */
 class Engine {
 public:
-	Engine(const EngineConfig& config, Unique<Application> application);
+	Engine(const EngineConfig& config, Unique<Application>& application);
 	~Engine();
 
 	/**
