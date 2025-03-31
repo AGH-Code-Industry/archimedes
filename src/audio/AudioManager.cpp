@@ -33,8 +33,7 @@ void AudioManager::play() {
 			switch (_sourceStates[source]) {
 				case playing:
 					if (_sources[source].run() && !_dontRemoveFinished[source]) {
-						_sourceStates[source] = removed;
-						_sources[source].clean();
+						_sourceStates[source] = stopped;
 					}
 					break;
 				case paused:
@@ -42,8 +41,8 @@ void AudioManager::play() {
 					break;
 				case stopped:
 					if (_sources[source].stopPlaying()) {
-						_sourceStates[source] = removed;
 						_sources[source].clean();
+						_sourceStates[source] = removed;
 					}
 					break;
 				default:
@@ -67,8 +66,10 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 	if (currentState == unused || currentState == paused || currentState == assigned) {
 		_sourceStates[source._id] = playing;
 	}
-	else if (currentState == playing) {
+	else if (currentState == playing || (currentState == stopped &&
+			_dontRemoveFinished[source._id])) {
 		_sources[source._id].rewindPlaying();
+		_sourceStates[source._id] = playing;
 	}
 }
 

@@ -5,5 +5,6 @@
 #include "physics/PhysicsTestApp.h"
 #include "audio/LegacyAudioTests.h"
 #include "audio/SpatialAudioTestApp.h"
+#include "audio/SimpleSoundTestApp.h"
 
 // todo: some sort of container for all examples to be able to choose them at runtime
