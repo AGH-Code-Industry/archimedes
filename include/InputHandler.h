@@ -16,13 +16,13 @@ public:
 	/**
 	 * Binds specific key code to a function.
 	 */
-	void bindKey(int keyCode, const std::function<void()>& func) const;
+	void bindKey(int keyCode, const std::function<void(int)>& func) const;
 
 private:
 	InputHandler();
 	static InputHandler* instance;
 	GLFWwindow* _window{};
-	static std::unordered_map<int, std::function<void()>> keyToFunctionTable;
+	static std::unordered_map<int, std::function<void(int)>> keyToFunctionTable;
 
 	/**
 	 * Callback function that runs when key is pressed or released.
