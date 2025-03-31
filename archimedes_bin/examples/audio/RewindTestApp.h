@@ -14,10 +14,12 @@ struct RewindTestApp: Application {
 
 	Entity entity;
 
+	bool played = false;
+
 	void init() override {
 		soundManager.init({soundFile});
 
-		InputHandler::get().bindKey(VK_SPACE, [&](int action) {
+		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
 			if (action == GLFW_PRESS) {
 				auto lock = std::lock_guard(mutex);
 				if (!playSound) {
@@ -42,8 +44,15 @@ struct RewindTestApp: Application {
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 		{
 			auto lock = std::lock_guard(mutex);
+			auto& source = entity.getComponent<audio::AudioSourceComponent>();
 			if(playSound) {
-				soundManager.audioManager->playSource(entity.getComponent<audio::AudioSourceComponent>());
+				if (played) {
+					soundManager.audioManager->rewindSource(source);
+				}
+				else {
+					soundManager.audioManager->playSource(source);
+					played = true;
+				}
 			}
 			playSound = false;
 		}

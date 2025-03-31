@@ -15,7 +15,7 @@ struct SimpleSoundTestApp: Application {
 	void init() override {
 		soundManager.init({soundFile});
 
-		InputHandler::get().bindKey(VK_SPACE, [&](int action) {
+		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
 			if (action == GLFW_PRESS) {
 				auto lock = std::lock_guard(mutex);
 				if (!playSound) {
