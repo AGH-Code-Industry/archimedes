@@ -5,7 +5,7 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<ControlTestApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<SpatialAudioTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
