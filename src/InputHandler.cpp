@@ -3,7 +3,7 @@
 namespace arch {
 
 InputHandler* InputHandler::instance = nullptr;
-std::unordered_map<int, std::function<void()>> InputHandler::keyToFunctionTable;
+std::unordered_map<int, std::function<void(int)>> InputHandler::keyToFunctionTable;
 
 InputHandler::InputHandler() {}
 
@@ -19,14 +19,14 @@ void InputHandler::initialize(GLFWwindow* window) {
 	glfwSetKeyCallback(_window, _handleKeyEvent);
 }
 
-void InputHandler::_bindKey(int keyCode, const std::function<void()>& func) const {
+void InputHandler::bindKey(int keyCode, const std::function<void(int)>& func) const {
 	keyToFunctionTable[keyCode] = func;
 }
 
 void InputHandler::_handleKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	auto it = keyToFunctionTable.find(key);
 	if (it != keyToFunctionTable.end()) {
-		it->second();
+		it->second(action);
 	}
 }
 
