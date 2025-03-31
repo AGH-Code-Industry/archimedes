@@ -10,6 +10,9 @@ using Ref = std::shared_ptr<T>;
 template<typename T>
 using WeakRef = std::weak_ptr<T>;
 
+template<typename T>
+using Unique = std::unique_ptr<T>;
+
 template<typename T, typename... Args>
 requires std::constructible_from<T, Args...>
 constexpr Ref<T> createRef(Args&&... args) {
@@ -20,6 +23,12 @@ template<typename T>
 requires std::derived_from<T, std::enable_shared_from_this<T>>
 constexpr Ref<T> createRef(T* ptr) {
 	return ptr->shared_from_this();
+}
+
+template<typename T, typename... Args>
+requires std::constructible_from<T, Args...>
+constexpr Unique<T> createUnique(Args&&... args) {
+	return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
 } // namespace arch
