@@ -5,7 +5,7 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::UniqueRef<arch::Application> myApp = arch::createUnique<TextRenderTestApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<TextRenderTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,

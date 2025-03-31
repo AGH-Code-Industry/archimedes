@@ -26,7 +26,7 @@ struct EngineConfig {
  */
 class Engine {
 public:
-	Engine(const EngineConfig& config, UniqueRef<Application> application);
+	Engine(const EngineConfig& config, Unique<Application> application);
 	~Engine();
 
 	/**
@@ -40,7 +40,7 @@ private:
 	Ref<Window> _mainWindow;
 	Ref<gfx::Renderer> _renderer; 
 	Ref<scene::SceneManager> _sceneManager; 
-	UniqueRef<Application> _application;
+	Unique<Application> _application;
 
 private:
 	/**

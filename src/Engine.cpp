@@ -11,7 +11,7 @@
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config, UniqueRef<Application> application):
+Engine::Engine(const EngineConfig& config, Unique<Application> application):
 	_engineConfig{ config },
 	_application{ std::move(application) } {}
 

@@ -11,7 +11,7 @@ template<typename T>
 using WeakRef = std::weak_ptr<T>;
 
 template<typename T>
-using UniqueRef = std::unique_ptr<T>;
+using Unique = std::unique_ptr<T>;
 
 template<typename T, typename... Args>
 requires std::constructible_from<T, Args...>
@@ -27,7 +27,7 @@ constexpr Ref<T> createRef(T* ptr) {
 
 template<typename T, typename... Args>
 requires std::constructible_from<T, Args...>
-constexpr UniqueRef<T> createUnique(Args&&... args) {
+constexpr Unique<T> createUnique(Args&&... args) {
 	return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
