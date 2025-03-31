@@ -19,7 +19,7 @@ void InputHandler::initialize(GLFWwindow* window) {
 	glfwSetKeyCallback(_window, _handleKeyEvent);
 }
 
-void InputHandler::_bindKey(int keyCode, const std::function<void()>& func) const {
+void InputHandler::bindKey(int keyCode, const std::function<void()>& func) const {
 	keyToFunctionTable[keyCode] = func;
 }
 
