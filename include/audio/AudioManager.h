@@ -115,7 +115,7 @@ public:
 	void synchronize(ecs::Domain& domain);
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
-	///to the SourcePlayer.
+	///to the SourcePlayer. The source shouldn't be in 'stopped' or in 'removed' state.
 	///@param source ECS component of the audio source.
 	///@param transform ECS component of the source's position.
 	///@param moveable ECS component of the source's velocity.
@@ -125,6 +125,7 @@ public:
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
 	///to the SourcePlayer. A version that doesn't use spatial data.
+	///The source shouldn't be in 'stopped' or in 'removed' state.
 	///@param source ECS component of the audio source.
 	///@throws AudioException if the source isn't assigned.
 	void updateSource(const AudioSourceComponent& source);

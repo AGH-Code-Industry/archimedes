@@ -194,6 +194,9 @@ void AudioManager::updateSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
 	}
+	if (_sourceStates[source._id] == stopped || _sourceStates[source._id] == removed) {
+		return;
+	}
 	_dontRemoveFinished[source._id] = source.dontRemoveFinished;
 	_sources[source._id].update(source);
 }
@@ -205,6 +208,9 @@ void AudioManager::updateSource(
 ) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
+	}
+	if (_sourceStates[source._id] == stopped || _sourceStates[source._id] == removed) {
+		return;
 	}
 	_dontRemoveFinished[source._id] = source.dontRemoveFinished;
 	_sources[source._id].update(source, transform, moveable);
