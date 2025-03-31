@@ -11,19 +11,18 @@
 
 namespace arch {
 
-Engine::Engine(const EngineConfig& config, const Ref<Application>& application):
+Engine::Engine(const EngineConfig& config, Unique<Application>& application):
 	_engineConfig{ config },
-	_application{ application } {}
+	_application{ std::move(application) } {}
 
 Engine::~Engine() {
-	font::FontDB::_singleton.release();
 	_shutdown();
 }
 
 void Engine::start() {
 	try {
 		_initialize();
-
+		
 		_mainLoop();
 	} catch (Exception& e) {
 		e.print();
@@ -73,6 +72,8 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	_application.reset();
+	font::FontDB::_singleton.reset();
 	scene::SceneManager::get()->shutdown();
 
 	Logger::info("Engine shutingdown");
