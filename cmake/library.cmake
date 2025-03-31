@@ -12,19 +12,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # link conan libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ARCHIMEDES_LIBRARIES})
 
-
-include(FetchContent)
-FetchContent_Declare(
-        nvrhi
-        GIT_REPOSITORY https://github.com/NVIDIAGameWorks/NvRhi.git
-        GIT_TAG main
-        OVERRIDE_FIND_PACKAGE
-)
-find_package(nvrhi REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE nvrhi_vk nvrhi)
-
-
+include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
 
 # install msdf-atlas-gen/1.3 Release
 if (NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed")
