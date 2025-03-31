@@ -5,7 +5,7 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<RewindTestApp>();
+	arch::Ref<arch::Application> myApp = arch::createRef<ControlTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,

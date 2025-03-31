@@ -83,11 +83,17 @@ public:
 	void assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
 		const physics::Moveable& moveable);
 
-	///@brief Starts playing the sound. If the source hasn't an assigned SourcePlayer yet,
-	///assigns it. If the sound is already playing, rewinds it. If it's paused, continues it.
+	///@brief Starts playing the sound. If it's paused, continues it.
 	///@param source ECS component of the audio source.
 	///@throw AudioException if the source isn't assigned.
 	void playSource(AudioSourceComponent& source);
+
+	///@brief Starts playing the sound from the beginning, if it was already playing.
+	///Also, works if the sound was finished and the '_dontRemoveFinished' flag is set to true.
+	///@param source ECS component of the audio source.
+	///@throw AudioException if the source isn't assigned.
+	///@view _dontRemoveFinished
+	void rewindSource(AudioSourceComponent& source);
 
 	///@brief Pauses playing the sound.
 	///@param source ECS component of the audio source.

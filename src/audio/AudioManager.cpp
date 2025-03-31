@@ -66,12 +66,19 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 	if (currentState == unused || currentState == paused || currentState == assigned) {
 		_sourceStates[source._id] = playing;
 	}
-	else if (currentState == playing || (currentState == stopped &&
-			_dontRemoveFinished[source._id])) {
+}
+
+void AudioManager::rewindSource(AudioSourceComponent& source) {
+	if (source._id == -1) {
+		throw AudioException("Audio manager can't play rewind registered source");
+	}
+	SourceState currentState = _sourceStates[source._id];
+	if (currentState == playing || (currentState == stopped && _dontRemoveFinished[source._id])) {
 		_sources[source._id].rewindPlaying();
 		_sourceStates[source._id] = playing;
 	}
 }
+
 
 void AudioManager::pauseSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
@@ -94,6 +101,9 @@ void AudioManager::stopSource(const AudioSourceComponent& source) {
 }
 
 void AudioManager::assignSource(AudioSourceComponent& source) {
+	if (source._id != -1) {
+		throw AudioException("Audio manager can't assign already assigned source");
+	}
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
