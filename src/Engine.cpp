@@ -72,6 +72,7 @@ void Engine::_initialize() {
 }
 
 void Engine::_shutdown() {
+	_application.reset();
 	font::FontDB::_singleton.reset();
 	scene::SceneManager::get()->shutdown();
 
