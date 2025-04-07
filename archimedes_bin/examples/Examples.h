@@ -7,5 +7,6 @@
 #include "audio/SimpleSoundTestApp.h"
 #include "audio/RewindTestApp.h"
 #include "audio/ControlTestApp.h"
+#include "asset_manager/AssetManagerTestApp.h"
 
 // todo: some sort of container for all examples to be able to choose them at runtime
