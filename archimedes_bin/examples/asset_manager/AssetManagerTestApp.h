@@ -1,4 +1,7 @@
 #include <asset_manager/AssetID.h>
+#include <asset_manager/AssetImporterManager.h>
+#include <asset_manager/MeshImporter.h>
+#include <asset_manager/TextureImporter.h>
 #include <iostream>
 
 void TestHashing() {
@@ -18,4 +21,14 @@ void TestHashing() {
 	if (id1 != id2) {
 		std::cout << "IDs are different" << std::endl;
 	}
+}
+
+void CreateAIM() {
+	arch::assetManager::AssetImporterManager manager("/assets");
+	manager.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
+	manager.RegisterImporter(std::make_unique<arch::assetManager::TextureImporter>());
+
+	manager.ImportAsset("assets/source/sprite.png");
+	manager.ImportAsset("assets/source/map.obj");
+
 }
