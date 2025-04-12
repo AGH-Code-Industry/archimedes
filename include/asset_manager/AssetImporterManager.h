@@ -1,8 +1,10 @@
 #pragma once
 
-#import <filesystem>
+#include <filesystem>
 #include <vector>
 #include <memory>
+
+#include <Logger.h>
 
 #include "IAssetImporter.h"
 
@@ -15,7 +17,7 @@ public:
 	explicit AssetImporterManager(std::filesystem::path processedPath): _processedPath(std::move(processedPath)) {}
 
 	void RegisterImporter(std::unique_ptr<IAssetImporter> importer);
-	void ImportAsset(const std::filesytem::path& sourceFile) const;
+	void ImportAsset(const std::filesystem::path& sourceFile) const;
 
 	void SetProcessedPath(const std::filesystem::path& path);
 	const std::filesystem::path& GetProcessedPath() const;
@@ -23,7 +25,7 @@ public:
 
 private: 
 	std::filesystem::path _processedPath;
-	std::vector<std::unique_ptr<IAssetImporter> _importers;
+	std::vector<std::unique_ptr<IAssetImporter>> _importers;
 };
 
 }
