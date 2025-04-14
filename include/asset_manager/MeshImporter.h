@@ -1,5 +1,15 @@
 #pragma once
 
+
+#include <filesystem>
+#include <fstream>
+#include <string>
+#include <cstdint>
+#include <vector>
+#include <map>
+
+#include <Logger.h>
+
 #include "IAssetImporter.h"
 
 namespace arch::assetManager {
