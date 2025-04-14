@@ -16,6 +16,8 @@ void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile) 
 	if (!std::filesystem::exists(sourceFile)) {
 		//throw AssetException(sourceFile.string() + " cannot be found");
 		arch::Logger::warn("Asset not found.");
+	} else {
+		arch::Logger::trace("Asset found.");
 	}
 
 	bool success{ false };
@@ -29,7 +31,7 @@ void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile) 
 	}
 
 	if (success) {
-		arch::Logger::info("Asset loaded succesfully");
+		arch::Logger::info("Asset loaded ");
 	} else {
 		arch::Logger::warn("Asset couldn't be loaded");
 	}

@@ -24,11 +24,8 @@ void TestHashing() {
 }
 
 void CreateAIM() {
-	arch::assetManager::AssetImporterManager manager("/assets");
+	arch::assetManager::AssetImporterManager manager("assets/processed");
 	manager.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
-	manager.RegisterImporter(std::make_unique<arch::assetManager::TextureImporter>());
 
-	manager.ImportAsset("assets/source/sprite.png");
-	manager.ImportAsset("assets/source/map.obj");
-
+	manager.ImportAsset("assets/source/arrow_triangulated.obj");
 }
