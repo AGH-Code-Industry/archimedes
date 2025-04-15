@@ -5,7 +5,14 @@
 namespace arch::assetManager {
 
 bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
-	return true;
+	std::string extension{ path.extension().string() };
+	if (extension == ".obj") {
+		arch::Logger::trace("File format verified.");
+		return true;
+	} else {
+		arch::Logger::warn("File format not supported.");
+		return false;
+	}
 }
 
 void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
@@ -58,7 +65,6 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 
 	inStream.close();
 
-
 	bool hasUVs{ !uvs.empty() };
 	std::vector<float> finalVertices{};
 	std::vector<uint16_t> finalIndices{};
@@ -93,8 +99,7 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 				  << finalVertices.at(i + 3) << std::endl;
 	}*/
 
-
-	std::ofstream outStream(processedPath.string() + "/asset.archmesh", std::ios::binary);
+	std::ofstream outStream(processedPath.string() + "/" + sourcePath.stem().string() + ".archmesh", std::ios::binary);
 
 	if (!outStream) {
 		arch::Logger::error("Mesh file wasn't created");
@@ -122,7 +127,7 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 	uint32_t vertexDataOffset{ 32 };
 	outStream.write(reinterpret_cast<const char*>(&vertexDataOffset), sizeof(vertexDataOffset));
 
-	uint32_t indexDataOffset{vertexDataOffset + vertexCount * vertexSize};
+	uint32_t indexDataOffset{ vertexDataOffset + vertexCount * vertexSize };
 	outStream.write(reinterpret_cast<const char*>(&indexDataOffset), sizeof(indexDataOffset));
 
 	uint32_t reserved{};
@@ -137,10 +142,6 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 	}
 
 	outStream.close();
-}
-
-std::string MeshImporter::GetType() const {
-	return std::string();
 }
 
 } // namespace arch::assetManager
