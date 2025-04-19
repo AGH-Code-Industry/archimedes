@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <asset_manager/MeshImporter.h>
 
 namespace arch::assetManager {
@@ -16,7 +14,7 @@ bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
 }
 
 void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
-	std::ifstream inStream(sourcePath);
+	std::ifstream inStream(sourcePath, std::ios::binary);
 
 	if (!inStream) {
 		arch::Logger::error(".obj file not found");
@@ -99,7 +97,8 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 				  << finalVertices.at(i + 3) << std::endl;
 	}*/
 
-	std::ofstream outStream(processedPath.string() + "/" + sourcePath.stem().string() + ".archmesh", std::ios::binary);
+	std::filesystem::create_directory(processedPath.string() + "/meshes");
+	std::ofstream outStream(processedPath.string() + "/meshes/" + sourcePath.stem().string() + ".archmesh", std::ios::binary);
 
 	if (!outStream) {
 		arch::Logger::error("Mesh file wasn't created");
