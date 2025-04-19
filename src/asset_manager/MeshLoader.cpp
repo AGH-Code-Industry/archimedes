@@ -89,6 +89,14 @@ bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
 	}
 	 
 	arch::Logger::trace("Asset passed verification.");
+	
+	std::vector<float> vertices(4 * vertexCount);
+	inStream.read(reinterpret_cast<char*>(vertices.data()), vertexCount * 4 * sizeof(float));
+	
+	std::vector<uint16_t> indices(indexCount);
+	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint16_t));
+	
+	arch::Logger::trace("Asset loaded");
 	return true;
 }
 
