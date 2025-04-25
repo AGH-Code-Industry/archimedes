@@ -1,4 +1,4 @@
-#include <asset_manager/AssetImporterManager.h>
+#include <asset_manager/importers/AssetImporterManager.h>
 #include <asset_manager/AssetException.h>
 
 namespace arch::assetManager {

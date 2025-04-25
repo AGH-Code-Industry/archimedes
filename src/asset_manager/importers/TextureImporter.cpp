@@ -1,4 +1,4 @@
-#include <asset_manager/TextureImporter.h>
+#include <asset_manager/importers/TextureImporter.h>
 
 namespace arch::assetManager {
 bool TextureImporter::SupportsFile(const std::filesystem::path& path) const {

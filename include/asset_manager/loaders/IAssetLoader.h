@@ -1,12 +1,14 @@
 #pragma once
 
 #include <filesystem>
+#include <memory>
 
 namespace arch::assetManager {
 
+template <class T>
 class IAssetLoader {
 public:
-	virtual bool LoadFromFile(std::filesystem::path path) const = 0;
+	virtual std::shared_ptr<T> LoadFromFile(const std::filesystem::path& path) const = 0;
 	virtual ~IAssetLoader() = default;
 };
 

@@ -1,4 +1,4 @@
-#include <asset_manager/AudioImporter.h>
+#include <asset_manager/importers/AudioImporter.h>
 
 namespace arch::assetManager {
 bool AudioImporter::SupportsFile(const std::filesystem::path& path) const {

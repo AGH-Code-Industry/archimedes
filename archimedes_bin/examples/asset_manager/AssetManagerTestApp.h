@@ -1,8 +1,8 @@
 #include <asset_manager/AssetID.h>
-#include <asset_manager/AssetImporterManager.h>
-#include <asset_manager/MeshImporter.h>
-#include <asset_manager/TextureImporter.h>
-#include <asset_manager/MeshLoader.h>
+#include <asset_manager/importers/AssetImporterManager.h>
+#include <asset_manager/importers/MeshImporter.h>
+#include <asset_manager/importers/TextureImporter.h>
+#include <asset_manager/loaders/MeshLoader.h>
 #include <iostream>
 
 void TestHashing() {
