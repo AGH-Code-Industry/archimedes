@@ -1,6 +1,4 @@
-#include <asset_manager/MeshLoader.h>
-
-#include <iostream>
+#include <asset_manager/loaders/MeshLoader.h>
 
 namespace arch::assetManager {
 
@@ -8,19 +6,19 @@ MeshLoader::MeshLoader() {
 	arch::Logger::info("Mesh Loader created");
 }
 
-bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
+std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
 	size_t currentOffset{};
 	
 	std::ifstream inStream{ path };
 
 	if (!std::filesystem::exists(path)) {
 		arch::Logger::error("Processed asset not found.");
-		return false;
+		return std::make_shared<Mesh>();
 	}
 
 	if (!inStream) {
 		arch::Logger::error("Cannot open processed asset.");
-		return false;
+		return std::make_shared<Mesh>();
 	}
 
 	std::array<char, 4> magic{};
@@ -30,7 +28,7 @@ bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
 	constexpr std::string_view expectedMagic{ "MSHB", 4 };
 	if (std::string_view{ magic.data(), magic.size() } != expectedMagic) {
 		arch::Logger::error("Wrong magic. Processed asset type not correct.");
-		return false;
+		return std::make_shared<Mesh>();
 	}
 
 	uint16_t version{};
@@ -38,7 +36,7 @@ bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
 	currentOffset += sizeof(version);
 	if (version != 1) {
 		arch::Logger::error("Processed asset format version not supported.");
-		return false;
+		return std::make_shared<Mesh>();
 	}
 
 	uint16_t hasUVs{};
@@ -64,7 +62,7 @@ bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
 	currentOffset += sizeof(vertexSize);
 	if (vertexSize == 0) {
 		arch::Logger::error("Vertex size set to 0.");
-		return false;
+		return std::make_shared<Mesh>();
 	}
 
 	uint32_t vertexDataOffset{};
@@ -97,7 +95,7 @@ bool MeshLoader::LoadFromFile(std::filesystem::path path) const {
 	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint16_t));
 	
 	arch::Logger::trace("Asset loaded");
-	return true;
+	return std::make_shared<Mesh>();
 }
 
 } // namespace arch::assetManager

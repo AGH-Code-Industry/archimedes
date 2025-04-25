@@ -1,4 +1,4 @@
-#include <asset_manager/MeshImporter.h>
+#include <asset_manager/importers/MeshImporter.h>
 
 namespace arch::assetManager {
 
