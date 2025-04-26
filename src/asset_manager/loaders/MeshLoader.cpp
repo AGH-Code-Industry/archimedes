@@ -13,12 +13,12 @@ std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path
 
 	if (!std::filesystem::exists(path)) {
 		arch::Logger::error("Processed asset not found.");
-		return std::make_shared<Mesh>();
+		throw AssetException("Processed asset not found.");
 	}
 
 	if (!inStream) {
 		arch::Logger::error("Cannot open processed asset.");
-		return std::make_shared<Mesh>();
+		throw AssetException("Cannot open processed asset.");
 	}
 
 	std::array<char, 4> magic{};
@@ -28,7 +28,7 @@ std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path
 	constexpr std::string_view expectedMagic{ "MSHB", 4 };
 	if (std::string_view{ magic.data(), magic.size() } != expectedMagic) {
 		arch::Logger::error("Wrong magic. Processed asset type not correct.");
-		return std::make_shared<Mesh>();
+		throw AssetException("Wrong magic. Processed asset type not correct.");
 	}
 
 	uint16_t version{};
@@ -36,7 +36,7 @@ std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path
 	currentOffset += sizeof(version);
 	if (version != 1) {
 		arch::Logger::error("Processed asset format version not supported.");
-		return std::make_shared<Mesh>();
+		throw AssetException("Processed asset format version not supported.");
 	}
 
 	uint16_t hasUVs{};
@@ -62,7 +62,7 @@ std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path
 	currentOffset += sizeof(vertexSize);
 	if (vertexSize == 0) {
 		arch::Logger::error("Vertex size set to 0.");
-		return std::make_shared<Mesh>();
+		throw AssetException("Vertex size set to 0.");
 	}
 
 	uint32_t vertexDataOffset{};
@@ -91,11 +91,25 @@ std::shared_ptr<Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path
 	std::vector<float> vertices(4 * vertexCount);
 	inStream.read(reinterpret_cast<char*>(vertices.data()), vertexCount * 4 * sizeof(float));
 	
-	std::vector<uint16_t> indices(indexCount);
-	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint16_t));
+	std::vector<uint32_t> indices(indexCount);
+	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint32_t));
+	
+	auto rdr{ gfx::Renderer::current() };
+	auto bmgr{ rdr->getBufferManager() };
+
+	auto vb{ bmgr->createVertexBuffer(vertices.data(), vertices.size(), vertexSize) };
+	auto ib{ bmgr->createIndexBuffer(indices) };
+
+
+	auto mesh{ std::make_shared<Mesh>() };
+	mesh->_vertexBuffer = vb;
+	mesh->_indexBuffer = ib;
+	mesh->_vertexCount = vertexCount;
+	mesh->_indexCount = indexCount;
 	
 	arch::Logger::trace("Asset loaded");
-	return std::make_shared<Mesh>();
+	return mesh;
+	
 }
 
 } // namespace arch::assetManager

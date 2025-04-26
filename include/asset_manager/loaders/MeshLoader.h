@@ -7,7 +7,9 @@
 #include <memory>
 
 #include <Logger.h>
+#include <gfx/Renderer.h>
 #include <asset_manager/assets/Mesh.h>
+#include <asset_manager/AssetException.h>
 
 #include "IAssetLoader.h"
 
