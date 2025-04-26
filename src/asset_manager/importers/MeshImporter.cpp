@@ -65,7 +65,7 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 
 	bool hasUVs{ !uvs.empty() };
 	std::vector<float> finalVertices{};
-	std::vector<uint16_t> finalIndices{};
+	std::vector<uint32_t> finalIndices{};
 
 	std::map<std::pair<size_t, size_t>, uint16_t> vertexToIndex{};
 
@@ -136,7 +136,7 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 		outStream.write(reinterpret_cast<const char*>(&i), sizeof(i));
 	}
 
-	for (uint16_t& i : finalIndices) {
+	for (uint32_t& i : finalIndices) {
 		outStream.write(reinterpret_cast<const char*>(&i), sizeof(i));
 	}
 
