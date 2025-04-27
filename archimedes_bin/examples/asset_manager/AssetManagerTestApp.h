@@ -3,6 +3,7 @@
 #include <asset_manager/importers/MeshImporter.h>
 #include <asset_manager/importers/TextureImporter.h>
 #include <asset_manager/loaders/MeshLoader.h>
+#include <asset_manager/AssetManager.h>
 #include <iostream>
 
 void TestHashing() {
@@ -27,8 +28,12 @@ void TestHashing() {
 void CreateAIM() {
 	arch::assetManager::AssetImporterManager manager("assets/processed");
 	manager.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
-
 	manager.ImportAsset("assets/source/meshes/arrow_triangulated.obj");
-	arch::assetManager::MeshLoader loader{};
-	loader.LoadFromFile("assets/processed/meshes/arrow_triangulated.archmesh");
+
+	static arch::assetManager::AssetManager assetManager;
+	assetManager.RegisterLoader<arch::assetManager::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
+
+	auto mesh{ assetManager.LoadAsync<arch::assetManager::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh") };
+	assetManager.TickLoader();
 }
+
