@@ -29,17 +29,17 @@ AssetHandle<T> AssetManager::LoadAsync(const std::filesystem::path& path) {
 	return AssetHandle<T>{ entryBase };
 }
 
-//template<class T>
-//std::shared_ptr<T> AssetManager::LoadSync(const std::filesystem::path& path) {
-//	auto h{ LoadAsync<T>(path) };
-//
-//	TickLoader(std::numeric_limits<std::size_t>::max());
-//	if (!h.IsReady()) {
-//		//throw AssetException("Asset " + path.string() + " failed to load: " + h.ErrorMsg());
-//	}
-//	auto entryTyped{ std::static_pointer_cast<AssetEntry<T>>(_entry) };
-//	return entryTyped->ptr;
-//}
+template<class T>
+std::shared_ptr<T> AssetManager::LoadSync(const std::filesystem::path& path) {
+	auto h{ LoadAsync<T>(path) };
+
+	TickLoader(std::numeric_limits<std::size_t>::max());
+	if (!h.IsReady()) {
+		throw AssetException("Asset " + path.string() + " failed to load: " + h.ErrorMsg());
+	}
+
+	return std::static_pointer_cast<AssetEntry<T>>(h._entry)->ptr;
+}
 
 void AssetManager::TickLoader(std::size_t maxJobs) {
 	while (maxJobs-- && !_queue.empty()) {
