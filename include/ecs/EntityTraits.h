@@ -15,16 +15,16 @@ struct EntityTraits {
 	// Entity specification
 	using Specs = EntitySpecs;
 	/// @brief Entity type
-	using EntityT = typename ::arch::ecs::Entity;
+	using EntityT = Specs::EntityT;
 	/// @brief Entity underlying type
-	using EntityRawT = std::underlying_type_t<Entity>;
+	using EntityRawT = std::underlying_type_t<EntityT>;
 	/// @brief Entity id type
-	using IdT = EntityRawT;
+	using IdT = Specs::IdT;
 	/// @brief Entity version type
-	using VersionT = uint16_t;
+	using VersionT = Specs::VersionT;
 
 	/// @brief Size of sparse pages
-	static inline constexpr size_t pageSize = 1'024;
+	static inline constexpr size_t pageSize = Specs::pageSize;
 
 	/// @brief Entity section
 	struct Ent {
