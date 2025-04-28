@@ -50,9 +50,9 @@ public:
 protected:
 
 	template<class, class>
-	friend class View;
+	friend class ::arch::ecs::View;
 	template<class, class>
-	friend class ViewIterator;
+	friend class ::arch::ecs::ViewIterator;
 
 	using SparseContainer = std::vector<std::unique_ptr<Entity[]>>;
 	using DenseContainer = std::vector<Entity>;
