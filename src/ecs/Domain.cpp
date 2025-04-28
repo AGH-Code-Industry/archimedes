@@ -21,7 +21,7 @@ bool Domain::alive(const Entity entity) const noexcept {
 }
 
 bool Domain::contains(const IdT id) const noexcept {
-	return _entityPool.contains(id);
+	return _entityPool.containsID(id);
 }
 
 Domain::VersionT Domain::version(const Entity entity) const noexcept {
