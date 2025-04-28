@@ -41,18 +41,18 @@ struct EntityTraits {
 		/// @brief Constructs entity from its parts
 		/// @param id - id of entity
 		/// @param ver - version of entity
-		static Type fromParts(const IdT id, const VersionT ver) noexcept;
+		static inline Type fromParts(const IdT id, const VersionT ver) noexcept;
 		/// @brief Constructs entity from its raw parts
 		/// @param id - id part of entity
 		/// @param ver - version part of entity
-		static Type fromRawParts(const RawT id, const RawT ver) noexcept;
+		static inline Type fromRawParts(const RawT id, const RawT ver) noexcept;
 		/// @brief Constructs entity from others
 		/// @param id - entity to extract id from
 		/// @param ver - entity to extract version from
-		static Type fromOthers(const Type id, const Type ver) noexcept;
+		static inline Type fromOthers(const Type id, const Type ver) noexcept;
 		/// @brief Obtains entity as underlying type
 		/// @param entity - entity to convert
-		static RawT toRaw(const Type entity) noexcept;
+		static inline RawT toRaw(const Type entity) noexcept;
 	};
 
 	/// @brief Id section
@@ -74,19 +74,19 @@ struct EntityTraits {
 		static inline constexpr EntityRawT nullRaw = mask;
 
 		/// @brief Obtains id part from given entity
-		static Type part(const EntityT entity) noexcept;
+		static inline Type part(const EntityT entity) noexcept;
 		/// @brief Obtains id raw part from given entity
-		static EntityRawT rawPart(const EntityT entity) noexcept;
+		static inline EntityRawT rawPart(const EntityT entity) noexcept;
 		/// @brief Converts id part to raw part
-		static EntityRawT asRawPart(const Type id) noexcept;
+		static inline EntityRawT asRawPart(const Type id) noexcept;
 		/// @brief Checks if entity has null id
-		static bool hasNull(const EntityT entity) noexcept;
+		static inline bool hasNull(const EntityT entity) noexcept;
 		/// @brief Creates entity with null id and version of given entity
-		static EntityT withNull(const EntityT entity) noexcept;
+		static inline EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps ids of two entities
-		static void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
 		/// @brief Compares ids of 2 given entities
-		static bool equal(const EntityT entity1, const EntityT entity2) noexcept;
+		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 
 	/// @brief Version section
@@ -108,25 +108,25 @@ struct EntityTraits {
 		static inline constexpr EntityRawT nullRaw = mask;
 
 		/// @brief Obtains version part from given entity
-		static Type part(const EntityT entity) noexcept;
+		static inline Type part(const EntityT entity) noexcept;
 		/// @brief Obtains version raw part from given entity
-		static EntityRawT asRawPart(const Type version) noexcept;
+		static inline EntityRawT asRawPart(const Type version) noexcept;
 		/// @brief Converts version part to raw part
-		static EntityRawT rawPart(const EntityT entity) noexcept;
+		static inline EntityRawT rawPart(const EntityT entity) noexcept;
 		/// @brief Checks if entity has null version
-		static bool hasNull(const EntityT entity) noexcept;
+		static inline bool hasNull(const EntityT entity) noexcept;
 		/// @brief Checks if entity has != null version
-		static bool hasNotNull(const EntityT entity) noexcept;
+		static inline bool hasNotNull(const EntityT entity) noexcept;
 		/// @brief Creates entity with next version and id of given entity
-		static EntityT withNext(const EntityT entity) noexcept;
+		static inline EntityT withNext(const EntityT entity) noexcept;
 		/// @brief Gets next version of given entity
-		static Type next(const EntityT entity) noexcept;
+		static inline Type next(const EntityT entity) noexcept;
 		/// @brief Creates entity with null version and id of given entity
-		static EntityT withNull(const EntityT entity) noexcept;
+		static inline EntityT withNull(const EntityT entity) noexcept;
 		/// @brief Swaps versions of two entities
-		static void swap(EntityT& entity1, EntityT& entity2) noexcept;
+		static inline void swap(EntityT& entity1, EntityT& entity2) noexcept;
 		/// @brief Compares versions of 2 given entities
-		static bool equal(const EntityT entity1, const EntityT entity2) noexcept;
+		static inline bool equal(const EntityT entity1, const EntityT entity2) noexcept;
 	};
 };
 
@@ -137,3 +137,5 @@ namespace arch::ecs {
 static inline constexpr Entity nullEntity = _details::EntityTraits::Ent::null;
 
 }
+
+#include "EntityTraits.hpp"
