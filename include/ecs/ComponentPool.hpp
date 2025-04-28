@@ -178,7 +178,7 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
-		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
+		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize][sparseSwapIdx % ETraits::pageSize];
 
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
