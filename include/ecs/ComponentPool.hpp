@@ -214,11 +214,9 @@ POOL_C::GetReference POOL_C::get(const EntityT entity) noexcept {
 	if constexpr (Traits::flag) {
 		return contains(entity);
 	} else {
-		const size_t id = ETraits::Id::part(entity);
-
 		ARCH_ASSERT(contains(entity), "Component for entity not found");
 
-		const size_t idx = ETraits::Id::part(_sparseGet(id));
+		const size_t idx = ETraits::Id::part(_sparseCGet(ETraits::Id::part(entity)));
 
 		return _components[idx / Traits::pageSize][idx % Traits::pageSize];
 	}
