@@ -47,7 +47,7 @@ public:
 
 protected:
 
-	using SparseContainer = std::vector<std::unique_ptr<std::array<Entity, Traits::pageSize>>>;
+	using SparseContainer = std::vector<std::unique_ptr<Entity[]>>;
 	using DenseContainer = std::vector<Entity>;
 
 	// possibly inits sparse page
