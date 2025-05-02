@@ -31,9 +31,9 @@ void CreateAIM() {
 	manager.ImportAsset("assets/source/meshes/arrow_triangulated.obj");
 
 	static arch::assetManager::AssetManager assetManager;
-	assetManager.RegisterLoader<arch::assetManager::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
+	assetManager.RegisterLoader<arch::asset::mesh::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
 
-	auto mesh{ assetManager.LoadAsync<arch::assetManager::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh") };
+	auto mesh{ assetManager.LoadAsync<arch::asset::mesh::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh") };
 	assetManager.TickLoader();
 }
 

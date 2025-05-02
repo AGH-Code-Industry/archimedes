@@ -10,7 +10,6 @@
 #include "loaders/IAssetLoader.h"
 #include "loaders/MeshLoader.h"
 #include "AssetID.h"
-#include "assets/Mesh.h"
 
 #include <Logger.h>
 
