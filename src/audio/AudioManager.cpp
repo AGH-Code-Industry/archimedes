@@ -63,7 +63,7 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 		throw AudioException("Audio manager can't play not registered source");
 	}
 	SourceState currentState = _sourceStates[source._id];
-	if (currentState == unused || currentState == paused || currentState == assigned) {
+	if (currentState == paused || currentState == assigned) {
 		_sourceStates[source._id] = playing;
 	}
 }
