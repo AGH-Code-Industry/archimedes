@@ -6,6 +6,7 @@
 #include "ComponentPool.h"
 #include "EntityPool.h"
 #include "ExcludeT.h"
+#include "ViewFwd.h"
 #include "meta/Rtti.h"
 #include "tUtils/TypeList.h"
 
@@ -206,7 +207,7 @@ public:
 
 private:
 
-	template<bool, class, class>
+	template<class, class>
 	friend class View;
 
 	// ComponentPools mapped by type
