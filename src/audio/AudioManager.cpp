@@ -125,6 +125,7 @@ void AudioManager::assignSource(AudioSourceComponent& source, const scene::compo
 	source._id = index;
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source, transform, moveable);
+	_sourceStates[index] = assigned;
 	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
 }
 
