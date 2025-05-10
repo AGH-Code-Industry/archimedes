@@ -43,3 +43,6 @@
 [submodule "vendor/shaderc"]
 	path = vendor/shaderc
 	url = https://github.com/google/shaderc.git
+[submodule "vendor/nvrhi"]
+	path = vendor/nvrhi
+	url = https://github.com/NVIDIA-RTX/NVRHI.git
