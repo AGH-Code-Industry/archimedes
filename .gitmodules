@@ -16,9 +16,6 @@
 [submodule "vendor/ctre"]
 	path = vendor/ctre
 	url = https://github.com/hanickadot/compile-time-regular-expressions.git
-[submodule "vendor/openssl"]
-	path = vendor/openssl
-	url = https://github.com/openssl/openssl.git
 [submodule "vendor/openal-soft"]
 	path = vendor/openal-soft
 	url = https://github.com/kcat/openal-soft.git
@@ -46,3 +43,6 @@
 [submodule "vendor/nvrhi"]
 	path = vendor/nvrhi
 	url = https://github.com/NVIDIA-RTX/NVRHI.git
+[submodule "vendor/cryptopp"]
+	path = vendor/cryptopp
+	url = https://github.com/weidai11/cryptopp.git
