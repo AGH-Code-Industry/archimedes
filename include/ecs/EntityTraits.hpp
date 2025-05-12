@@ -1,5 +1,6 @@
+#include "EntityTraits.h"
+//
 #include "ArchMath.h"
-#include <ecs/EntityTraits.h>
 
 namespace arch::ecs::_details {
 
@@ -19,16 +20,16 @@ EntityTraits::Ent::RawT EntityTraits::Ent::toRaw(const Type entity) noexcept {
 	return (RawT)entity;
 }
 
-EntityTraits::Id::Type EntityTraits::Id::part(const EntityT entity) noexcept {
-	return { rawPart(entity) };
+inline EntityTraits::Id::Type EntityTraits::Id::part(const EntityT entity) noexcept {
+	return rawPart(entity);
 }
 
 EntityTraits::EntityRawT EntityTraits::Id::asRawPart(const Type id) noexcept {
 	return (EntityRawT)id & mask;
 }
 
-EntityTraits::EntityRawT EntityTraits::Id::rawPart(const EntityT entity) noexcept {
-	return Ent::toRaw(entity) & mask;
+inline EntityTraits::EntityRawT EntityTraits::Id::rawPart(const EntityT entity) noexcept {
+	return reinterpret_cast<const EntityTraits::Ent::RawT&>(entity) & mask;
 }
 
 bool EntityTraits::Id::hasNull(const EntityT entity) noexcept {
