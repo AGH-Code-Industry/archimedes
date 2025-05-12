@@ -5,8 +5,7 @@
 
 #include <ArchMath.h>
 #include <net/GetMac.h>
-#include <openssl/rand.h>
-#include <openssl/sha.h>
+
 
 namespace arch::utils {
 

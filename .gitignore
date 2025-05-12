@@ -15,6 +15,10 @@ linux_build/
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.vcxproj.user
+**/obj/
+**/bin/
+lib/
 x64/
 Testing/
 .vscode
