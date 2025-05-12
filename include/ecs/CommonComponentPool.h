@@ -14,6 +14,13 @@ public:
 	/// @param entity - entity to remove component from
 	/// @return If component was actually removed
 	virtual bool removeComponent(const Entity entity) noexcept = 0;
+
+private:
+
+	template<class, class>
+	friend class View;
+	template<class, class>
+	friend class ViewIterator;
 };
 
 } // namespace arch::ecs::_details

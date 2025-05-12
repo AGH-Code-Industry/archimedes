@@ -6,6 +6,7 @@
 #include "IsEntity.h"
 #include <tUtils/Functions/CallableTraits.h>
 #include <tUtils/Functions/IsApplicable.h>
+#include <tUtils/LogicalTraits.h>
 
 #define TEMPLATE_IE template<class... Includes, class... Excludes>
 #define VIEW_IE View<TypeList<Includes...>, TypeList<Excludes...>>
@@ -58,15 +59,28 @@ void VIEW_IE::forEach(Fn&& fn) noexcept {
 	using Traits = tUtils::CallableTraits<Fn>;
 
 	if constexpr (Traits::isCallable) {
+		// non-template callable, can obtain args
+
 		static constexpr bool isFirstEntity = _details::IsEntity<typename Traits::Args::front>::value;
 
 		using Args = Traits::Args;
+		// remove first from Args if entity
 		using ArgsNonEntity = std::conditional_t<isFirstEntity, typename Args::popFront, Args>;
 
-		using WantedComponents = ArgsNonEntity::template transform<std::remove_reference>;
-		using ConstGets = GetTL::template filter<std::is_const>::template transform<std::remove_const>;
+		// utility trait
+		using IsNotConst = traits::Not<std::is_const>;
 
-		static_assert(!ConstGets::template containsAnyFrom<WantedComponents>, "Wanted components exceed this view");
+		// View subset with const components
+		using AvailableConst = GetTL::template filter<std::is_const>;
+		// View subset with non-const components
+		using AvailableNonConst = GetTL::template filter<IsNotConst::type>;
+		// View subset with non-const components as consts
+		using AvailableNonConstAsConst = AvailableNonConst::template transform<std::add_const>;
+		using Available = AvailableConst::template cat<AvailableNonConst, AvailableNonConstAsConst>;
+
+		using WantedComponents = ArgsNonEntity::template transform<std::remove_reference>;
+
+		static_assert(Available::template containsAllFrom<WantedComponents>, "Wanted components exceed this view");
 
 		if (_minIdx == (u32)-1) {
 			return;
@@ -76,34 +90,49 @@ void VIEW_IE::forEach(Fn&& fn) noexcept {
 	} else if constexpr (tUtils::isApplicableV<
 							 Fn,
 							 typename GetTL::template transform<std::add_lvalue_reference>::toTuple>) {
+		// if callable with View's components
 		_forEach<false>(std::forward<Fn>(fn), GetTL());
 	} else if constexpr (tUtils::isApplicableV<
 							 Fn,
 							 typename GetTL::template transform<std::add_lvalue_reference>::template prepend<
 								 Entity>::toTuple>) {
+		// if callable with Entity and View's components
 		_forEach<true>(std::forward<Fn>(fn), GetTL());
 	} else {
-		static_assert(false, "Fn cannot be called on view");
+		static_assert(false, "fn cannot be called on view");
 	}
 }
 
 TEMPLATE_IE
 template<bool PassEntity, class Fn, class... Cs>
 void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
+	// component subset
 	using ComponentList = TypeList<Cs...>;
 	using ActualComponents = ComponentList::template transform<std::remove_const>;
 	using CPoolsCast = ComponentList::template transform<SelectCPool>;
 
-	const auto cpBegin = _cpools.cbegin(), cpMiddle = _cpools.cbegin() + _minIdx,
-			   cpMiddleNext = _cpools.cbegin() + _minIdx + 1, cpEnd = _cpools.cend();
+	const auto cpoolsBegin = _cpools.cbegin(), cpoolsMiddle = _cpools.cbegin() + _minIdx,
+			   cpoolsMiddleNext = _cpools.cbegin() + _minIdx + 1, cpoolsEnd = _cpools.cend();
 
 	if constexpr (excludeCount != 0) {
-		const auto exCpBegin = _exCpools.cbegin(), exCpEnd = _exCpools.cend();
+		const auto excludeCpoolsBegin = _excludedCpools.cbegin(), excludeCpoolsEnd = _excludedCpools.cend();
 		for (const auto entity : _cpools[_minIdx]->_dense) {
+			// cpools[minIdx] check
 			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-				std::all_of(cpBegin, cpMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-				std::all_of(cpMiddleNext, cpEnd, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-				std::none_of(exCpBegin, exCpEnd, [entity](const auto cpool) {
+				// rest check
+				std::all_of(
+					cpoolsBegin,
+					cpoolsMiddle,
+					[entity](const auto cpool) { return cpool->contains(entity); }
+				) &&
+				std::all_of(
+					cpoolsMiddleNext,
+					cpoolsEnd,
+					[entity](const auto cpool) { return cpool->contains(entity); }
+				) &&
+				// excludedCpools check
+				std::none_of(excludeCpoolsBegin, excludeCpoolsEnd, [entity](const auto cpool) {
+					// excluded cpool can be nullptr
 					return cpool && cpool->contains(entity);
 				})) {
 				if constexpr (PassEntity) {
@@ -122,9 +151,17 @@ void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
 		}
 	} else {
 		for (const auto entity : _cpools[_minIdx]->_dense) {
+			// cpools[minIdx] check
 			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-				std::all_of(cpBegin, cpMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-				std::all_of(cpMiddleNext, cpEnd, [entity](const auto cpool) { return cpool->contains(entity); })) {
+				// rest check
+				std::all_of(
+					cpoolsBegin,
+					cpoolsMiddle,
+					[entity](const auto cpool) { return cpool->contains(entity); }
+				) &&
+				std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) {
+					return cpool->contains(entity);
+				})) {
 				if constexpr (PassEntity) {
 					fn(entity,
 					   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
@@ -163,7 +200,11 @@ auto VIEW_IE::_all(TypeList<Cs...>) noexcept {
 TEMPLATE_IE
 auto VIEW_IE::all() noexcept {
 	if constexpr (includeCount == 1) {
-		return std::views::zip(*this, components());
+		// if view is of one component, returns its cpool
+		using First = GetTL::front;
+		static_assert(!std::same_as<First, typeList::NoneT>, "Cannot call all() while the only component is flag");
+		using CPool = SelectCPool<First>::type;
+		return std::views::zip(*this, std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
 	} else {
 		return _all(GetTL());
 	}
@@ -187,15 +228,14 @@ auto VIEW_IE::_components(TypeList<Cs...>) noexcept {
 TEMPLATE_IE
 auto VIEW_IE::components() noexcept {
 	if constexpr (includeCount == 1) {
+		// if view is of one component, returns its cpool
 		using First = GetTL::front;
 		static_assert(
 			!std::same_as<First, typeList::NoneT>,
 			"Cannot call components() while the only component is flag"
 		);
-		using FirstNonConst = std::remove_const_t<First>;
-		using CPool = std::
-			conditional_t<std::is_const_v<First>, const ComponentPool<FirstNonConst>*, ComponentPool<FirstNonConst>*>;
-		return std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0]));
+		using CPool = SelectCPool<First>::type;
+		return std::ranges::zip_view(std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
 	} else {
 		return _components(GetTL());
 	}
@@ -220,18 +260,20 @@ auto VIEW_IE::get(const Entity entity) noexcept {
 
 TEMPLATE_IE
 bool VIEW_IE::contains(const Entity entity) const noexcept {
-	const auto cpBegin = _cpools.cbegin(), cpMiddle = _cpools.cbegin() + _minIdx,
-			   cpMiddleNext = _cpools.cbegin() + _minIdx + 1, cpEnd = _cpools.cend();
-	if (excludeCount == 0) {
+	const auto cpoolsBegin = _cpools.cbegin(), cpoolsMiddle = _cpools.cbegin() + _minIdx,
+			   cpoolsMiddleNext = _cpools.cbegin() + _minIdx + 1, cpoolsEnd = _cpools.cend();
+	if constexpr (excludeCount == 0) {
 		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-			std::all_of(cpBegin, cpMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::all_of(cpMiddleNext, cpEnd, [entity](const auto cpool) { return cpool->contains(entity); });
+			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); });
 	} else {
-		const auto exCpBegin = _exCpools.cbegin(), exCpEnd = _exCpools.cend();
+		const auto excludedCpoolsBegin = _excludedCpools.cbegin(), excludedCpoolsEnd = _excludedCpools.cend();
 		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-			std::all_of(cpBegin, cpMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::all_of(cpMiddleNext, cpEnd, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::none_of(exCpBegin, exCpEnd, [entity](const auto cpool) { return cpool && cpool->contains(entity); });
+			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::none_of(excludedCpoolsBegin, excludedCpoolsEnd, [entity](const auto cpool) {
+				   return cpool && cpool->contains(entity);
+			   });
 	}
 }
 
