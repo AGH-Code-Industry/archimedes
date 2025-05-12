@@ -3,7 +3,7 @@
 #include <font/Face.h>
 #include <font/Font.h>
 #include <font/FontDB.h>
-#include <freetype2/ft2build.h>
+#include <ft2build.h>
 #include <utils/Assert.h>
 #include FT_FREETYPE_H
 

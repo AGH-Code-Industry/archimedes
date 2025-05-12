@@ -5,7 +5,7 @@
 
 #include <font/Face.h>
 #include <font/MSDFAtlasGen.h>
-#include <freetype2/ft2build.h>
+#include <ft2build.h>
 #include <json/json.h>
 #include FT_FREETYPE_H
 
