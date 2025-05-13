@@ -46,3 +46,6 @@
 [submodule "vendor/cryptopp"]
 	path = vendor/cryptopp
 	url = https://github.com/weidai11/cryptopp.git
+[submodule "vendor/cryptopp-cmake"]
+	path = vendor/cryptopp-cmake
+	url = https://github.com/abdes/cryptopp-cmake.git
