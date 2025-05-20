@@ -16,7 +16,7 @@ namespace arch::ecs {
 TEMPLATE_IE
 VIEW_IE::View(Domain* domain) noexcept:
 	_cpools{ (_details::CommonComponentPool*)domain->_tryGetCPool<Includes>()... },
-	_exCpools{ (_details::CommonComponentPool*)domain->_tryGetCPool<Excludes>()... },
+	_excludedCpools{ (_details::CommonComponentPool*)domain->_tryGetCPool<Excludes>()... },
 	_minIdx{ _getMinIdx() } {}
 
 TEMPLATE_IE
