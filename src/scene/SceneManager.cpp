@@ -1,5 +1,8 @@
 #include "scene/SceneManager.h"
 
+#include <ranges>
+#include <algorithm>
+
 #include "Ecs.h"
 #include "scene/Components.h"
 #include "text/TextComponent.h"

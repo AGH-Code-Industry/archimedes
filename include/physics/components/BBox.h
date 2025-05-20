@@ -5,8 +5,8 @@
 namespace arch::physics {
 
 struct BBox {
-	float2 topLeft;
-	float2 bottomRight;
+	math::float2 topLeft;
+	math::float2 bottomRight;
 };
 
 }

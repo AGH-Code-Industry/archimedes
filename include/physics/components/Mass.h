@@ -5,7 +5,7 @@
 namespace arch::physics {
 
 struct Mass {
-	f32 value;
+	math::f32 value;
 };
 
 }

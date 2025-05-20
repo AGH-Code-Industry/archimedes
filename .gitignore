@@ -23,7 +23,6 @@ compile_commands.json
 cmake/conan_files/
 CMakeSettings.json
 cmake-build-*
-venv/*
 cmake/conanfile.hash
 *cache*
 thirdparty/*
