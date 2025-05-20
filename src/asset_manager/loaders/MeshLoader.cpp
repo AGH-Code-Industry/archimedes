@@ -8,16 +8,16 @@ MeshLoader::MeshLoader() {
 
 std::shared_ptr<arch::asset::mesh::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
 	size_t currentOffset{};
-	
+
 	std::ifstream inStream{ path };
 
 	if (!std::filesystem::exists(path)) {
-		arch::Logger::error("Processed asset not found.");
+		arch::Logger::error("'{}' not found", path.string());
 		throw AssetException("Processed asset not found.");
 	}
 
 	if (!inStream) {
-		arch::Logger::error("Cannot open processed asset.");
+		arch::Logger::error("Cannot open '{}'", path.string());
 		throw AssetException("Cannot open processed asset.");
 	}
 
@@ -27,29 +27,29 @@ std::shared_ptr<arch::asset::mesh::Mesh> MeshLoader::LoadFromFile(const std::fil
 
 	constexpr std::string_view expectedMagic{ "MSHB", 4 };
 	if (std::string_view{ magic.data(), magic.size() } != expectedMagic) {
-		arch::Logger::error("Wrong magic. Processed asset type not correct.");
-		throw AssetException("Wrong magic. Processed asset type not correct.");
+		arch::Logger::error("Wrong magic (expected MSHB). Processed asset type not correct.");
+		throw AssetException("Wrong magic (expected MSHB). Processed asset type not correct.");
 	}
 
 	uint16_t version{};
 	inStream.read(reinterpret_cast<char*>(&version), sizeof(version));
 	currentOffset += sizeof(version);
 	if (version != 1) {
-		arch::Logger::error("Processed asset format version not supported.");
+		arch::Logger::error("Processed asset format version {} - not supported", version);
 		throw AssetException("Processed asset format version not supported.");
 	}
 
 	uint16_t hasUVs{};
 	inStream.read(reinterpret_cast<char*>(&hasUVs), sizeof(hasUVs));
 	currentOffset += sizeof(hasUVs);
-	
+
 	uint32_t vertexCount{};
 	inStream.read(reinterpret_cast<char*>(&vertexCount), sizeof(vertexCount));
 	currentOffset += sizeof(vertexCount);
 	if (vertexCount == 0) {
 		arch::Logger::warn("No vertices in mesh.");
 	}
-	
+
 	uint32_t indexCount{};
 	inStream.read(reinterpret_cast<char*>(&indexCount), sizeof(indexCount));
 	currentOffset += sizeof(indexCount);
@@ -69,43 +69,41 @@ std::shared_ptr<arch::asset::mesh::Mesh> MeshLoader::LoadFromFile(const std::fil
 	inStream.read(reinterpret_cast<char*>(&vertexDataOffset), sizeof(vertexDataOffset));
 	currentOffset += sizeof(vertexDataOffset);
 	if (vertexDataOffset != 32) {
-		arch::Logger::warn("Vertex Data Offset other than 32");
+		arch::Logger::warn("Vertex Data Offset other than 32 ({}).", vertexDataOffset);
 	}
 
 	uint32_t indexDataOffset{};
 	inStream.read(reinterpret_cast<char*>(&indexDataOffset), sizeof(indexDataOffset));
 	currentOffset += sizeof(indexDataOffset);
 	if (indexDataOffset != vertexDataOffset + vertexCount * vertexSize) {
-		arch::Logger::warn("Index Data Offset different than expected");
+		arch::Logger::warn("Index Data Offset different than expected ({}).", vertexDataOffset);
 	}
 
 	inStream.seekg(4, std::ios::cur);
 	currentOffset += 4;
 
 	if (currentOffset != 32) {
-		arch::Logger::warn("Header offset different than expected.");
+		arch::Logger::warn("Header offset different than expected ({}).", currentOffset);
 	}
-	 
+
 	arch::Logger::trace("Asset passed verification.");
-	
+
 	std::vector<float> vertices(4 * vertexCount);
 	inStream.read(reinterpret_cast<char*>(vertices.data()), vertexCount * 4 * sizeof(float));
-	
+
 	std::vector<uint32_t> indices(indexCount);
 	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint32_t));
-	
+
 	auto rdr{ gfx::Renderer::current() };
 	auto bmgr{ rdr->getBufferManager() };
 
 	auto vb{ bmgr->createVertexBuffer(vertices.data(), vertices.size(), vertexSize) };
 	auto ib{ bmgr->createIndexBuffer(indices) };
 
-
 	auto mesh{ std::make_shared<arch::asset::mesh::Mesh>(vb, ib) };
-	
+
 	arch::Logger::trace("Asset loaded");
 	return mesh;
-	
 }
 
 } // namespace arch::assetManager
