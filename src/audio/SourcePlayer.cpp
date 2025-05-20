@@ -1,4 +1,5 @@
 #include <audio/Calls.hpp>
+
 #include <audio/SourcePlayer.h>
 
 namespace arch::audio {
@@ -7,23 +8,8 @@ void SourcePlayer::setClipPath(const std::string& clipPath) {
 	_clipPath = clipPath;
 }
 
-void SourcePlayer::clean() {
+void SourcePlayer::cleanClipPath() {
 	_clipPath = "";
-	alCall(alSourceRewind, _source);
-	alCall(alSourcef, _source, AL_PITCH, 1.0f);
-	alCall(alSourcef, _source, AL_GAIN, 1.0f);
-	alCall(alSource3f, _source, AL_POSITION, 0.0f, 0.0f, 0.0f);
-	alCall(alSource3f, _source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-	alCall(alSource3f, _source, AL_DIRECTION, 0.0f, 0.0f, 0.0f);
-	_isLooped = false;
-	alCall(alSourcef, _source, AL_MAX_DISTANCE, std::numeric_limits<float>::max());
-	alCall(alSourcef, _source, AL_REFERENCE_DISTANCE, 1.0f);
-	alCall(alSourcef, _source, AL_ROLLOFF_FACTOR, 1.0f);
-	alCall(alSourcef, _source, AL_CONE_INNER_ANGLE, 360.0f);
-	alCall(alSourcef, _source, AL_CONE_OUTER_ANGLE, 360.0f);
-	alCall(alSourcef, _source, AL_CONE_OUTER_GAIN, 0.0f);
-	_isEndFound = false;
-	_cursor = 0;
 }
 
 void SourcePlayer::update(const AudioSourceComponent& source) {
@@ -32,6 +18,9 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 	}
 	alCall(alSourcef, _source, AL_PITCH, source.pitch);
 	alCall(alSourcef, _source, AL_GAIN, source.gain);
+	alCall(alSource3f, _source, AL_POSITION, source.position.x, source.position.y, 0);
+	alCall(alSource3f, _source, AL_VELOCITY, source.velocity.x, source.velocity.y, 0);
+	alCall(alSource3f, _source, AL_DIRECTION, source.direction.x, source.direction.y, 0);
 	_isLooped = source.isLooped;
 	alCall(alSourcei, _source, AL_LOOPING, AL_FALSE);
 	alCall(alSourcef, _source, AL_MAX_DISTANCE, source.maxDistance);
@@ -41,21 +30,6 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 	alCall(alSourcef, _source, AL_CONE_OUTER_ANGLE, source.coneOuterAngle);
 	alCall(alSourcef, _source, AL_CONE_OUTER_GAIN, source.coneOuterGain);
 }
-
-void SourcePlayer::update(
-	const AudioSourceComponent& source,
-	const scene::components::TransformComponent& transform,
-	const physics::Moveable& moveable
-) {
-	update(source);
-	alCall(alSource3f, _source, AL_POSITION, transform.position.x, transform.position.y, 0.0f);
-	alCall(alSource3f, _source, AL_VELOCITY, moveable.velocity.x, moveable.velocity.y, 0.0f);
-	if (source.isDirectional) {
-		float3 direction = transform.rotation * float3(0.0f, 1.0f, 0.0f);
-		alCall(alSource3f, _source, AL_DIRECTION, direction.x, direction.y, 0.0f);
-	}
-}
-
 
 bool SourcePlayer::_initiallyLoadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
@@ -154,7 +128,10 @@ bool SourcePlayer::stopPlaying() {
 		return false;
 	}
 	alCall(alSourceUnqueueBuffers, _source, 4, &_buffers[0]);
-	clean();
+	alCall(alSourceRewind, _source);
+	cleanClipPath();
+	_isEndFound = false;
+	_isLooped = false;
 	return true;
 }
 

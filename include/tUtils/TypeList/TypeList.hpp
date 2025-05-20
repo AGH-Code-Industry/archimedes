@@ -9,7 +9,6 @@
 #include "EndsWith.hpp"
 #include "Erase.hpp"
 #include "EraseIf.hpp"
-#include "Filter.hpp"
 #include "Find.hpp"
 #include "Front.hpp"
 #include "Get.hpp"
@@ -23,7 +22,6 @@
 #include "Reverse.hpp"
 #include "StartsWith.hpp"
 #include "SubList.hpp"
-#include "Transform.hpp"
 #include <tuple>
 
 namespace arch {
@@ -110,11 +108,6 @@ public:
 	template<template<class T> class Pred, size_t Pos = 0>
 	using eraseIf = typename AsTypeList<typename PhEraseIf<_PhT, Pred, Pos>::type>::type;
 
-	template<template<class> class Fn, size_t Pos = 0>
-	using transform = typename AsTypeList<typename PhTransform<_PhT, Fn, Pos>::type>::type;
-	template<template<class> class Pred, size_t Pos = 0>
-	using filter = typename AsTypeList<typename PhFilter<_PhT, Pred, Pos>::type>::type;
-
 	template<size_t Pos, class... Ts2>
 	static inline constexpr size_t findAt = PhFindAt<true, _PhT, Pos, Ts2...>::value;
 	template<class... Ts2>
@@ -169,10 +162,6 @@ public:
 
 using typeList::TypeList;
 } // namespace tUtils
-
-namespace typeList {
-using NoneT = tUtils::typeList::NoneT;
-}
 
 using tUtils::TypeList;
 } // namespace arch

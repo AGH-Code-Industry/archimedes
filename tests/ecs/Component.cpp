@@ -143,6 +143,10 @@ TEST(ECS, ComponentFlag) {
 	// meaning getComponent<T> will never result in an UB
 	EXPECT_FALSE(domain.getComponent<EnemyFlag>(e0));
 	EXPECT_FALSE(domain.getComponent<EnemyFlag>(e1));
+
+	for (auto&& [entity, vel] : domain.components<EnemyFlag>()) {
+		// ...
+	}
 }
 
 // now let's dive deep into implementation details

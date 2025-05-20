@@ -116,10 +116,6 @@ public:
 private:
 
 	friend arch::ecs::_details::ComponentPoolIterator<C>;
-	template<class, class>
-	friend class View;
-	template<class, class>
-	friend class ViewIterator;
 
 	//// returns entity of given id from sparse, assuring it's page exists
 	// Entity& _sparseAssure(const IdT id) noexcept;

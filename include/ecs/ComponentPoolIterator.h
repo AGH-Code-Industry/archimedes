@@ -26,8 +26,7 @@ public:
 	/// @brief Component type
 	using ComponentT = C;
 	/// @brief Return value
-	// using ValueType = std::pair<const Entity&, std::conditional_t<Traits::flag, const bool, C&>>;
-	using ValueType = std::conditional_t<Traits::flag, const bool, C>;
+	using ValueType = std::pair<const Entity&, std::conditional_t<Traits::flag, const bool, C&>>;
 	/// @brief Return value reference
 	using Reference = ValueType&;
 	/// @brief Return value Pointer
@@ -67,8 +66,6 @@ public:
 	/// @brief Access operator
 	Pointer operator->() const noexcept;
 
-	const Entity& entity() const noexcept;
-
 	/// @brief Equality operator
 	bool operator==(const ComponentPoolIterator& other) const noexcept;
 	/// @brief Comparision operator
@@ -79,11 +76,18 @@ private:
 
 	// if iterator is valid
 	bool _valid() const noexcept;
+	void _update() noexcept;
 
 	using ETraits = _details::EntityTraits;
 
 	// used by ComponentPool
 	ComponentPoolIterator(ComponentPool<C>* pool, size_t i = 0) noexcept;
+
+	Reference _pair() const noexcept;
+
+	// f*ck default-constructibleness
+	// Fine... I'll do it myself
+	alignas(ValueType) char _value[sizeof(ValueType)]{};
 
 	// iterating through pages with offset was tested to be the fastest
 	C** _componentPage;

@@ -26,7 +26,7 @@ struct EngineConfig {
  */
 class Engine {
 public:
-	Engine(const EngineConfig& config, Unique<Application>& application);
+	Engine(const EngineConfig& config, const Ref<Application>& application);
 	~Engine();
 
 	/**
@@ -35,12 +35,12 @@ public:
 	void start();
 
 private:
-
-	EngineConfig _engineConfig; 
 	Ref<Window> _mainWindow;
-	Ref<gfx::Renderer> _renderer; 
-	Ref<scene::SceneManager> _sceneManager; 
-	Unique<Application> _application;
+	EngineConfig _engineConfig;
+	Ref<gfx::Renderer> _renderer;
+	Ref<Application> _application;
+
+	Ref<scene::SceneManager> _sceneManager;
 
 private:
 	/**

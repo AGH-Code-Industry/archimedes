@@ -5,7 +5,7 @@
 namespace arch::physics {
 
 struct Velocity {
-	math::float2 value;
+	float2 value;
 };
 
 }

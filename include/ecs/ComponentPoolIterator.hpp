@@ -7,6 +7,17 @@
 namespace arch::ecs::_details {
 
 TEMPLATE_C
+void ITER_C::_update() noexcept {
+	if (_valid()) { // update internal std::pair
+		if constexpr (Traits::flag) {
+			new (_value) ValueType((*_dense)[_i], true);
+		} else {
+			new (_value) ValueType((*_dense)[_i], *const_cast<C*>(*_componentPage + _offset));
+		}
+	}
+}
+
+TEMPLATE_C
 ITER_C::ComponentPoolIterator(ComponentPool<C>* pool, size_t i) noexcept:
 	_componentPage{ [&]() {
 		if constexpr (Traits::flag) {
@@ -23,13 +34,21 @@ ITER_C::ComponentPoolIterator(ComponentPool<C>* pool, size_t i) noexcept:
 		}
 	}() },
 	_dense{ &pool->_dense },
-	_i{ i } {}
+	_i{ i } {
+	_update();
+}
+
+TEMPLATE_C
+ITER_C::Reference ITER_C::_pair() const noexcept {
+	return *reinterpret_cast<Pointer>(&const_cast<ITER_C*>(this)->_value);
+}
 
 TEMPLATE_C void ITER_C::swap(ITER_C& other) noexcept {
 	std::swap(this->_componentPage, other._componentPage);
 	std::swap(this->_offset, other._offset);
 	std::swap(this->_dense, other._dense);
 	std::swap(this->_i, other._i);
+	std::swap(this->_pair(), other._pair());
 }
 
 TEMPLATE_C
@@ -58,6 +77,7 @@ ITER_C& ITER_C::operator++() noexcept {
 		}
 	}
 
+	_update();
 	return *this;
 }
 
@@ -97,6 +117,7 @@ ITER_C& ITER_C::operator--() noexcept {
 		--_i;
 	}
 
+	_update();
 	return *this;
 }
 
@@ -109,16 +130,12 @@ ITER_C ITER_C::operator--(int) noexcept {
 
 TEMPLATE_C
 ITER_C::Reference ITER_C::operator*() const noexcept {
-	return *const_cast<C*>(*_componentPage + _offset);
+	return _pair();
 }
 
 TEMPLATE_C
-const Entity& ITER_C::entity() const noexcept {
-	return (*_dense)[_i];
-}
-
-TEMPLATE_C ITER_C::Pointer ITER_C::operator->() const noexcept {
-	return const_cast<C*>(*_componentPage + _offset);
+ITER_C::Pointer ITER_C::operator->() const noexcept {
+	return &(_pair());
 }
 
 TEMPLATE_C

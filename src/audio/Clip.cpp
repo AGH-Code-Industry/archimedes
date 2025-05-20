@@ -1,6 +1,5 @@
 #include <audio/AudioException.h>
 #include <audio/Clip.h>
-#include <cstring>
 #include <sndfile.h>
 #include <AL/al.h>
 

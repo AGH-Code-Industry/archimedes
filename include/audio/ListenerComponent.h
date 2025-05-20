@@ -1,19 +1,18 @@
 #pragma once
 
-namespace arch::audio{
+#include <math/Math.h>
 
-/// @brief ECS component used to store all data about a sound listener on the scene.
+namespace arch::audio{
 struct ListenerComponent {
 
 	///@brief Gain of all listened sounds.
 	/// Controls loudness of all the sounds.
-	/// @warning Value should be positive.
-	/// Also, values bigger than 1.0 might be treated as 1.0.
 	float gain = 1.0f;
 
-private:
+	math::float2 position = {0.0f, 0.0f};
+	math::float2 velocity = {0.0f, 0.0f};
 
-	///@brief Tells if this listener's data is used by the AudioManager.
+private:
 	bool _isActive = false;
 
 	friend class AudioManager;
