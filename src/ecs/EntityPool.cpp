@@ -6,60 +6,6 @@
 
 namespace arch::ecs {
 
-EntityPool::Iterator EntityPool::begin() noexcept {
-	return _dense.begin();
-}
-
-EntityPool::ConstIterator EntityPool::begin() const noexcept {
-	return _dense.begin();
-}
-
-EntityPool::ConstIterator EntityPool::cbegin() const noexcept {
-	return _dense.cbegin();
-}
-
-EntityPool::Iterator EntityPool::end() noexcept {
-	return _dense.begin() + _size;
-}
-
-EntityPool::ConstIterator EntityPool::end() const noexcept {
-	return _dense.begin() + _size;
-}
-
-EntityPool::ConstIterator EntityPool::cend() const noexcept {
-	return _dense.cbegin() + _size;
-}
-
-EntityPool::ReverseIterator EntityPool::rbegin() noexcept {
-	return std::make_reverse_iterator(end());
-}
-
-EntityPool::ConstReverseIterator EntityPool::rbegin() const noexcept {
-	return std::make_reverse_iterator(end());
-}
-
-EntityPool::ConstReverseIterator EntityPool::crbegin() const noexcept {
-	return std::make_reverse_iterator(cend());
-}
-
-EntityPool::ReverseIterator EntityPool::rend() noexcept {
-	return std::make_reverse_iterator(begin());
-}
-
-EntityPool::ConstReverseIterator EntityPool::rend() const noexcept {
-	return std::make_reverse_iterator(begin());
-}
-
-EntityPool::ConstReverseIterator EntityPool::crend() const noexcept {
-	return std::make_reverse_iterator(cbegin());
-}
-
-void EntityPool::swap(EntityPool& other) noexcept {
-	std::swap(_sparse, other._sparse);
-	std::swap(_dense, other._dense);
-	std::swap(_size, other._size);
-}
-
 EntityPool::EntityT EntityPool::newEntity() noexcept {
 	if (_size == Traits::Id::max + 1) { // entity limit achieved
 		return null;
@@ -82,7 +28,7 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 }
 
 EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
-	if (!contains(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
+	if (!containsID(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
 		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
 		auto& toSwapDense = _dense[_size++];
 
@@ -98,7 +44,7 @@ EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
 }
 
 EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
-	if (!contains(id)) {
+	if (!containsID(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[_size++];
 
@@ -127,7 +73,7 @@ void EntityPool::kill(const EntityT entity) noexcept {
 }
 
 void EntityPool::kill(const IdT id) noexcept {
-	if (contains(id)) {
+	if (containsID(id)) {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[--_size];
 
@@ -171,8 +117,8 @@ EntityPool::Iterator EntityPool::find(const IdT id) noexcept {
 	const size_t pageNum = _id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-			!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]) ?
-		begin() + Traits::Version::rawPart((*_sparse[pageNum])[_id % Traits::pageSize]) :
+			!Traits::Version::hasNull(_sparse[pageNum][_id % Traits::pageSize]) ?
+		begin() + Traits::Version::rawPart(_sparse[pageNum][_id % Traits::pageSize]) :
 		end();
 }
 
@@ -185,8 +131,8 @@ EntityPool::ConstIterator EntityPool::find(const IdT id) const noexcept {
 	const size_t pageNum = _id / Traits::pageSize;
 
 	return pageNum < _sparse.size() && _sparse[pageNum] != nullptr &&
-			!Traits::Version::hasNull((*_sparse[pageNum])[_id % Traits::pageSize]) ?
-		begin() + Traits::Version::rawPart((*_sparse[pageNum])[_id % Traits::pageSize]) :
+			!Traits::Version::hasNull(_sparse[pageNum][_id % Traits::pageSize]) ?
+		begin() + Traits::Version::rawPart(_sparse[pageNum][_id % Traits::pageSize]) :
 		end();
 }
 
