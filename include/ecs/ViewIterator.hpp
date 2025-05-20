@@ -107,8 +107,8 @@ ITER_IE::ViewIterator(
 	_denseBegin{ valid ? (*_middle)->_dense.data() : nullptr },
 	_denseI{ valid ? _denseBegin + i : nullptr },
 	_denseEnd{ valid ? _denseBegin + (*_middle)->_dense.size() : nullptr },
-	_exBegin{ view->_exCpools.cbegin() },
-	_exEnd{ view->_exCpools.cend() } {}
+	_exBegin{ view->_excludedCpools.cbegin() },
+	_exEnd{ view->_excludedCpools.cend() } {}
 
 TEMPLATE_IE
 ITER_IE& ITER_IE::operator++() noexcept {
