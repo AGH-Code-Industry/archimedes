@@ -35,6 +35,10 @@ struct Vertex {
 	float2 tex_coords;
 };
 
+struct Keyboard {
+	static inline bool spaceDown = false;
+};
+
 std::vector<Vertex> defaultVertices{
 	{  { 0.f, 0.f, 0.f }, { 0.f, 1.f } },
 	{ { -1.f, 0.f, 0.f }, { 1.f, 1.f } },
@@ -357,6 +361,11 @@ inline void wulkanSystem(Scene& scene) noexcept {
 			explosion(scene, wulkan);
 		}
 	}
+
+	if (Keyboard::spaceDown) {
+		Keyboard::spaceDown = false;
+		explosion(scene, wulkan);
+	}
 }
 
 inline void setupGround(Entity ground) noexcept {
@@ -469,6 +478,19 @@ public:
 
 		auto ground = scene->newEntity();
 		setupGround(ground);
+
+		auto window = gfx::Renderer::getCurrent()->getWindow()->get();
+		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+			if (key == GLFW_KEY_SPACE) {
+				if (action == GLFW_PRESS) {
+					Keyboard::spaceDown = true;
+					// Logger::debug("spaceDown callback");
+				} else if (action == GLFW_RELEASE) {
+					Keyboard::spaceDown = false;
+					// Logger::debug("spaceUp callback");
+				}
+			}
+		});
 	}
 
 	void update() {

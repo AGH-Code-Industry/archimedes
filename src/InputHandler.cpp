@@ -16,7 +16,7 @@ InputHandler& InputHandler::get() {
 
 void InputHandler::initialize(GLFWwindow* window) {
 	_window = window;
-	glfwSetKeyCallback(_window, _handleKeyEvent);
+	// glfwSetKeyCallback(_window, _handleKeyEvent);
 }
 
 void InputHandler::_bindKey(int keyCode, const std::function<void()>& func) const {
