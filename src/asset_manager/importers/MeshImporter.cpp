@@ -8,7 +8,7 @@ bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
 		arch::Logger::trace("File format verified.");
 		return true;
 	} else {
-		arch::Logger::warn("File format not supported.");
+		arch::Logger::warn("File format not supported - '{}'.", extension);
 		return false;
 	}
 }
@@ -17,7 +17,7 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 	std::ifstream inStream(sourcePath, std::ios::binary);
 
 	if (!inStream) {
-		arch::Logger::error(".obj file not found");
+		arch::Logger::error("'{}' was not found.", sourcePath.string());
 		return;
 	}
 
@@ -91,11 +91,6 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 		}
 		finalIndices.emplace_back(index);
 	}
-
-	/*for (size_t i{}; i < finalVertices.size(); i += 4) {
-		std::cout << finalVertices.at(i) << " " << finalVertices.at(i + 1) << " " << finalVertices.at(i + 2) << " "
-				  << finalVertices.at(i + 3) << std::endl;
-	}*/
 
 	std::filesystem::create_directory(processedPath.string() + "/meshes");
 	std::ofstream outStream(processedPath.string() + "/meshes/" + sourcePath.stem().string() + ".archmesh", std::ios::binary);
