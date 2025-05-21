@@ -11,7 +11,9 @@
 #include "loaders/MeshLoader.h"
 #include "AssetID.h"
 
+
 #include <Logger.h>
+#include <meta/Rtti.h>
 
 namespace arch::assetManager {
 
@@ -33,11 +35,11 @@ private:
 
 	struct LoadRequest {
 		std::filesystem::path path;
-		std::type_index type;
+		arch::meta::rtti::TypeDescriptorWrapper type;
 		std::shared_ptr<AssetEntryBase> entry;
 	};
 
-	std::unordered_map<std::type_index, std::unique_ptr<IAssetLoaderBase>> _loaders;
+	std::unordered_map<arch::meta::rtti::TypeDescriptorWrapper, std::unique_ptr<IAssetLoaderBase>> _loaders;
 	std::unordered_map<AssetID, std::shared_ptr<AssetEntryBase>> _cache;
 	std::queue<LoadRequest> _queue;
 };
