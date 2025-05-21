@@ -56,14 +56,13 @@ void AssetManager::TickLoader(std::size_t maxJobs) {
 
 		try {
 			auto* base{ itLoader->second.get() };
-			auto* loader{ static_cast<IAssetLoader<arch::asset::mesh::Mesh>*>(base) };
+			auto* loader{ static_cast<IAssetLoader<arch::assetManager::assets::Mesh>*>(base) };
 			auto assetPtr{ loader->LoadFromFile(job.path) };
 
-			auto* entryT = static_cast<AssetEntry<arch::asset::mesh::Mesh>*>(job.entry.get());
+			auto* entryT = static_cast<AssetEntry<arch::assetManager::assets::Mesh>*>(job.entry.get());
 			entryT->ptr = std::move(assetPtr);
 			job.entry->state = AssetState::Ready;
-		}
-		catch (const std::exception& e) {
+		} catch (const std::exception& e) {
 			job.entry->state = AssetState::Error;
 			job.entry->err = e.what();
 			Logger::error("Asset load error: {}", e.what());
@@ -72,10 +71,10 @@ void AssetManager::TickLoader(std::size_t maxJobs) {
 }
 
 template void AssetManager::RegisterLoader<
-	arch::asset::mesh::Mesh>(std::unique_ptr<IAssetLoader<arch::asset::mesh::Mesh>>);
-template AssetHandle<arch::asset::mesh::Mesh> AssetManager::LoadAsync<
-	arch::asset::mesh::Mesh>(const std::filesystem::path&);
-template std::shared_ptr<arch::asset::mesh::Mesh> AssetManager::LoadSync<
-	arch::asset::mesh::Mesh>(const std::filesystem::path&);
+	arch::assetManager::assets::Mesh>(std::unique_ptr<IAssetLoader<arch::assetManager::assets::Mesh>>);
+template AssetHandle<arch::assetManager::assets::Mesh> AssetManager::LoadAsync<
+	arch::assetManager::assets::Mesh>(const std::filesystem::path&);
+template std::shared_ptr<arch::assetManager::assets::Mesh> AssetManager::LoadSync<
+	arch::assetManager::assets::Mesh>(const std::filesystem::path&);
 
-}
+} // namespace arch::assetManager

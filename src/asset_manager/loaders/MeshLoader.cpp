@@ -6,7 +6,7 @@ MeshLoader::MeshLoader() {
 	arch::Logger::info("Mesh Loader created");
 }
 
-std::shared_ptr<arch::asset::mesh::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
+std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
 	size_t currentOffset{};
 
 	std::ifstream inStream{ path };
@@ -94,15 +94,18 @@ std::shared_ptr<arch::asset::mesh::Mesh> MeshLoader::LoadFromFile(const std::fil
 	std::vector<uint32_t> indices(indexCount);
 	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint32_t));
 
-	auto rdr{ gfx::Renderer::current() };
+	/*auto rdr{ gfx::Renderer::current() };
 	auto bmgr{ rdr->getBufferManager() };
 
 	auto vb{ bmgr->createVertexBuffer(vertices.data(), vertices.size(), vertexSize) };
 	auto ib{ bmgr->createIndexBuffer(indices) };
 
-	auto mesh{ std::make_shared<arch::asset::mesh::Mesh>(vb, ib) };
+	auto mesh{ std::make_shared<arch::asset::mesh::Mesh>(vb, ib) };*/
 
 	arch::Logger::trace("Asset loaded");
+	std::shared_ptr<arch::assetManager::assets::Mesh> mesh{
+		std::make_shared<arch::assetManager::assets::Mesh>(vertices, indices)
+	};
 	return mesh;
 }
 
