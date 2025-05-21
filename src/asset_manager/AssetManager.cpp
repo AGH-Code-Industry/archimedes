@@ -4,8 +4,14 @@ namespace arch::assetManager {
 
 template<class T>
 void AssetManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
-	_loaders.emplace(loader->AssetType(), std::move(loader));
-	arch::Logger::info("Loader registered in AssetManager.");
+	auto typeWrapper{ arch::meta::rtti::typedesc<T>().wrap() };
+
+	if (_loaders.contains(typeWrapper)) {
+		Logger::warn("Loder of type '{}' already registered. Overwriting.", typeWrapper.name());
+	}
+
+	_loaders.emplace(typeWrapper, std::move(loader));
+	Logger::info("Registered loader of type: '{}'", typeWrapper.name());
 }
 
 template<class T>
@@ -15,15 +21,15 @@ AssetHandle<T> AssetManager::LoadAsync(const std::filesystem::path& path) {
 	auto& entryBase{ _cache[id] };
 	if (!entryBase) {
 		entryBase = std::make_shared<AssetEntry<T>>();
-		Logger::trace("Asset entry created.");
+		Logger::trace("Asset ({}) entry created.", path.string());
 	}
 
 	auto entry{ std::static_pointer_cast<AssetEntry<T>>(entryBase) };
 
 	if (!entry->loadQueued) {
 		entry->loadQueued = true;
-		_queue.push({ path, typeid(T), entry });
-		Logger::trace("Asset loaded into queue.");
+		_queue.push({ path, arch::meta::rtti::typedesc<T>().wrap(), entry });
+		Logger::trace("Asset ({}) loaded into queue.", path.string());
 	}
 
 	return AssetHandle<T>{ entryBase };
@@ -35,6 +41,7 @@ std::shared_ptr<T> AssetManager::LoadSync(const std::filesystem::path& path) {
 
 	TickLoader(std::numeric_limits<std::size_t>::max());
 	if (!h.IsReady()) {
+		Logger::error("Asset ({}) failed to load: {}", path.string(), h.ErrorMsg());
 		throw AssetException("Asset " + path.string() + " failed to load: " + h.ErrorMsg());
 	}
 
