@@ -32,6 +32,9 @@ class Archimedes(ConanFile):
         # SPIRV (Shader compiler)
         self.requires("shaderc/2023.6")  # waiting for conan repo update
 
+        # KTX2 (texture compression and loading)
+        self.requires("ktx/4.3.2")
+
     def configure(self):
         self.options["spdlog/1.12.0"].use_std_fmt = True
 
