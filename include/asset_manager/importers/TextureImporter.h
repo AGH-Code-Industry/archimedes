@@ -2,6 +2,10 @@
 
 #include "IAssetImporter.h"
 
+#include <ktx.h>
+
+#include <Logger.h>
+
 namespace arch::assetManager {
 
 class TextureImporter: public IAssetImporter {
