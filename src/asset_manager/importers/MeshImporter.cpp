@@ -5,10 +5,10 @@ namespace arch::assetManager {
 bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
 	std::string extension{ path.extension().string() };
 	if (extension == ".obj") {
-		arch::Logger::trace("File format verified.");
+		arch::Logger::trace("File format verified ('{}').", path.string());
 		return true;
 	} else {
-		arch::Logger::warn("File format not supported - '{}'.", extension);
+		arch::Logger::warn("File format not supported ('{}').", path.string());
 		return false;
 	}
 }
