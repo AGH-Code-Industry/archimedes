@@ -17,8 +17,10 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 	std::ifstream inStream(sourcePath, std::ios::binary);
 
 	if (!inStream) {
-		arch::Logger::error("'{}' was not found.", sourcePath.string());
+		arch::Logger::error("File not found - '{}'", sourcePath.string());
 		return;
+	} else {
+		arch::Logger::trace("File succesfully located - '{}'", sourcePath.string());
 	}
 
 	std::string line{};
@@ -93,7 +95,10 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 	}
 
 	std::filesystem::create_directory(processedPath.string() + "/meshes");
-	std::ofstream outStream(processedPath.string() + "/meshes/" + sourcePath.stem().string() + ".archmesh", std::ios::binary);
+	std::ofstream outStream(
+		processedPath.string() + "/meshes/" + sourcePath.stem().string() + ".archmesh",
+		std::ios::binary
+	);
 
 	if (!outStream) {
 		arch::Logger::error("Mesh file wasn't created");
