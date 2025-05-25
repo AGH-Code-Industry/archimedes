@@ -1,14 +1,17 @@
 #pragma once
 
 #include "IAssetImporter.h"
+
 #include <ktx.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize.h>
+
 #include <vector>
+#include <cmath>
 
 #include <Logger.h>
-#include <stb_image_resize.h>
 
 namespace arch::assetManager {
 
@@ -41,9 +44,9 @@ private:
 
 private:
 
-	mutable MipMapGenerationMethod _genMethod{ MipMapGenerationMethod::DEFAULT };
-	mutable uint32_t _mipMapLevels = 0;
-	mutable uint32_t _minAllowedDimension = 1;
+	MipMapGenerationMethod _genMethod{ MipMapGenerationMethod::DEFAULT };
+	mutable uint32_t _mipMapLevels{ 0 };
+	uint32_t _minAllowedDimension{ 1 };
 };
 
 } // namespace arch::assetManager
