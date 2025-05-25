@@ -104,6 +104,13 @@ void TextureImporter::Import(const std::filesystem::path& sourcePath, const std:
 		// TODO: apply _genMethod
 		stbir_filter filterMethod;
 
+		switch (_genMethod) {
+			case MipMapGenerationMethod::DEFAULT:	 filterMethod = STBIR_FILTER_DEFAULT; break;
+			case MipMapGenerationMethod::BOX_FILTER: filterMethod = STBIR_FILTER_BOX; break;
+			case MipMapGenerationMethod::TRIANGLE_FILTER: filterMethod = STBIR_FILTER_TRIANGLE; break;
+			case MipMapGenerationMethod::MITCHELL_NETRAVAL_FILTER: filterMethod = STBIR_FILTER_MITCHELL; break;
+		}
+
 		int resizeResult{ stbir_resize_uint8_generic(
 			currMipSrc.pixels.data(),
 			currMipSrc.width,

@@ -20,7 +20,6 @@ enum class MipMapGenerationMethod : uint8_t {
 	BOX_FILTER,
 	TRIANGLE_FILTER,
 	MITCHELL_NETRAVAL_FILTER,
-	LANCZOS3_FILTER,
 };
 
 class TextureImporter: public IAssetImporter {
