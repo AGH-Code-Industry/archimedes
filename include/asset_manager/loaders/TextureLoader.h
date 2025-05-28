@@ -1,9 +1,13 @@
 #pragma once
 
-#include "IAssetLoader.h"
+#include <fstream>
+#include <string>
+#include <memory>
 
 #include <Logger.h>
 #include <asset_manager/assets/Texture.h>
+
+#include "IAssetLoader.h"
 
 namespace arch::assetManager {
 
