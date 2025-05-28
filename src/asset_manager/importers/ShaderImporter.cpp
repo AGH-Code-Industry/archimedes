@@ -24,11 +24,8 @@ void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::
 	shaderc::Compiler compiler{};
 	shaderc::CompileOptions compileOpts{};
 
-	if (sourcePath.extension().string() == ".hlsl") {
-		compileOpts.SetSourceLanguage(shaderc_source_language_hlsl);
-	} else {
-		compileOpts.SetSourceLanguage(shaderc_source_language_glsl);
-	}
+	compileOpts.SetSourceLanguage(static_cast<shaderc_source_language>(_sourceLanguage));
+
 
 	compileOpts.SetOptimizationLevel(static_cast<shaderc_optimization_level>(_optMode));
 	compileOpts.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
