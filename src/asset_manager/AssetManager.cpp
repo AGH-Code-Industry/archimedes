@@ -84,4 +84,11 @@ template AssetHandle<arch::assetManager::assets::Mesh> AssetManager::LoadAsync<
 template std::shared_ptr<arch::assetManager::assets::Mesh> AssetManager::LoadSync<
 	arch::assetManager::assets::Mesh>(const std::filesystem::path&);
 
+template void AssetManager::RegisterLoader<
+	arch::assetManager::assets::Shader>(std::unique_ptr<IAssetLoader<arch::assetManager::assets::Shader>>);
+template AssetHandle<arch::assetManager::assets::Shader> AssetManager::LoadAsync<
+	arch::assetManager::assets::Shader>(const std::filesystem::path&);
+template std::shared_ptr<arch::assetManager::assets::Shader> AssetManager::LoadSync<
+	arch::assetManager::assets::Shader>(const std::filesystem::path&);
+
 } // namespace arch::assetManager

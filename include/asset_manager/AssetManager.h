@@ -9,6 +9,7 @@
 #include "AssetHandle.h"
 #include "loaders/IAssetLoader.h"
 #include "loaders/MeshLoader.h"
+#include "loaders/ShaderLoader.h"
 #include "AssetID.h"
 
 
