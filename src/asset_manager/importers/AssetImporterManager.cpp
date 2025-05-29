@@ -31,9 +31,9 @@ void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile) 
 	}
 
 	if (success) {
-		arch::Logger::info("Asset loaded ");
+		arch::Logger::info("Asset imported ('{}').", sourceFile.string());
 	} else {
-		arch::Logger::warn("Asset couldn't be loaded");
+		arch::Logger::warn("Asset couldn't be loaded ('{}').", sourceFile.string());
 	}
 }
 

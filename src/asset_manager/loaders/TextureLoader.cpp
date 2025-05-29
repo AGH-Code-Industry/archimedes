@@ -1,4 +1,4 @@
-#include "TextureLoader.h"
+#include "asset_manager/loaders/TextureLoader.h"
 
 namespace arch::assetManager {
 	TextureLoader::TextureLoader() {
