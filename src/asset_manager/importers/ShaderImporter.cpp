@@ -2,7 +2,13 @@
 
 namespace arch::assetManager {
 bool ShaderImporter::SupportsFile(const std::filesystem::path& path) const {
-	arch::Logger::info("Shader checking not ready yet.");
+	std::string extension{ path.extension().string() };
+	if (extension == ".glsl" || extension == ".hlsl") {
+		return true;
+	} else {
+		return false;
+	}
+	return true;
 }
 
 void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
@@ -46,15 +52,21 @@ void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::
 
 	std::vector<uint32_t> spirv{ result.begin(), result.end() };
 
-	std::ofstream outStream(processedPath, std::ios::binary);
+	std::string outPath{ processedPath.string() + "/shaders/" + sourcePath.stem().string() + ".spv" };
+
+	std::filesystem::create_directory(processedPath.string() + "/shaders");
+	std::ofstream outStream(
+		outPath,
+		std::ios::binary
+	);
 	
 	if (!outStream) {
-		arch::Logger::error("SPIR-V shader file wasn't created ('{}')", processedPath.string());
+		arch::Logger::error("SPIR-V shader file wasn't created ('{}')", outPath);
 		return;
 	}
 
 	outStream.write(reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
-	arch::Logger::info("Shader file ('{}') succesfully created!", processedPath.string());
+	arch::Logger::info("Shader file ('{}') succesfully created!", outPath);
 }
 
 void ShaderImporter::SetOptimizationMode(const ShaderOptimizationMode& mode) noexcept {

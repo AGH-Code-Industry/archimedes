@@ -1,9 +1,4 @@
-#include <asset_manager/AssetID.h>
-#include <asset_manager/importers/AssetImporterManager.h>
-#include <asset_manager/importers/MeshImporter.h>
-#include <asset_manager/importers/TextureImporter.h>
-#include <asset_manager/loaders/MeshLoader.h>
-#include <asset_manager/AssetManager.h>
+#include <AssetManager.h>
 #include <iostream>
 
 void TestHashing() {
@@ -25,15 +20,13 @@ void TestHashing() {
 	}
 }
 
-void CreateAIM() {
+void TestImporting() {
 	arch::assetManager::AssetImporterManager manager("assets/processed");
 	manager.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
 	manager.ImportAsset("assets/source/meshes/arrow_triangulated.obj");
+	manager.RegisterImporter(std::make_unique<arch::assetManager::ShaderImporter>());
+	manager.ImportAsset("assets/source/shaders/fragment_default2.glsl");
+	manager.ImportAsset("assets/source/shaders/vertex_default.glsl");
 
-	static arch::assetManager::AssetManager assetManager;
-	assetManager.RegisterLoader<arch::asset::mesh::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
-
-	auto mesh{ assetManager.LoadAsync<arch::asset::mesh::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh") };
-	assetManager.TickLoader();
 }
 

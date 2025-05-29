@@ -6,5 +6,5 @@ int main() {
 
 	arch::Logger::init(arch::LogLevel::trace);
 	TestHashing();
-	CreateAIM();
+	TestImporting();
 }
