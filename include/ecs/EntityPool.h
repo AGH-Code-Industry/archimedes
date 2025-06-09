@@ -41,7 +41,7 @@ public:
 
 	/// @brief Swaps this pool with given pool
 	/// @param other - pool to swap with
-	void swap(EntityPool& other) noexcept;
+	inline void swap(EntityPool& other) noexcept;
 
 	/// @brief Creates new entity or recycles killed
 	/// @return Created entity, null if achieved entity limit
@@ -93,29 +93,29 @@ public:
 	size_t size() const noexcept;
 
 	/// @brief Returns iterator to the first entity
-	Iterator begin() noexcept;
+	inline Iterator begin() noexcept;
 	/// @brief Returns readonly iterator to the first entity
-	ConstIterator begin() const noexcept;
+	inline ConstIterator begin() const noexcept;
 	/// @brief Returns readonly iterator to the first entity
-	ConstIterator cbegin() const noexcept;
+	inline ConstIterator cbegin() const noexcept;
 	/// @brief Returns iterator to the past-the-last entity
-	Iterator end() noexcept;
+	inline Iterator end() noexcept;
 	/// @brief Returns readonly iterator to the past-the-last entity
-	ConstIterator end() const noexcept;
+	inline ConstIterator end() const noexcept;
 	/// @brief Returns readonly iterator to the past-the-last entity
-	ConstIterator cend() const noexcept;
+	inline ConstIterator cend() const noexcept;
 	/// @brief Returns reverse iterator to the first entity in reversed order
-	ReverseIterator rbegin() noexcept;
+	inline ReverseIterator rbegin() noexcept;
 	/// @brief Returns readonly reverse iterator to the first entity in reversed order
-	ConstReverseIterator rbegin() const noexcept;
+	inline ConstReverseIterator rbegin() const noexcept;
 	/// @brief Returns readonly reverse iterator to the first entity in reversed order
-	ConstReverseIterator crbegin() const noexcept;
+	inline ConstReverseIterator crbegin() const noexcept;
 	/// @brief Returns reverse iterator to the past-the-last entity in reversed order
-	ReverseIterator rend() noexcept;
+	inline ReverseIterator rend() noexcept;
 	/// @brief Returns readonly reverse iterator to the past-the-last entity in reversed order
-	ConstReverseIterator rend() const noexcept;
+	inline ConstReverseIterator rend() const noexcept;
 	/// @brief Returns readonly reverse iterator to the past-the-last entity in reversed order
-	ConstReverseIterator crend() const noexcept;
+	inline ConstReverseIterator crend() const noexcept;
 
 private:
 
@@ -126,3 +126,5 @@ private:
 };
 
 } // namespace arch::ecs
+
+#include "EntityPool.hpp"
