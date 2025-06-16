@@ -2,6 +2,7 @@
 
 #include "KeyState.h"
 #include "KeyStateWrapper.h"
+#include "keyboard/Accessors.h"
 #include "keyboard/Key.h"
 #include "keyboard/State.h"
 

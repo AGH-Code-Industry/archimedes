@@ -1,7 +1,7 @@
 #include "Accessors.h"
 
 #define ARCH_ACCESSOR(x)                                                             \
-	constexpr KeyStateWrapper x() noexcept {                                         \
+	inline KeyStateWrapper x() noexcept {                                            \
 		return KeyStateWrapper{ .value = state[Key::x], .time = stateTime[Key::x] }; \
 	}
 

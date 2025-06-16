@@ -10,7 +10,7 @@ namespace _details {
 class State {
 public:
 
-	State() noexcept = default;
+	State() noexcept;
 
 	inline u32 operator[](const Key::Value keyCode) noexcept;
 
@@ -36,7 +36,7 @@ private:
 	friend struct System;
 
 	Time _time[512]{};
-	decltype(Clock::now()) _lastUpdate;
+	decltype(Clock::now()) _lastUpdate = Clock::now();
 };
 
 } // namespace _details
