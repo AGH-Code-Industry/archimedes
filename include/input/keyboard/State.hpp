@@ -2,20 +2,12 @@
 
 namespace arch::input::keyboard::_details {
 
-KeyStateWrapper State::operator()(const Key keyCode) noexcept {
-	return { keyCode < 512 ? _state[keyCode] : 0 };
+u32 State::operator[](const Key::Value keyCode) noexcept {
+	return _state[keyCode];
 }
 
-KeyStateWrapper State::operator[](const Key keyCode) noexcept {
-	return (*this)(keyCode);
-}
-
-StateTime::Time StateTime::operator()(const Key keyCode) noexcept {
-	return { keyCode < 512 ? _time[keyCode] : invalid };
-}
-
-StateTime::Time StateTime::operator[](const Key keyCode) noexcept {
-	return (*this)(keyCode);
+StateTime::Time StateTime::operator[](const Key::Value keyCode) noexcept {
+	return _time[keyCode];
 }
 
 } // namespace arch::input::keyboard::_details

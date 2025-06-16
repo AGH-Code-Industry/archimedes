@@ -27,7 +27,7 @@ struct KeyState {
 		capsLock,
 		numLock,
 
-		_changed,
+		changed,
 	};
 };
 

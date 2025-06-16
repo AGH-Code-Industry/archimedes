@@ -2,7 +2,6 @@
 
 #include "../KeyStateWrapper.h"
 #include "Key.h"
-#include <Defines.h>
 
 namespace arch::input::keyboard {
 
@@ -13,10 +12,7 @@ public:
 
 	State() noexcept = default;
 
-	inline KeyStateWrapper operator[](const Key keyCode) noexcept;
-	inline KeyStateWrapper operator()(const Key keyCode) noexcept;
-
-	static constexpr KeyStateWrapper invalid = KeyStateWrapper{ 0 };
+	inline u32 operator[](const Key::Value keyCode) noexcept;
 
 private:
 
@@ -33,10 +29,7 @@ public:
 
 	StateTime() noexcept = default;
 
-	inline Time operator[](const Key keyCode) noexcept;
-	inline Time operator()(const Key keyCode) noexcept;
-
-	static constexpr Time invalid = Time(-1);
+	inline Time operator[](const Key::Value keyCode) noexcept;
 
 private:
 

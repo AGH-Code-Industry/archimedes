@@ -15,9 +15,9 @@ void System::_frameBegin() noexcept {
 	const auto diff = _details::StateTime::Clock::now() - stateTime._lastUpdate;
 
 	for (auto&& [state, time] : std::views::zip(state._state, stateTime._time)) {
-		if (state & *KeyState::_changed) {
+		if (state & *KeyState::changed) {
 			time = {};
-			state &= ~*KeyState::_changed;
+			state &= ~*KeyState::changed;
 		} else {
 			time += diff;
 			state &= ~(KeyState::pressed + KeyState::released + KeyState::repeat);
@@ -29,18 +29,18 @@ void System::_update(GLFWwindow* window, int key, int scancode, int action, int 
 	auto&& state = keyboard::state._state[key];
 	if (action == GLFW_RELEASE) {
 		if (state & *KeyState::down) {
-			state |= *KeyState::_changed;
+			state |= *KeyState::changed;
 		}
-		state &= *KeyState::_changed;
+		state &= *KeyState::changed;
 		state |= KeyState::released + KeyState::up;
 	} else if (action == GLFW_PRESS) {
 		if (state & *KeyState::up) {
-			state |= *KeyState::_changed;
+			state |= *KeyState::changed;
 		}
-		state &= *KeyState::_changed;
+		state &= *KeyState::changed;
 		state |= KeyState::pressed + KeyState::down;
 	} else if (action == GLFW_REPEAT) {
-		state = KeyState::down + KeyState::repeat + KeyState::_changed;
+		state = KeyState::down + KeyState::repeat + KeyState::changed;
 	}
 
 	state |= mods << KeyState::shift;

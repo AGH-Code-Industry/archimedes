@@ -2,7 +2,7 @@
 
 namespace arch::input::keyboard {
 
-_details::State state{};
-_details::StateTime stateTime{};
+_details::State arch::input::keyboard::state{};
+_details::StateTime arch::input::keyboard::stateTime{};
 
 } // namespace arch::input::keyboard
