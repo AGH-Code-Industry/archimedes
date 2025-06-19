@@ -1,4 +1,3 @@
-#include <print>
 #include <ranges>
 
 #include <input/keyboard/State.h>
@@ -31,11 +30,10 @@ void System::_frameBegin() noexcept {
 		}
 	}
 	auto end = _details::StateTime::Clock::now();
-	std::println("{}", std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start));
 }
 
 void System::_update(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept {
-	auto&& state = keyboard::state._state[key];
+	auto&& state = _details::state._state[key];
 	if (action == GLFW_RELEASE) {
 		if (state & *KeyState::down) {
 			state |= *KeyState::changed;
