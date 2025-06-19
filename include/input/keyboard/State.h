@@ -13,6 +13,8 @@ public:
 
 	State() noexcept;
 
+	inline KeyStateWrapper operator[](const u32 keyCode) noexcept;
+
 private:
 
 	friend struct System;
@@ -25,3 +27,5 @@ private:
 extern State state;
 
 } // namespace arch::input::keyboard::_details
+
+#include "State.hpp"
