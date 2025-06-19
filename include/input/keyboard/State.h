@@ -3,16 +3,14 @@
 #include "../KeyStateWrapper.h"
 #include "Key.h"
 
-namespace arch::input::keyboard {
-
-namespace _details {
+namespace arch::input::keyboard::_details {
 
 class State {
 public:
 
 	State() noexcept;
 
-	inline u32 operator[](const Key::Value keyCode) noexcept;
+	inline u32 operator[](const Key::Code keyCode) noexcept;
 
 private:
 
@@ -29,7 +27,7 @@ public:
 
 	StateTime() noexcept = default;
 
-	inline Time operator[](const Key::Value keyCode) noexcept;
+	inline Time operator[](const Key::Code keyCode) noexcept;
 
 private:
 
@@ -39,11 +37,9 @@ private:
 	decltype(Clock::now()) _lastUpdate = Clock::now();
 };
 
-} // namespace _details
+extern State state;
+extern StateTime stateTime;
 
-extern _details::State state;
-extern _details::StateTime stateTime;
-
-} // namespace arch::input::keyboard
+} // namespace arch::input::keyboard::_details
 
 #include "State.hpp"

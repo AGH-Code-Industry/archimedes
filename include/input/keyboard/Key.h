@@ -5,7 +5,7 @@
 namespace arch::input::keyboard {
 
 struct Key {
-	enum Value : u32 {
+	enum Code : u32 {
 		numLock = 282,
 		numSlash = 331,
 		numDivide = numSlash,
