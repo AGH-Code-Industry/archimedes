@@ -1,11 +1,15 @@
 #include "Accessors.h"
 
-#define ARCH_ACCESSOR(x)                                                             \
-	inline KeyStateWrapper x() noexcept {                                            \
-		return KeyStateWrapper{ .value = state[Key::x], .time = stateTime[Key::x] }; \
+#define ARCH_ACCESSOR(x)                                                                                 \
+	inline KeyStateWrapper x() noexcept {                                                                \
+		return KeyStateWrapper{ .value = _details::state[Key::x], .time = _details::stateTime[Key::x] }; \
 	}
 
 namespace arch::input::keyboard {
+
+inline KeyStateWrapper key(const Key::Code keyCode) noexcept {
+	return KeyStateWrapper{ .value = _details::state[keyCode], .time = _details::stateTime[keyCode] };
+}
 
 ARCH_ACCESSOR(numLock)
 ARCH_ACCESSOR(numSlash)

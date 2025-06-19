@@ -4,6 +4,8 @@
 
 namespace arch::input::keyboard {
 
+inline KeyStateWrapper key(const Key::Code keyCode) noexcept;
+
 inline KeyStateWrapper numLock() noexcept;
 inline KeyStateWrapper numSlash() noexcept;
 inline KeyStateWrapper numDivide() noexcept;
