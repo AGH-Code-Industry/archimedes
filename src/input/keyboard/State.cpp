@@ -9,6 +9,5 @@ State::State() noexcept {
 }
 
 State state{};
-StateTime stateTime{};
 
 } // namespace arch::input::keyboard::_details

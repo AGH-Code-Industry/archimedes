@@ -11,12 +11,11 @@ void System::_init(GLFWwindow* window) noexcept {
 }
 
 void System::_frameBegin() noexcept {
-	const auto now = _details::StateTime::Clock::now();
-	const auto diff = now - stateTime._lastUpdate;
-	stateTime._lastUpdate = now;
+	const auto now = _details::State::Clock::now();
+	const auto diff = now - state._lastUpdate;
+	state._lastUpdate = now;
 
-	auto start = _details::StateTime::Clock::now();
-	for (auto&& [state, time] : std::views::zip(state._state, stateTime._time)) {
+	for (auto&& [state, time] : std::views::zip(state._state, state._time)) {
 		if (state & *KeyState::changed) {
 			if (state & *KeyState::repeat) {
 				time += diff;
@@ -29,7 +28,6 @@ void System::_frameBegin() noexcept {
 			state &= ~(KeyState::pressed + KeyState::released + KeyState::repeat);
 		}
 	}
-	auto end = _details::StateTime::Clock::now();
 }
 
 void System::_update(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept {
