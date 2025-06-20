@@ -26,8 +26,6 @@ struct KeyState {
 		meta = super,
 		capsLock,
 		numLock,
-
-		changed,
 	};
 };
 

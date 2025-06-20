@@ -52,6 +52,8 @@ void Engine::_mainLoop() {
 
 			_renderer->present();
 		}
+
+		input::keyboard::_details::System::_frameEnd();
 	}
 }
 
