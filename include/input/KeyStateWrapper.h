@@ -17,6 +17,7 @@ struct KeyStateWrapper {
 	constexpr Time downTime() const noexcept;
 	constexpr bool pressed() const noexcept;
 	constexpr bool repeat() const noexcept;
+	constexpr bool changed() const noexcept;
 
 	constexpr bool shift() const noexcept;
 	constexpr bool ctrl() const noexcept;

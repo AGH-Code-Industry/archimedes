@@ -15,6 +15,10 @@ constexpr KeyStateWrapper::Time KeyStateWrapper::downTime() const noexcept {
 	return time * down();
 }
 
+constexpr bool KeyStateWrapper::changed() const noexcept {
+	return value & KeyState::pressed + KeyState::released;
+}
+
 ARCH_STATE(up)
 ARCH_STATE(released)
 ARCH_STATE(down)
