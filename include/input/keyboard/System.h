@@ -9,8 +9,9 @@ class System {
 	friend class ::arch::Engine;
 
 	static void _init(GLFWwindow* window) noexcept;
-	static void _update(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept;
+	static void _callback(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept;
 	static void _frameBegin() noexcept;
+	static void _frameEnd() noexcept;
 };
 
 } // namespace arch::input::keyboard::_details

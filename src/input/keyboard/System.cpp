@@ -7,7 +7,7 @@ namespace arch::input::keyboard::_details {
 
 void System::_init(GLFWwindow* window) noexcept {
 	glfwSetInputMode(window, GLFW_LOCK_KEY_MODS, GLFW_TRUE);
-	glfwSetKeyCallback(window, _update);
+	glfwSetKeyCallback(window, _callback);
 }
 
 void System::_frameBegin() noexcept {
