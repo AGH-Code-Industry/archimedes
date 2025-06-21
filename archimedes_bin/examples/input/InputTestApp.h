@@ -2,6 +2,7 @@
 
 #include <codecvt>
 #include <locale>
+#include <random>
 
 #include <Ecs.h>
 #include <Engine.h>
@@ -111,7 +112,8 @@ class InputTestApp: public Application {
 		static double amplitude = 0;
 		static bool speedMul = true;
 		static bool showMsg = true;
-		constexpr auto msgKey = keyboard::Key::space;
+		static auto msgKey = std::random_device{}() % 2 ? keyboard::Key::space : keyboard::Key::esc;
+		static auto msgMod = std::random_device{}() % 2 ? input::KeyState::shift : input::KeyState::capsLock;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
@@ -152,7 +154,7 @@ class InputTestApp: public Application {
 		}
 
 		auto key = keyboard::key(msgKey);
-		if (key.downTime() >= std::chrono::seconds(5) && showMsg) {
+		if (key.downTime() >= std::chrono::seconds(5) && key.has(msgMod) && showMsg) {
 			showMsg = false;
 			Logger::critical("Congratulations! You found an easter egg!");
 		} else if (key.released()) {
