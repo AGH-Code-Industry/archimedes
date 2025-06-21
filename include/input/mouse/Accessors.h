@@ -6,17 +6,17 @@ namespace arch::input::mouse {
 
 inline KeyStateWrapper button(const Button::Code buttonCode) noexcept;
 
-inline float x() noexcept;
-inline float y() noexcept;
-inline float2 pos() noexcept;
-inline float dx() noexcept;
-inline float dy() noexcept;
-inline float2 dpos() noexcept;
+inline double x() noexcept;
+inline double y() noexcept;
+inline double2 pos() noexcept;
+inline double dx() noexcept;
+inline double dy() noexcept;
+inline double2 dpos() noexcept;
 
 namespace scroll {
 
-inline float x() noexcept;
-inline float y() noexcept;
+inline double x() noexcept;
+inline double y() noexcept;
 
 } // namespace scroll
 

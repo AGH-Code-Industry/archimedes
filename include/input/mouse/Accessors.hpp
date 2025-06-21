@@ -11,37 +11,37 @@ inline KeyStateWrapper button(const u32 buttonCode) noexcept {
 	return _details::state[buttonCode];
 }
 
-inline float x() noexcept {
+inline double x() noexcept {
 	return _details::state.x();
 }
 
-inline float y() noexcept {
+inline double y() noexcept {
 	return _details::state.y();
 }
 
-inline float2 pos() noexcept {
+inline double2 pos() noexcept {
 	return { x(), y() };
 }
 
-inline float dx() noexcept {
+inline double dx() noexcept {
 	return _details::state.dx();
 }
 
-inline float dy() noexcept {
+inline double dy() noexcept {
 	return _details::state.dy();
 }
 
-inline float2 dpos() noexcept {
+inline double2 dpos() noexcept {
 	return { dx(), dy() };
 }
 
 namespace scroll {
 
-inline float x() noexcept {
+inline double x() noexcept {
 	return _details::state.scrollX();
 }
 
-inline float y() noexcept {
+inline double y() noexcept {
 	return _details::state.scrollY();
 }
 

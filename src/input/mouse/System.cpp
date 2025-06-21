@@ -48,9 +48,9 @@ void System::_buttonCallback(GLFWwindow* window, int key, int action, int mods) 
 }
 
 void System::_cursorCallback(GLFWwindow* window, double x, double y) noexcept {
-	const float actualY = (float)state._window->getSize().y - (float)y;
+	const float actualY = (double)state._window->getSize().y - y;
 
-	state._dx = state._delta * ((float)x - std::exchange(state._x, (float)x));
+	state._dx = state._delta * (x - std::exchange(state._x, x));
 	state._dy = state._delta * (actualY - std::exchange(state._y, actualY));
 	state._delta = true;
 }

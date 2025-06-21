@@ -6,27 +6,27 @@ KeyStateWrapper State::operator[](const u32 buttonCode) noexcept {
 	return KeyStateWrapper{ .value = _state[buttonCode], .time = _time[buttonCode] };
 }
 
-inline float State::x() const noexcept {
+inline double State::x() const noexcept {
 	return _x;
 }
 
-inline float State::y() const noexcept {
+inline double State::y() const noexcept {
 	return _y;
 }
 
-inline float State::dx() const noexcept {
+inline double State::dx() const noexcept {
 	return _dx;
 }
 
-inline float State::dy() const noexcept {
+inline double State::dy() const noexcept {
 	return _dy;
 }
 
-inline float State::scrollX() const noexcept {
+inline double State::scrollX() const noexcept {
 	return _xscroll;
 }
 
-inline float State::scrollY() const noexcept {
+inline double State::scrollY() const noexcept {
 	return _yscroll;
 }
 

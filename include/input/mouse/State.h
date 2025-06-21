@@ -18,13 +18,13 @@ public:
 
 	inline KeyStateWrapper operator[](const u32 buttonCode) noexcept;
 
-	inline float x() const noexcept;
-	inline float y() const noexcept;
-	inline float dx() const noexcept;
-	inline float dy() const noexcept;
+	inline double x() const noexcept;
+	inline double y() const noexcept;
+	inline double dx() const noexcept;
+	inline double dy() const noexcept;
 
-	inline float scrollX() const noexcept;
-	inline float scrollY() const noexcept;
+	inline double scrollX() const noexcept;
+	inline double scrollY() const noexcept;
 
 	inline void cursorDisabled(bool value) noexcept;
 	inline bool cursorDisabled() const noexcept;
@@ -43,12 +43,12 @@ private:
 	Time _time[8]{};
 	decltype(Clock::now()) _lastUpdate = Clock::now();
 	Ref<Window> _window;
-	float _x{};
-	float _y{};
-	float _dx{};
-	float _dy{};
-	float _xscroll{};
-	float _yscroll{};
+	double _x{};
+	double _y{};
+	double _dx{};
+	double _dy{};
+	double _xscroll{};
+	double _yscroll{};
 	bool _delta = false;
 	bool _cursorDisabled = false;
 	bool _raw = false;
