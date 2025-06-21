@@ -111,6 +111,7 @@ class InputTestApp: public Application {
 		static double amplitude = 0;
 		static bool speedMul = true;
 		static bool showMsg = true;
+		constexpr auto msgKey = keyboard::Key::space;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
@@ -150,11 +151,11 @@ class InputTestApp: public Application {
 			Logger::debug("amplitude = {}", amplitude);
 		}
 
-		auto space = keyboard::space();
-		if (space.downTime() >= std::chrono::seconds(5) && showMsg) {
+		auto key = keyboard::key(msgKey);
+		if (key.downTime() >= std::chrono::seconds(5) && showMsg) {
 			showMsg = false;
 			Logger::critical("Congratulations! You found an easter egg!");
-		} else if (space.released()) {
+		} else if (key.released()) {
 			showMsg = true;
 		}
 
