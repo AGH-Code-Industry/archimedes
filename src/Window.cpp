@@ -52,6 +52,7 @@ GLFWwindow* Window::get() const {
 	return _window;
 }
 
+uint2 Window::getSize() const {
 	return _size;
 }
 
