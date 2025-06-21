@@ -4,6 +4,7 @@
 
 namespace arch::input::keyboard {
 
+/// @brief Enum with all supported key codes
 struct Key {
 	enum Code : u32 {
 		numLock = 282,

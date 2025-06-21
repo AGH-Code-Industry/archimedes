@@ -11,6 +11,8 @@ inline KeyStateWrapper key(const u32 keyCode) noexcept {
 	return _details::state[keyCode];
 }
 
+// I <3 multiline cursor
+
 ARCH_ACCESSOR(numLock)
 ARCH_ACCESSOR(numSlash)
 ARCH_ACCESSOR(numDivide)

@@ -6,9 +6,9 @@
 
 namespace arch::input {
 
+/// @brief Enum with all key/button states
 struct KeyState {
 	enum Value : u32 {
-		invalidKey = (u32)-1,
 		up = 0,
 		released,
 		down,
@@ -29,10 +29,17 @@ struct KeyState {
 	};
 };
 
+/// @brief Helper operator returning bitmask of given KeyState
+/// @param value - KeyState to get bitmask of
 consteval u32 operator*(KeyState::Value value);
+/// @brief Helper operator combining bitmasks of given KeyStates
+/// @param lhs - first KeyState
+/// @param rhs - second KeyState
 consteval u32 operator+(KeyState::Value lhs, KeyState::Value rhs);
+/// @brief Helper operator combining bitmask with given KeyState
+/// @param lhs - bitmask
+/// @param rhs - second KeyState
 consteval u32 operator+(u32 lhs, KeyState::Value rhs);
-consteval u32 operator+(KeyState::Value lhs, u32 rhs);
 
 } // namespace arch::input
 

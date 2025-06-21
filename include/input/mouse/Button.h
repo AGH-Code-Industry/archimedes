@@ -4,6 +4,7 @@
 
 namespace arch::input::mouse {
 
+/// @brief Enum with all supported button codes
 struct Button {
 	enum Code : u32 {
 		left,
