@@ -6,7 +6,7 @@ namespace arch::input::mouse {
 
 /// @brief Returns state of given button
 /// @param buttonCode - button to get
-inline KeyStateWrapper button(const Button::Code buttonCode) noexcept;
+inline KeyStateWrapper button(const u32 buttonCode) noexcept;
 
 /// @brief Returns mouse position on X axis
 inline double x() noexcept;

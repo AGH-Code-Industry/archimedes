@@ -6,7 +6,7 @@ namespace arch::input::keyboard {
 
 /// @brief Returns state of given key
 /// @param keyCode - key to get
-inline KeyStateWrapper key(const Key::Code keyCode) noexcept;
+inline KeyStateWrapper key(const u32 keyCode) noexcept;
 
 inline KeyStateWrapper numLock() noexcept;
 inline KeyStateWrapper numSlash() noexcept;
