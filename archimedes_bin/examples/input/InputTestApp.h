@@ -2,7 +2,6 @@
 
 #include <codecvt>
 #include <locale>
-#include <print>
 
 #include <Ecs.h>
 #include <Engine.h>
@@ -111,6 +110,7 @@ class InputTestApp: public Application {
 		static double speed = 0;
 		static double amplitude = 0;
 		static bool speedMul = true;
+		static bool showMsg = true;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
@@ -127,27 +127,35 @@ class InputTestApp: public Application {
 		// scroll down -> decrease speed
 		speed += mouse::scroll::y() * 0.001;
 		if (mouse::scroll::y()) {
-			std::println("speed = {}", speed);
+			Logger::debug("speed = {}", speed);
 		}
 
 		// scroll pressed -> pause/play text animation
 		if (mouse::middle().pressed()) {
 			speedMul = !speedMul;
-			std::println("speedMul = {}", speedMul);
+			Logger::debug("speedMul = {}", speedMul);
 		}
 
 		// arrow up pressed or held -> increase max size
 		auto arrowUp = keyboard::arrowUp();
 		if (arrowUp.pressed() || arrowUp.repeat()) {
 			++amplitude;
-			std::println("amplitude = {}", amplitude);
+			Logger::debug("amplitude = {}", amplitude);
 		}
 
 		// arrow down pressed or held -> decrease max size
 		auto arrowDown = keyboard::down();
 		if (arrowDown.pressed() || arrowDown.repeat()) {
 			--amplitude;
-			std::println("amplitude = {}", amplitude);
+			Logger::debug("amplitude = {}", amplitude);
+		}
+
+		auto space = keyboard::space();
+		if (space.downTime() >= std::chrono::seconds(5) && showMsg) {
+			showMsg = false;
+			Logger::critical("Congratulations! You found an easter egg!");
+		} else if (space.released()) {
+			showMsg = true;
 		}
 
 		cosArg += speed * speedMul;
