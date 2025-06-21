@@ -14,6 +14,13 @@ struct KeyStateWrapper {
 	/// @brief Time of state
 	const Time time{};
 
+	/// @brief Returns whether state contains given KeyState
+	/// @param keyState - KeyState to check for
+	constexpr bool has(const KeyState::Value keyState) const noexcept;
+	/// @brief Returns whether state contains given mask
+	/// @param mask - mask to check for
+	constexpr bool has(const u32 mask) const noexcept;
+
 	/// @brief Returns whether key/button is up
 	constexpr bool up() const noexcept;
 	/// @brief Returns time the key/button is up

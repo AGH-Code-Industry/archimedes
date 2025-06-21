@@ -19,6 +19,14 @@ constexpr bool KeyStateWrapper::changed() const noexcept {
 	return value & KeyState::pressed + KeyState::released;
 }
 
+constexpr bool KeyStateWrapper::has(const KeyState::Value keyState) const noexcept {
+	return value & (1 << keyState);
+}
+
+constexpr bool KeyStateWrapper::has(const u32 mask) const noexcept {
+	return (value & mask) == mask;
+}
+
 ARCH_STATE(up)
 ARCH_STATE(released)
 ARCH_STATE(down)
