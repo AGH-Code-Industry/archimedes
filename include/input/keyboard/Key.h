@@ -104,10 +104,10 @@ struct Key {
 		arrowRight = right,
 		left,
 		arrowLeft = left,
-		up,
-		arrowUp = up,
 		down,
 		arrowDown = down,
+		up,
+		arrowUp = up,
 
 		digit0 = '0',
 		digit1,
