@@ -2,7 +2,6 @@
 
 #include "Exception.h"
 #include "Gfx.h"
-#include "InputHandler.h"
 #include "Logger.h"
 #include "font/FontDB.h"
 #include "resource/ModelLoader.h"
