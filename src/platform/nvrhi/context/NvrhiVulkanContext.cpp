@@ -51,7 +51,7 @@ void NvrhiVulkanContext::init(const Ref<Window>& window) {
 
 	// Dynamically load the Vulkan-Hpp function pointers (used by NVRHI)
 	{
-		const vk::DynamicLoader dl;
+		const vk::detail::DynamicLoader dl;
 		const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
 			dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(desc.instance, vkGetInstanceProcAddr, desc.device);
