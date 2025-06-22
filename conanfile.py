@@ -26,7 +26,7 @@ class Archimedes(ConanFile):
 
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
-        self.requires("vulkan-headers/1.3.268.0", override=True)
+        self.requires("vulkan-headers/1.4.313.0", override=True)
         self.requires("vulkan-memory-allocator/cci.20231120")
 
         # SPIRV (Shader compiler)
