@@ -1,14 +1,18 @@
 #pragma once
 
-#include <InputHandler.h>
+#include <Input.h>
 #include <examples/audio/Helpers.h>
 
 enum ControlAction {
-	pauseSound, continueSound, stopSound, startSound, rewindSound, none
+	pauseSound,
+	continueSound,
+	stopSound,
+	startSound,
+	rewindSound,
+	none
 };
 
 struct ControlTestApp: Application {
-
 	// const std::string soundFile = "rickroll.wav";
 	const std::string soundFile = "Chiptone A4.wav";
 	SoundManager soundManager;
@@ -17,52 +21,8 @@ struct ControlTestApp: Application {
 	bool isPlaying = false;
 	Entity entity;
 
-	void addHandlers() {
-		InputHandler::get().bindKey('P', [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (controlAction == none) {
-					controlAction = pauseSound;
-				}
-			}
-		});
-		InputHandler::get().bindKey('C', [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (controlAction == none) {
-					controlAction = continueSound;
-				}
-			}
-		});
-		InputHandler::get().bindKey('S', [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (controlAction == none) {
-					controlAction = stopSound;
-				}
-			}
-		});
-		InputHandler::get().bindKey('N', [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (controlAction == none) {
-					controlAction = startSound;
-				}
-			}
-		});
-		InputHandler::get().bindKey('R', [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (controlAction == none) {
-					controlAction = rewindSound;
-				}
-			}
-		});
-	}
-
 	void init() override {
-		soundManager.init({soundFile});
-		addHandlers();
+		soundManager.init({ soundFile });
 
 		Ref<Scene> testScene = arch::createRef<Scene>();
 
@@ -75,8 +35,38 @@ struct ControlTestApp: Application {
 		scene::SceneManager::get()->changeScene(testScene);
 	}
 
-
 	void update() override {
+		if (keyboard::p().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (controlAction == none) {
+				controlAction = pauseSound;
+			}
+		}
+		if (keyboard::c().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (controlAction == none) {
+				controlAction = continueSound;
+			}
+		}
+		if (keyboard::s().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (controlAction == none) {
+				controlAction = stopSound;
+			}
+		}
+		if (keyboard::n().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (controlAction == none) {
+				controlAction = startSound;
+			}
+		}
+		if (keyboard::r().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (controlAction == none) {
+				controlAction = rewindSound;
+			}
+		}
+
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 		{
 			auto lock = std::lock_guard(mutex);
@@ -110,8 +100,7 @@ struct ControlTestApp: Application {
 						soundManager.audioManager->rewindSource(source);
 					}
 					break;
-				case none:
-					break;
+				case none: break;
 			}
 			controlAction = none;
 		}

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <InputHandler.h>
+#include <Input.h>
 #include <examples/audio/Helpers.h>
 
 struct RewindTestApp: Application {
-
 	const std::string soundFile = "Chiptone A4.wav";
 	SoundManager soundManager;
 
@@ -17,16 +16,7 @@ struct RewindTestApp: Application {
 	bool played = false;
 
 	void init() override {
-		soundManager.init({soundFile});
-
-		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (!playSound) {
-					playSound = true;
-				}
-			}
-		});
+		soundManager.init({ soundFile });
 
 		Ref<Scene> testScene = arch::createRef<Scene>();
 
@@ -41,15 +31,21 @@ struct RewindTestApp: Application {
 	}
 
 	void update() override {
+		if (keyboard::space().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (!playSound) {
+				playSound = true;
+			}
+		}
+
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 		{
 			auto lock = std::lock_guard(mutex);
 			auto& source = entity.getComponent<audio::AudioSourceComponent>();
-			if(playSound) {
+			if (playSound) {
 				if (played) {
 					soundManager.audioManager->rewindSource(source);
-				}
-				else {
+				} else {
 					soundManager.audioManager->playSource(source);
 					played = true;
 				}

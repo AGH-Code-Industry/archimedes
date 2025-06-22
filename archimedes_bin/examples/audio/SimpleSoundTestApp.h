@@ -1,10 +1,9 @@
 #pragma once
 
-#include <InputHandler.h>
+#include <Input.h>
 #include <examples/audio/Helpers.h>
 
 struct SimpleSoundTestApp: Application {
-
 	const std::string soundFile = "Chiptone A4.wav";
 	SoundManager soundManager;
 
@@ -13,20 +12,11 @@ struct SimpleSoundTestApp: Application {
 	bool playSound = false;
 
 	void init() override {
-		soundManager.init({soundFile});
+		soundManager.init({ soundFile });
 
-		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (!playSound) {
-					playSound = true;
-				}
-			}
-		});
+		Ref<Scene> testScene = arch::createRef<Scene>();
 
-	 	Ref<Scene> testScene = arch::createRef<Scene>();
-
-	 	scene::SceneManager::get()->changeScene(testScene);
+		scene::SceneManager::get()->changeScene(testScene);
 	}
 
 	void addSound(ecs::Domain& domain) {
@@ -42,21 +32,28 @@ struct SimpleSoundTestApp: Application {
 	void removeInactive(ecs::Domain& domain) {
 		std::vector<ecs::Entity> toRemove;
 		auto view = domain.view<audio::AudioSourceComponent>();
-		for(auto [entity, source] : view.all()) {
-			if(soundManager.audioManager->getState(source) == audio::SourceState::unused){
+		for (auto [entity, source] : view.all()) {
+			if (soundManager.audioManager->getState(source) == audio::SourceState::unused) {
 				toRemove.push_back(entity);
 			}
 		}
-		for(auto entity : toRemove) {
+		for (auto entity : toRemove) {
 			domain.kill(entity);
 		}
 	}
 
 	void update() override {
+		if (keyboard::space().pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (!playSound) {
+				playSound = true;
+			}
+		}
+
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 		{
 			auto lock = std::lock_guard(mutex);
-			if(playSound) {
+			if (playSound) {
 				addSound(domain);
 			}
 			playSound = false;
