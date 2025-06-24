@@ -1,4 +1,5 @@
-#include "examples/Examples.h"
+#include "SpatialAudioTestApp.h"
+
 #include <Engine.h>
 #include <Logger.h>
 
