@@ -20,8 +20,12 @@ include("cmake/conan.cmake")
 
 include("cmake/library.cmake")
 
+include("cmake/launch_vs_json.cmake")
+
 # CMake targets
 file(GLOB_RECURSE ARCHIMEDES_TARGETS cmake/targets/*.cmake)
 foreach (ARCHIMEDES_TARGET ${ARCHIMEDES_TARGETS})
     include(${ARCHIMEDES_TARGET})
 endforeach ()
+
+LaunchVSJSONMake()

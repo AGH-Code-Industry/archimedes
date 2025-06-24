@@ -19,6 +19,8 @@ foreach(EXAMPLE_CATEGORY ${EXAMPLES_CATEGORIES})
 			set(EXAMPLE_TARGET "${EXAMPLE_CATEGORY}-${EXAMPLE}")
 			add_executable(${EXAMPLE_TARGET} ${EXAMPLE_SOURCES})
 			target_link_libraries(${EXAMPLE_TARGET} PUBLIC ${PROJECT_NAME})
+			
+			LaunchVSJSONAddTarget(${EXAMPLE_TARGET})
 		endif()
 	endforeach()
 endforeach()
