@@ -20,7 +20,7 @@ foreach(EXAMPLE_CATEGORY ${EXAMPLES_CATEGORIES})
 			add_executable(${EXAMPLE_TARGET} ${EXAMPLE_SOURCES})
 			target_link_libraries(${EXAMPLE_TARGET} PUBLIC ${PROJECT_NAME})
 			
-			LaunchVSJSONAddTarget(${EXAMPLE_TARGET})
+			LaunchAddTarget(${EXAMPLE_TARGET})
 		endif()
 	endforeach()
 endforeach()
