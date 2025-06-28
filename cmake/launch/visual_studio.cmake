@@ -35,7 +35,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 			\"project\": \"CMakeLists.txt\",
 			\"projectTarget\": \"${EXE_TARGET}.exe\",
 			\"name\": \"${EXE_TARGET}.exe\",
-			\"currentDir\": \"\${workspaceRoot}/run\"
+			\"currentDir\": \"${CMAKE_SOURCE_DIR}/run\"
 		},"
 			)
 		endforeach()
