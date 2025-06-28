@@ -1,12 +1,15 @@
 #pragma once
 #include <thread>
-#include <audio/SoundDevice.h>
+
+#include <Application.h>
 #include <Ecs.h>
 #include <Engine.h>
 #include <Scene.h>
 #include <audio/AudioManager.h>
+#include <audio/SoundDevice.h>
 #include <physics/components/Velocity.h>
 
+using namespace arch;
 
 struct GraphicsManager {
 	struct Vertex {
@@ -42,26 +45,23 @@ struct GraphicsManager {
 
 	Ref<asset::mesh::Mesh> mesh;
 
-	GraphicsManager(){
+	GraphicsManager() {
 		renderer = gfx::Renderer::getCurrent();
 		texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
-		uniformBuffer = renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
-		pipeline = renderer->getPipelineManager()->create(
-		{
+		uniformBuffer =
+			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+		pipeline = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default.glsl",
 			.textures = { texture },
 			.buffers = { uniformBuffer },
-		}
-		);
-		pipeline2 = renderer->getPipelineManager()->create(
-		{
+		});
+		pipeline2 = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default2.glsl",
 			.textures = {},
 			.buffers = { uniformBuffer },
-		}
-		);
+		});
 		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 	}
 
@@ -81,19 +81,18 @@ struct SoundManager {
 	audio::AudioManager* audioManager{};
 	std::jthread* audioThread{};
 
-	void init(const std::vector<std::string>& soundFiles){
+	void init(const std::vector<std::string>& soundFiles) {
 		audioManager = new audio::AudioManager(&soundBank);
-	 	audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
+		audioThread = new std::jthread(&audio::AudioManager::play, audioManager);
 		for (auto& soundFile : soundFiles) {
 			soundBank.addClip(soundFile);
 		}
-	 	soundBank.loadInitialGroups();
+		soundBank.loadInitialGroups();
 	}
 
-	~SoundManager(){
+	~SoundManager() {
 		audioManager->stop();
 		audioThread->join();
 		delete audioManager;
 	}
-
 };
