@@ -4,31 +4,31 @@ include_guard()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 	# make global targets list
-	if(NOT DEFINED LaunchVisualStudio_LIST)
-		set(LaunchVisualStudio_LIST "" CACHE INTERNAL "")
+	if(NOT DEFINED LAUNCH_VISUAL_STUDIO_LIST)
+		set(LAUNCH_VISUAL_STUDIO_LIST "" CACHE INTERNAL "")
 	endif()
 
 	# adds EXE_TARGET to targets list
 	function(LaunchVisualStudioAddTarget EXE_TARGET)
-		get_property(CURR GLOBAL PROPERTY LaunchVisualStudio_LIST)
+		get_property(CURR GLOBAL PROPERTY LAUNCH_VISUAL_STUDIO_LIST)
 		list(APPEND CURR "${EXE_TARGET}")
-		set_property(GLOBAL PROPERTY LaunchVisualStudio_LIST "${CURR}")
+		set_property(GLOBAL PROPERTY LAUNCH_VISUAL_STUDIO_LIST "${CURR}")
 	endfunction()
 
 	# creates .vs/launch.vs.json from targets list
 	function(LaunchVisualStudioMake)
-		get_property(CURR GLOBAL PROPERTY LaunchVisualStudio_LIST)
-		set(LaunchVisualStudio_PATH "${CMAKE_SOURCE_DIR}/.vs/launch.vs.json")
-		file(WRITE ${LaunchVisualStudio_PATH} "")
-		set(LaunchVisualStudio_STR 
+		get_property(TARGETS_LIST GLOBAL PROPERTY LAUNCH_VISUAL_STUDIO_LIST)
+		set(LAUNCH_VISUAL_STUDIO_PATH "${CMAKE_SOURCE_DIR}/.vs/launch.vs.json")
+		file(WRITE ${LAUNCH_VISUAL_STUDIO_PATH} "")
+		set(LAUNCH_VISUAL_STUDIO_STR 
 "{
 	\"version\": \"0.2.1\",
 	\"defaults\": {},
 	\"configurations\": ["
 		)
 
-		foreach(EXE_TARGET ${CURR})
-			string(APPEND LaunchVisualStudio_STR 
+		foreach(EXE_TARGET ${TARGETS_LIST})
+			string(APPEND LAUNCH_VISUAL_STUDIO_STR 
 "
 		{
 			\"type\": \"default\",
@@ -41,17 +41,17 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 		endforeach()
 
 		# remove comma
-		string(LENGTH ${LaunchVisualStudio_STR} LEN)
+		string(LENGTH ${LAUNCH_VISUAL_STUDIO_STR} LEN)
 		math(EXPR LEN "${LEN}-1")
-		string(SUBSTRING ${LaunchVisualStudio_STR} 0 ${LEN} LaunchVisualStudio_STR)
+		string(SUBSTRING ${LAUNCH_VISUAL_STUDIO_STR} 0 ${LEN} LAUNCH_VISUAL_STUDIO_STR)
 
-		string(APPEND LaunchVisualStudio_STR 
+		string(APPEND LAUNCH_VISUAL_STUDIO_STR 
 "
 	]
 }
 "
 		)
-		file(WRITE ${LaunchVisualStudio_PATH} ${LaunchVisualStudio_STR})
+		file(WRITE ${LAUNCH_VISUAL_STUDIO_PATH} ${LAUNCH_VISUAL_STUDIO_STR})
 	endfunction()
 else()
 	# empty variants if not VS
