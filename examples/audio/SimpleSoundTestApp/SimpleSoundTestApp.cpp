@@ -1,11 +1,12 @@
-#include "examples/Examples.h"
+#include "SimpleSoundTestApp.h"
+
 #include <Engine.h>
 #include <Logger.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Unique<arch::Application> myApp = arch::createUnique<InputTestApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<SimpleSoundTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
