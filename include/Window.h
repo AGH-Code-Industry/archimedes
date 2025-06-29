@@ -36,12 +36,15 @@ public:
 	void resize(int width, int height) const;
 	void setTitle(const std::string& title) const;
 
+	uint2 getSize() const;
+
 	bool shouldClose() const;
 	Window& operator=(const Window& w) = delete;
 
 private:
 	std::string _title;
 	GLFWwindow* _window{};
+	uint2 _size{};
 
 	/**
 	 * Initializes window
