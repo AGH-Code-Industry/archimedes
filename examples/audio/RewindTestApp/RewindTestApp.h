@@ -1,10 +1,11 @@
 #pragma once
 
+#include "../Helpers.h"
 #include <InputHandler.h>
-#include <examples/audio/Helpers.h>
+
+using namespace arch;
 
 struct RewindTestApp: Application {
-
 	const std::string soundFile = "Chiptone A4.wav";
 	SoundManager soundManager;
 
@@ -17,7 +18,7 @@ struct RewindTestApp: Application {
 	bool played = false;
 
 	void init() override {
-		soundManager.init({soundFile});
+		soundManager.init({ soundFile });
 
 		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
 			if (action == GLFW_PRESS) {
@@ -45,11 +46,10 @@ struct RewindTestApp: Application {
 		{
 			auto lock = std::lock_guard(mutex);
 			auto& source = entity.getComponent<audio::AudioSourceComponent>();
-			if(playSound) {
+			if (playSound) {
 				if (played) {
 					soundManager.audioManager->rewindSource(source);
-				}
-				else {
+				} else {
 					soundManager.audioManager->playSource(source);
 					played = true;
 				}
