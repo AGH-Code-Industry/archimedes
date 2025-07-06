@@ -1,13 +1,12 @@
 #pragma once
 
-#include "math/Math.h"
-#include "physics/components/Mass.h"
+#include "Mmath.h"
 
 namespace arch::physics {
 
 struct MassCenter {
-	math::f32 mass;
-	math::float2 position;
+	f32 mass;
+	float2 position;
 };
 
 }

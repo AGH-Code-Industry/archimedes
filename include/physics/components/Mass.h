@@ -1,11 +1,11 @@
 #pragma once
 
-#include "math/Math.h"
+#include "Mmath.h"
 
 namespace arch::physics {
 
 struct Mass {
-	math::f32 value;
+	f32 value;
 };
 
 }

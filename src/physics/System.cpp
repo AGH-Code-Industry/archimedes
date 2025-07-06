@@ -1,8 +1,6 @@
 #include "physics/System.h"
 
-#include "ecs/Domain.h"
 #include "ecs/View.h"
-#include "math/Math.h"
 #include "physics/components/Colliding.h"
 #include "physics/components/Moveable.h"
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "math/Math.h"
+#include "Mmath.h"
 
 namespace arch::physics {
 
 struct Force {
-	math::float2 value;
+	float2 value;
 };
 
 }
