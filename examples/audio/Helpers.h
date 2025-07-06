@@ -7,7 +7,6 @@
 #include <Scene.h>
 #include <audio/AudioManager.h>
 #include <audio/SoundDevice.h>
-#include <physics/components/VelocityComponent.h>
 
 using namespace arch;
 

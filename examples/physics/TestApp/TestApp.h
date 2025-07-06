@@ -53,24 +53,24 @@ struct PhysicsTestApp final: Application {
 			phy::MoveableComponent& myBody = domain.getComponent<phy::CollidingComponent>(me).body;
 			phy::MoveableComponent& otherBody = domain.getComponent<phy::CollidingComponent>(other).body;
 
-			float2 v1 = myBody.velocity * (myBody.center.mass - otherBody.center.mass);
-			v1 += 2 * otherBody.center.mass * otherBody.velocity;
-			v1 /= myBody.center.mass + otherBody.center.mass;
+			float3 v1 = myBody.velocity * (myBody.mass - otherBody.mass);
+			v1 += 2 * otherBody.mass * otherBody.velocity;
+			v1 /= myBody.mass + otherBody.mass;
 
-			float2 v2 = otherBody.velocity * (otherBody.center.mass - myBody.center.mass);
-			v2 += 2 * myBody.center.mass * myBody.velocity;
-			v2 /= myBody.center.mass + otherBody.center.mass;
+			float3 v2 = otherBody.velocity * (otherBody.mass - myBody.mass);
+			v2 += 2 * myBody.mass * myBody.velocity;
+			v2 /= myBody.mass + otherBody.mass;
 
 			myBody.velocity = v1;
 			otherBody.velocity = v2;
 		};
 
 		const ecs::Entity e1 = testScene->newEntity();
-		float2 position{ -.875f, 0.f };
+		float3 position{ -.875f, 0.f, 0.f };
 		testScene->domain().addComponent<scene::components::TransformComponent>(
 			e1,
 			{
-				{ position, 0 },
+				position,
 				{ 0.f, 0.f, 0.f, 1.f },
 				float3(1)
 		  }
@@ -79,22 +79,22 @@ struct PhysicsTestApp final: Application {
 		testScene->domain().addComponent(
 			e1,
 			phy::CollidingComponent{
-				.box = phy::BBoxComponent{.topLeft = position,.bottomRight = position + float2{ .25f, -.25f } },
+				.box = phy::BBoxComponent{.topLeft = position,.bottomRight = position + float3{ .25f, -.25f , 0.0f} },
 				.body =
 					phy::MoveableComponent{
-								 { 1.f, position },
-								 { 0.f, 0.f },	{ 0.1f, 0.f },
+								 1.f,
+								 { 0.f, 0.f , 0.f},	{ 0.1f, 0.f, 0.f },
 								 },
 				.action = ideallyElasticCollision
 		  }
 		);
 
 		const ecs::Entity e2 = testScene->newEntity();
-		position = { .75f, 0.f };
+		position = { .75f, 0.f, 0.f };
 		testScene->domain().addComponent<scene::components::TransformComponent>(
 			e2,
 			{
-				{ position, 0 },
+				position,
 				{ 0.f, 0.f, 0.f, 1.f },
 				float3(1)
 		  }
@@ -103,8 +103,8 @@ struct PhysicsTestApp final: Application {
 		testScene->domain().addComponent(
 			e2,
 			phy::CollidingComponent{
-				.box = phy::BBoxComponent{ .topLeft = position, .bottomRight = position + float2{ .25f, -.25f } },
-				.body = phy::MoveableComponent{ { 5.f, position }, { 0.f, 0.f }, { -0.1f, 0.f } },
+				.box = phy::BBoxComponent{ .topLeft = position, .bottomRight = position + float3{ .25f, -.25f, 0.f } },
+				.body = phy::MoveableComponent{ 5.f, { 0.f, 0.f, 0.f }, { -0.1f, 0.f, 0.f } },
 				.action = ideallyElasticCollision
 		  }
 		);
@@ -114,15 +114,6 @@ struct PhysicsTestApp final: Application {
 	}
 
 	void update() override {
-		auto view = scene::SceneManager::get()
-						->currentScene()
-						->domain()
-						.view<scene::components::TransformComponent, phy::CollidingComponent>();
-
-		for (auto [entity, transform, colliding] : view.all()) {
-			transform.position = { colliding.body.center.position, 0 };
-		}
-
 		_physicsSystem->update();
 	}
 

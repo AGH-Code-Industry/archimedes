@@ -13,7 +13,7 @@ struct SpatialAudioTestApp: Application {
 	SoundManager soundManager;
 
 	float3 sourcePosition = { 450.0f, 200.0f, 0.0f };
-	float2 sourceVelocity = { 1.0f, 0.0f };
+	float3 sourceVelocity = { 1.0f, 0.0f, 0.0f };
 
 	int circleStep = 0;
 	const int stepsPerCircle = 1'000;
@@ -33,7 +33,7 @@ struct SpatialAudioTestApp: Application {
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline });
 		auto& moveable = e.addComponent<physics::MoveableComponent>();
-		moveable.velocity = float2{ 0.0f, 0.0f };
+		moveable.velocity = float3{ 0.0f, 0.0f, 0.0f };
 		auto& listener = e.addComponent<audio::ListenerComponent>();
 		soundManager.audioManager->setListener(domain, listener, transform, moveable);
 	}
