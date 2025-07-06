@@ -1,7 +1,7 @@
 #include "physics/System.h"
 
-#include "../../include/physics/ColliderComponent.h"
-#include "../../include/physics/RigidBodyComponent.h"
+#include <physics/ColliderComponent.h>
+#include <physics/RigidBodyComponent.h>
 #include "ecs/View.h"
 #include "scene/components/TransformComponent.h"
 
