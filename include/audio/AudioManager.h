@@ -1,10 +1,10 @@
 #pragma once
 
+#include <physics/RigidBodyComponent.h>
 #include <audio/AudioSourceComponent.h>
 #include <audio/Listener.h>
 #include <audio/SourcePlayer.h>
 #include <ecs/Domain.h>
-#include <physics/components/RigidBodyComponent.h>
 
 namespace arch::audio {
 

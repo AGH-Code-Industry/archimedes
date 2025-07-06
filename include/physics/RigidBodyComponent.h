@@ -8,4 +8,4 @@ struct RigidBodyComponent {
 	float3 velocity;
 };
 
-}
+} // namespace arch::physics

@@ -1,10 +1,11 @@
 #pragma once
 
+#include "physics/RigidBodyComponent.h"
 #include <Ecs.h>
 #include <Engine.h>
 #include <Scene.h>
+#include <physics/ColliderComponent.h>
 #include <physics/System.h>
-#include <physics/components/CollidingComponent.h>
 
 namespace physicsExample {
 using namespace arch;
@@ -50,8 +51,8 @@ struct PhysicsTestApp final: Application {
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
-			phy::RigidBodyComponent& myBody = domain.getComponent<phy::CollidingComponent>(me).body;
-			phy::RigidBodyComponent& otherBody = domain.getComponent<phy::CollidingComponent>(other).body;
+			phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
+			phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
 
 			float3 v1 = myBody.velocity * (myBody.mass - otherBody.mass);
 			v1 += 2 * otherBody.mass * otherBody.velocity;
@@ -76,18 +77,23 @@ struct PhysicsTestApp final: Application {
 		  }
 		);
 		testScene->domain().addComponent<scene::components::MeshComponent>(e1, { mesh, pipeline });
-		testScene->domain().addComponent(
-			e1,
-			phy::CollidingComponent{
-				.box = phy::BBoxComponent{.topLeft = position,.bottomRight = position + float3{ .25f, -.25f , 0.0f} },
-				.body =
-					phy::RigidBodyComponent{
-								 1.f,
-								 { 0.f, 0.f , 0.f},	{ 0.1f, 0.f, 0.f },
-								 },
-				.action = ideallyElasticCollision
-		  }
+		testScene->domain().addComponent(e1,
+			phy::RigidBodyComponent{
+				1.f,
+				{ 0.f, 0.f , 0.f},	{ 0.1f, 0.f, 0.f },
+			}
 		);
+		testScene->domain().addComponent(e1,
+			phy::ColliderComponent{
+				.type = phy::aabb,
+				.shape = phy::AABB (
+						position,
+						position + float3{ .25f, -.25f , 0.0f}
+				),
+				.action = ideallyElasticCollision
+			}
+		);
+
 
 		const ecs::Entity e2 = testScene->newEntity();
 		position = { .75f, 0.f, 0.f };
@@ -100,13 +106,22 @@ struct PhysicsTestApp final: Application {
 		  }
 		);
 		testScene->domain().addComponent<scene::components::MeshComponent>(e2, { mesh, pipeline });
-		testScene->domain().addComponent(
-			e2,
-			phy::CollidingComponent{
-				.box = phy::BBoxComponent{ .topLeft = position, .bottomRight = position + float3{ .25f, -.25f, 0.f } },
-				.body = phy::RigidBodyComponent{ 5.f, { 0.f, 0.f, 0.f }, { -0.1f, 0.f, 0.f } },
+		testScene->domain().addComponent(e2,
+			phy::RigidBodyComponent{
+				.mass = 5.f,
+				.force = { 0.f, 0.f, 0.f },
+				.velocity = { -0.1f, 0.f, 0.f } ,
+			}
+		);
+		testScene->domain().addComponent(e2,
+			phy::ColliderComponent{
+				.type = phy::aabb,
+				.shape = phy::AABB (
+						position,
+						position + float3{0.25f, -0.25f, 0.0f}
+				),
 				.action = ideallyElasticCollision
-		  }
+			}
 		);
 
 		scene::SceneManager::get()->changeScene(testScene);

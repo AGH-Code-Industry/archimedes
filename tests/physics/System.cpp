@@ -1,7 +1,7 @@
+#include <../../include/physics/RigidBodyComponent.h>
 #include <Ecs.h>
 #include <gtest/gtest.h>
 #include <physics/System.h>
-#include <physics/components/RigidBodyComponent.h>
 
 namespace physics {
 namespace ecs = arch::ecs;
