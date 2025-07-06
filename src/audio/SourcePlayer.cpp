@@ -45,7 +45,7 @@ void SourcePlayer::update(const AudioSourceComponent& source) {
 void SourcePlayer::update(
 	const AudioSourceComponent& source,
 	const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	update(source);
 	alCall(alSource3f, _source, AL_POSITION, transform.position.x, transform.position.y, 0.0f);

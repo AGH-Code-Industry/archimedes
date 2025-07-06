@@ -32,7 +32,7 @@ struct SpatialAudioTestApp: Application {
 			{ 100.0f, 50.0f, 0.0f },
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline });
-		auto& moveable = e.addComponent<physics::MoveableComponent>();
+		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
 		moveable.velocity = float3{ 0.0f, 0.0f, 0.0f };
 		auto& listener = e.addComponent<audio::ListenerComponent>();
 		soundManager.audioManager->setListener(domain, listener, transform, moveable);
@@ -46,7 +46,7 @@ struct SpatialAudioTestApp: Application {
 			{ 100.0f, 50.0f, 0.0f }
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
-		auto& moveable = e.addComponent<physics::MoveableComponent>();
+		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
 		moveable.velocity = sourceVelocity;
 		auto& source = e.addComponent<audio::AudioSourceComponent>();
 		source.path = soundFile;
@@ -80,7 +80,7 @@ struct SpatialAudioTestApp: Application {
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 
 		auto view =
-			domain.view<scene::components::TransformComponent, physics::MoveableComponent, audio::AudioSourceComponent>();
+			domain.view<scene::components::TransformComponent, physics::RigidBodyComponent, audio::AudioSourceComponent>();
 
 		for (auto [entity, transform, moveable, audioSource] : view.all()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;

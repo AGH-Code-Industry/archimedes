@@ -2,7 +2,7 @@
 
 #include "ecs/View.h"
 #include "physics/components/CollidingComponent.h"
-#include "physics/components/MoveableComponent.h"
+#include "physics/components/RigidBodyComponent.h"
 #include "scene/components/TransformComponent.h"
 
 using TransformComponent = arch::scene::components::TransformComponent;
@@ -42,7 +42,7 @@ namespace {
 System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
 f32 System::update() {
-	auto viewPhysicsComponents = _domain.view<MoveableComponent, TransformComponent>();
+	auto viewPhysicsComponents = _domain.view<RigidBodyComponent, TransformComponent>();
 	auto viewColliding = _domain.view<CollidingComponent, TransformComponent>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;

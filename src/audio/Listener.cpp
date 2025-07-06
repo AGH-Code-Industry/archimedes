@@ -12,7 +12,7 @@ void Listener::update(const ListenerComponent& component) {
 }
 
 void Listener::update(const ListenerComponent& component, const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable) {
+	const physics::RigidBodyComponent& moveable) {
 	alCall(alListenerf, AL_GAIN, component.gain);
 	alCall(alListener3f, AL_POSITION, transform.position.x, transform.position.y, 0.0f);
 	alCall(alListener3f, AL_VELOCITY, moveable.velocity.x, moveable.velocity.y, 0.0f);

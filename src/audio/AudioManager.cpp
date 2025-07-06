@@ -117,7 +117,7 @@ void AudioManager::assignSource(AudioSourceComponent& source) {
 
 
 void AudioManager::assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable) {
+	const physics::RigidBodyComponent& moveable) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
@@ -138,7 +138,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		}
 
 		auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
-		auto moveable = domain.tryGetComponent<physics::MoveableComponent>(entity);
+		auto moveable = domain.tryGetComponent<physics::RigidBodyComponent>(entity);
 
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
@@ -172,7 +172,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			}
 			activeListenerFound = true;
 			auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
-			auto moveable = domain.tryGetComponent<physics::MoveableComponent>(entity);
+			auto moveable = domain.tryGetComponent<physics::RigidBodyComponent>(entity);
 			if (transform.hasValue() && moveable.hasValue()) {
 				updateListener(listener, transform.get(), moveable.get());
 			}
@@ -205,7 +205,7 @@ void AudioManager::updateSource(const AudioSourceComponent& source) {
 void AudioManager::updateSource(
 	const AudioSourceComponent& source,
 	const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
@@ -224,7 +224,7 @@ void AudioManager::updateListener(const ListenerComponent& listener) {
 void AudioManager::updateListener(
 	const ListenerComponent& listener,
 	const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	_listener.update(listener, transform, moveable);
 }
@@ -239,7 +239,7 @@ void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener)
 }
 
 void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener, const scene::components::TransformComponent& transform,
-	const physics::MoveableComponent& moveable) {
+	const physics::RigidBodyComponent& moveable) {
 	auto view = domain.view<ListenerComponent>();
 	for (auto [entity, listener] : view.all()) {
 		listener._isActive = false;

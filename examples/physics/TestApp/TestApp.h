@@ -50,8 +50,8 @@ struct PhysicsTestApp final: Application {
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
-			phy::MoveableComponent& myBody = domain.getComponent<phy::CollidingComponent>(me).body;
-			phy::MoveableComponent& otherBody = domain.getComponent<phy::CollidingComponent>(other).body;
+			phy::RigidBodyComponent& myBody = domain.getComponent<phy::CollidingComponent>(me).body;
+			phy::RigidBodyComponent& otherBody = domain.getComponent<phy::CollidingComponent>(other).body;
 
 			float3 v1 = myBody.velocity * (myBody.mass - otherBody.mass);
 			v1 += 2 * otherBody.mass * otherBody.velocity;
@@ -81,7 +81,7 @@ struct PhysicsTestApp final: Application {
 			phy::CollidingComponent{
 				.box = phy::BBoxComponent{.topLeft = position,.bottomRight = position + float3{ .25f, -.25f , 0.0f} },
 				.body =
-					phy::MoveableComponent{
+					phy::RigidBodyComponent{
 								 1.f,
 								 { 0.f, 0.f , 0.f},	{ 0.1f, 0.f, 0.f },
 								 },
@@ -104,7 +104,7 @@ struct PhysicsTestApp final: Application {
 			e2,
 			phy::CollidingComponent{
 				.box = phy::BBoxComponent{ .topLeft = position, .bottomRight = position + float3{ .25f, -.25f, 0.f } },
-				.body = phy::MoveableComponent{ 5.f, { 0.f, 0.f, 0.f }, { -0.1f, 0.f, 0.f } },
+				.body = phy::RigidBodyComponent{ 5.f, { 0.f, 0.f, 0.f }, { -0.1f, 0.f, 0.f } },
 				.action = ideallyElasticCollision
 		  }
 		);
