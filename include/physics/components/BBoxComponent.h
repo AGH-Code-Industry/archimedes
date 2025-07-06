@@ -4,8 +4,9 @@
 
 namespace arch::physics {
 
-struct Mass {
-	f32 value;
+struct BBoxComponent {
+	float2 topLeft;
+	float2 bottomRight;
 };
 
 }

@@ -4,8 +4,8 @@
 
 namespace arch::physics {
 
-struct Velocity {
-	float2 value;
+struct MassComponent {
+	f32 value;
 };
 
 }

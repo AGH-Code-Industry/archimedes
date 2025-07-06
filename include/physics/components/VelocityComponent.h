@@ -4,9 +4,8 @@
 
 namespace arch::physics {
 
-struct BBox {
-	float2 topLeft;
-	float2 bottomRight;
+struct VelocityComponent {
+	float2 value;
 };
 
 }

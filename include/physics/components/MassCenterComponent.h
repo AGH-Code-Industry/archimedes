@@ -4,8 +4,9 @@
 
 namespace arch::physics {
 
-struct Force {
-	float2 value;
+struct MassCenterComponent {
+	f32 mass;
+	float2 position;
 };
 
 }

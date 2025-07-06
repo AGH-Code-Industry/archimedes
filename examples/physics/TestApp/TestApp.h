@@ -4,7 +4,7 @@
 #include <Engine.h>
 #include <Scene.h>
 #include <physics/System.h>
-#include <physics/components/Colliding.h>
+#include <physics/components/CollidingComponent.h>
 
 namespace physicsExample {
 using namespace arch;
@@ -50,8 +50,8 @@ struct PhysicsTestApp final: Application {
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
-			phy::Moveable& myBody = domain.getComponent<phy::Colliding>(me).body;
-			phy::Moveable& otherBody = domain.getComponent<phy::Colliding>(other).body;
+			phy::MoveableComponent& myBody = domain.getComponent<phy::CollidingComponent>(me).body;
+			phy::MoveableComponent& otherBody = domain.getComponent<phy::CollidingComponent>(other).body;
 
 			float2 v1 = myBody.velocity * (myBody.center.mass - otherBody.center.mass);
 			v1 += 2 * otherBody.center.mass * otherBody.velocity;
@@ -78,10 +78,10 @@ struct PhysicsTestApp final: Application {
 		testScene->domain().addComponent<scene::components::MeshComponent>(e1, { mesh, pipeline });
 		testScene->domain().addComponent(
 			e1,
-			phy::Colliding{
-				.box = phy::BBox{.topLeft = position,.bottomRight = position + float2{ .25f, -.25f } },
+			phy::CollidingComponent{
+				.box = phy::BBoxComponent{.topLeft = position,.bottomRight = position + float2{ .25f, -.25f } },
 				.body =
-					phy::Moveable{
+					phy::MoveableComponent{
 								 { 1.f, position },
 								 { 0.f, 0.f },	{ 0.1f, 0.f },
 								 },
@@ -102,9 +102,9 @@ struct PhysicsTestApp final: Application {
 		testScene->domain().addComponent<scene::components::MeshComponent>(e2, { mesh, pipeline });
 		testScene->domain().addComponent(
 			e2,
-			phy::Colliding{
-				.box = phy::BBox{ .topLeft = position, .bottomRight = position + float2{ .25f, -.25f } },
-				.body = phy::Moveable{ { 5.f, position }, { 0.f, 0.f }, { -0.1f, 0.f } },
+			phy::CollidingComponent{
+				.box = phy::BBoxComponent{ .topLeft = position, .bottomRight = position + float2{ .25f, -.25f } },
+				.body = phy::MoveableComponent{ { 5.f, position }, { 0.f, 0.f }, { -0.1f, 0.f } },
 				.action = ideallyElasticCollision
 		  }
 		);
@@ -117,7 +117,7 @@ struct PhysicsTestApp final: Application {
 		auto view = scene::SceneManager::get()
 						->currentScene()
 						->domain()
-						.view<scene::components::TransformComponent, phy::Colliding>();
+						.view<scene::components::TransformComponent, phy::CollidingComponent>();
 
 		for (auto [entity, transform, colliding] : view.all()) {
 			transform.position = { colliding.body.center.position, 0 };

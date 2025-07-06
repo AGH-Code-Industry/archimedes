@@ -1,13 +1,13 @@
 #include "physics/System.h"
 
 #include "ecs/View.h"
-#include "physics/components/Colliding.h"
-#include "physics/components/Moveable.h"
+#include "physics/components/CollidingComponent.h"
+#include "physics/components/MoveableComponent.h"
 
 namespace arch::physics {
 
 namespace {
-[[nodiscard]] bool areColliding(const BBox& lhs, const BBox& rhs) {
+[[nodiscard]] bool areColliding(const BBoxComponent& lhs, const BBoxComponent& rhs) {
 	if (lhs.topLeft.x <= rhs.topLeft.x && rhs.topLeft.x <= lhs.bottomRight.x) {
 		// top left corner of right rectangle is in the left rectangle
 		if (lhs.bottomRight.y <= rhs.topLeft.y && rhs.topLeft.y <= lhs.topLeft.y) {
@@ -39,13 +39,13 @@ namespace {
 System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
 f32 System::update() {
-	auto viewPhysicsComponents = _domain.view<Moveable>();
-	auto viewColliding = _domain.view<Colliding>();
+	auto viewPhysicsComponents = _domain.view<MoveableComponent>();
+	auto viewColliding = _domain.view<CollidingComponent>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	viewPhysicsComponents.forEach([&](Moveable& e) {
+	viewPhysicsComponents.forEach([&](MoveableComponent& e) {
 		// update position
 		e.center.position += e.velocity * t;
 
@@ -54,7 +54,7 @@ f32 System::update() {
 		e.velocity += a * t;
 	});
 
-	viewColliding.forEach([&](Colliding& c) {
+	viewColliding.forEach([&](CollidingComponent& c) {
 		// update position
 		c.body.center.position += c.body.velocity * t;
 		c.box.topLeft += c.body.velocity * t;
@@ -73,12 +73,12 @@ f32 System::update() {
 }
 
 void System::_collisionDetection(f32 t) const {
-	auto viewBBoxes = _domain.view<const BBox>();
-	auto viewColliding = _domain.view<Colliding>();
+	auto viewBBoxes = _domain.view<const BBoxComponent>();
+	auto viewColliding = _domain.view<CollidingComponent>();
 
 	// collide every Colliding object with all BBoxes
-	viewColliding.forEach([&](const ecs::Entity lhs, const Colliding& c) {
-		viewBBoxes.forEach([&](const ecs::Entity rhs, const BBox& b) {
+	viewColliding.forEach([&](const ecs::Entity lhs, const CollidingComponent& c) {
+		viewBBoxes.forEach([&](const ecs::Entity rhs, const BBoxComponent& b) {
 			if (areColliding(c.box, b)) {
 				c.action(lhs, rhs);
 			}
