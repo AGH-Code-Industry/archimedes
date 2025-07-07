@@ -69,87 +69,10 @@ void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::
 	arch::Logger::info("Shader file ('{}') succesfully created!", outPath);
 }
 
-void ShaderImporter::SetOptimizationMode(const ShaderOptimizationMode& mode) noexcept {
-	_optMode = mode;
+void ShaderImporter::SetImportSettings(const ShaderImportSettings& importSettings) {
+	_optMode = importSettings._optMode;
+	_shaderType = importSettings._shaderType;
+	_sourceLanguage = importSettings._sourceLanguage;
 }
-
-ShaderOptimizationMode ShaderImporter::GetOptimizationMode() const noexcept {
-	std::string mode{};
-	switch (_optMode) {
-		case ShaderOptimizationMode::NONE:		  mode = "NONE"; break;
-		case ShaderOptimizationMode::PERFORMANCE: mode = "PERFORMANCE"; break;
-		case ShaderOptimizationMode::SIZE:		  mode = "SIZE"; break;
-	}
-	arch::Logger::info("Shader optimization mode: {}", mode);
-	return _optMode;
-}
-
-void ShaderImporter::SetShaderType(const ShaderType& type) noexcept {
-	_shaderType = type;
-}
-
-ShaderType ShaderImporter::GetShaderType() const noexcept {
-	std::string type{};
-	switch (_shaderType) {
-		case ShaderType::VERTEX:   type = "VERTEX"; break;
-		case ShaderType::FRAGMENT: type = "FRAGMENT"; break;
-		case ShaderType::COMPUTE:  type = "COMPUTE"; break;
-	}
-	arch::Logger::info("Shader type: {}", type);
-	return _shaderType;
-}
-
-void ShaderImporter::SetSourceLanguage(const ShaderSourceLanguage& lang) noexcept {
-	_sourceLanguage = lang;
-}
-
-ShaderSourceLanguage ShaderImporter::GetSourceLanguage() const noexcept {
-	std::string lang{};
-	switch (_sourceLanguage) {
-		case ShaderSourceLanguage::GLSL: lang = "GLSL"; break;
-		case ShaderSourceLanguage::HLSL: lang = "HLSL"; break;
-	}
-	arch::Logger::info("Shader source language: {}", lang);
-	return _sourceLanguage;
-}
-
-void ShaderImporter::SetImportSettings(
-	const ShaderOptimizationMode& mode,
-	const ShaderType& type,
-	const ShaderSourceLanguage& lang
-) noexcept {
-	_optMode = mode;
-	_shaderType = type;
-	_sourceLanguage = lang;
-}
-
-ShaderImportSettings ShaderImporter::GetImportSettings() const noexcept {
-	ShaderImportSettings settings(_optMode, _shaderType, _sourceLanguage);
-
-	std::string mode{};
-	switch (_optMode) {
-		case ShaderOptimizationMode::NONE:		  mode = "NONE"; break;
-		case ShaderOptimizationMode::PERFORMANCE: mode = "PERFORMANCE"; break;
-		case ShaderOptimizationMode::SIZE:		  mode = "SIZE"; break;
-	}
-
-	std::string type{};
-	switch (_shaderType) {
-		case ShaderType::VERTEX:   type = "VERTEX"; break;
-		case ShaderType::FRAGMENT: type = "FRAGMENT"; break;
-		case ShaderType::COMPUTE:  type = "COMPUTE"; break;
-	}
-
-	std::string lang{};
-	switch (_sourceLanguage) {
-		case ShaderSourceLanguage::GLSL: lang = "GLSL"; break;
-		case ShaderSourceLanguage::HLSL: lang = "HLSL"; break;
-	}
-
-	arch::Logger::info("Shader optimization mode: {}. Shader type: {}. Shader source language: {}.", mode, type, lang);
-
-	return settings;
-}
-
 
 } // namespace arch::assetManager

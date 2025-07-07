@@ -4,11 +4,8 @@
 
 namespace arch::assetManager::assets {
 
-class Shader {
-public:
-	Shader(std::vector<uint32_t> shaderData);
-
-private:
+struct Shader {
+	Shader(std::vector<uint32_t> shaderData): _shaderData(std::move(shaderData)) {}
 	std::vector<uint32_t> _shaderData;
 };
 

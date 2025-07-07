@@ -16,7 +16,18 @@ void TestAssetManager() {
 	im.RegisterImporter(std::make_unique<arch::assetManager::ShaderImporter>());
 
 	im.ImportAsset("assets/source/meshes/arrow_triangulated.obj");
+
+	im.SetShaderImportSettings(
+		arch::assetManager::ShaderOptimizationMode::PERFORMANCE,
+		arch::assetManager::ShaderType::FRAGMENT,
+		arch::assetManager::ShaderSourceLanguage::GLSL
+	);
 	im.ImportAsset("assets/source/shaders/fragment_default2.glsl");
+	im.SetShaderImportSettings(
+		arch::assetManager::ShaderOptimizationMode::SIZE,
+		arch::assetManager::ShaderType::VERTEX,
+		arch::assetManager::ShaderSourceLanguage::GLSL
+	);
 	im.ImportAsset("assets/source/shaders/vertex_default.glsl");
 }
 
