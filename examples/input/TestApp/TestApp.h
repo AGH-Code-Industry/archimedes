@@ -10,6 +10,7 @@
 #include <Input.h>
 #include <Scene.h>
 #include <Text.h>
+// #include <input/Key2.h>
 
 using namespace arch;
 
@@ -112,8 +113,25 @@ class InputTestApp: public Application {
 		static double amplitude = 0;
 		static bool speedMul = true;
 		static bool showMsg = true;
-		static auto msgKey = std::random_device{}() % 2 ? keyboard::Key::space : keyboard::Key::esc;
-		static auto msgMod = std::random_device{}() % 2 ? input::KeyState::shift : input::KeyState::capsLock;
+		// both keyboard and mouse keys are the same type Key
+		static auto& msgKey = [] -> Key& {
+			// read available codes from file
+			auto keysFile = std::ifstream("config/easterEggKeys.txt");
+			auto codes = std::views::istream<u32>(keysFile) | std::ranges::to<std::vector>();
+
+			// get one random
+			u32 code;
+			std::ranges::sample(codes, &code, 1, std::mt19937(std::random_device{}()));
+
+			// return Key of picked code
+			return Key::get(code);
+		}();
+		static auto msgMod = std::random_device{}() % 2 ? KeyState::shift : KeyState::capsLock;
+
+		using Clk = std::chrono::high_resolution_clock;
+
+		static std::vector<decltype(Clk::now() - Clk::now())> times;
+		static std::vector<decltype(Clk::now() - Clk::now())> timesRef;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
@@ -128,39 +146,80 @@ class InputTestApp: public Application {
 
 		// scroll up -> increase speed
 		// scroll down -> decrease speed
-		speed += mouse::scroll::y() * 0.001;
-		if (mouse::scroll::y()) {
+		speed += Mouse::Scroll::y() * 0.001;
+		if (Mouse::Scroll::y()) {
 			Logger::debug("speed = {}", speed);
 		}
 
 		// scroll pressed -> pause/play text animation
-		if (mouse::middle().pressed()) {
+		if (Mouse::middle.pressed()) {
 			speedMul = !speedMul;
 			Logger::debug("speedMul = {}", speedMul);
 		}
 
 		// arrow up pressed or held -> increase max size
-		auto arrowUp = keyboard::arrowUp();
-		if (arrowUp.pressed() || arrowUp.repeat()) {
+		if (Keyboard::arrowUp.pressed() || Keyboard::arrowUp.repeat()) {
 			++amplitude;
 			Logger::debug("amplitude = {}", amplitude);
 		}
 
 		// arrow down pressed or held -> decrease max size
-		auto arrowDown = keyboard::down();
-		if (arrowDown.pressed() || arrowDown.repeat()) {
+		if (Keyboard::arrowDown.pressed() || Keyboard::arrowDown.repeat()) {
 			--amplitude;
 			Logger::debug("amplitude = {}", amplitude);
 		}
 
-		auto key = keyboard::key(msgKey);
-		if (key.downTime() >= std::chrono::seconds(5) && key.has(msgMod) && showMsg) {
+		using tp = decltype(std::chrono::high_resolution_clock::now());
+
+		static decltype(tp() - tp()) avg{};
+		auto start = std::chrono::high_resolution_clock::now();
+		//__assume(&Keyboard::key2_ref == &Keyboard::key2);
+		// volatile bool pressed = Keyboard::key2_ref.pressed();
+		// volatile auto pressed = Keyboard::key2.pressed();
+		// volatile auto xd = input::State::_state[std::to_underlying(KeyCode::numLock)];
+		// volatile auto xd = Keyboard::numLockState;
+		volatile auto xd = Keyboard::space.pressed();
+		auto end = std::chrono::high_resolution_clock::now();
+		times.push_back(end - start);
+
+		avg = {};
+		for (auto&& t : times) {
+			avg += t;
+		}
+		avg /= times.size();
+
+		Logger::debug("{}", avg);
+
+		if (msgKey.downTime() >= std::chrono::seconds(3) && msgKey.has(msgMod) && showMsg) {
 			showMsg = false;
 			Logger::critical("Congratulations! You found an easter egg!");
-		} else if (key.released()) {
+		} else if (msgKey.released()) {
 			showMsg = true;
 		}
 
 		cosArg += speed * speedMul;
+
+		// Keyboard::space.downTime();
+		// Keyboard::key(KeyCode::space).downTime();
+		//// Keyboard::key(32).downTime(); // error
+		//// Keyboard::key(MouseButtonCode::left).downTime(); // error
+
+		// Mouse::left.downTime();
+		// Mouse::button(MouseButtonCode::left).downTime();
+		//// Mouse::button(350).downTime(); // error
+		//// Mouse::button(KeyCode::space).downTime(); // error
+
+		// Key(32).downTime(); // 32 == KeyCode::space
+		// Key(350).downTime(); // 350 == MouseButtonCode::left
+		// Key(MouseButtonCode::left).downTime();
+		// Key(KeyCode::space).downTime();
+
+		// Keyboard::space.has(KeyState::ctrl);
+		// Keyboard::space.has(KeyState::ctrl + KeyState::shift);
+
+		// constexpr auto test1 = Keyboard::space.code();
+		// constexpr auto test2 = Keyboard::key(KeyCode::space).code();
+		// constexpr auto test3 = Mouse::left.code();
+		// constexpr auto test4 = Mouse::button(MouseButtonCode::left).code();
 	}
 };
