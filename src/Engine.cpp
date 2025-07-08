@@ -7,9 +7,7 @@
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 #include "scene/SceneManager.h"
-#include <input/keyboard/System.h>
-#include <input/mouse/State.h>
-#include <input/mouse/System.h>
+#include <input/System.h>
 
 namespace arch {
 
@@ -40,8 +38,7 @@ void Engine::_mainLoop() {
 
 	while (!_mainWindow->shouldClose()) {
 		glfwPollEvents();
-		input::keyboard::_details::System::_frameBegin();
-		input::mouse::_details::System::_frameBegin();
+		input::System::_frameBegin();
 
 		// Update the application
 		_application->update();
@@ -55,16 +52,14 @@ void Engine::_mainLoop() {
 			_renderer->present();
 		}
 
-		input::keyboard::_details::System::_frameEnd();
-		input::mouse::_details::System::_frameEnd();
+		input::System::_frameEnd();
 	}
 }
 
 void Engine::_initialize() {
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
-	input::keyboard::_details::System::_init(_mainWindow->get());
-	input::mouse::_details::System::_init(_mainWindow);
+	input::System::_init(_mainWindow);
 
 	_renderer = gfx::Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);
