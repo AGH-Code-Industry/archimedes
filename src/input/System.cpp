@@ -20,19 +20,6 @@ void System::_init(const Ref<Window>& window) noexcept {
 	glfwSetScrollCallback(window->get(), _mouseScrollCallback);
 }
 
-using Time = decltype(Clock::now() - Clock::now());
-
-std::vector<Time> fbTime;
-std::vector<Time> feTime;
-
-Time avg(const std::vector<Time>& times) {
-	Time result = {};
-	for (auto&& x : times) {
-		result += x;
-	}
-	result /= times.size();
-	return result;
-}
 
 #define FRAME_BEGIN_KEYBOARD(key)                                        \
 	if (Keyboard::key._state & KeyState::pressed + KeyState::released) { \
@@ -179,8 +166,6 @@ void System::_frameBegin() noexcept {
 	FRAME_BEGIN_MOUSE(seventh)
 	FRAME_BEGIN_MOUSE(eighth)
 
-	fbTime.push_back(Clock::now() - now);
-	Logger::debug("Frame begin: {}", avg(fbTime));
 }
 
 #undef FRAME_BEGIN_KEYBOARD
@@ -190,8 +175,6 @@ void System::_frameBegin() noexcept {
 #define FRAME_END_MOUSE(key) Mouse::key._state &= ~(KeyState::pressed + KeyState::released + KeyState::repeat);
 
 void System::_frameEnd() noexcept {
-	const auto now = Clock::now();
-
 	FRAME_END_KEYBOARD(numLock)
 	FRAME_END_KEYBOARD(numDivide)
 	FRAME_END_KEYBOARD(numMultiply)
@@ -318,8 +301,6 @@ void System::_frameEnd() noexcept {
 
 	Mouse::_dx = Mouse::_dy = 0;
 	Mouse::_scrollx = Mouse::_scrolly = 0;
-	feTime.push_back(Clock::now() - now);
-	Logger::debug("Frame end: {}", avg(feTime));
 }
 
 #undef FRAME_END_KEYBOARD

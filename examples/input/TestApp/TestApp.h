@@ -96,14 +96,8 @@ class InputTestApp: public Application {
 			auto topLeft = float4{ tc.topLeft(), 1 };
 			auto bottomRight = float4{ tc.bottomRight(), 1 };
 
-			std::cout << std::format("min = ({}, {})\n", topLeft.x, topLeft.y);
-			std::cout << std::format("max = ({}, {})\n", bottomRight.x, bottomRight.y);
-
 			topLeft = t.getTransformMatrix() * topLeft;
 			bottomRight = t.getTransformMatrix() * bottomRight;
-
-			std::cout << std::format("TL = ({}, {})\n", topLeft.x, topLeft.y);
-			std::cout << std::format("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
 		}
 	}
 
@@ -169,27 +163,6 @@ class InputTestApp: public Application {
 			Logger::debug("amplitude = {}", amplitude);
 		}
 
-		using tp = decltype(std::chrono::high_resolution_clock::now());
-
-		static decltype(tp() - tp()) avg{};
-		auto start = std::chrono::high_resolution_clock::now();
-		//__assume(&Keyboard::key2_ref == &Keyboard::key2);
-		// volatile bool pressed = Keyboard::key2_ref.pressed();
-		// volatile auto pressed = Keyboard::key2.pressed();
-		// volatile auto xd = input::State::_state[std::to_underlying(KeyCode::numLock)];
-		// volatile auto xd = Keyboard::numLockState;
-		volatile auto xd = Keyboard::space.pressed();
-		auto end = std::chrono::high_resolution_clock::now();
-		times.push_back(end - start);
-
-		avg = {};
-		for (auto&& t : times) {
-			avg += t;
-		}
-		avg /= times.size();
-
-		Logger::debug("{}", avg);
-
 		if (msgKey.downTime() >= std::chrono::seconds(3) && msgKey.has(msgMod) && showMsg) {
 			showMsg = false;
 			Logger::critical("Congratulations! You found an easter egg!");
@@ -198,28 +171,5 @@ class InputTestApp: public Application {
 		}
 
 		cosArg += speed * speedMul;
-
-		// Keyboard::space.downTime();
-		// Keyboard::key(KeyCode::space).downTime();
-		//// Keyboard::key(32).downTime(); // error
-		//// Keyboard::key(MouseButtonCode::left).downTime(); // error
-
-		// Mouse::left.downTime();
-		// Mouse::button(MouseButtonCode::left).downTime();
-		//// Mouse::button(350).downTime(); // error
-		//// Mouse::button(KeyCode::space).downTime(); // error
-
-		// Key(32).downTime(); // 32 == KeyCode::space
-		// Key(350).downTime(); // 350 == MouseButtonCode::left
-		// Key(MouseButtonCode::left).downTime();
-		// Key(KeyCode::space).downTime();
-
-		// Keyboard::space.has(KeyState::ctrl);
-		// Keyboard::space.has(KeyState::ctrl + KeyState::shift);
-
-		// constexpr auto test1 = Keyboard::space.code();
-		// constexpr auto test2 = Keyboard::key(KeyCode::space).code();
-		// constexpr auto test3 = Mouse::left.code();
-		// constexpr auto test4 = Mouse::button(MouseButtonCode::left).code();
 	}
 };
