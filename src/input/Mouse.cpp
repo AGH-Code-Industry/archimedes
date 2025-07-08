@@ -28,7 +28,7 @@ bool Mouse::_delta;
 bool Mouse::_cursorDisabled;
 bool Mouse::_rawInput;
 
-void Mouse::_init(const Ref<Window>& window) noexcept {
+void Mouse::_setWindow(const Ref<Window>& window) noexcept {
 	_window = window;
 }
 

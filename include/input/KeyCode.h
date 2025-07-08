@@ -4,8 +4,7 @@
 
 namespace arch::input {
 
-/// @brief Enum with all supported key codes
-/// @details Includes keyboard and mouse keys
+/// @brief Enum with all supported keyboard key codes
 enum class KeyCode : u32 {
 	numLock = 282,
 	numDivide = 331,

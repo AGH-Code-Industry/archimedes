@@ -3,7 +3,7 @@
 
 namespace arch::input {
 
-constexpr Key& Mouse::button(const MouseButtonCode code) noexcept {
+constexpr Key& Mouse::button(const MouseButtonCode code) {
 	return Key::get((u32)code);
 }
 

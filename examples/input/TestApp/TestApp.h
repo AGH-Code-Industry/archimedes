@@ -107,7 +107,8 @@ class InputTestApp: public Application {
 		static double amplitude = 0;
 		static bool speedMul = true;
 		static bool showMsg = true;
-		// both keyboard and mouse keys are the same type Key
+
+		// both keyboard and mouse keys are the same type: Key&
 		static auto& msgKey = [] -> Key& {
 			// read available codes from file
 			auto keysFile = std::ifstream("config/easterEggKeys.txt");
@@ -138,8 +139,8 @@ class InputTestApp: public Application {
 			transform.scale = { scale, scale, 0.f };
 		}
 
-		// scroll up -> increase speed
-		// scroll down -> decrease speed
+		// scroll up -> increase animation speed
+		// scroll down -> decrease animation speed
 		speed += Mouse::Scroll::y() * 0.001;
 		if (Mouse::Scroll::y()) {
 			Logger::debug("speed = {}", speed);

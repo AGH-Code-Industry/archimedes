@@ -6,14 +6,21 @@
 
 namespace arch::input {
 
+/// @brief Key class, containing state and associated time
 class Key {
 public:
 
+	/// @brief Time type
 	using Time = std::chrono::duration<f32>;
 
+	/// @brief Default constructor
 	inline Key() noexcept;
+	/// @brief Deleted copy constructor
 	Key(const Key&) = delete;
 
+	/// @brief Returns key/button of given code
+	/// @param code - Key to obtain
+	/// @throws std::invalid_argument if code was not found
 	static constexpr Key& get(const u32 code);
 
 	/// @brief Returns whether state contains given KeyState

@@ -4,8 +4,7 @@
 
 namespace arch::input {
 
-/// @brief Enum with all supported key codes
-/// @details Includes keyboard and mouse keys
+/// @brief Enum with all supported mouse button codes
 enum class MouseButtonCode : u32 {
 	begin = 350,
 	left = begin,

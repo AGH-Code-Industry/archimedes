@@ -9,7 +9,11 @@ namespace arch::input {
 
 class Key;
 
+/// @brief Keyboard class
 struct Keyboard {
+	/// @brief Returns key of given code
+	/// @param code - code to find
+	/// @throws std::invalid_argument if code was not found
 	static constexpr Key& key(const KeyCode code);
 
 	ARCH_KEY(numLock)
