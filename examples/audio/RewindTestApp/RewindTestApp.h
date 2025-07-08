@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Helpers.h"
-#include <InputHandler.h>
+#include <Input.h>
 
 using namespace arch;
 
@@ -19,15 +19,6 @@ struct RewindTestApp: Application {
 
 	void init() override {
 		soundManager.init({ soundFile });
-
-		InputHandler::get().bindKey(GLFW_KEY_SPACE, [&](int action) {
-			if (action == GLFW_PRESS) {
-				auto lock = std::lock_guard(mutex);
-				if (!playSound) {
-					playSound = true;
-				}
-			}
-		});
 
 		Ref<Scene> testScene = arch::createRef<Scene>();
 
@@ -57,5 +48,12 @@ struct RewindTestApp: Application {
 			playSound = false;
 		}
 		soundManager.audioManager->synchronize(domain);
+
+		if (Keyboard::space.pressed()) {
+			auto lock = std::lock_guard(mutex);
+			if (!playSound) {
+				playSound = true;
+			}
+		}
 	}
 };
