@@ -1,5 +1,14 @@
 #include <AssetManager.h>
 
+//!			TODO (Asset Manager):
+// todo		Redesign importing and loading (user has to pass asset type as an argument)
+// todo		Path mirroring
+// todo		Exceptions -> Optionals
+// todo		Easier access (more comfortable) to registering importers and especially loaders
+// todo		Easier access (more comfortable) to creating load requests
+// todo		Textures (and everything connected to them)
+// todo		Sounds (and everything connected to them)
+
 void TestHashing() {
 	arch::assetManager::AssetID id1("assets/source/meshes/arrow_triangulated.obj");
 	arch::assetManager::AssetID id2("assets/source/shaders/fragment_default.glsl");
@@ -11,40 +20,45 @@ void TestHashing() {
 }
 
 void TestAssetManager() {
-	arch::assetManager::AssetImporterManager im("assets/processed");
+	arch::assetManager::AssetImporterManager im("assets/source", "assets/processed");
 	im.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
 	im.RegisterImporter(std::make_unique<arch::assetManager::ShaderImporter>());
 
-	im.ImportAsset("assets/source/meshes/arrow_triangulated.obj");
+	im.ImportAsset("meshes/arrow_triangulated", arch::assetManager::AssetType::MESH);
 
 	im.SetShaderImportSettings(
 		arch::assetManager::ShaderOptimizationMode::PERFORMANCE,
 		arch::assetManager::ShaderType::FRAGMENT,
 		arch::assetManager::ShaderSourceLanguage::GLSL
 	);
-	im.ImportAsset("assets/source/shaders/fragment_default2.glsl");
+	im.ImportAsset("shaders/fragment_default2", arch::assetManager::AssetType::SHADER);
 	im.SetShaderImportSettings(
 		arch::assetManager::ShaderOptimizationMode::SIZE,
 		arch::assetManager::ShaderType::VERTEX,
 		arch::assetManager::ShaderSourceLanguage::GLSL
 	);
-	im.ImportAsset("assets/source/shaders/vertex_default.glsl");
+	im.ImportAsset("shaders/vertex_default", arch::assetManager::AssetType::SHADER);
 
 	arch::assetManager::AssetManager am;
 	am.RegisterLoader<arch::assetManager::assets::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
 	am.RegisterLoader<arch::assetManager::assets::Shader>(std::make_unique<arch::assetManager::ShaderLoader>());
 
-	auto mesh = am.LoadAsync<arch::assetManager::assets::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh");
+	/*auto mesh = am.LoadAsync<arch::assetManager::assets::Mesh>(
+		"meshes/arrow_triangulated",
+		arch::assetManager::AssetType::MESH
+	);
 
 	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
 	am.TickLoader();
 	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
 
-	auto shader = am.LoadAsync<arch::assetManager::assets::Shader>("assets/processed/shaders/vertex_default.spv");
+	auto shader = am.LoadAsync<arch::assetManager::assets::Shader>(
+		"shaders/vertex_default",
+		arch::assetManager::AssetType::SHADER
+	);
+
 	arch::Logger::debug("Shader status: {}", shader.IsReady() ? "Ready" : "Loading");
 	am.TickLoader();
-	arch::Logger::debug("Shader status: {}", shader.IsReady() ? "Ready" : "Loading");
-
-	
+	arch::Logger::debug("Shader status: {}", shader.IsReady() ? "Ready" : "Loading");*/
 }
 

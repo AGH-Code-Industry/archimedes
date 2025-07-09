@@ -12,7 +12,11 @@ bool TextureImporter::SupportsFile(const std::filesystem::path& path) const {
 	}
 }
 
-void TextureImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
+void TextureImporter::Import(
+	const std::filesystem::path& sourcePath,
+	const std::filesystem::path& processedPath,
+	const std::filesystem::path& filePath
+) const {
 
 	// TODO: Convert textures to KTX
 	std::filesystem::copy(sourcePath, processedPath, std::filesystem::copy_options::update_existing);

@@ -33,13 +33,16 @@ class AssetImporterManager {
 public:
 	AssetImporterManager() = default;
 	
-	explicit AssetImporterManager(std::filesystem::path processedPath): _processedPath(std::move(processedPath)) {}
+	explicit AssetImporterManager(std::filesystem::path sourcePath, std::filesystem::path processedPath):
+		_sourcePathRoot(std::move(sourcePath)),
+		_processedPathRoot(std::move(processedPath)) {}
 
 	void RegisterImporter(std::unique_ptr<IAssetImporter> importer);
-	void ImportAsset(const std::filesystem::path& sourceFile) const;
+	void ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType) const;
 
-	void SetProcessedPath(const std::filesystem::path& path);
 	const std::filesystem::path& GetProcessedPath() const;
+
+	const std::filesystem::path& GetSourcePath() const;
 
 	void SetShaderOptimizationMode(const ShaderOptimizationMode& mode) noexcept;
 	ShaderOptimizationMode GetShaderOptimizationMode() const noexcept;
@@ -59,7 +62,8 @@ public:
 	ShaderImportSettings GetShaderImportSettings() const noexcept;
 
 private: 
-	std::filesystem::path _processedPath;
+	std::filesystem::path _processedPathRoot;
+	std::filesystem::path _sourcePathRoot;
 	std::vector<std::unique_ptr<IAssetImporter>> _importers;
 
 	ShaderImportSettings _shaderImportSettings;

@@ -11,7 +11,11 @@ bool ShaderImporter::SupportsFile(const std::filesystem::path& path) const {
 	return true;
 }
 
-void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
+void ShaderImporter::Import(
+	const std::filesystem::path& sourcePath,
+	const std::filesystem::path& processedPath,
+	const std::filesystem::path& filePath
+) const {
 	std::ifstream inStream(sourcePath, std::ios::binary);
 
 	if (!inStream) {
@@ -66,7 +70,7 @@ void ShaderImporter::Import(const std::filesystem::path& sourcePath, const std::
 	}
 
 	outStream.write(reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
-	arch::Logger::info("Shader file ('{}') succesfully created!", outPath);
+	arch::Logger::trace("Shader file ('{}') succesfully created!", outPath);
 }
 
 void ShaderImporter::SetImportSettings(const ShaderImportSettings& importSettings) {

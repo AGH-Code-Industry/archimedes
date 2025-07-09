@@ -11,14 +11,18 @@ bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
 	}
 }
 
-void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {
-	std::ifstream inStream(sourcePath, std::ios::binary);
+void MeshImporter::Import(
+	const std::filesystem::path& sourcePath,
+	const std::filesystem::path& processedPath,
+	const std::filesystem::path& filePath
+) const {
+	std::ifstream inStream(filePath, std::ios::binary);
 
 	if (!inStream) {
 		arch::Logger::error("File not found - '{}'", sourcePath.string());
 		return;
 	} else {
-		arch::Logger::trace("File succesfully located - '{}'", sourcePath.string());
+		arch::Logger::trace("File succesfully located - '{}'", filePath.string());
 	}
 
 	std::string line{};
@@ -92,9 +96,15 @@ void MeshImporter::Import(const std::filesystem::path& sourcePath, const std::fi
 		finalIndices.emplace_back(index);
 	}
 
-	std::filesystem::create_directory(processedPath.string() + "/meshes");
+	if (!std::filesystem::exists(processedPath)) {
+		std::filesystem::create_directories(processedPath);
+	}
+
+	std::string assetPath = processedPath.string() + "/" + sourcePath.string();
+
+	std::filesystem::create_directories(assetPath);
 	std::ofstream outStream(
-		processedPath.string() + "/meshes/" + sourcePath.stem().string() + ".archmesh",
+		assetPath + "/" + filePath.stem().string() + ".archmesh",
 		std::ios::binary
 	);
 

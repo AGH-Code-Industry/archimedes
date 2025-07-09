@@ -4,6 +4,13 @@
 
 namespace arch::assetManager {
 
+enum class AssetType {
+	MESH,
+	SHADER,
+	TEXTURE,
+	AUDIO
+};
+
 enum class ShaderOptimizationMode {
 	NONE = shaderc_optimization_level_zero,
 	PERFORMANCE = shaderc_optimization_level_performance,

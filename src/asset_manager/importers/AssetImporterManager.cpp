@@ -1,5 +1,5 @@
-#include <asset_manager/importers/AssetImporterManager.h>
 #include <asset_manager/AssetException.h>
+#include <asset_manager/importers/AssetImporterManager.h>
 
 namespace arch::assetManager {
 
@@ -12,43 +12,64 @@ void AssetImporterManager::RegisterImporter(std::unique_ptr<IAssetImporter> impo
 	}
 }
 
-void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile) const {
-	if (!std::filesystem::exists(sourceFile)) {
-		//throw AssetException(sourceFile.string() + " cannot be found");
-		arch::Logger::warn("Asset not found.");
-	} else {
-		arch::Logger::trace("Asset found.");
+void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType)
+	const {
+	std::vector<std::string> fileExtensions{};
+
+	switch (assetType) {
+		case arch::assetManager::AssetType::MESH:	fileExtensions = { ".obj" }; break;
+		case arch::assetManager::AssetType::SHADER: fileExtensions = { ".glsl", ".hlsl" }; break;
+		default:									arch::Logger::error("Asset type handling not implemented."); return;
 	}
 
+	bool assetFound{ false };
+	std::filesystem::path finalPath;
+
+	for (std::string extension : fileExtensions) {
+		if (std::filesystem::exists(_sourcePathRoot.string() + "/" + sourceFile.string() + extension)) {
+			arch::Logger::trace("Asset found('{}').", _sourcePathRoot.string() + "/" + sourceFile.string() + extension);
+			finalPath = _sourcePathRoot.string() + "/" + sourceFile.string() + extension;
+			assetFound = true;
+			break;
+		}
+	}
+
+	if (!assetFound) {
+		arch::Logger::error("Asset not found ('{}').", _sourcePathRoot.string() + "/" + sourceFile.string() + ".*");
+		return;
+	}
+
+
 	bool success{ false };
-	
+
 	for (const auto& importer : _importers) {
-		if (importer->SupportsFile(sourceFile)) {
+		if (importer->SupportsFile(finalPath)) {
 			if (sourceFile.extension() == ".glsl" || sourceFile.extension() == ".hlsl") {
 				importer->SetImportSettings(_shaderImportSettings);
-				importer->Import(sourceFile, _processedPath);
+				importer->Import(sourceFile.parent_path(), _processedPathRoot, finalPath);
+				arch::Logger::trace("Adequate importer for asset found ('{}').", sourceFile.string());
 				success = true;
 				break;
 			}
-			importer->Import(sourceFile, _processedPath);
+			importer->Import(sourceFile.parent_path(), _processedPathRoot, finalPath);
 			success = true;
 			break;
 		}
 	}
 
 	if (success) {
-		arch::Logger::info("Asset imported ('{}').", sourceFile.string());
+		arch::Logger::info("Asset imported ('{}').", finalPath.string());
 	} else {
-		arch::Logger::warn("Asset couldn't be loaded ('{}').", sourceFile.string());
+		arch::Logger::warn("Asset couldn't be imported ('{}').", finalPath.string());
 	}
 }
 
-void AssetImporterManager::SetProcessedPath(const std::filesystem::path& path) {
-	_processedPath = path;
+const std::filesystem::path& AssetImporterManager::GetProcessedPath() const {
+	return _processedPathRoot;
 }
 
-const std::filesystem::path& AssetImporterManager::GetProcessedPath() const {
-	return _processedPath;
+const std::filesystem::path& AssetImporterManager::GetSourcePath() const {
+	return _sourcePathRoot;
 }
 
 void AssetImporterManager::SetShaderOptimizationMode(const ShaderOptimizationMode& mode) noexcept {

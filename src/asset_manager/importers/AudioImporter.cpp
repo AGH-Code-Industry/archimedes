@@ -5,6 +5,10 @@ bool AudioImporter::SupportsFile(const std::filesystem::path& path) const {
 	return false;
 }
 
-void AudioImporter::Import(const std::filesystem::path& sourcePath, const std::filesystem::path& processedPath) const {}
+void AudioImporter::Import(
+	const std::filesystem::path& sourcePath,
+	const std::filesystem::path& processedPath,
+	const std::filesystem::path& filePath
+) const {}
 
 } // namespace arch::assetManager
