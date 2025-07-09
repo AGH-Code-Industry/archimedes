@@ -33,5 +33,14 @@ void TestAssetManager() {
 	arch::assetManager::AssetManager am;
 	am.RegisterLoader<arch::assetManager::assets::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
 	am.RegisterLoader<arch::assetManager::assets::Shader>(std::make_unique<arch::assetManager::ShaderLoader>());
+
+	auto mesh = am.LoadAsync<arch::assetManager::assets::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh");
+
+	
+	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
+	am.TickLoader();
+	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
+
+	
 }
 
