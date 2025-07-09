@@ -1,8 +1,9 @@
 #include <AssetManager.h>
 
 //!			TODO (Asset Manager):
-// todo		Redesign importing and loading (user has to pass asset type as an argument)
-// todo		Path mirroring
+// x			Redesign importing (user has to pass asset type as an argument)
+// todo		Redesign  loading (user has to pass asset type as an argument)
+// x			Path mirroring
 // todo		Exceptions -> Optionals
 // todo		Easier access (more comfortable) to registering importers and especially loaders
 // todo		Easier access (more comfortable) to creating load requests
