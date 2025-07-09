@@ -93,14 +93,14 @@ class TextRenderTestApp: public Application {
 			auto topLeft = float4{ tc.topLeft(), 1 };
 			auto bottomRight = float4{ tc.bottomRight(), 1 };
 
-			std::cout << std::format("min = ({}, {})\n", topLeft.x, topLeft.y);
-			std::cout << std::format("max = ({}, {})\n", bottomRight.x, bottomRight.y);
+			Logger::debug("min = ({}, {})\n", topLeft.x, topLeft.y);
+			Logger::debug("max = ({}, {})\n", bottomRight.x, bottomRight.y);
 
 			topLeft = t.getTransformMatrix() * topLeft;
 			bottomRight = t.getTransformMatrix() * bottomRight;
 
-			std::cout << std::format("TL = ({}, {})\n", topLeft.x, topLeft.y);
-			std::cout << std::format("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
+			Logger::debug("TL = ({}, {})\n", topLeft.x, topLeft.y);
+			Logger::debug("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
 		}
 	}
 

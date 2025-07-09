@@ -63,7 +63,7 @@ void AudioManager::playSource(AudioSourceComponent& source) {
 		throw AudioException("Audio manager can't play not registered source");
 	}
 	SourceState currentState = _sourceStates[source._id];
-	if (currentState == unused || currentState == paused || currentState == assigned) {
+	if (currentState == paused || currentState == assigned) {
 		_sourceStates[source._id] = playing;
 	}
 }
@@ -112,7 +112,7 @@ void AudioManager::assignSource(AudioSourceComponent& source) {
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source);
 	_sourceStates[index] = assigned;
-	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
+	Logger::info("Audio system: audio manager assigned Source with index {}", index);
 }
 
 
@@ -125,7 +125,8 @@ void AudioManager::assignSource(AudioSourceComponent& source, const scene::compo
 	source._id = index;
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source, transform, moveable);
-	Logger::info("Audio system: audio manager assigned Source with index {}", std::to_string(index));
+	_sourceStates[index] = assigned;
+	Logger::info("Audio system: audio manager assigned Source with index {}", index);
 }
 
 void AudioManager::synchronize(ecs::Domain& domain) {
@@ -142,7 +143,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
 			_dontRemoveFinished[audioSource._id] = false;
-			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(audioSource._id));
+			Logger::info("Audio system: audio manager removed Source with index {}", audioSource._id);
 			audioSource._id = -1;
 		}
 		else if (transform.hasValue() && moveable.hasValue()) {
@@ -156,7 +157,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		if (_sourceStates[source] == removed) {
 			_sourceStates[source] = unused;
 			_dontRemoveFinished[source] = false;
-			Logger::info("Audio system: audio manager removed Source with index {}", std::to_string(source));
+			Logger::info("Audio system: audio manager removed Source with index {}", source);
 
 		}
 	}

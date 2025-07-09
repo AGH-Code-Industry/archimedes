@@ -1,14 +1,20 @@
 #pragma once
 
+#include "../Helpers.h"
 #include <InputHandler.h>
-#include <examples/audio/Helpers.h>
+
+using namespace arch;
 
 enum ControlAction {
-	pauseSound, continueSound, stopSound, startSound, rewindSound, none
+	pauseSound,
+	continueSound,
+	stopSound,
+	startSound,
+	rewindSound,
+	none
 };
 
 struct ControlTestApp: Application {
-
 	// const std::string soundFile = "rickroll.wav";
 	const std::string soundFile = "Chiptone A4.wav";
 	SoundManager soundManager;
@@ -61,7 +67,7 @@ struct ControlTestApp: Application {
 	}
 
 	void init() override {
-		soundManager.init({soundFile});
+		soundManager.init({ soundFile });
 		addHandlers();
 
 		Ref<Scene> testScene = arch::createRef<Scene>();
@@ -74,7 +80,6 @@ struct ControlTestApp: Application {
 
 		scene::SceneManager::get()->changeScene(testScene);
 	}
-
 
 	void update() override {
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
@@ -110,8 +115,7 @@ struct ControlTestApp: Application {
 						soundManager.audioManager->rewindSource(source);
 					}
 					break;
-				case none:
-					break;
+				case none: break;
 			}
 			controlAction = none;
 		}
