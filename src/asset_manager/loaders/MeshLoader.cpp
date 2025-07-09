@@ -3,7 +3,7 @@
 namespace arch::assetManager {
 
 MeshLoader::MeshLoader() {
-	arch::Logger::info("Mesh Loader created");
+	arch::Logger::trace("Mesh Loader created");
 }
 
 std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {

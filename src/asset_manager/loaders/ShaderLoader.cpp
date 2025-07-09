@@ -3,7 +3,7 @@
 namespace arch::assetManager {
 
 ShaderLoader::ShaderLoader() {
-	arch::Logger::info("Shader Loader created");
+	arch::Logger::trace("Shader Loader created");
 }
 
 std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(const std::filesystem::path& path

@@ -11,7 +11,7 @@ void AssetManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
 	}
 
 	_loaders.emplace(typeWrapper, std::move(loader));
-	Logger::info("Registered loader of type: '{}'", typeWrapper.name());
+	Logger::info("Registered loader for asset type: '{}'", typeWrapper.name());
 }
 
 template<class T>

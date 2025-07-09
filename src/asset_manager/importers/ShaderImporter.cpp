@@ -16,13 +16,13 @@ void ShaderImporter::Import(
 	const std::filesystem::path& processedPath,
 	const std::filesystem::path& filePath
 ) const {
-	std::ifstream inStream(sourcePath, std::ios::binary);
+	std::ifstream inStream(filePath, std::ios::binary);
 
 	if (!inStream) {
-		arch::Logger::error("File not found - '{}'", sourcePath.string());
+		arch::Logger::error("File not found - '{}'", filePath.string());
 		return;
 	} else {
-		arch::Logger::trace("File succesfully located - '{}'", sourcePath.string());
+		arch::Logger::trace("File succesfully located - '{}'", filePath.string());
 	}
 
 	std::string rawShaderCode{ std::istreambuf_iterator<char>(inStream), std::istreambuf_iterator<char>() };
@@ -48,29 +48,30 @@ void ShaderImporter::Import(
 	) };
 
 	if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-		arch::Logger::error("Failed to compile shader ('{}'): {}", sourcePath.string(), result.GetErrorMessage());
+		arch::Logger::error("Failed to compile shader ('{}'): {}", filePath.string(), result.GetErrorMessage());
 		return;
 	} else {
-		arch::Logger::trace("Shader compiled succesfully ('{}')", sourcePath.string());
+		arch::Logger::trace("Shader compiled succesfully ('{}')", filePath.string());
 	}
 
 	std::vector<uint32_t> spirv{ result.begin(), result.end() };
 
-	std::string outPath{ processedPath.string() + "/shaders/" + sourcePath.stem().string() + ".spv" };
+	if (!std::filesystem::exists(processedPath)) {
+		std::filesystem::create_directories(processedPath);
+	}
 
-	std::filesystem::create_directory(processedPath.string() + "/shaders");
-	std::ofstream outStream(
-		outPath,
-		std::ios::binary
-	);
-	
+	std::string assetPath = processedPath.string() + "/" + sourcePath.string();
+
+	std::filesystem::create_directories(assetPath);
+	std::ofstream outStream(assetPath + "/" + filePath.stem().string() + ".spv", std::ios::binary);
+
 	if (!outStream) {
-		arch::Logger::error("SPIR-V shader file wasn't created ('{}')", outPath);
+		arch::Logger::error("Mesh file wasn't created");
 		return;
 	}
 
 	outStream.write(reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
-	arch::Logger::trace("Shader file ('{}') succesfully created!", outPath);
+	arch::Logger::trace("Shader file ('{}') succesfully created!", assetPath + "/" + filePath.stem().string() + ".spv");
 }
 
 void ShaderImporter::SetImportSettings(const ShaderImportSettings& importSettings) {
