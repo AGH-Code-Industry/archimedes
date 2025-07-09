@@ -29,5 +29,9 @@ void TestAssetManager() {
 		arch::assetManager::ShaderSourceLanguage::GLSL
 	);
 	im.ImportAsset("assets/source/shaders/vertex_default.glsl");
+
+	arch::assetManager::AssetManager am;
+	am.RegisterLoader<arch::assetManager::assets::Mesh>(std::make_unique<arch::assetManager::MeshLoader>());
+	am.RegisterLoader<arch::assetManager::assets::Shader>(std::make_unique<arch::assetManager::ShaderLoader>());
 }
 
