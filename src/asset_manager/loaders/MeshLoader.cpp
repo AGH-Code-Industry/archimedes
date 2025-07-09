@@ -86,7 +86,7 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 		arch::Logger::warn("Header offset different than expected ({}).", currentOffset);
 	}
 
-	arch::Logger::trace("Asset passed verification.");
+	arch::Logger::trace("Asset passed verification ('{}').", path.string());
 
 	std::vector<float> vertices(4 * vertexCount);
 	inStream.read(reinterpret_cast<char*>(vertices.data()), vertexCount * 4 * sizeof(float));
@@ -94,7 +94,6 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 	std::vector<uint32_t> indices(indexCount);
 	inStream.read(reinterpret_cast<char*>(indices.data()), indexCount * sizeof(uint32_t));
 
-	arch::Logger::trace("Asset loaded");
 	std::shared_ptr<arch::assetManager::assets::Mesh> mesh{
 		std::make_shared<arch::assetManager::assets::Mesh>(vertices, indices)
 	};

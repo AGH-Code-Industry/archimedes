@@ -31,6 +31,8 @@ std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(c
 		// throw AssetException("Cannot open processed asset.");
 	}
 
+	arch::Logger::trace("Asset passed verification ('{}').", path.string());
+
 	return std::make_shared<arch::assetManager::assets::Shader>(arch::assetManager::assets::Shader(spirvCode));
 }
 
