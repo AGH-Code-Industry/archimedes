@@ -36,10 +36,14 @@ void TestAssetManager() {
 
 	auto mesh = am.LoadAsync<arch::assetManager::assets::Mesh>("assets/processed/meshes/arrow_triangulated.archmesh");
 
-	
 	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
 	am.TickLoader();
 	arch::Logger::debug("Mesh status: {}", mesh.IsReady() ? "Ready" : "Loading");
+
+	auto shader = am.LoadAsync<arch::assetManager::assets::Shader>("assets/processed/shaders/vertex_default.spv");
+	arch::Logger::debug("Shader status: {}", shader.IsReady() ? "Ready" : "Loading");
+	am.TickLoader();
+	arch::Logger::debug("Shader status: {}", shader.IsReady() ? "Ready" : "Loading");
 
 	
 }
