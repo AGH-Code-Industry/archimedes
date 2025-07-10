@@ -1,10 +1,6 @@
 #pragma once
 
-// #include "input/Input.h"
 #include "input/Key.h"
-
-// #include "input/Keyboard.h"
-// #include "input/Mouse.h"
 
 namespace arch {
 
