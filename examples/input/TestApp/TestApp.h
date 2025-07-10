@@ -140,13 +140,13 @@ class InputTestApp: public Application {
 
 		// scroll up -> increase animation speed
 		// scroll down -> decrease animation speed
-		speed += Mouse::Scroll::y() * 0.001;
-		if (Mouse::Scroll::y()) {
+		speed += Mouse::scroll.y() * 0.001;
+		if (Mouse::scroll.y()) {
 			Logger::debug("speed = {}", speed);
 		}
 
 		// scroll pressed -> pause/play text animation
-		if (Mouse::middle.pressed()) {
+		if (Mouse::scroll.pressed()) {
 			speedMul = !speedMul;
 			Logger::debug("speedMul = {}", speedMul);
 		}

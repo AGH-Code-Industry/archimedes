@@ -302,7 +302,7 @@ void System::_frameEnd() noexcept {
 	}
 
 	Mouse::_dx = Mouse::_dy = 0;
-	Mouse::_scrollx = Mouse::_scrolly = 0;
+	Mouse::scroll._x = Mouse::scroll._y = 0;
 }
 
 #undef FRAME_END_KEYBOARD
@@ -345,8 +345,8 @@ void System::_mouseCursorCallback(GLFWwindow* window, double x, double y) noexce
 }
 
 void System::_mouseScrollCallback(GLFWwindow* window, double x, double y) noexcept {
-	Mouse::_scrollx = x;
-	Mouse::_scrolly = y;
+	Mouse::scroll._x = x;
+	Mouse::scroll._y = y;
 }
 
 } // namespace arch::input

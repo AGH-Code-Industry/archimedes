@@ -31,24 +31,24 @@ double2 Mouse::dpos() noexcept {
 	return { dx(), dy() };
 }
 
-double Mouse::Scroll::x() noexcept {
-	return Mouse::_scrollx;
+double Mouse::Scroll::x() const noexcept {
+	return _x;
 }
 
-double Mouse::Scroll::y() noexcept {
-	return Mouse::_scrolly;
+double Mouse::Scroll::y() const noexcept {
+	return _y;
 }
 
-bool Mouse::Cursor::disabled() noexcept {
-	return Mouse::_cursorDisabled;
+bool Mouse::Cursor::disabled() const noexcept {
+	return _disabled;
 }
 
 void Mouse::Cursor::toggle(bool toggleRaw) noexcept {
 	disabled(!disabled(), toggleRaw);
 }
 
-bool Mouse::RawInput::enabled() noexcept {
-	return Mouse::_rawInput;
+bool Mouse::RawInput::enabled() const noexcept {
+	return _enabled;
 }
 
 void Mouse::RawInput::toggle() noexcept {
