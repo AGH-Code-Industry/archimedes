@@ -56,10 +56,6 @@ void Domain::kill(const Entity entity) noexcept {
 	_entityPool.kill(entity);
 }
 
-void Domain::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
-	_entityPool.kill(first, last);
-}
-
 void Domain::kill(std::initializer_list<Entity> entities) noexcept {
 	_entityPool.kill(entities);
 }

@@ -56,4 +56,10 @@ void EntityPool::swap(EntityPool& other) noexcept {
 	std::swap(_size, other._size);
 }
 
+void EntityPool::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
+	for (; first != last; ++first) {
+		kill(*first);
+	}
+}
+
 } // namespace arch::ecs

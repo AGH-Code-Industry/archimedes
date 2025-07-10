@@ -86,12 +86,6 @@ void EntityPool::kill(const IdT id) noexcept {
 	}
 }
 
-void EntityPool::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
-	for (; first != last; ++first) {
-		kill(*first);
-	}
-}
-
 void EntityPool::kill(std::initializer_list<EntityT> entities) noexcept {
 	return kill(entities.begin(), entities.end());
 }

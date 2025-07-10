@@ -55,6 +55,10 @@ const ComponentPool<std::remove_const_t<C>>* Domain::_tryGetCPool() const noexce
 											nullptr;
 }
 
+void Domain::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
+	_entityPool.kill(first, last);
+}
+
 template<class C, class... Args>
 Domain::GetReference<std::remove_const_t<C>> Domain::addComponent(const Entity entity, Args&&... args) noexcept {
 	return _assureCPool<std::remove_const_t<C>>().addComponent(entity, std::forward<Args>(args)...);
