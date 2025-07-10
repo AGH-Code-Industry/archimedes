@@ -323,7 +323,7 @@ void System::_keyboardKeyCallback(GLFWwindow* window, int keyCode, int scancode,
 }
 
 void System::_mouseButtonCallback(GLFWwindow* window, int buttonCode, int action, int mods) noexcept {
-	auto&& button = Key::get(buttonCode);
+	auto&& button = Key::get(buttonCode + (u32)MouseButtonCode::begin);
 	if (action == GLFW_RELEASE) {
 		button._state = KeyState::released + KeyState::up;
 	} else if (action == GLFW_PRESS) {
