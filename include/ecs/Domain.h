@@ -6,6 +6,7 @@
 #include "ComponentPool.h"
 #include "EntityPool.h"
 #include "ExcludeT.h"
+#include "ViewFwd.h"
 #include "meta/Rtti.h"
 #include "tUtils/TypeList.h"
 
@@ -30,12 +31,15 @@ public:
 	using ReverseIterator = typename EntityPool::ReverseIterator;
 	/// @brief Const reverse iterator type
 	using ConstReverseIterator = typename EntityPool::ConstReverseIterator;
+	/// @brief Reference type of given component type
 	template<class C>
 	using GetReference = std::conditional_t<_details::ComponentTraits<std::remove_const_t<C>>::flag, bool, C&>;
+	/// @brief Const reference type of given component type
 	template<class C>
 	using ConstGetReference = std::
 		conditional_t<_details::ComponentTraits<std::remove_const_t<C>>::flag, bool, const std::remove_const_t<C>&>;
 
+	/// @brief Null entity
 	static inline constexpr Entity null = Traits::Ent::null;
 
 	/// @brief Default constructor
@@ -206,7 +210,7 @@ public:
 
 private:
 
-	template<bool, class, class>
+	template<class, class>
 	friend class View;
 
 	// ComponentPools mapped by type

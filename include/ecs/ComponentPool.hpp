@@ -128,7 +128,7 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
-		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
+		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize][sparseSwapIdx % ETraits::pageSize];
 
 		if (&sparseSwap != &fromSparse) {
 			// first sparse swap, id at listHead = id of given entity
@@ -178,7 +178,7 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 	} else {
 		--_listHead;
 		const size_t sparseSwapIdx = ETraits::Id::part(_dense[_listHead]);
-		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize]->data()[sparseSwapIdx % ETraits::pageSize];
+		EntityT& sparseSwap = _sparse[sparseSwapIdx / ETraits::pageSize][sparseSwapIdx % ETraits::pageSize];
 
 		if (&sparseSwap != sparsePtr) {
 			// first sparse swap, id at listHead = id of given entity
@@ -191,7 +191,6 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
-		--_counter;
 
 		if constexpr (!Traits::flag) {
 			auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
@@ -204,6 +203,7 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 			Traits::destroyAt(&atListHead);
 		}
 	}
+	--_counter;
 
 	return true;
 }
@@ -214,11 +214,9 @@ POOL_C::GetReference POOL_C::get(const EntityT entity) noexcept {
 	if constexpr (Traits::flag) {
 		return contains(entity);
 	} else {
-		const size_t id = ETraits::Id::part(entity);
-
 		ARCH_ASSERT(contains(entity), "Component for entity not found");
 
-		const size_t idx = ETraits::Id::part(_sparseGet(id));
+		const size_t idx = ETraits::Id::part(_sparseCGet(ETraits::Id::part(entity)));
 
 		return _components[idx / Traits::pageSize][idx % Traits::pageSize];
 	}
