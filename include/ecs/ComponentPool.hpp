@@ -191,7 +191,6 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 
 		_dense[idx] = _dense[_listHead];
 		_dense[_listHead] = ETraits::Ent::fromParts(_listHead + 1, ETraits::Version::null);
-		--_counter;
 
 		if constexpr (!Traits::flag) {
 			auto&& atListHead = _components[_listHead / Traits::pageSize][_listHead % Traits::pageSize];
@@ -204,6 +203,7 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 			Traits::destroyAt(&atListHead);
 		}
 	}
+	--_counter;
 
 	return true;
 }
