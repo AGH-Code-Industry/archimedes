@@ -2,12 +2,12 @@
 
 #include "Exception.h"
 #include "Gfx.h"
-#include "InputHandler.h"
 #include "Logger.h"
 #include "font/FontDB.h"
 #include "resource/ModelLoader.h"
 #include "resource/TextureLoader.h"
 #include "scene/SceneManager.h"
+#include <input/System.h>
 
 namespace arch {
 
@@ -22,7 +22,7 @@ Engine::~Engine() {
 void Engine::start() {
 	try {
 		_initialize();
-		
+
 		_mainLoop();
 	} catch (Exception& e) {
 		e.print();
@@ -36,9 +36,10 @@ void Engine::start() {
 void Engine::_mainLoop() {
 	Logger::info("Starting engine main loop");
 
-	InputHandler::get().initialize(_mainWindow->get());
-
 	while (!_mainWindow->shouldClose()) {
+		glfwPollEvents();
+		input::System::_frameBegin();
+
 		// Update the application
 		_application->update();
 
@@ -51,12 +52,14 @@ void Engine::_mainLoop() {
 			_renderer->present();
 		}
 
-		glfwPollEvents();
+		input::System::_frameEnd();
 	}
 }
 
 void Engine::_initialize() {
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
+
+	input::System::_init(_mainWindow);
 
 	_renderer = gfx::Renderer::create(_engineConfig.renderingApi);
 	_renderer->init(_mainWindow);

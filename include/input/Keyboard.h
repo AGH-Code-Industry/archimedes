@@ -1,0 +1,145 @@
+#pragma once
+
+#include "KeyCode.h"
+#include <Mmath.h>
+
+#define ARCH_KEY(key) static Key key;
+
+namespace arch::input {
+
+class Key;
+
+/// @brief Keyboard class
+struct Keyboard {
+	/// @brief Returns key of given code
+	/// @param code - code to find
+	/// @throws std::invalid_argument if code was not found
+	static constexpr Key& key(const KeyCode code);
+
+	ARCH_KEY(numLock)
+	ARCH_KEY(numDivide)
+	ARCH_KEY(numMultiply)
+	ARCH_KEY(numSubtract)
+	ARCH_KEY(numAdd)
+	ARCH_KEY(numEnter)
+	ARCH_KEY(numDecimal)
+	ARCH_KEY(numZero)
+	ARCH_KEY(numOne)
+	ARCH_KEY(numTwo)
+	ARCH_KEY(numThree)
+	ARCH_KEY(numFour)
+	ARCH_KEY(numFive)
+	ARCH_KEY(numSix)
+	ARCH_KEY(numSeven)
+	ARCH_KEY(numEight)
+	ARCH_KEY(numNine)
+
+	ARCH_KEY(F1)
+	ARCH_KEY(F2)
+	ARCH_KEY(F3)
+	ARCH_KEY(F4)
+	ARCH_KEY(F5)
+	ARCH_KEY(F6)
+	ARCH_KEY(F7)
+	ARCH_KEY(F8)
+	ARCH_KEY(F9)
+	ARCH_KEY(F10)
+	ARCH_KEY(F11)
+	ARCH_KEY(F12)
+	ARCH_KEY(F13)
+	ARCH_KEY(F14)
+	ARCH_KEY(F15)
+	ARCH_KEY(F16)
+	ARCH_KEY(F17)
+	ARCH_KEY(F18)
+	ARCH_KEY(F19)
+	ARCH_KEY(F20)
+	ARCH_KEY(F21)
+	ARCH_KEY(F22)
+	ARCH_KEY(F23)
+	ARCH_KEY(F24)
+	ARCH_KEY(F25)
+
+	ARCH_KEY(esc)
+	ARCH_KEY(pageUp)
+	ARCH_KEY(pageDown)
+	ARCH_KEY(home)
+	ARCH_KEY(end)
+	ARCH_KEY(prtSc)
+	ARCH_KEY(insert)
+	ARCH_KEY(del)
+	ARCH_KEY(capsLock)
+
+	ARCH_KEY(shiftLeft)
+	ARCH_KEY(shiftRight)
+	ARCH_KEY(ctrlLeft)
+	ARCH_KEY(ctrlRight)
+	ARCH_KEY(altLeft)
+	ARCH_KEY(altRight)
+	ARCH_KEY(superLeft)
+	ARCH_KEY(superRight)
+	ARCH_KEY(arrowLeft)
+	ARCH_KEY(arrowRight)
+	ARCH_KEY(arrowDown)
+	ARCH_KEY(arrowUp)
+	ARCH_KEY(menu)
+
+	ARCH_KEY(zero)
+	ARCH_KEY(one)
+	ARCH_KEY(two)
+	ARCH_KEY(three)
+	ARCH_KEY(four)
+	ARCH_KEY(five)
+	ARCH_KEY(six)
+	ARCH_KEY(seven)
+	ARCH_KEY(eight)
+	ARCH_KEY(nine)
+
+	ARCH_KEY(A)
+	ARCH_KEY(B)
+	ARCH_KEY(C)
+	ARCH_KEY(D)
+	ARCH_KEY(E)
+	ARCH_KEY(F)
+	ARCH_KEY(G)
+	ARCH_KEY(H)
+	ARCH_KEY(I)
+	ARCH_KEY(J)
+	ARCH_KEY(K)
+	ARCH_KEY(L)
+	ARCH_KEY(M)
+	ARCH_KEY(N)
+	ARCH_KEY(O)
+	ARCH_KEY(P)
+	ARCH_KEY(Q)
+	ARCH_KEY(R)
+	ARCH_KEY(S)
+	ARCH_KEY(T)
+	ARCH_KEY(U)
+	ARCH_KEY(V)
+	ARCH_KEY(W)
+	ARCH_KEY(X)
+	ARCH_KEY(Y)
+	ARCH_KEY(Z)
+	ARCH_KEY(tab)
+	ARCH_KEY(grave)
+	ARCH_KEY(minus)
+	ARCH_KEY(equal)
+	ARCH_KEY(space)
+	ARCH_KEY(backspace)
+	ARCH_KEY(enter)
+	ARCH_KEY(bracketLeft)
+	ARCH_KEY(bracketRight)
+	ARCH_KEY(backSlash)
+	ARCH_KEY(semicolon)
+	ARCH_KEY(apostrophe)
+	ARCH_KEY(comma)
+	ARCH_KEY(dot)
+	ARCH_KEY(slash)
+};
+
+} // namespace arch::input
+
+#undef ARCH_KEY
+
+#include "Keyboard.hpp"

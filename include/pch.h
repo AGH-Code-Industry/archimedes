@@ -28,4 +28,7 @@
 #include <Logger.h>
 #include <Meta.h>
 #include <TUtils.h>
+#include <input/Key.h>
+#include <input/Keyboard.h>
+#include <input/Mouse.h>
 #include <stb_image.h>
