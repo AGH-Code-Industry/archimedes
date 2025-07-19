@@ -13,7 +13,7 @@ public:
 	/// @brief Removes component from given entity
 	/// @param entity - entity to remove component from
 	/// @return If component was actually removed
-	virtual bool removeComponent(const Entity entity) noexcept = 0;
+	virtual bool virtualRemoveComponent(const Entity entity) noexcept = 0;
 
 private:
 

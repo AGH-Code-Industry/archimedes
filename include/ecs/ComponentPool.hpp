@@ -209,6 +209,11 @@ bool POOL_C::removeComponent(const EntityT entity) noexcept {
 }
 
 TEMPLATE_C
+bool POOL_C::virtualRemoveComponent(const EntityT entity) noexcept {
+	return removeComponent(entity);
+}
+
+TEMPLATE_C
 POOL_C::GetReference POOL_C::get(const EntityT entity) noexcept {
 	// assumed existence of component
 	if constexpr (Traits::flag) {

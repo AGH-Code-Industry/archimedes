@@ -65,7 +65,12 @@ public:
 	/// @brief Removes component from given entity, if has one
 	/// @param entity - entity to remove component from
 	/// @return Whether component was removed
-	bool removeComponent(const EntityT entity) noexcept override;
+	bool removeComponent(const EntityT entity) noexcept;
+	/// @brief Removes component from given entity, if has one
+	/// @detail Virtual verion of removeComponent
+	/// @param entity - entity to remove component from
+	/// @return Whether component was removed
+	bool virtualRemoveComponent(const EntityT entity) noexcept override;
 	/// @brief Removes and returns component from given entity, component must exist
 	/// @details If component does not exist, the behavior is undefined
 	/// @param entity - entity to remove component from
