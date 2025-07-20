@@ -1,38 +1,40 @@
+#include <print>
+
 #include <Ecs.h>
 #include <gtest/gtest.h>
 
 using namespace arch;
 
 // Component type that tracks constructions, copies, moves and destructions
-class TrackingComponent {
+class TrackerComponent {
 public:
-	TrackingComponent() noexcept { ++_constructions; }
+	TrackerComponent() noexcept { ++_constructions; }
 
-	TrackingComponent(const TrackingComponent& other) noexcept: _val{ other._val } {
+	TrackerComponent(const TrackerComponent& other) noexcept: _val{ other._val } {
 		++_constructions;
 		++_copies;
 	}
 
-	TrackingComponent(TrackingComponent&& other) noexcept: _val{ std::move(other._val) } {
+	TrackerComponent(TrackerComponent&& other) noexcept: _val{ std::move(other._val) } {
 		++_constructions;
 		++_moves;
 	}
 
-	TrackingComponent& operator=(const TrackingComponent& other) noexcept {
+	TrackerComponent& operator=(const TrackerComponent& other) noexcept {
 		_val = other._val;
 		++_copies;
 
 		return *this;
 	}
 
-	TrackingComponent& operator=(TrackingComponent&& other) noexcept {
+	TrackerComponent& operator=(TrackerComponent&& other) noexcept {
 		_val = std::move(other._val);
 		++_moves;
 
 		return *this;
 	}
 
-	~TrackingComponent() noexcept { ++_destructions; }
+	~TrackerComponent() noexcept { ++_destructions; }
 
 	static int constructions() noexcept { return _constructions; }
 
@@ -58,38 +60,38 @@ private:
 	int _val = 123;
 };
 
-// same as TrackingComponent, but in-place
-class InPlaceTrackingComponent {
+// same as TrackerComponent, but in-place
+class InPlaceTrackerComponent {
 public:
 	static constexpr bool inPlaceComponent = true;
 
-	InPlaceTrackingComponent() noexcept { ++_constructions; }
+	InPlaceTrackerComponent() noexcept { ++_constructions; }
 
-	InPlaceTrackingComponent(const InPlaceTrackingComponent& other) noexcept: _val{ other._val } {
+	InPlaceTrackerComponent(const InPlaceTrackerComponent& other) noexcept: _val{ other._val } {
 		++_constructions;
 		++_copies;
 	}
 
-	InPlaceTrackingComponent(InPlaceTrackingComponent&& other) noexcept: _val{ std::move(other._val) } {
+	InPlaceTrackerComponent(InPlaceTrackerComponent&& other) noexcept: _val{ std::move(other._val) } {
 		++_constructions;
 		++_moves;
 	}
 
-	InPlaceTrackingComponent& operator=(const InPlaceTrackingComponent& other) noexcept {
+	InPlaceTrackerComponent& operator=(const InPlaceTrackerComponent& other) noexcept {
 		_val = other._val;
 		++_copies;
 
 		return *this;
 	}
 
-	InPlaceTrackingComponent& operator=(InPlaceTrackingComponent&& other) noexcept {
+	InPlaceTrackerComponent& operator=(InPlaceTrackerComponent&& other) noexcept {
 		_val = std::move(other._val);
 		++_moves;
 
 		return *this;
 	}
 
-	~InPlaceTrackingComponent() noexcept { ++_destructions; }
+	~InPlaceTrackerComponent() noexcept { ++_destructions; }
 
 	static int constructions() noexcept { return _constructions; }
 
@@ -172,8 +174,8 @@ private:
 static_assert(std::is_empty_v<FlagComponent>);
 
 void reset() noexcept {
-	TrackingComponent::reset();
-	InPlaceTrackingComponent::reset();
+	TrackerComponent::reset();
+	InPlaceTrackerComponent::reset();
 }
 
 TEST(ECS, Component_Create) {
@@ -186,23 +188,25 @@ TEST(ECS, Component_Create) {
 	// all entities should have all components
 	for (int i = 0; i != entityCount; ++i) {
 		auto entity = domain.newEntity();
-		domain.addComponent<TrackingComponent>(entity);
-		domain.addComponent<InPlaceTrackingComponent>(entity);
+		domain.addComponent<TrackerComponent>(entity);
+		domain.addComponent<InPlaceTrackerComponent>(entity);
 		domain.addComponent<FlagComponent>(entity);
 
 		// does entity have all the components
-		ASSERT_TRUE(domain.hasComponent<TrackingComponent>(entity));
-		ASSERT_TRUE(domain.hasComponent<InPlaceTrackingComponent>(entity));
+		ASSERT_TRUE(domain.hasComponent<TrackerComponent>(entity));
+		ASSERT_TRUE(domain.hasComponent<InPlaceTrackerComponent>(entity));
 		ASSERT_TRUE(domain.hasComponent<FlagComponent>(entity));
 	}
 
 	// are there entityCount components?
-	ASSERT_EQ(domain.count<TrackingComponent>(), entityCount);
-	ASSERT_EQ(domain.count<InPlaceTrackingComponent>(), entityCount);
+	ASSERT_EQ(domain.count<TrackerComponent>(), entityCount);
+	ASSERT_EQ(domain.count<InPlaceTrackerComponent>(), entityCount);
 	ASSERT_EQ(domain.count<FlagComponent>(), entityCount);
+
 	// were all components properly constructed?
-	ASSERT_EQ(TrackingComponent::constructions(), entityCount);
-	ASSERT_EQ(InPlaceTrackingComponent::constructions(), entityCount);
+	ASSERT_EQ(TrackerComponent::constructions(), entityCount);
+	ASSERT_EQ(InPlaceTrackerComponent::constructions(), entityCount);
+
 	// were flags constructed?
 	ASSERT_EQ(FlagComponent::constructions(), 0);
 }
@@ -216,26 +220,26 @@ TEST(ECS, Component_Remove) {
 
 	for (int i = 0; i != entityCount; ++i) {
 		auto entity = domain.newEntity();
-		domain.addComponent<TrackingComponent>(entity);
-		domain.addComponent<InPlaceTrackingComponent>(entity);
+		domain.addComponent<TrackerComponent>(entity);
+		domain.addComponent<InPlaceTrackerComponent>(entity);
 		domain.addComponent<FlagComponent>(entity);
 	}
 
 	for (auto [i, entity] : std::views::enumerate(domain.entities())) {
 		// did ECS remove all the components?
-		ASSERT_TRUE(domain.removeComponent<TrackingComponent>(entity));
-		ASSERT_TRUE(domain.removeComponent<InPlaceTrackingComponent>(entity));
+		ASSERT_TRUE(domain.removeComponent<TrackerComponent>(entity));
+		ASSERT_TRUE(domain.removeComponent<InPlaceTrackerComponent>(entity));
 		ASSERT_TRUE(domain.removeComponent<FlagComponent>(entity));
 
-		// was TrackingComponent destroyed and had some other moved in its place?
-		ASSERT_EQ(TrackingComponent::destructions(), i + 1);
-		ASSERT_EQ(TrackingComponent::moves(), i + 1);
-		ASSERT_EQ(TrackingComponent::copies(), 0);
+		// was TrackerComponent destroyed and had some other moved in its place?
+		ASSERT_EQ(TrackerComponent::destructions(), i + 1);
+		ASSERT_EQ(TrackerComponent::moves(), i + 1);
+		ASSERT_EQ(TrackerComponent::copies(), 0);
 
-		// was InPlaceComponent only destroyed?
-		ASSERT_EQ(InPlaceTrackingComponent::destructions(), i + 1);
-		ASSERT_EQ(InPlaceTrackingComponent::moves(), 0);
-		ASSERT_EQ(InPlaceTrackingComponent::copies(), 0);
+		// was InPlaceTrackerComponent only destroyed?
+		ASSERT_EQ(InPlaceTrackerComponent::destructions(), i + 1);
+		ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
+		ASSERT_EQ(InPlaceTrackerComponent::copies(), 0);
 
 		// was FlagComponent not destroyed, since it doesn't exist?
 		ASSERT_EQ(FlagComponent::destructions(), 0);
@@ -244,14 +248,14 @@ TEST(ECS, Component_Remove) {
 
 		// do component counts match the expected values?
 		ASSERT_EQ(
-			domain.count<TrackingComponent>(),
-			TrackingComponent::constructions() - TrackingComponent::destructions()
+			domain.count<TrackerComponent>(),
+			TrackerComponent::constructions() - TrackerComponent::destructions()
 		);
 		ASSERT_EQ(
-			domain.count<InPlaceTrackingComponent>(),
-			InPlaceTrackingComponent::constructions() - InPlaceTrackingComponent::destructions()
+			domain.count<InPlaceTrackerComponent>(),
+			InPlaceTrackerComponent::constructions() - InPlaceTrackerComponent::destructions()
 		);
-		ASSERT_EQ(domain.count<InPlaceTrackingComponent>(), entityCount - i - 1);
+		ASSERT_EQ(domain.count<InPlaceTrackerComponent>(), entityCount - i - 1);
 	}
 }
 
@@ -289,10 +293,12 @@ TEST(ECS, Component_MovingRemove) {
 
 	auto expectedVec = std::views::iota(0, entityCount) | std::ranges::to<std::vector>();
 
-	// each entity has vector [0; entityCount)
+	// each entity has vector [0; entityCount) and trackers
 	for (int i = 0; i != entityCount; ++i) {
 		auto entity = domain.newEntity();
 		domain.addComponent<Vec>(entity) = expectedVec;
+		domain.addComponent<TrackerComponent>(entity);
+		domain.addComponent<InPlaceTrackerComponent>(entity);
 	}
 
 	for (auto [i, entity] : std::views::enumerate(domain.entities())) {
@@ -301,11 +307,87 @@ TEST(ECS, Component_MovingRemove) {
 		// move vector from domain
 		auto vec = domain.removeComponent<Vec>(entity, moveFlag);
 
+		// move trackers from domain
+		auto tracker = domain.removeComponent<TrackerComponent>(entity, moveFlag);
+		auto inPlaceTracker = domain.removeComponent<InPlaceTrackerComponent>(entity, moveFlag);
+
 		// did move removed vector?
 		ASSERT_EQ(domain.count<Vec>(), entityCount - i - 1);
 		// did data moved correctly?
 		ASSERT_EQ(vec, expectedVec);
 		// did data moved efficiently?
 		ASSERT_EQ(oldVecData, vec.data());
+
+		// was tracker moved twice? (to return + to moved-from)
+		ASSERT_EQ(TrackerComponent::moves(), (i + 1) * 2);
+		// was in-place tracker moved once?
+		ASSERT_EQ(InPlaceTrackerComponent::moves(), i + 1);
+
+		// were Tracker components copied?
+		ASSERT_EQ(TrackerComponent::copies(), 0);
+		ASSERT_EQ(InPlaceTrackerComponent::copies(), 0);
+
+		// were Tracker components properly destroyed? (second moved-from + previous tc/iptc)
+		ASSERT_EQ(TrackerComponent::destructions(), i * 2 + 1);
+		ASSERT_EQ(InPlaceTrackerComponent::destructions(), i * 2 + 1);
 	}
+}
+
+TEST(ECS, Component_PageSize) {
+	reset();
+
+	ecs::Domain domain;
+
+	constexpr int pageCount = 10;
+	constexpr int pageSize = ecs::ComponentSpecs<TrackerComponent>::pageSize;
+
+	// makes 10 pages for components
+	for (int i = 0; i != pageSize * pageCount; ++i) {
+		domain.addComponent<TrackerComponent>(domain.newEntity());
+	}
+
+	for (int p = 0; p != pageCount; ++p) {
+		// is each page continous?
+		auto trackerPagePtr = &*std::next(domain.components<TrackerComponent>().begin(), p * pageSize);
+		for (auto&& [i, tracker] : domain.components<TrackerComponent>()
+				 | std::views::drop(p * pageSize)
+				 | std::views::take(pageSize)
+				 | std::views::enumerate) {
+			ASSERT_EQ(&tracker, trackerPagePtr + i);
+		}
+	}
+}
+
+TEST(ECS, Component_TryGet) {
+	reset();
+
+	ecs::Domain domain;
+
+	constexpr int entityCount = 1'000;
+
+	// half of entities have no components
+	for (int i = 0; i != entityCount; ++i) {
+		auto entity = domain.newEntity();
+		if (i % 2) {
+			domain.addComponent<TrackerComponent>(entity);
+		}
+	}
+
+	// does OptRef hold correct value?
+	for (auto [i, entity] : std::views::enumerate(domain.entities())) {
+		ASSERT_EQ(domain.tryGetComponent<TrackerComponent>(entity).hasValue(), i % 2);
+	}
+}
+
+TEST(ECS, Component_EmptyCPool) {
+	reset();
+
+	ecs::Domain domain;
+
+	// no components -> begin == end
+	ASSERT_EQ(
+		std::as_const(domain).components<TrackerComponent>().begin(),
+		std::as_const(domain).components<TrackerComponent>().end()
+	);
+	ASSERT_EQ(domain.components<TrackerComponent>().begin(), domain.components<TrackerComponent>().end());
 }
