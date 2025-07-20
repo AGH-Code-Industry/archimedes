@@ -120,7 +120,7 @@ C POOL_C::removeComponent(const EntityT entity, MoveFlag) noexcept requires(std:
 	if constexpr (Traits::inPlace) {
 		const size_t idx = ETraits::Id::part(std::exchange(fromSparse, ETraits::Ent::null));
 		_dense[idx] = ETraits::Ent::fromParts(std::exchange(_listHead, idx), ETraits::Version::null);
-		auto&& component = (*_components[idx / Traits::pageSize])[idx % Traits::pageSize];
+		auto&& component = _components[idx / Traits::pageSize][idx % Traits::pageSize];
 		auto toMove = std::move(component);
 		Traits::destroyAt(&component);
 		--_counter;
