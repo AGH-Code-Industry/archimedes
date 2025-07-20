@@ -178,3 +178,10 @@ TEST(ECS, Entity_KillDestroysComponents) {
 		ASSERT_EQ(domain.count<FlagComponent>(), flagComponentCount2);
 	}
 }
+
+TEST(ECS, Entity_EmptyPool) {
+	ecs::Domain domain;
+
+	// no entities -> begin == end
+	ASSERT_EQ(domain.entities().begin(), domain.entities().end());
+}
