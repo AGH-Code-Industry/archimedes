@@ -13,3 +13,5 @@
 #include "ecs/InClassComponentSpecs.h"
 #include "ecs/SparseSet.h"
 #include "ecs/View.h"
+//
+#include "ecs/ExcludingView.h"
