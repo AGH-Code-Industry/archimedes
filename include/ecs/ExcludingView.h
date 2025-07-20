@@ -19,6 +19,9 @@ public:
 
 	using Iterator = ViewIterator<TypeList<>, TypeList<Excludes...>>;
 
+	using IncludeTL = TypeList<>;
+	using ExcludeTL = TypeList<Excludes...>;
+
 	View(Domain* domain) noexcept;
 
 	Iterator begin() const noexcept;
