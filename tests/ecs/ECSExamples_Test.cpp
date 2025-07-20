@@ -5,7 +5,7 @@
 
 namespace ecs = arch::ecs;
 
-TEST(ECS, ComponentSimple) {
+TEST(ECS, Example_ComponentSimple) {
 	// to create your own component you need to perform very specific steps:
 	// 1. just create them
 	// 2. Lorem ipsum
@@ -126,7 +126,7 @@ struct EnemyFlag {
 // flagComponent/FlagComponent/flag_component = true, then it is considered a flag-component
 // flag-components are never instantiated, therefore occupy less space
 
-TEST(ECS, ComponentFlag) {
+TEST(ECS, Example_ComponentFlag) {
 	ecs::Domain domain;
 
 	auto e0 = domain.newEntity();
@@ -223,7 +223,7 @@ struct arch::ecs::ComponentSpecs<Ship> {
 
 // let's now check if our settings acually work
 
-TEST(ECS, ComponentInPlaceCustomPageSize) {
+TEST(ECS, Example_ComponentInPlaceCustomPageSize) {
 	ecs::Domain domain;
 
 	std::array<ecs::Entity, 32 * 3> entities;
