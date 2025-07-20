@@ -5,6 +5,8 @@
 
 using namespace arch;
 
+namespace {
+
 // Component type that tracks constructions, copies, moves and destructions
 class TrackerComponent {
 public:
@@ -170,13 +172,15 @@ private:
 	inline static int _moves = 0;
 };
 
-// FlagComponent is empty
-static_assert(std::is_empty_v<FlagComponent>);
-
 void reset() noexcept {
 	TrackerComponent::reset();
 	InPlaceTrackerComponent::reset();
 }
+
+} // namespace
+
+// FlagComponent is empty
+static_assert(std::is_empty_v<FlagComponent>);
 
 TEST(ECS, Component_Create) {
 	reset();

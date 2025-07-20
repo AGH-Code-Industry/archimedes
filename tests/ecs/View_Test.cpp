@@ -10,6 +10,8 @@
 
 using namespace arch;
 
+namespace {
+
 struct NormalComponent {
 	int value = 0;
 };
@@ -21,6 +23,8 @@ struct InPlaceComponent: NormalComponent {
 struct FlagComponent {
 	static constexpr bool flagComponent = true;
 };
+
+} // namespace
 
 TEST(ECS, View_OneComponent) {
 	ecs::Domain domain;
@@ -211,4 +215,3 @@ TEST(ECS, View_WithExcludes) {
 	// are entities from view the extected ones?
 	ASSERT_EQ(actualEntities, expectedEntities);
 }
-

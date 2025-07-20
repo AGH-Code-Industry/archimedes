@@ -96,6 +96,8 @@ TEST(ECS, Entity_Recycle) {
 	}));
 }
 
+namespace {
+
 class Component {
 public:
 	// increments on construct
@@ -131,6 +133,8 @@ private:
 struct FlagComponent {
 	static constexpr bool flagComponent = true;
 };
+
+} // namespace
 
 TEST(ECS, Entity_KillDestroysComponents) {
 	ecs::Domain domain;

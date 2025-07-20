@@ -112,6 +112,8 @@ TEST(ECS, Example_ComponentSimple) {
 // what if you wanted to flag some entities?
 // creating special component for that purpose is a solution
 
+namespace {
+
 struct WorseEnemyFlag {};
 
 // however component like this ^^^ will occupy space (not efficient)
@@ -121,6 +123,8 @@ struct WorseEnemyFlag {};
 struct EnemyFlag {
 	static constexpr bool flagComponent = true;
 };
+
+} // namespace
 
 // if empty class (no non-static field) has static compile-time constant
 // flagComponent/FlagComponent/flag_component = true, then it is considered a flag-component
@@ -179,12 +183,16 @@ TEST(ECS, Example_ComponentFlag) {
 // marking components are in-place components works simmilar to flag components
 // you need to make compile-time constant named inPlaceComponent/InPlaceComponent/in_place_component = true
 
+namespace {
+
 struct Ship {
 	static constexpr bool inPlaceComponent = true;
 
 	float health;
 	float bulletDamage;
 };
+
+} // namespace
 
 // by default components are not in-place components
 // you can still explicitly mark them as not in-place
