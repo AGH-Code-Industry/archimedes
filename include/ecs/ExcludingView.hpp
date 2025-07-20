@@ -43,8 +43,7 @@ template<class Fn>
 void VIEW_E::forEach(Fn&& fn) noexcept {
 	using Traits = tUtils::CallableTraits<Fn>;
 
-	static_assert(Traits::isCallable);
-	static_assert(std::convertible_to<Entity, Traits::Args::front>);
+	static_assert(tUtils::isApplicableV<Fn, std::tuple<Entity>>);
 
 	for (auto entity : *this) {
 		fn(entity);
