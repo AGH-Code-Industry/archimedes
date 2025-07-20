@@ -23,13 +23,13 @@ public:
 	/// @brief Count of excluded components
 	static constexpr size_t excludeCount = sizeof...(Excludes);
 
-	static_assert(includeCount != 0, "Cannot have view of no components");
-
 	/// @brief Iterator type
 	using Iterator = ViewIterator<TypeList<Includes...>, TypeList<Excludes...>>;
 
 	/// @brief TypeList of Includes
 	using IncludeTL = TypeList<Includes...>;
+	/// @brief TypeList of Excludes
+	using ExcludeTL = TypeList<Excludes...>;
 
 	/// @brief Domain constructor
 	/// @param domain - domain pointer to make View of
@@ -65,6 +65,10 @@ public:
 	auto get(const Entity entity) noexcept;
 	/// @brief Checks if given entity is within this View
 	bool contains(const Entity entity) const noexcept;
+
+	/// @brief Returns index of component pool with the least entities
+	/// @return (u32)-1 if view is invalid
+	u32 minCPool() const noexcept;
 
 private:
 
