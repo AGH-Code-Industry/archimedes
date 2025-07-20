@@ -172,3 +172,43 @@ TEST(ECS, View_AfterRemoval) {
 	// are entities from view the extected ones?
 	ASSERT_EQ(actualEntities, expectedEntities);
 }
+
+TEST(ECS, View_WithExcludes) {
+	ecs::Domain domain;
+
+	constexpr int entityCount = 1'000;
+
+	// all entities have all the components
+	for (int i = 0; i != entityCount; ++i) {
+		auto entity = domain.newEntity();
+		domain.addComponent<NormalComponent>(entity);
+		domain.addComponent<InPlaceComponent>(entity);
+		domain.addComponent<FlagComponent>(entity);
+	}
+
+	auto rng = std::mt19937(std::random_device{}());
+
+	// about half the entities have int
+	for (auto entity : domain.entities()) {
+		if (rng() % 2) {
+			domain.addComponent<int>(entity);
+		}
+	}
+
+	// has all the components, and has no int
+	auto expectedEntities = domain.entities()
+		| std::views::filter([&domain](auto entity) {
+								return domain.hasComponent<NormalComponent>(entity)
+									&& domain.hasComponent<InPlaceComponent>(entity)
+									&& domain.hasComponent<FlagComponent>(entity)
+									&& !domain.hasComponent<int>(entity);
+							})
+		| std::ranges::to<std::unordered_set>();
+
+	auto actualEntities = domain.view<NormalComponent, InPlaceComponent, FlagComponent>(exclude<int>)
+		| std::ranges::to<std::unordered_set>();
+
+	// are entities from view the extected ones?
+	ASSERT_EQ(actualEntities, expectedEntities);
+}
+
