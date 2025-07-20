@@ -165,16 +165,16 @@ concept HasConcreteCallOperator = requires { &Fn::operator(); };
 } // namespace _details
 
 template<class T>
-requires(_details::HasConcreteCallOperator<T>)
+requires(_details::HasConcreteCallOperator<std::remove_cvref_t<T>>)
 struct CallableTraits<T> {
-	using Return = CallableTraits<decltype(&T::operator())>::Return;
-	using Args = CallableTraits<decltype(&T::operator())>::Args;
+	using Return = CallableTraits<decltype(&std::remove_cvref_t<T>::operator())>::Return;
+	using Args = CallableTraits<decltype(&std::remove_cvref_t<T>::operator())>::Args;
 
 	static constexpr bool isCallable = true;
 	static constexpr bool isFunction = false;
 	static constexpr bool isMember = false;
 	static constexpr bool isFunctor = true;
-	static constexpr bool isNoexcept = CallableTraits<decltype(&T::operator())>::isNoexcept;
+	static constexpr bool isNoexcept = CallableTraits<decltype(&std::remove_cvref_t<T>::operator())>::isNoexcept;
 };
 
 template<class T>
