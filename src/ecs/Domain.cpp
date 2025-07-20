@@ -50,7 +50,7 @@ Entity Domain::recycleId(const IdT id) noexcept {
 
 void Domain::kill(const Entity entity) noexcept {
 	for (auto&& [type, poolStorage] : _componentPools) {
-		reinterpret_cast<_details::CommonComponentPool*>(&poolStorage)->removeComponent(entity);
+		reinterpret_cast<_details::CommonComponentPool*>(&poolStorage)->virtualRemoveComponent(entity);
 	}
 
 	_entityPool.kill(entity);
