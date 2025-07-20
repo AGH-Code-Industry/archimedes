@@ -118,18 +118,16 @@ void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
 		const auto excludeCpoolsBegin = _excludedCpools.cbegin(), excludeCpoolsEnd = _excludedCpools.cend();
 		for (const auto entity : _cpools[_minIdx]->_dense) {
 			// cpools[minIdx] check
-			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
+			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
+				&&
 				// rest check
-				std::all_of(
-					cpoolsBegin,
-					cpoolsMiddle,
-					[entity](const auto cpool) { return cpool->contains(entity); }
-				) &&
-				std::all_of(
+				std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
+				&& std::all_of(
 					cpoolsMiddleNext,
 					cpoolsEnd,
 					[entity](const auto cpool) { return cpool->contains(entity); }
-				) &&
+				)
+				&&
 				// excludedCpools check
 				std::none_of(excludeCpoolsBegin, excludeCpoolsEnd, [entity](const auto cpool) {
 					// excluded cpool can be nullptr
@@ -152,16 +150,13 @@ void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
 	} else {
 		for (const auto entity : _cpools[_minIdx]->_dense) {
 			// cpools[minIdx] check
-			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
+			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
+				&&
 				// rest check
-				std::all_of(
-					cpoolsBegin,
-					cpoolsMiddle,
-					[entity](const auto cpool) { return cpool->contains(entity); }
-				) &&
-				std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) {
-					return cpool->contains(entity);
-				})) {
+				std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
+				&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) {
+					   return cpool->contains(entity);
+				   })) {
 				if constexpr (PassEntity) {
 					fn(entity,
 					   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
@@ -189,10 +184,12 @@ auto VIEW_IE::_all(TypeList<Cs...>) noexcept {
 	return (*this) | std::views::transform([this](const Entity entity) noexcept {
 			   return std::tuple_cat(
 				   std::tuple(entity),
-				   std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-								_cpools[IncludeTL::template find<Cs>]
+				   std::tie(
+					   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+						   _cpools[IncludeTL::template find<Cs>]
+					   )
+						   ->get(entity)...
 				   )
-								->get(entity)...)
 			   );
 		   });
 }
@@ -218,10 +215,12 @@ auto VIEW_IE::_components(TypeList<Cs...>) noexcept {
 	using CPoolsCast = ComponentList::template transform<SelectCPool>;
 
 	return (*this) | std::views::transform([this](const Entity entity) noexcept {
-			   return std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-								   _cpools[IncludeTL::template find<Cs>]
-			   )
-								   ->get(entity)...);
+			   return std::tie(
+				   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+					   _cpools[IncludeTL::template find<Cs>]
+				   )
+					   ->get(entity)...
+			   );
 		   });
 }
 
@@ -247,10 +246,12 @@ auto VIEW_IE::_get(const Entity entity, TypeList<Cs...>) noexcept {
 	using ComponentList = TypeList<Cs...>;
 	using ActualComponents = ComponentList::template transform<std::remove_const>;
 	using CPoolsCast = ComponentList::template transform<SelectCPool>;
-	return std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-						_cpools[IncludeTL::template find<Cs>]
-	)
-						->get(entity)...);
+	return std::tie(
+		reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+			_cpools[IncludeTL::template find<Cs>]
+		)
+			->get(entity)...
+	);
 }
 
 TEMPLATE_IE
@@ -263,18 +264,23 @@ bool VIEW_IE::contains(const Entity entity) const noexcept {
 	const auto cpoolsBegin = _cpools.cbegin(), cpoolsMiddle = _cpools.cbegin() + _minIdx,
 			   cpoolsMiddleNext = _cpools.cbegin() + _minIdx + 1, cpoolsEnd = _cpools.cend();
 	if constexpr (excludeCount == 0) {
-		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); });
+		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
+			&& std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
+			&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); });
 	} else {
 		const auto excludedCpoolsBegin = _excludedCpools.cbegin(), excludedCpoolsEnd = _excludedCpools.cend();
-		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
-			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); }) &&
-			std::none_of(excludedCpoolsBegin, excludedCpoolsEnd, [entity](const auto cpool) {
+		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
+			&& std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
+			&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); })
+			&& std::none_of(excludedCpoolsBegin, excludedCpoolsEnd, [entity](const auto cpool) {
 				   return cpool && cpool->contains(entity);
 			   });
 	}
+}
+
+TEMPLATE_IE
+u32 VIEW_IE::minCPool() const noexcept {
+	return _minIdx;
 }
 
 } // namespace arch::ecs

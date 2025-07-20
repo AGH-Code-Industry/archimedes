@@ -18,8 +18,10 @@ template<class... Includes, class... Excludes>
 class ViewIterator<TypeList<Includes...>, TypeList<Excludes...>> {
 public:
 
-	/// @brief Component count
+	/// @brief Count of included components
 	static constexpr size_t includeCount = sizeof...(Includes);
+	/// @brief Count of excluded components
+	static constexpr size_t excludeCount = sizeof...(Excludes);
 
 	/// @brief Default constructor
 	ViewIterator() noexcept = default;
@@ -65,9 +67,9 @@ public:
 private:
 
 	// cpool ptrs
-	using CArrIt = std::array<_details::CommonComponentPool*, sizeof...(Includes)>::const_iterator;
+	using CArrIt = std::array<_details::CommonComponentPool*, includeCount>::const_iterator;
 	// excluded cpool ptrs
-	using ExArrIt = std::array<const _details::CommonComponentPool*, sizeof...(Excludes)>::const_iterator;
+	using ExArrIt = std::array<const _details::CommonComponentPool*, excludeCount>::const_iterator;
 
 	// iters to included cpools (middle - _cpools[_minIdx])
 	CArrIt _begin{}, _middle{}, _end{};

@@ -57,8 +57,9 @@ auto VIEW_E::entities() const noexcept {
 
 TEMPLATE_E
 bool VIEW_E::contains(const Entity entity) const noexcept {
-	return _pool->contains(entity) &&
-		std::ranges::none_of(_excludedCpools, [entity](const auto cpool) { return cpool && cpool->contains(entity); });
+	return _pool->contains(entity) && std::ranges::none_of(_excludedCpools, [entity](const auto cpool) {
+			   return cpool && cpool->contains(entity);
+		   });
 }
 
 } // namespace arch::ecs
