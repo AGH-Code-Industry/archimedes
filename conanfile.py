@@ -29,6 +29,8 @@ class Archimedes(ConanFile):
         self.requires("vulkan-headers/1.4.313.0", override=True)
         self.requires("vulkan-memory-allocator/cci.20231120")
 
+        self.requires("nvrhi/2025.07.20")
+
         # SPIRV (Shader compiler)
         self.requires("shaderc/2023.6")  # waiting for conan repo update
 
