@@ -21,7 +21,10 @@ target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 # link conan libraries
-target_link_libraries(${PROJECT_NAME} PUBLIC ${ARCHIMEDES_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC nvrhi_vk ${ARCHIMEDES_LIBRARIES})
+
+get_target_property(LINKED_LIBS ${PROJECT_NAME} LINK_LIBRARIES)
+message(STATUS "Libraries linked to ${PROJECT_NAME}: ${LINKED_LIBS}")
 
 #include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
 
