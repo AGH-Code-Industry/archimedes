@@ -23,7 +23,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # link conan libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ARCHIMEDES_LIBRARIES})
 
-include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
+#include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
 
 # install msdf-atlas-gen/1.3 Release
 if (NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed")
