@@ -23,7 +23,7 @@ TEMPLATE_IE
 u32 VIEW_IE::_getMinIdx() const noexcept {
 	u32 result = 0;
 	for (auto i = 0u; i != _cpools.size(); ++i) {
-		if (!_cpools[i]) {
+		if (!_cpools[i] || _cpools[i]->count() == 0) {
 			return (u32)-1;
 		}
 		if (_cpools[i]->count() < _cpools[result]->count()) {
