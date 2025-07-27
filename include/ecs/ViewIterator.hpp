@@ -11,10 +11,11 @@
 #define SKIP(op, to)                                                                                           \
 	{                                                                                                          \
 		const auto middleNext = _middle + 1;                                                                   \
+		const auto target = to;                                                                                \
 		if constexpr (sizeof...(Excludes) == 0) {                                                              \
 			/* no excludes, skip check */                                                                      \
 			while (_denseI                                                                                     \
-				   != to                                                                                       \
+				   != target                                                                                   \
 				   && (arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)                           \
 					   || std::any_of(                                                                         \
 						   _begin,                                                                             \
@@ -28,7 +29,7 @@
 			}                                                                                                  \
 		} else {                                                                                               \
 			while (_denseI                                                                                     \
-				   != to                                                                                       \
+				   != target                                                                                   \
 				   && (arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)                           \
 					   || std::any_of(                                                                         \
 						   _begin,                                                                             \
@@ -49,20 +50,21 @@
 	}
 
 #define SKIP_NULLS_AND_OTHERS_FWD SKIP(++, _denseEnd)
-#define SKIP_NULLS_AND_OTHERS_BWD SKIP(--, _denseBegin)
+#define SKIP_NULLS_AND_OTHERS_BWD SKIP(--, _denseBegin - 1)
 
 // skip nulls for in-place components
 #define SKIP_NULLS(op, to)                                                                               \
 	{                                                                                                    \
 		const auto middleNext = _middle + 1;                                                             \
+		const auto target = to;                                                                          \
 		if constexpr (sizeof...(Excludes) == 0) {                                                        \
 			/* no excludes, skip check */                                                                \
-			while (_denseI != to && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) {     \
+			while (_denseI != target && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) { \
 				op _denseI;                                                                              \
 			}                                                                                            \
 		} else {                                                                                         \
 			while (_denseI                                                                               \
-				   != to                                                                                 \
+				   != target                                                                             \
 				   && (arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)                     \
 					   || std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept { \
 							  return cpool && cpool->contains(entity);                                   \
@@ -73,7 +75,7 @@
 	}
 
 #define SKIP_NULLS_FWD SKIP_NULLS(++, _denseEnd)
-#define SKIP_NULLS_BWD SKIP_NULLS(--, _denseBegin)
+#define SKIP_NULLS_BWD SKIP_NULLS(--, _denseBegin - 1)
 
 // general forward skip
 #define SKIP_FWD                                                                                      \
