@@ -11,9 +11,10 @@
 #define SKIP(op, to)                                                                                        \
 	{                                                                                                       \
 		const auto middleNext = _middle + 1;                                                                \
+		const auto target = to;                                                                             \
 		if constexpr (sizeof...(Excludes) == 0) {                                                           \
 			/* no excludes, skip check */                                                                   \
-			while (_denseI != to &&                                                                         \
+			while (_denseI != target &&                                                                     \
 				   !(arch::ecs::_details::EntityTraits::Version::hasNotNull(*_denseI) &&                    \
 					 std::all_of(                                                                           \
 						 _begin,                                                                            \
@@ -26,7 +27,7 @@
 				op _denseI;                                                                                 \
 			}                                                                                               \
 		} else {                                                                                            \
-			while (_denseI != to &&                                                                         \
+			while (_denseI != target &&                                                                     \
 				   !(arch::ecs::_details::EntityTraits::Version::hasNotNull(*_denseI) &&                    \
 					 std::all_of(                                                                           \
 						 _begin,                                                                            \
@@ -47,48 +48,55 @@
 	}
 
 #define SKIP_NULLS_AND_OTHERS_FWD SKIP(++, _denseEnd)
-#define SKIP_NULLS_AND_OTHERS_BWD SKIP(--, _denseBegin)
+#define SKIP_NULLS_AND_OTHERS_BWD SKIP(--, _denseBegin - 1)
 
 // skip nulls for in-place components
-#define SKIP_NULLS(op, to)                                                                           \
-	{                                                                                                \
-		const auto middleNext = _middle + 1;                                                         \
-		if constexpr (sizeof...(Excludes) == 0) {                                                    \
-			/* no excludes, skip check */                                                            \
-			while (_denseI != to && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) { \
-				op _denseI;                                                                          \
-			}                                                                                        \
-		} else {                                                                                     \
-			while (_denseI != to &&                                                                  \
-				   (arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI) ||                 \
-					std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept {   \
-						return cpool && cpool->contains(entity);                                     \
-					}))) {                                                                           \
-				op _denseI;                                                                          \
-			}                                                                                        \
-		}                                                                                            \
+#define SKIP_NULLS(op, to)                                                                               \
+	{                                                                                                    \
+		const auto middleNext = _middle + 1;                                                             \
+		const auto target = to;                                                                          \
+		if constexpr (sizeof...(Excludes) == 0) {                                                        \
+			/* no excludes, skip check */                                                                \
+			while (_denseI != target && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) { \
+				op _denseI;                                                                              \
+			}                                                                                            \
+		} else {                                                                                         \
+			while (_denseI != target &&                                                                  \
+				   (arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI) ||                     \
+					std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept {       \
+						return cpool && cpool->contains(entity);                                         \
+					}))) {                                                                               \
+				op _denseI;                                                                              \
+			}                                                                                            \
+		}                                                                                                \
 	}
 
 #define SKIP_NULLS_FWD SKIP_NULLS(++, _denseEnd)
-#define SKIP_NULLS_BWD SKIP_NULLS(--, _denseBegin)
+#define SKIP_NULLS_BWD SKIP_NULLS(--, _denseBegin - 1)
 
 // general forward skip
-#define SKIP_FWD                                                                                     \
-	if constexpr (includeCount != 1) {                                                               \
-		SKIP_NULLS_AND_OTHERS_FWD;                                                                   \
-	} else if constexpr (includeCount == 1 &&                                                        \
-						 _details::ComponentTraits<                                                  \
-							 std::remove_const_t<typename TypeList<Includes...>::front>>::inPlace) { \
-		SKIP_NULLS_FWD;                                                                              \
+#define SKIP_FWD                                                                                            \
+	if constexpr (includeCount != 1) {                                                                      \
+		SKIP_NULLS_AND_OTHERS_FWD;                                                                          \
+	} else if constexpr (includeCount == 1) {                                                               \
+		if constexpr (_details::ComponentTraits<                                                            \
+						  std::remove_const_t<typename TypeList<Includes...>::front>>::inPlace) {           \
+			SKIP_NULLS_FWD;                                                                                 \
+		} else if (_denseI != _denseEnd && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) { \
+			_denseI = _denseEnd;                                                                            \
+		}                                                                                                   \
 	}
 // general backward skip
-#define SKIP_BWD                                                                                     \
-	if constexpr (includeCount != 1) {                                                               \
-		SKIP_NULLS_AND_OTHERS_BWD;                                                                   \
-	} else if constexpr (includeCount == 1 &&                                                        \
-						 _details::ComponentTraits<                                                  \
-							 std::remove_const_t<typename TypeList<Includes...>::front>>::inPlace) { \
-		SKIP_NULLS_BWD;                                                                              \
+#define SKIP_BWD                                                                                              \
+	if constexpr (includeCount != 1) {                                                                        \
+		SKIP_NULLS_AND_OTHERS_BWD;                                                                            \
+	} else if constexpr (includeCount == 1) {                                                                 \
+		if constexpr (_details::ComponentTraits<                                                              \
+						  std::remove_const_t<typename TypeList<Includes...>::front>>::inPlace) {             \
+			SKIP_NULLS_BWD;                                                                                   \
+		} else if (_denseI >= _denseBegin && arch::ecs::_details::EntityTraits::Version::hasNull(*_denseI)) { \
+			_denseI = _denseBegin - 1;                                                                        \
+		}                                                                                                     \
 	}
 
 namespace arch::ecs {

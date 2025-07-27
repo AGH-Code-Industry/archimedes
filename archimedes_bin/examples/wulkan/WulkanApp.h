@@ -1,5 +1,6 @@
 #include <concepts>
 #include <execution>
+#include <print>
 #include <random>
 
 #include <Application.h>
@@ -30,13 +31,33 @@ using ClkNow = decltype(Clk::now());
 
 const auto zAxis = float3{ 0, 0, 1 };
 
+int key = -1;
+
 struct Vertex {
 	float3 position;
 	float2 tex_coords;
 };
 
 struct Keyboard {
-	static inline bool spaceDown = false;
+	static inline bool leftDown = false;
+	static inline bool leftHold = false;
+
+	static inline bool rightDown = false;
+	static inline bool rightHold = false;
+
+	static inline bool escDown = false;
+	static inline bool escHold = false;
+
+	static bool keyDown(int key) noexcept {
+		if (key == GLFW_KEY_LEFT_SHIFT) {
+			return leftDown;
+		} else if (key == GLFW_KEY_ENTER) {
+			return rightDown;
+		} else if (key == GLFW_KEY_ESCAPE) {
+			return escDown;
+		}
+		return false;
+	}
 };
 
 std::vector<Vertex> defaultVertices{
@@ -86,9 +107,10 @@ inline Ref<gfx::texture::Texture> loadTexture(std::string_view filename) noexcep
 }
 
 struct WulkanComponent {
-	net::UDPSocket socket;
+	// net::UDPSocket socket;
 
 	int particleCount;
+	int key;
 	std::uniform_real_distribution<float> explosionAngleDistrib;
 	std::uniform_real_distribution<float> velocityDistrib;
 	std::uniform_real_distribution<float> rotationSpeedDistrib;
@@ -123,7 +145,7 @@ inline auto defaultUniformBuffer() noexcept {
 	return renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(ubo));
 }
 
-inline void setupWulkan(Entity wulkan) noexcept {
+inline void setupWulkan(Entity wulkan, int key, bool right) noexcept {
 	auto renderer = gfx::Renderer::getCurrent();
 	auto wulkanTexture = loadTexture("textures/wulkan.png");
 	auto particleTexture = loadTexture("textures/particle.png");
@@ -143,10 +165,9 @@ inline void setupWulkan(Entity wulkan) noexcept {
 		.buffers = { defaultUniformBuffer() } });
 
 	float scale = 0.25f;
+	float windowLeftSpace = (gfx::Renderer::getCurrent()->getWindow()->getSize().x - 2.f * texWidth * scale) / 3.f;
 	auto&& transform = wulkan.addComponent(Transform{
-		.position = float3{ (gfx::Renderer::getCurrent()->getWindow()->getSize().x - texWidth * scale) / 2.f,
-							texHeight * scale,
-							0 },
+		.position = float3{ windowLeftSpace + right * (windowLeftSpace + texWidth * scale), texHeight * scale, 0 },
 		.rotation = { 0, 0, 0, 1 },
 		.scale = float3{ texWidth, texHeight, 0 }
 		  * scale
@@ -155,8 +176,9 @@ inline void setupWulkan(Entity wulkan) noexcept {
 	wulkan.addComponent(MeshComp{ .mesh = mesh, .pipeline = pipeline });
 
 	auto&& wulkanComp = wulkan.addComponent(WulkanComponent{
-		.socket = net::UDPSocket(30'420),
+		//.socket = net::UDPSocket(30'420),
 		.particleCount = 200,
+		.key = key,
 		.explosionAngleDistrib = std::uniform_real_distribution(glm::radians(-45.f), glm::radians(45.f)),
 		.velocityDistrib = std::uniform_real_distribution(600.f, 1000.f),
 		.rotationSpeedDistrib = std::uniform_real_distribution(glm::radians(-9.f), glm::radians(9.f)),
@@ -169,6 +191,7 @@ inline void setupWulkan(Entity wulkan) noexcept {
 	});
 }
 
+template<bool Right>
 struct ParticleComponent {
 	glm::quat rotationQuaternion;
 	float e;
@@ -215,7 +238,8 @@ inline void setupParticle(
 	std::uniform_real_distribution<float>& sizeDistrib,
 	std::uniform_real_distribution<float>& eDistrib,
 	const Ref<gfx::pipeline::Pipeline>& pipeline,
-	const Ref<asset::mesh::Mesh>& mesh
+	const Ref<asset::mesh::Mesh>& mesh,
+	bool right
 ) noexcept {
 	static auto rng = std::mt19937(std::random_device{}());
 	static auto initialAngleDistrib = std::uniform_real_distribution(0.f, 360.f);
@@ -225,10 +249,19 @@ inline void setupParticle(
 		if (!colliderOpt || !gBoxOpt) {
 			return;
 		}
+		bool right = domain.hasComponent<ParticleComponent<true>>(lhs);
 
-		auto e = domain.getComponent<ParticleComponent>(lhs).e;
-		if (++domain.getComponent<ParticleComponent>(lhs).collisionCounter >= 3) {
-			domain.addComponent<KillParticleFlag>(lhs);
+		float e;
+		if (right) {
+			e = domain.getComponent<ParticleComponent<true>>(lhs).e;
+			if (++domain.getComponent<ParticleComponent<true>>(lhs).collisionCounter >= 3) {
+				domain.addComponent<KillParticleFlag>(lhs);
+			}
+		} else {
+			e = domain.getComponent<ParticleComponent<false>>(lhs).e;
+			if (++domain.getComponent<ParticleComponent<false>>(lhs).collisionCounter >= 3) {
+				domain.addComponent<KillParticleFlag>(lhs);
+			}
 		}
 
 		auto&& collider = *colliderOpt;
@@ -252,8 +285,15 @@ inline void setupParticle(
 	 });
 	particle.addComponent(MeshComp{ .mesh = mesh, .pipeline = pipeline });
 
-	particle.addComponent(ParticleComponent{ .rotationQuaternion = glm::angleAxis(rotationSpeedDistrib(rng), zAxis),
-											 .e = std::sqrt(eDistrib(rng)) });
+	if (right) {
+		particle.addComponent(ParticleComponent<true>{ .rotationQuaternion =
+														   glm::angleAxis(rotationSpeedDistrib(rng), zAxis),
+													   .e = std::sqrt(eDistrib(rng)) });
+	} else {
+		particle.addComponent(ParticleComponent<false>{ .rotationQuaternion =
+															glm::angleAxis(rotationSpeedDistrib(rng), zAxis),
+														.e = std::sqrt(eDistrib(rng)) });
+	}
 
 	auto angle = explosionAngleDistrib(rng);
 	auto vel = velocityDistrib(rng);
@@ -331,7 +371,8 @@ inline void explosion(Scene& scene, Entity wulkan) noexcept {
 			wulkanComp.sizeDistrib,
 			wulkanComp.eDistrib,
 			wulkanComp.particlePipeline,
-			wulkanComp.particleMesh
+			wulkanComp.particleMesh,
+			wulkanComp.key == GLFW_KEY_ENTER
 		);
 	}
 
@@ -348,24 +389,28 @@ inline void explosion(Scene& scene, Entity wulkan) noexcept {
 }
 
 inline void wulkanSystem(Scene& scene) noexcept {
-	auto view = scene.domain().view<WulkanComponent>();
-
-	auto wulkan = Entity(scene, view.front());
-	auto&& [wulkanComp] = view.get(wulkan);
-
-	if (wulkanComp.socket.dataAvalible()) {
-		char buf[64]{};
-		wulkanComp.socket.recv(buf, sizeof(buf));
-
-		if (std::string_view(buf) == "BOOM!") {
-			explosion(scene, wulkan);
+	for (auto&& [entity, wulkan] : scene.domain().view<WulkanComponent>().all()) {
+		if (Keyboard::keyDown(wulkan.key)) {
+			explosion(scene, Entity(scene, entity));
 		}
 	}
 
-	if (Keyboard::spaceDown) {
-		Keyboard::spaceDown = false;
-		explosion(scene, wulkan);
-	}
+	// auto wulkan = Entity(scene, view.front());
+	// auto&& [wulkanComp] = view.get(wulkan);
+
+	///*if (wulkanComp.socket.dataAvalible()) {
+	//	char buf[64]{};
+	//	wulkanComp.socket.recv(buf, sizeof(buf));
+
+	//	if (std::string_view(buf) == "BOOM!") {
+	//		explosion(scene, wulkan);
+	//	}
+	//}*/
+
+	// if (Keyboard::keyDown(wulkanComp.key)) {
+	//	// Keyboard::keyDown = false;
+	//	explosion(scene, wulkan);
+	// }
 }
 
 inline void setupGround(Entity ground) noexcept {
@@ -375,39 +420,68 @@ inline void setupGround(Entity ground) noexcept {
 	 });
 }
 
+template<bool Right>
 struct CompetitionMaxFlag {
 	static constexpr bool flagComponent = true;
 };
 
+template<bool Right>
 struct CompetitionCurrentFlag {
 	static constexpr bool flagComponent = true;
 };
 
 inline void setupCompetition(Scene& scene) noexcept {
 	auto buffer = defaultUniformBuffer();
+	auto windowWidth = gfx::Renderer::getCurrent()->getWindow()->getSize().x;
 	auto windowHeight = gfx::Renderer::getCurrent()->getWindow()->getSize().y;
 
-	auto max = scene.newEntity();
-	max.addComponent(Transform{
-		.position = { 10.f, windowHeight - 100.f, -0.2f },
-		.rotation = { 0, 0, 0, 1 },
-		.scale = { 100, 100, 0 }
-	 });
-	// max.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
-	max.addComponent<CompetitionMaxFlag>();
+	{
+		auto max = scene.newEntity();
+		max.addComponent(Transform{
+			.position = { 10.f, windowHeight - 100.f, -0.2f },
+			.rotation = { 0, 0, 0, 1 },
+			.scale = { 100, 100, 0 }
+		 });
+		// max.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+		max.addComponent<CompetitionMaxFlag<false>>();
 
-	auto curr = scene.newEntity();
-	curr.addComponent(Transform{
-		.position = { 10.f, windowHeight - 200.f, -0.2f },
-		.rotation = { 0, 0, 0, 1 },
-		.scale = { 100, 100, 0 }
-	 });
-	// curr.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
-	curr.addComponent<CompetitionCurrentFlag>();
+		auto curr = scene.newEntity();
+		curr.addComponent(Transform{
+			.position = { 10.f, windowHeight - 200.f, -0.2f },
+			.rotation = { 0, 0, 0, 1 },
+			.scale = { 100, 100, 0 }
+		 });
+		// curr.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+		curr.addComponent<CompetitionCurrentFlag<false>>();
+	}
+
+	{
+		auto max = scene.newEntity();
+		max.addComponent(Transform{
+			.position = { 10.f + windowWidth / 2.f, windowHeight - 100.f, -0.2f },
+			.rotation = { 0, 0, 0, 1 },
+			.scale = { 100, 100, 0 }
+		 });
+		// max.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+		max.addComponent<CompetitionMaxFlag<true>>();
+
+		auto curr = scene.newEntity();
+		curr.addComponent(Transform{
+			.position = { 10.f + windowWidth / 2.f, windowHeight - 200.f, -0.2f },
+			.rotation = { 0, 0, 0, 1 },
+			.scale = { 100, 100, 0 }
+		 });
+		// curr.addComponent<text::TextComponent>(text::TextComponent(U"", { buffer }, "Arial"));
+		curr.addComponent<CompetitionCurrentFlag<true>>();
+	}
+
+	gfx::Renderer::getCurrent()->getWindow()->get();
 }
 
+static u32 maxParticlesLeft = 0;
+static u32 maxParticlesRight = 0;
+
 inline void competitionSystem(Scene& scene) noexcept {
-	static u32 maxParticles = 0;
 	static bool firstTime = true;
 	/*static ClkNow lastTime = Clk::now();
 
@@ -416,28 +490,62 @@ inline void competitionSystem(Scene& scene) noexcept {
 		return;
 	}*/
 
+	if (Keyboard::escDown) {
+		maxParticlesLeft = 0;
+		maxParticlesRight = 0;
+	}
+
 	if (firstTime) {
 		firstTime = false;
 		setupCompetition(scene);
 	}
 
-	auto max = scene.entitiesWith<CompetitionMaxFlag>().front();
-	auto curr = scene.entitiesWith<CompetitionCurrentFlag>().front();
+	{
+		auto max = scene.entitiesWith<CompetitionMaxFlag<false>>().front();
+		auto curr = scene.entitiesWith<CompetitionCurrentFlag<false>>().front();
 
-	u32 currParticles = scene.domain().components<ParticleComponent>().base().count();
-	maxParticles = std::max(maxParticles, currParticles);
+		u32 currParticles = scene.domain().components<ParticleComponent<false>>().base().count();
+		maxParticlesLeft = std::max(maxParticlesLeft, currParticles);
 
-	auto buffer = defaultUniformBuffer();
+		auto buffer = defaultUniformBuffer();
 
-	max.removeComponent<text::TextComponent>();
-	max.addComponent(
-		text::TextComponent(text::convertTo<char32_t>(std::format("Max: {}", maxParticles)), { buffer }, "Arial")
-	);
+		max.removeComponent<text::TextComponent>();
+		max.addComponent(text::TextComponent(
+			text::convertTo<char32_t>(std::format("Max: {}", maxParticlesLeft)),
+			{ buffer },
+			"Arial"
+		));
 
-	curr.removeComponent<text::TextComponent>();
-	curr.addComponent(
-		text::TextComponent(text::convertTo<char32_t>(std::format("Current: {}", currParticles)), { buffer }, "Arial")
-	);
+		curr.removeComponent<text::TextComponent>();
+		curr.addComponent(text::TextComponent(
+			text::convertTo<char32_t>(std::format("Current: {}", currParticles)),
+			{ buffer },
+			"Arial"
+		));
+	}
+	{
+		auto max = scene.entitiesWith<CompetitionMaxFlag<true>>().front();
+		auto curr = scene.entitiesWith<CompetitionCurrentFlag<true>>().front();
+
+		u32 currParticles = scene.domain().components<ParticleComponent<true>>().base().count();
+		maxParticlesRight = std::max(maxParticlesRight, currParticles);
+
+		auto buffer = defaultUniformBuffer();
+
+		max.removeComponent<text::TextComponent>();
+		max.addComponent(text::TextComponent(
+			text::convertTo<char32_t>(std::format("Max: {}", maxParticlesRight)),
+			{ buffer },
+			"Arial"
+		));
+
+		curr.removeComponent<text::TextComponent>();
+		curr.addComponent(text::TextComponent(
+			text::convertTo<char32_t>(std::format("Current: {}", currParticles)),
+			{ buffer },
+			"Arial"
+		));
+	}
 }
 
 class WulkanApp: public Application {
@@ -457,59 +565,120 @@ public:
 		auto&& soundManager = scene->domain().global<SoundManager>();
 		soundManager.init(explosionPath);
 
-		auto wulkan = scene->newEntity();
-		setupWulkan(wulkan);
-		auto&& wulkanComp = wulkan.getComponent<WulkanComponent>();
+		auto wulkanLeft = scene->newEntity();
+		setupWulkan(wulkanLeft, GLFW_KEY_LEFT_SHIFT, false);
+		auto&& wulkanLeftComp = wulkanLeft.getComponent<WulkanComponent>();
 
-		auto&& listenerComp = wulkan.addComponent<audio::ListenerComponent>();
-		listenerComp.position.x = wulkanComp.particlePosition.x;
-		listenerComp.position.y = wulkanComp.particlePosition.y;
+		auto wulkanRight = scene->newEntity();
+		setupWulkan(wulkanRight, GLFW_KEY_ENTER, true);
+		auto&& wulkanRightComp = wulkanRight.getComponent<WulkanComponent>();
+
+		auto listener = scene->newEntity();
+		auto&& listenerComp = listener.addComponent<audio::ListenerComponent>();
+		listenerComp.position.x = (wulkanLeftComp.particlePosition.x + wulkanRightComp.particlePosition.x) / 2.f;
+		listenerComp.position.y = (wulkanLeftComp.particlePosition.y + wulkanRightComp.particlePosition.y) / 2.f;
 		soundManager.audioManager->setListener(listenerComp, scene->domain());
 
-		auto&& source = wulkan.addComponent<audio::AudioSourceComponent>();
-		source.path = explosionPath;
-		source.isLooped = false;
-		source.position.x = listenerComp.position.x;
-		source.position.y = listenerComp.position.y;
-		source.velocity.x = 0;
-		source.velocity.y = 0;
-		source.rolloffFactor = 0.f;
-		source.dontRemoveFinished = true;
+		{
+			auto&& source = wulkanLeft.addComponent<audio::AudioSourceComponent>();
+			source.path = explosionPath;
+			source.isLooped = false;
+			source.position.x = wulkanLeftComp.particlePosition.x;
+			source.position.y = wulkanLeftComp.particlePosition.y;
+			source.velocity.x = 0;
+			source.velocity.y = 0;
+			source.rolloffFactor = 0.f;
+			source.dontRemoveFinished = true;
+		}
+		{
+			auto&& source = wulkanRight.addComponent<audio::AudioSourceComponent>();
+			source.path = explosionPath;
+			source.isLooped = false;
+			source.position.x = wulkanRightComp.particlePosition.x;
+			source.position.y = wulkanRightComp.particlePosition.y;
+			source.velocity.x = 0;
+			source.velocity.y = 0;
+			source.rolloffFactor = 0.f;
+			source.dontRemoveFinished = true;
+		}
 
 		auto ground = scene->newEntity();
 		setupGround(ground);
 
-		auto window = gfx::Renderer::getCurrent()->getWindow()->get();
-		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-			if (key == GLFW_KEY_SPACE) {
-				if (action == GLFW_PRESS) {
-					Keyboard::spaceDown = true;
-					// Logger::debug("spaceDown callback");
-				} else if (action == GLFW_RELEASE) {
-					Keyboard::spaceDown = false;
-					// Logger::debug("spaceUp callback");
-				}
-			}
-		});
+		// auto window = gfx::Renderer::getCurrent()->getWindow()->get();
+		// glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		//	if (key == ::key) {
+		//		if (action == GLFW_PRESS) {
+		//			Keyboard::keyDown = true;
+		//			// Logger::debug("keyDown callback");
+		//		} else if (action == GLFW_RELEASE) {
+		//			Keyboard::keyDown = false;
+		//			// Logger::debug("spaceUp callback");
+		//		}
+		//	}
+		// });
 	}
 
 	void update() {
 		// static auto lastT = Clk::now();
 		// auto now = Clk::now();
-		std::this_thread::sleep_for(16ms);
+		// std::this_thread::sleep_for(16ms);
 		// lastT = now;
 		physicsSystem->update();
 
-		auto scene = scene::SceneManager::get()->currentScene();
+		{
+			auto keyState = glfwGetKey(gfx::Renderer::getCurrent()->getWindow()->get(), GLFW_KEY_LEFT_SHIFT);
+			if (keyState == GLFW_PRESS && !Keyboard::leftHold) {
+				Keyboard::leftDown = true;
+				Keyboard::leftHold = true;
+			} else if (keyState == GLFW_RELEASE) {
+				Keyboard::leftDown = false;
+				Keyboard::leftHold = false;
+			}
+		}
+		{
+			auto keyState = glfwGetKey(gfx::Renderer::getCurrent()->getWindow()->get(), GLFW_KEY_ENTER);
+			if (keyState == GLFW_PRESS && !Keyboard::rightHold) {
+				Keyboard::rightDown = true;
+				Keyboard::rightHold = true;
+			} else if (keyState == GLFW_RELEASE) {
+				Keyboard::rightDown = false;
+				Keyboard::rightHold = false;
+			}
+		}
+		{
+			auto keyState = glfwGetKey(gfx::Renderer::getCurrent()->getWindow()->get(), GLFW_KEY_ESCAPE);
+			if (keyState == GLFW_PRESS && !Keyboard::rightHold) {
+				Keyboard::escDown = true;
+				Keyboard::escHold = true;
+			} else if (keyState == GLFW_RELEASE) {
+				Keyboard::escDown = false;
+				Keyboard::escHold = false;
+			}
+		}
+
+		auto&& scene = scene::SceneManager::get()->currentScene();
 
 		auto&& domain = scene->domain();
-		auto view = domain.view<phy::Colliding, Transform, ParticleComponent>(exclude<KillParticleFlag>);
-		bool first = true;
+		{
+			auto view = domain.view<phy::Colliding, Transform, ParticleComponent<false>>(exclude<KillParticleFlag>);
+			bool first = true;
 
-		for (auto&& [entity, collider, transform, particle] : view.all()) {
-			transform.position = float3{ collider.body.center.position, -0.1f };
+			for (auto&& [entity, collider, transform, particle] : view.all()) {
+				transform.position = float3{ collider.body.center.position, -0.1f };
 
-			transform.rotation = particle.rotationQuaternion * transform.rotation;
+				transform.rotation = particle.rotationQuaternion * transform.rotation;
+			}
+		}
+		{
+			auto view = domain.view<phy::Colliding, Transform, ParticleComponent<true>>(exclude<KillParticleFlag>);
+			bool first = true;
+
+			for (auto&& [entity, collider, transform, particle] : view.all()) {
+				transform.position = float3{ collider.body.center.position, -0.1f };
+
+				transform.rotation = particle.rotationQuaternion * transform.rotation;
+			}
 		}
 
 		std::vector<ecs::Entity> toRemove;
@@ -519,8 +688,17 @@ public:
 				toRemove.push_back(entity);
 			}
 		}
-		for (auto&& entity : domain.view<KillParticleFlag>()) {
+
+		auto view2 = domain.view<KillParticleFlag>();
+		for (auto&& entity : view2) {
+			// toRemove.push_back(entity);
+			// if (!ecs::_details::EntityTraits::Version::hasNull(entity)) {
 			toRemove.push_back(entity);
+			//} else {
+			//
+			// WIDOKI COS ZLE DZIALAJA, GDY JEST JEDEN FLAG
+			//
+			//}
 		}
 		for (auto&& e : toRemove) {
 			scene->removeEntity(e);
@@ -529,5 +707,9 @@ public:
 		wulkanSystem(*scene);
 		competitionSystem(*scene);
 		domain.global<SoundManager>().audioManager->synchronize(domain);
+
+		Keyboard::leftDown = false;
+		Keyboard::rightDown = false;
+		Keyboard::escDown = false;
 	}
 };

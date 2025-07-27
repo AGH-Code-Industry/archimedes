@@ -5,7 +5,7 @@
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Ref<arch::Application> myApp = arch::createRef<WulkanApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<WulkanApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'600,
 							   .windowHeight = 900,

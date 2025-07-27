@@ -76,12 +76,12 @@ f32 System::update() {
 }
 
 void System::_collisionDetection(f32 t) const {
-	auto viewBBoxes = _domain.view<const BBox>();
+	auto viewBBoxes = _domain.view<BBox>();
 	auto viewColliding = _domain.view<Colliding>();
 
 	// collide every Colliding object with all BBoxes
-	viewColliding.forEach([&](const ecs::Entity lhs, const Colliding& c) {
-		viewBBoxes.forEach([&](const ecs::Entity rhs, const BBox& b) {
+	viewColliding.forEach([&](const ecs::Entity lhs, Colliding& c) {
+		viewBBoxes.forEach([&](const ecs::Entity rhs, BBox& b) {
 			/*Logger::debug(
 				"({}, {}) ({}, {})",
 				c.box.topLeft.x,

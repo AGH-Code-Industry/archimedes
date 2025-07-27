@@ -9,6 +9,8 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+add_link_options("/PROFILE")
+
 include("cmake/build_mode.cmake")
 include("cmake/os.cmake")
 include("cmake/msvc.cmake")

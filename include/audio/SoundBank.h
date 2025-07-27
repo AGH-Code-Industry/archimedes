@@ -1,8 +1,8 @@
 #pragma once
-#include <filesystem>
+#include <map>
+#include <set>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <filesystem>
 
 #include <audio/Clip.h>
 
@@ -18,18 +18,18 @@ class SoundBank {
 
 	/// @brief A map storing all Clip objects.
 	/// Each clip is referenced by its sound file's path on disk.
-	std::unordered_map<std::string, Clip> _clips;
+	std::map<std::string, Clip> _clips;
 
 	/// @brief A map storing all Clip groups.
 	/// Each groups is a set of paths to sound files which belong to Clips in the group.
 	/// You can use it to load/unload multiple Clips at once.
-	std::unordered_map<int, std::unordered_set<std::string>> _groups;
+	std::map<int, std::set<std::string>> _groups;
 
 	/// @brief A set storing all groups that should be loaded during the game's startup.
-	std::unordered_set<int> _initialGroups;
+	std::set<int> _initialGroups;
 
 	/// @brief A map used for checking if a group has been loaded.
-	std::unordered_map<int, bool> _isLoaded;
+	std::map<int, bool> _isLoaded;
 
 	/// @brief Add a clip to a group. Create the group if it doesn't exist.
 	/// @param path Path of the clip's sound file.

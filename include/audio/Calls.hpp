@@ -8,24 +8,15 @@
 #include <AL/alc.h>
 #include <audio/AudioException.h>
 
-///@brief Calls an AL function and checks if it threw an error.
-///@param function function to be called.
-///@param ... parameters of the function.
 #define alCall(function, ...) arch::audio::alCallImplementation(std::source_location::current(), \
 																function, __VA_ARGS__)
-
-///@brief Calls an ALC function and checks if it threw an error.
-///@param function function to be called.
-///@param device ALCDevice returned by alcOpenDevice call.
-///@param ... parameters of the function.
 #define alcCall(function, device, ...) alcCallImplementation(std::source_location::current(), function, \
 																device, __VA_ARGS__)
 
 namespace arch::audio {
 /// @brief Check for errors after "al" function call.
-/// @param location location in the code where the original function was called.
-/// @throws AudioException if an error is found.
-void inline checkAlErrors(const std::source_location& location) {
+/// @throws AudioException if an error is found
+void inline checkAlErrors(const std::source_location location) {
 	const ALenum error = alGetError();
 	if (error == AL_NO_ERROR) {
 		return;
@@ -49,11 +40,10 @@ void inline checkAlErrors(const std::source_location& location) {
 	throw AudioException(errorText, location);
 }
 
-/// @brief Check for errors after "alc" function call.
-/// @param device ALCDevice returned by alcOpenDevice call.
-/// @param location location in the code where the original function was called.
-/// @throws AudioException if an error is found.
-void inline checkAlcErrors(ALCdevice* device, const std::source_location& location) {
+/// @brief Check for errors after "alc" function call
+/// @param device ALCDevice returned by alcOpenDevice call
+/// @throws AudioException if an error is found
+void inline checkAlcErrors(ALCdevice* device, const std::source_location location) {
 	const ALCenum error = alcGetError(device);
 	if (error == ALC_NO_ERROR) {
 		return;
@@ -82,68 +72,64 @@ void inline checkAlcErrors(ALCdevice* device, const std::source_location& locati
 }
 
 template<typename Function, typename... Params>
-/// @brief Check if function returns void.
-concept VoidReturn = requires(Function function, Params... params) {
+/// @brief Check if function returns void
+concept voidReturn = requires(Function function, Params... params) {
 	{ function(std::forward<Params>(params)...) } -> std::same_as<void>;
 };
 
 template<typename Function, typename... Params>
-/// @brief Check if function returns something other than void.
-concept NormalReturn = not VoidReturn<Function, Params...>;
+/// @brief Check if function returns something other than void
+concept normalReturn = not voidReturn<Function, Params...>;
 
-/// @brief Wrapper for OpenAL "al" functions with void return type.
-/// @tparam AlFunction function to be wrapped.
-/// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
-/// @param function wrapped function.
-/// @param params wrapped function's parameters.
+/// @brief Wrapper for OpenAL "al" functions with void return type
+/// @tparam AlFunction function to be wrapped
+/// @tparam Params parameters of wrapped function
+/// @param function wrapped function
+/// @param params wrapped function's parameters
 template<typename AlFunction, typename... Params>
-requires VoidReturn<AlFunction, Params...>
+requires voidReturn<AlFunction, Params...>
 auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	function(std::forward<Params>(params)...);
 	checkAlErrors(location);
 }
 
-/// @brief Wrapper for OpenAL "al" functions with return type other than void.
-/// @tparam AlFunction function to be wrapped.
-/// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
-/// @param function wrapped function.
-/// @param params wrapped function's parameters.
-/// @return return value of wrapped function.
+/// @brief Wrapper for OpenAL "al" functions with return type other than void
+/// @tparam AlFunction function to be wrapped
+/// @tparam Params parameters of wrapped functio
+/// @param function wrapped function
+/// @param params wrapped function's parameters
+/// @return return value of wrapped function
 template<typename AlFunction, typename... Params>
-requires NormalReturn<AlFunction, Params...>
+requires normalReturn<AlFunction, Params...>
 auto alCallImplementation(const std::source_location location, AlFunction function, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
 	checkAlErrors(location);
 	return returnValue;
 }
 
-/// @brief Wrapper for OpenAL "alc" functions with void return type.
-/// @tparam AlcFunction function to be wrapped.
-/// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
-/// @param function wrapped function.
-/// @param device ALCDevice returned by alcOpenDevice call.
-/// @param params wrapped function's parameters.
+/// @brief Wrapper for OpenAL "alc" functions with void return type
+/// @tparam AlcFunction function to be wrapped
+/// @tparam Params parameters of wrapped function
+/// @param function wrapped function
+/// @param device ALCDevice returned by alcOpenDevice call
+/// @param params wrapped function's parameters
 template<typename AlcFunction, typename... Params>
-requires VoidReturn<AlcFunction, Params...>
+requires voidReturn<AlcFunction, Params...>
 auto alcCallImplementation(const std::source_location location, AlcFunction function,
 							ALCdevice* device, Params&&... params) {
 	function(std::forward<Params>(params)...);
 	checkAlcErrors(device, location);
 }
 
-/// @brief Wrapper for OpenAL "alc" functions with return type other than void.
-/// @tparam AlcFunction function to be wrapped.
-/// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
-/// @param function wrapped function.
-/// @param device ALCDevice returned by alcOpenDevice call.
-/// @param params wrapped function's parameters.
-/// @return return value of wrapped function.
+/// @brief Wrapper for OpenAL "alc" functions with return type other than void
+/// @tparam AlcFunction function to be wrapped
+/// @tparam Params parameters of wrapped function
+/// @param function wrapped function
+/// @param device ALCDevice returned by alcOpenDevice call
+/// @param params wrapped function's parameters
+/// @return return value of wrapped function
 template<typename AlcFunction, typename... Params>
-requires NormalReturn<AlcFunction, Params...>
+requires normalReturn<AlcFunction, Params...>
 auto alcCallImplementation(const std::source_location location, AlcFunction function,
 							ALCdevice* device, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);

@@ -2,14 +2,11 @@
 
 #include <audio/AudioSourceComponent.h>
 #include <audio/SoundBank.h>
-#include <physics/components/Moveable.h>
-#include <scene/components/TransformComponent.h>
 
 namespace arch::audio {
 
 /// @brief Each sound played on the game's scene has its own SourcePlayer.
-/// Each SourcePlayer controls playing a particular sound and sends needed
-/// data to OpenAL.
+/// The sound can be modified as needed.
 class SourcePlayer {
 	/// @brief Position in the audio file.
 	std::size_t _cursor = 0;
@@ -64,24 +61,15 @@ class SourcePlayer {
 public:
 
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
-	/// @param source ECS component with info about the sound.
-	/// @param transform ECS component with info about the source position.
-	/// @param moveable ECS component with info about velocity.
-	/// @throws AudioException if the clip path was modified during the playback.
-	void update(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-				const physics::Moveable& moveable);
-
-	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
-	/// Doesn't use spatial data.
-	/// @param source ECS component with info about the sound.
-	/// @throws AudioException if the clip path was modified during the playback.
+	/// @param source ECS component with info about the sound source.
+	/// @throws AudioException if the clip path was modified more than once during the playtime
+	/// (but you still can do it after the last sound was stopped).
+	/// TODO remove exception
 	void update(const AudioSourceComponent& source);
-
-	//TODO add clean method to use after stop
 
 	/// @brief Initializes the _soundBank variable, OpenAL source and OpenAL buffers.
 	/// @param soundBank SoundBank responsible for loading the files.
-	/// @warning Should be called before using the SourcePlayer.
+	/// @warning Should be called before using the SourcePlayer, works like a constructor.
 	/// @see _soundBank
 	void initialize(SoundBank* soundBank);
 
@@ -90,9 +78,11 @@ public:
 
 	/// @brief Controls the playback of the sound. If it hasn't started, start it.
 	/// If it's paused, continue it. If it's already playing, update the buffers.
-	/// @returns True if the sound ended on its own. False otherwise.
+	/// If it's ended, ask the AudioManager to stop it.
+	/// @param source AudioSourceComponent that this object is assigned to.
 	/// @warning If it throws and AudioException saying that the state is invalid,
 	/// there is a bug in implementation (and it should be reported).
+	/// TODO: add return value info and remove source param
 	bool run();
 
 	///@brief Stops playing the sound. To do it, OpenAL needs to process all the buffers,
@@ -104,18 +94,11 @@ public:
 	///@brief Pauses playing the sound.
 	void pausePlaying();
 
-	///@brief Rewinds the playing sound.
-	///@warning It's advised to use it only when the source is playing and
-	///it won't be automatically removed when it ends.
 	void rewindPlaying();
 
-	///@brief Sets the new clip path.
-	///@param clipPath clip path.
 	void setClipPath(const std::string& clipPath);
 
-	///@brief Deletes the clip path.
-	///Sets all parameters to default values.
-	void clean();
+	void cleanClipPath();
 };
 
 } // namespace arch::audio

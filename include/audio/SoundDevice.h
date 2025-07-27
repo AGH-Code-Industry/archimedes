@@ -16,6 +16,7 @@ public:
 
 	/// @brief Context for OpenAL calls
 	/// @warning If you want to use it directly, access it by std::reinterpret_cast<ALCcontext*>
+
 	char* context;
 };
 
