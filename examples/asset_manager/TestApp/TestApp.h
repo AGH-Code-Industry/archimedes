@@ -4,11 +4,12 @@
 // x			Redesign importing (user has to pass asset type as an argument)
 // x			Path mirroring
 // x			Loading paths
-// todo		Exceptions -> Optionals
+// x			Exceptions -> Optionals
 // todo		Easier access (more comfortable) to registering importers and especially loaders
 // todo		Easier access (more comfortable) to creating load requests
 // todo		Textures (and everything connected to them)
 // todo		Sounds (and everything connected to them)
+// todo		Documentation
 
 void TestHashing() {
 	arch::assetManager::AssetID id1("assets/source/meshes/arrow_triangulated.obj");

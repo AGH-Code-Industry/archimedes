@@ -4,11 +4,11 @@ namespace arch::assetManager::assets {
 
 class Texture {
 public:
-	// TODO: add ctor
+	// todo add ctor
 	Texture() {}
 
 private:
-	// TODO: add texture buffers
+	// todo add texture buffers
 };
 
 } // namespace arch::assetManager::assets

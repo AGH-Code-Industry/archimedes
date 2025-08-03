@@ -16,7 +16,7 @@ bool AssetID::operator!=(const AssetID& other) const noexcept {
 	return !(_id == other._id);
 }
 
-uint64_t AssetID::Hash(const std::filesystem::path& text) {
+uint64_t AssetID::Hash(const std::filesystem::path& text) noexcept {
 	static const uint64_t fnvOffsetBasis{ 14'695'981'039'346'656'037ULL };
 	static const uint64_t fnvPrime{ 1'099'511'628'211ULL };
 		

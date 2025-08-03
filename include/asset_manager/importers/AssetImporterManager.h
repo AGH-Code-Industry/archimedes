@@ -37,12 +37,12 @@ public:
 		_sourcePathRoot(std::move(sourcePath)),
 		_processedPathRoot(std::move(processedPath)) {}
 
-	void RegisterImporter(std::unique_ptr<IAssetImporter> importer);
-	void ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType) const;
+	void RegisterImporter(std::unique_ptr<IAssetImporter> importer) noexcept;
+	void ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType) const noexcept;
 
-	const std::filesystem::path& GetProcessedPath() const;
+	const std::filesystem::path& GetProcessedPath() const noexcept;
 
-	const std::filesystem::path& GetSourcePath() const;
+	const std::filesystem::path& GetSourcePath() const noexcept;
 
 	void SetShaderOptimizationMode(const ShaderOptimizationMode& mode) noexcept;
 	ShaderOptimizationMode GetShaderOptimizationMode() const noexcept;

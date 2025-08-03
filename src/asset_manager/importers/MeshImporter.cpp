@@ -2,7 +2,7 @@
 
 namespace arch::assetManager {
 
-bool MeshImporter::SupportsFile(const std::filesystem::path& path) const {
+bool MeshImporter::SupportsFile(const std::filesystem::path& path) const noexcept {
 	std::string extension{ path.extension().string() };
 	if (extension == ".obj") {
 		return true;
@@ -15,7 +15,7 @@ void MeshImporter::Import(
 	const std::filesystem::path& sourcePath,
 	const std::filesystem::path& processedPath,
 	const std::filesystem::path& filePath
-) const {
+) const noexcept {
 	std::ifstream inStream(filePath, std::ios::binary);
 
 	if (!inStream) {

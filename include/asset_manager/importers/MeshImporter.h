@@ -16,12 +16,12 @@ namespace arch::assetManager {
 
 class MeshImporter: public IAssetImporter {
 public:
-	bool SupportsFile(const std::filesystem::path& path) const override;
+	bool SupportsFile(const std::filesystem::path& path) const noexcept override;
 	void Import(
 		const std::filesystem::path& sourcePath,
 		const std::filesystem::path& processedPath, 
 		const std::filesystem::path& filePath
-	) const override;
+	) const noexcept override;
 };
 
 } // namespace arch::assetManager

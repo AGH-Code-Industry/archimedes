@@ -1,7 +1,7 @@
 #include <asset_manager/importers/ShaderImporter.h>
 
 namespace arch::assetManager {
-bool ShaderImporter::SupportsFile(const std::filesystem::path& path) const {
+bool ShaderImporter::SupportsFile(const std::filesystem::path& path) const noexcept {
 	std::string extension{ path.extension().string() };
 	if (extension == ".glsl" || extension == ".hlsl") {
 		return true;
@@ -15,7 +15,7 @@ void ShaderImporter::Import(
 	const std::filesystem::path& sourcePath,
 	const std::filesystem::path& processedPath,
 	const std::filesystem::path& filePath
-) const {
+) const noexcept {
 	std::ifstream inStream(filePath, std::ios::binary);
 
 	if (!inStream) {
@@ -74,7 +74,7 @@ void ShaderImporter::Import(
 	arch::Logger::trace("Shader file ('{}') succesfully created!", assetPath + "/" + filePath.stem().string() + ".spv");
 }
 
-void ShaderImporter::SetImportSettings(const ShaderImportSettings& importSettings) {
+void ShaderImporter::SetImportSettings(const ShaderImportSettings& importSettings) noexcept {
 	_optMode = importSettings._optMode;
 	_shaderType = importSettings._shaderType;
 	_sourceLanguage = importSettings._sourceLanguage;

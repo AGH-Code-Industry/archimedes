@@ -19,7 +19,7 @@ public:
 
 private:
 
-	static uint64_t Hash(const std::filesystem::path& text);
+	static uint64_t Hash(const std::filesystem::path& text) noexcept;
 	uint64_t _id = 0;
 
 };

@@ -6,8 +6,8 @@ ShaderLoader::ShaderLoader(std::filesystem::path processedPath): _processedPath(
 	arch::Logger::trace("Shader Loader created");
 }
 
-std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(const std::filesystem::path& path
-) const {
+std::optional<std::shared_ptr<arch::assetManager::assets::Shader>> ShaderLoader::LoadFromFile(const std::filesystem::path& path
+) const noexcept {
 
 	std::filesystem::path finalPath{ _processedPath.string() + "/" + path.string() + ".spv" };
 
@@ -15,12 +15,12 @@ std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(c
 
 	if (!std::filesystem::exists(finalPath)) {
 		arch::Logger::error("'{}' not found", finalPath.string());
-		// throw AssetException("Processed asset not found.");
+		return {};
 	}
 
 	if (!inStream) {
 		arch::Logger::error("Cannot open '{}'", finalPath.string());
-		// throw AssetException("Cannot open processed asset.");
+		return {};
 	}
 
 	const std::streamsize size{ inStream.tellg() };
@@ -31,7 +31,7 @@ std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(c
 
 	if (!inStream) {
 		arch::Logger::error("Error during file reading ('{}').", finalPath.string());
-		// throw AssetException("Cannot open processed asset.");
+		return {};
 	}
 
 	arch::Logger::trace("Asset passed verification ('{}').", finalPath.string());

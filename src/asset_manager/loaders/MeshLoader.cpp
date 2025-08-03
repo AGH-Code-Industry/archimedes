@@ -6,7 +6,7 @@ MeshLoader::MeshLoader(std::filesystem::path processedPath) : _processedPath(pro
 	arch::Logger::trace("Mesh Loader created");
 }
 
-std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
+std::optional<std::shared_ptr<arch::assetManager::assets::Mesh>> MeshLoader::LoadFromFile(const std::filesystem::path& path) const noexcept {
 	size_t currentOffset{};
 
 	std::string finalPath{ _processedPath.string() + "/" + path.string() + ".archmesh" };
@@ -15,12 +15,12 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 
 	if (!std::filesystem::exists(finalPath)) {
 		arch::Logger::error("'{}' not found", finalPath);
-		throw AssetException("Processed asset not found.");
+		return {};
 	}
 
 	if (!inStream) {
 		arch::Logger::error("Cannot open '{}'", finalPath);
-		throw AssetException("Cannot open processed asset.");
+		return {};
 	}
 
 	std::array<char, 4> magic{};
@@ -30,7 +30,7 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 	constexpr std::string_view expectedMagic{ "MSHB", 4 };
 	if (std::string_view{ magic.data(), magic.size() } != expectedMagic) {
 		arch::Logger::error("Wrong magic (expected MSHB). Processed asset type not correct.");
-		throw AssetException("Wrong magic (expected MSHB). Processed asset type not correct.");
+		return {};
 	}
 
 	uint16_t version{};
@@ -38,7 +38,7 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 	currentOffset += sizeof(version);
 	if (version != 1) {
 		arch::Logger::error("Processed asset format version {} - not supported", version);
-		throw AssetException("Processed asset format version not supported.");
+		return {};
 	}
 
 	uint16_t hasUVs{};
@@ -64,7 +64,7 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 	currentOffset += sizeof(vertexSize);
 	if (vertexSize == 0) {
 		arch::Logger::error("Vertex size set to 0.");
-		throw AssetException("Vertex size set to 0.");
+		return {};
 	}
 
 	uint32_t vertexDataOffset{};

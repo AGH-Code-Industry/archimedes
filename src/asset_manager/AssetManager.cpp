@@ -3,7 +3,7 @@
 namespace arch::assetManager {
 
 template<class T>
-void AssetManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
+void AssetManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) noexcept {
 	auto typeWrapper{ arch::meta::rtti::typedesc<T>().wrap() };
 
 	if (_loaders.contains(typeWrapper)) {
@@ -15,7 +15,7 @@ void AssetManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
 }
 
 template<class T>
-AssetHandle<T> AssetManager::LoadAsync(const std::filesystem::path& path) {
+AssetHandle<T> AssetManager::LoadAsync(const std::filesystem::path& path) noexcept {
 	AssetID id(path.string());
 
 	auto& entryBase{ _cache[id] };
@@ -36,19 +36,19 @@ AssetHandle<T> AssetManager::LoadAsync(const std::filesystem::path& path) {
 }
 
 template<class T>
-std::shared_ptr<T> AssetManager::LoadSync(const std::filesystem::path& path) {
+std::optional<std::shared_ptr<T>> AssetManager::LoadSync(const std::filesystem::path& path) noexcept {
 	auto h{ LoadAsync<T>(path) };
 
 	TickLoader(std::numeric_limits<std::size_t>::max());
 	if (!h.IsReady()) {
 		Logger::error("Asset ({}) failed to load: {}", path.string(), h.ErrorMsg());
-		throw AssetException("Asset " + path.string() + " failed to load: " + h.ErrorMsg());
+		return {};
 	}
 
 	return std::static_pointer_cast<AssetEntry<T>>(h._entry)->ptr;
 }
 
-void AssetManager::TickLoader(std::size_t maxJobs) {
+void AssetManager::TickLoader(std::size_t maxJobs) noexcept {
 	while (maxJobs-- && !_queue.empty()) {
 		auto job{ _queue.front() };
 		_queue.pop();
@@ -67,7 +67,11 @@ void AssetManager::TickLoader(std::size_t maxJobs) {
 			auto assetPtr{ loader->LoadFromFile(job.path) };
 
 			auto* entryT = static_cast<AssetEntry<arch::assetManager::assets::Mesh>*>(job.entry.get());
-			entryT->ptr = std::move(assetPtr);
+			if (assetPtr) {
+				entryT->ptr = std::move(*assetPtr);
+			} else {
+				entryT->ptr = nullptr;
+			}
 			job.entry->state = AssetState::Ready;
 		} catch (const std::exception& e) {
 			job.entry->state = AssetState::Error;
@@ -81,14 +85,14 @@ template void AssetManager::RegisterLoader<
 	arch::assetManager::assets::Mesh>(std::unique_ptr<IAssetLoader<arch::assetManager::assets::Mesh>>);
 template AssetHandle<arch::assetManager::assets::Mesh> AssetManager::LoadAsync<
 	arch::assetManager::assets::Mesh>(const std::filesystem::path&);
-template std::shared_ptr<arch::assetManager::assets::Mesh> AssetManager::LoadSync<
+template std::optional<std::shared_ptr<arch::assetManager::assets::Mesh>> AssetManager::LoadSync<
 	arch::assetManager::assets::Mesh>(const std::filesystem::path&);
 
 template void AssetManager::RegisterLoader<
 	arch::assetManager::assets::Shader>(std::unique_ptr<IAssetLoader<arch::assetManager::assets::Shader>>);
 template AssetHandle<arch::assetManager::assets::Shader> AssetManager::LoadAsync<
 	arch::assetManager::assets::Shader>(const std::filesystem::path&);
-template std::shared_ptr<arch::assetManager::assets::Shader> AssetManager::LoadSync<
+template std::optional<std::shared_ptr<arch::assetManager::assets::Shader>> AssetManager::LoadSync<
 	arch::assetManager::assets::Shader>(const std::filesystem::path&);
 
 } // namespace arch::assetManager

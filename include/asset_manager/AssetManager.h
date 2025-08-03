@@ -5,12 +5,14 @@
 #include <typeindex>
 #include <unordered_map>
 #include <queue>
+#include <optional>
 
 #include "AssetHandle.h"
 #include "loaders/IAssetLoader.h"
 #include "loaders/MeshLoader.h"
 #include "loaders/ShaderLoader.h"
 #include "AssetID.h"
+
 
 
 #include <Logger.h>
@@ -22,15 +24,15 @@ class AssetManager {
 public:
 
 	template<class T>
-	void RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader);
+	void RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) noexcept;
 
 	template<class T>
-	AssetHandle<T> LoadAsync(const std::filesystem::path& path);
+	AssetHandle<T> LoadAsync(const std::filesystem::path& path) noexcept;
 
 	template<class T>
-	std::shared_ptr<T> LoadSync(const std::filesystem::path& path);
+	std::optional<std::shared_ptr<T>> LoadSync(const std::filesystem::path& path) noexcept;
 
-	void TickLoader(std::size_t maxJobs = 4 );
+	void TickLoader(std::size_t maxJobs = 4 ) noexcept;
 
 private:
 

@@ -5,7 +5,7 @@ namespace arch::assetManager {
 		arch::Logger::info("Texture loader created.");
 	}
 
-	std::shared_ptr<arch::assetManager::assets::Texture> TextureLoader::LoadFromFile(const std::filesystem::path& path
+	std::optional<std::shared_ptr<arch::assetManager::assets::Texture>> TextureLoader::LoadFromFile(const std::filesystem::path& path
 	) const {
 
 		// TODO: Load png file as texture

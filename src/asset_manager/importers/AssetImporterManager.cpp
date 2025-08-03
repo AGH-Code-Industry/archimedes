@@ -3,17 +3,17 @@
 
 namespace arch::assetManager {
 
-void AssetImporterManager::RegisterImporter(std::unique_ptr<IAssetImporter> importer) {
+void AssetImporterManager::RegisterImporter(std::unique_ptr<IAssetImporter> importer) noexcept {
 	if (importer) {
 		arch::Logger::info("Importer registered");
 		_importers.emplace_back(std::move(importer));
 	} else {
-		throw AssetException("Importer cannot be registered (importer is a nullptr).");
+		arch::Logger::error("Importer registration impossible!");
 	}
 }
 
 void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType)
-	const {
+	const noexcept {
 	std::vector<std::string> fileExtensions{};
 
 	switch (assetType) {
@@ -64,11 +64,11 @@ void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile, 
 	}
 }
 
-const std::filesystem::path& AssetImporterManager::GetProcessedPath() const {
+const std::filesystem::path& AssetImporterManager::GetProcessedPath() const noexcept {
 	return _processedPathRoot;
 }
 
-const std::filesystem::path& AssetImporterManager::GetSourcePath() const {
+const std::filesystem::path& AssetImporterManager::GetSourcePath() const noexcept {
 	return _sourcePathRoot;
 }
 
