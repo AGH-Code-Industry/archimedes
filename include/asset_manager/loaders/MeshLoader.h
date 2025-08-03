@@ -18,8 +18,11 @@ namespace arch::assetManager {
 
 class MeshLoader: public IAssetLoader<arch::assetManager::assets::Mesh> {
 public:
-	MeshLoader();
+	MeshLoader(std::filesystem::path processedPath);
 	std::shared_ptr<arch::assetManager::assets::Mesh> LoadFromFile(const std::filesystem::path& path) const override;
+
+private:
+	std::filesystem::path _processedPath;
 };
 
 }

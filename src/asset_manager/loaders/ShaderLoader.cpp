@@ -2,22 +2,25 @@
 
 namespace arch::assetManager {
 
-ShaderLoader::ShaderLoader() {
+ShaderLoader::ShaderLoader(std::filesystem::path processedPath): _processedPath(processedPath) {
 	arch::Logger::trace("Shader Loader created");
 }
 
 std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(const std::filesystem::path& path
 ) const {
-	std::ifstream inStream{ path, std::ios::ate | std::ios::binary };
 
-	if (!std::filesystem::exists(path)) {
-		arch::Logger::error("'{}' not found", path.string());
-		//throw AssetException("Processed asset not found.");
+	std::filesystem::path finalPath{ _processedPath.string() + "/" + path.string() + ".spv" };
+
+	std::ifstream inStream{ finalPath, std::ios::ate | std::ios::binary };
+
+	if (!std::filesystem::exists(finalPath)) {
+		arch::Logger::error("'{}' not found", finalPath.string());
+		// throw AssetException("Processed asset not found.");
 	}
 
 	if (!inStream) {
-		arch::Logger::error("Cannot open '{}'", path.string());
-		//throw AssetException("Cannot open processed asset.");
+		arch::Logger::error("Cannot open '{}'", finalPath.string());
+		// throw AssetException("Cannot open processed asset.");
 	}
 
 	const std::streamsize size{ inStream.tellg() };
@@ -27,13 +30,13 @@ std::shared_ptr<arch::assetManager::assets::Shader> ShaderLoader::LoadFromFile(c
 	inStream.read(reinterpret_cast<char*>(spirvCode.data()), size);
 
 	if (!inStream) {
-		arch::Logger::error("Error during file reading ('{}').", path.string());
+		arch::Logger::error("Error during file reading ('{}').", finalPath.string());
 		// throw AssetException("Cannot open processed asset.");
 	}
 
-	arch::Logger::trace("Asset passed verification ('{}').", path.string());
+	arch::Logger::trace("Asset passed verification ('{}').", finalPath.string());
 
 	return std::make_shared<arch::assetManager::assets::Shader>(arch::assetManager::assets::Shader(spirvCode));
 }
 
-}
+} // namespace arch::assetManager

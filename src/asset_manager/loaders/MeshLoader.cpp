@@ -2,22 +2,24 @@
 
 namespace arch::assetManager {
 
-MeshLoader::MeshLoader() {
+MeshLoader::MeshLoader(std::filesystem::path processedPath) : _processedPath(processedPath) {
 	arch::Logger::trace("Mesh Loader created");
 }
 
 std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const std::filesystem::path& path) const {
 	size_t currentOffset{};
 
-	std::ifstream inStream{ path };
+	std::string finalPath{ _processedPath.string() + "/" + path.string() + ".archmesh" };
 
-	if (!std::filesystem::exists(path)) {
-		arch::Logger::error("'{}' not found", path.string());
+	std::ifstream inStream{ finalPath };
+
+	if (!std::filesystem::exists(finalPath)) {
+		arch::Logger::error("'{}' not found", finalPath);
 		throw AssetException("Processed asset not found.");
 	}
 
 	if (!inStream) {
-		arch::Logger::error("Cannot open '{}'", path.string());
+		arch::Logger::error("Cannot open '{}'", finalPath);
 		throw AssetException("Cannot open processed asset.");
 	}
 
@@ -86,7 +88,7 @@ std::shared_ptr<arch::assetManager::assets::Mesh> MeshLoader::LoadFromFile(const
 		arch::Logger::warn("Header offset different than expected ({}).", currentOffset);
 	}
 
-	arch::Logger::trace("Asset passed verification ('{}').", path.string());
+	arch::Logger::trace("Asset passed verification ('{}').", finalPath);
 
 	std::vector<float> vertices(4 * vertexCount);
 	inStream.read(reinterpret_cast<char*>(vertices.data()), vertexCount * 4 * sizeof(float));
