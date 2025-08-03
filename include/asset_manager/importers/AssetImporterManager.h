@@ -1,12 +1,11 @@
 #pragma once
 
 #include <filesystem>
-#include <vector>
 #include <memory>
-
-#include <Logger.h>
+#include <vector>
 
 #include "IAssetImporter.h"
+#include <Logger.h>
 #include <asset_manager/AssetEnums.h>
 
 namespace arch::assetManager {
@@ -32,13 +31,16 @@ struct ShaderImportSettings {
 class AssetImporterManager {
 public:
 	AssetImporterManager() = default;
-	
+
 	explicit AssetImporterManager(std::filesystem::path sourcePath, std::filesystem::path processedPath):
 		_sourcePathRoot(std::move(sourcePath)),
 		_processedPathRoot(std::move(processedPath)) {}
 
 	void RegisterImporter(std::unique_ptr<IAssetImporter> importer) noexcept;
 	void ImportAsset(const std::filesystem::path& sourceFile, arch::assetManager::AssetType assetType) const noexcept;
+
+	template<typename T>
+	void Register() { RegisterImporter(std::make_unique<T>()); }
 
 	const std::filesystem::path& GetProcessedPath() const noexcept;
 
@@ -61,7 +63,7 @@ public:
 
 	ShaderImportSettings GetShaderImportSettings() const noexcept;
 
-private: 
+private:
 	std::filesystem::path _processedPathRoot;
 	std::filesystem::path _sourcePathRoot;
 	std::vector<std::unique_ptr<IAssetImporter>> _importers;
@@ -69,4 +71,4 @@ private:
 	ShaderImportSettings _shaderImportSettings;
 };
 
-}
+} // namespace arch::assetManager

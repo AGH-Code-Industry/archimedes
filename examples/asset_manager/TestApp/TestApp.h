@@ -12,9 +12,12 @@
 // todo		Documentation
 
 void TestHashing() {
-	arch::assetManager::AssetID id1("assets/source/meshes/arrow_triangulated.obj");
-	arch::assetManager::AssetID id2("assets/source/shaders/fragment_default.glsl");
-	arch::assetManager::AssetID id3("assets/source/textures/example_texture.png");
+
+	using namespace arch::assetManager;
+
+	AssetID id1("assets/source/meshes/arrow_triangulated.obj");
+	AssetID id2("assets/source/shaders/fragment_default.glsl");
+	AssetID id3("assets/source/textures/example_texture.png");
 
 	arch::Logger::debug("id1: {}", id1.Value());
 	arch::Logger::debug("id2: {}", id2.Value());
@@ -22,26 +25,29 @@ void TestHashing() {
 }
 
 void TestAssetManager() {
-	arch::assetManager::AssetImporterManager im("assets/source", "assets/processed");
-	im.RegisterImporter(std::make_unique<arch::assetManager::MeshImporter>());
-	im.RegisterImporter(std::make_unique<arch::assetManager::ShaderImporter>());
 
-	im.ImportAsset("meshes/arrow_triangulated", arch::assetManager::AssetType::MESH);
+	using namespace arch::assetManager;
+
+	AssetImporterManager im("assets/source", "assets/processed");
+	im.Register<MeshImporter>();
+	im.Register<ShaderImporter>();
+
+	im.ImportAsset("meshes/arrow_triangulated", AssetType::MESH);
 
 	im.SetShaderImportSettings(
-		arch::assetManager::ShaderOptimizationMode::PERFORMANCE,
-		arch::assetManager::ShaderType::FRAGMENT,
-		arch::assetManager::ShaderSourceLanguage::GLSL
+		ShaderOptimizationMode::PERFORMANCE,
+		ShaderType::FRAGMENT,
+		ShaderSourceLanguage::GLSL
 	);
-	im.ImportAsset("shaders/fragment_default2", arch::assetManager::AssetType::SHADER);
+	im.ImportAsset("shaders/fragment_default2", AssetType::SHADER);
 	im.SetShaderImportSettings(
-		arch::assetManager::ShaderOptimizationMode::SIZE,
-		arch::assetManager::ShaderType::VERTEX,
-		arch::assetManager::ShaderSourceLanguage::GLSL
+		ShaderOptimizationMode::SIZE,
+		ShaderType::VERTEX,
+		ShaderSourceLanguage::GLSL
 	);
-	im.ImportAsset("shaders/vertex_default", arch::assetManager::AssetType::SHADER);
+	im.ImportAsset("shaders/vertex_default", AssetType::SHADER);
 
-	arch::assetManager::AssetManager am;
+	AssetManager am;
 	am.RegisterLoader<arch::assetManager::assets::Mesh>(std::make_unique<arch::assetManager::MeshLoader>("assets/processed"));
 	am.RegisterLoader<arch::assetManager::assets::Shader>(
 		std::make_unique<arch::assetManager::ShaderLoader>("assets/processed")
