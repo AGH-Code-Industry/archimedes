@@ -6,10 +6,10 @@
 // x			Loading paths
 // x			Exceptions -> Optionals
 // x			Easier access (more comfortable) to registering importers and especially loaders
-// todo		Easier access (more comfortable) to creating load requests
+// x			Easier access (more comfortable) to creating load requests
+// todo		Text (and everything connected to it)
 // todo		Textures (and everything connected to them)
 // todo		Sounds (and everything connected to them)
-// todo		Text (and everything connected to it)
 // todo		Documentation
 
 void TestHashing() {

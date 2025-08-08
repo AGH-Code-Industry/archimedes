@@ -4,9 +4,6 @@
 #include <vector>
 
 #include "Ref.h"
-#include "gfx/Buffer.h"
-#include "gfx/Renderer.h"
-#include "gfx/buffer/BufferManager.h"
 
 namespace arch::assetManager::assets {
 
