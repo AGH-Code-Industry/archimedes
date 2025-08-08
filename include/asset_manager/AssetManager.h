@@ -34,6 +34,11 @@ public:
 
 	void TickLoader(std::size_t maxJobs = 4 ) noexcept;
 
+	template<typename TAsset, typename TLoader, typename... TArgs>
+	void Register(TArgs&&... args) {
+		RegisterLoader<TAsset>(std::make_unique<TLoader>(std::forward<TArgs>(args)...));
+	}
+
 private:
 
 	struct LoadRequest {
