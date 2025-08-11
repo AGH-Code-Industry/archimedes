@@ -35,6 +35,9 @@ class Archimedes(ConanFile):
         # KTX2 (texture loading)
         self.requires("ktx/4.3.2")
 
+        # Atlas generation
+        self.requires("msdf-atlas-gen/1.3")
+
     def configure(self):
         self.options["spdlog/1.12.0"].use_std_fmt = True
 
