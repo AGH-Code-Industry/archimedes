@@ -11,7 +11,7 @@ namespace physicsExample {
 using namespace arch;
 namespace phy = physics;
 
-struct PhysicsTestApp final: Application {
+struct RepulseTestApp final: Application {
 	void init() override {
 		const Ref<Scene> testScene = createRef<Scene>();
 

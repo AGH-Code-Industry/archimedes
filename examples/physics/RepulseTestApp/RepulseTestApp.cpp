@@ -1,12 +1,11 @@
-#include "TestApp.h"
-
+#include "RepulseTestApp.h"
 #include <Engine.h>
 #include <Logger.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Unique<arch::Application> myApp = arch::createUnique<physicsExample::PhysicsTestApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<physicsExample::RepulseTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
