@@ -49,7 +49,8 @@ jobs:
         run: |
           cd nvrhi
           Remove-Item -Recurse -Force .git
-          echo "from conan import ConanFile
+          cat > conanfile.py << 'EOF'
+from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
 from conan.tools.files import copy
 import os
@@ -93,7 +94,8 @@ class NvrhiConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ['nvrhi']
-" > conanfile.py
+
+EOF
 
           conan create . --build=missing --profile=default
           conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
