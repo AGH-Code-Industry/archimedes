@@ -1,7 +1,9 @@
 name: NVRHI build test
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    branches:
+      - chris/prebuild_deps
 
 jobs:
   build:
