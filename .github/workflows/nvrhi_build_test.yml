@@ -13,7 +13,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CONAN_TOKEN: ${{ secrets.CONAN_TOKEN }}
+      CONAN_LOGIN_USERNAME: chris++
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
       CONAN_REMOTE_NAME: conan_coin
       CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
 
@@ -40,7 +41,7 @@ jobs:
         run: |
           pip install conan==2.*
           conan remote add $env:CONAN_REMOTE_NAME $env:CONAN_REMOTE_URL --force
-          conan remote login --token $env:CONAN_TOKEN $env:CONAN_REMOTE_NAME
+          conan remote auth $env:CONAN_REMOTE_NAME
           
       - name: Setup Conan2 profile
         run: |
