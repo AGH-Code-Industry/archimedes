@@ -41,14 +41,26 @@ jobs:
         run: |
           pip install conan==2.*
           conan remote add $env:CONAN_REMOTE_NAME $env:CONAN_REMOTE_URL --force
-          conan remote auth $env:CONAN_REMOTE_NAME
+          conan remote login $env:CONAN_REMOTE_NAME $env:CONAN_LOGIN_USERNAME -p $env:CONAN_PASSWORD
           
       - name: Setup Conan2 profile
         run: |
-          conan profile detect --force
-          conan profile path default
-          conan profile update compiler.cppstd=23 default
-          conan profile update compiler.runtime=dynamic default
+          $profileContent = @'
+          [settings]
+          arch=x86_64
+          build_type=Debug
+          compiler=msvc
+          compiler.cppstd=23
+          compiler.runtime=dynamic
+          compiler.runtime_type=Debug
+          compiler.version=194
+          os=Windows
+          [options]
+          shared=False
+          '@
+          $profilePath = "$env:USERPROFILE\.conan\profiles\msvc_debug"
+          New-Item -ItemType Directory -Force -Path (Split-Path $profilePath)
+          $profileContent | Out-File -FilePath $profilePath -Encoding UTF8
 
       - name: Clone NVRHI
         run: git clone --recursive https://github.com/NVIDIAGameWorks/nvrhi.git
@@ -103,5 +115,5 @@ jobs:
                   self.cpp_info.libs = ['nvrhi']
           " > conanfile.py
 
-          conan create . --build=missing --profile=default
+          conan create . --build=missing --profile=msvc_debug
           conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
