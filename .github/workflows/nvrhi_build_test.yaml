@@ -49,53 +49,51 @@ jobs:
         run: |
           cd nvrhi
           Remove-Item -Recurse -Force .git
-          cat > conanfile.py << 'EOF'
-from conan import ConanFile
-from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
-from conan.tools.files import copy
-import os
-
-class NvrhiConan(ConanFile):
-    name = 'nvrhi'
-    version = '2025.08.13'
-    license = 'MIT'
-    url = 'https://github.com/NVIDIAGameWorks/nvrhi'
-    description = 'NVIDIA Rendering Hardware Interface'
-    settings = 'os', 'compiler', 'build_type', 'arch'
-    options = {
-        'shared': [True, False]
-    }
-    default_options = {
-        'shared': False
-    }
-    package_type = 'library'
-    exports_sources = '*'
-    generators = 'CMakeDeps'
-
-    def layout(self):
-        cmake_layout(self)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables['BUILD_SHARED_LIBS'] = self.options.shared
-        tc.generate()
-
-    def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
-
-    def package(self):
-        copy(self, '*.h', src=os.path.join(self.source_folder, 'include/nvrhi'), dst=os.path.join(self.package_folder, 'include/nvrhi'))
-        copy(self, '*.lib', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
-        copy(self, '*.a', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
-        copy(self, '*.so*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
-        copy(self, '*.dylib*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
-
-    def package_info(self):
-        self.cpp_info.libs = ['nvrhi']
-
-EOF
+          echo "from conan import ConanFile
+          from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
+          from conan.tools.files import copy
+          import os
+          
+          class NvrhiConan(ConanFile):
+              name = 'nvrhi'
+              version = '2025.08.13'
+              license = 'MIT'
+              url = 'https://github.com/NVIDIAGameWorks/nvrhi'
+              description = 'NVIDIA Rendering Hardware Interface'
+              settings = 'os', 'compiler', 'build_type', 'arch'
+              options = {
+                  'shared': [True, False]
+              }
+              default_options = {
+                  'shared': False
+              }
+              package_type = 'library'
+              exports_sources = '*'
+              generators = 'CMakeDeps'
+          
+              def layout(self):
+                  cmake_layout(self)
+          
+              def generate(self):
+                  tc = CMakeToolchain(self)
+                  tc.variables['BUILD_SHARED_LIBS'] = self.options.shared
+                  tc.generate()
+          
+              def build(self):
+                  cmake = CMake(self)
+                  cmake.configure()
+                  cmake.build()
+          
+              def package(self):
+                  copy(self, '*.h', src=os.path.join(self.source_folder, 'include/nvrhi'), dst=os.path.join(self.package_folder, 'include/nvrhi'))
+                  copy(self, '*.lib', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+                  copy(self, '*.a', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+                  copy(self, '*.so*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+                  copy(self, '*.dylib*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+          
+              def package_info(self):
+                  self.cpp_info.libs = ['nvrhi']
+          " > conanfile.py
 
           conan create . --build=missing --profile=default
           conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
