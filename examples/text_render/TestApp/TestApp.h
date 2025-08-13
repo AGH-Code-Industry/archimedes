@@ -58,12 +58,14 @@ class TextRenderTestApp: public Application {
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
-		auto linePipeline = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
-			.textures = {},
-			.buffers = { uniformBuffer },
-		});
+		auto linePipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
 
 		{
 			auto line = testScene->newEntity();
@@ -104,7 +106,33 @@ class TextRenderTestApp: public Application {
 		}
 	}
 
+	struct Pos {
+		float x, y;
+	};
+
+	struct Vel {
+		float x, y;
+	};
+
 	void update() {
+		auto viewPosVel = scene::SceneManager::get()->currentScene()->domain().view<Pos, Vel>();
+
+		for (auto&& [entity, pos, vel] : viewPosVel.all()) {
+			pos.x += vel.x;
+			pos.y += vel.y;
+		}
+
+		viewPosVel.forEach([&viewPosVel](ecs::Entity entity) {
+			auto&& [pos, vel] = viewPosVel.get<Pos, Vel>(entity);
+			pos.x += vel.x;
+			pos.y += vel.y;
+		});
+
+		viewPosVel.forEach([](Pos& pos, const Vel& vel) {
+			pos.x += vel.x;
+			pos.y += vel.y;
+		});
+
 		static float frame = 0;
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
