@@ -1,0 +1,99 @@
+name: NVRHI build test
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      CONAN_TOKEN: ${{ secrets.CONAN_TOKEN }}
+      CONAN_REMOTE_NAME: conan_coin
+      CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          toolset: 14.44
+          arch: x64
+  
+      - name: Setup CMake
+        uses: lukka/get-cmake@v3
+        with:
+          cmakeVersion: 3.31.0
+  
+      - name: Setup Ninja
+        run: choco install ninja --no-progress --yes
+  
+      - name: Setup Conan2
+        run: |
+          pip install conan==2.*
+          conan remote add $env:CONAN_REMOTE_NAME $env:CONAN_REMOTE_URL --force
+          conan remote login --token $env:CONAN_TOKEN $env:CONAN_REMOTE_NAME
+          
+      - name: Setup Conan2 profile
+        run: |
+          conan profile detect --force
+          conan profile path default
+          conan profile update compiler.cppstd=23 default
+          conan profile update compiler.runtime=dynamic default
+
+      - name: Clone NVRHI
+        run: git clone --recursive https://github.com/NVIDIAGameWorks/nvrhi.git
+
+      - name: Package NVRHI
+        run: |
+          cd nvrhi
+          Remove-Item -Recurse -Force .git
+          echo "from conan import ConanFile
+from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
+from conan.tools.files import copy
+import os
+
+class NvrhiConan(ConanFile):
+    name = 'nvrhi'
+    version = '2025.08.13'
+    license = 'MIT'
+    url = 'https://github.com/NVIDIAGameWorks/nvrhi'
+    description = 'NVIDIA Rendering Hardware Interface'
+    settings = 'os', 'compiler', 'build_type', 'arch'
+    options = {
+        'shared': [True, False]
+    }
+    default_options = {
+        'shared': False
+    }
+    package_type = 'library'
+    exports_sources = '*'
+    generators = 'CMakeDeps'
+
+    def layout(self):
+        cmake_layout(self)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables['BUILD_SHARED_LIBS'] = self.options.shared
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
+    def package(self):
+        copy(self, '*.h', src=os.path.join(self.source_folder, 'include/nvrhi'), dst=os.path.join(self.package_folder, 'include/nvrhi'))
+        copy(self, '*.lib', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+        copy(self, '*.a', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+        copy(self, '*.so*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+        copy(self, '*.dylib*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
+
+    def package_info(self):
+        self.cpp_info.libs = ['nvrhi']
+" > conanfile.py
+
+          conan create . --build=missing --profile=default
+          conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
