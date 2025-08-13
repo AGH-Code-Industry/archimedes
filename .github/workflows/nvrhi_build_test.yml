@@ -58,11 +58,11 @@ jobs:
           [options]
           shared=False
           '@
-          $profilePath = "$env:USERPROFILE\.conan\profiles\msvc_debug"
+          $profilePath = "$env:USERPROFILE\.conan2\profiles\msvc_debug"
           New-Item -ItemType Directory -Force -Path (Split-Path $profilePath)
           $profileContent | Out-File -FilePath $profilePath -Encoding UTF8
           echo "##### msvc_debug #####"
-          gc "$env:USERPROFILE\.conan\profiles\msvc_debug"
+          gc "$env:USERPROFILE\.conan2\profiles\msvc_debug"
 
       - name: Clone NVRHI
         run: git clone --recursive https://github.com/NVIDIAGameWorks/nvrhi.git
