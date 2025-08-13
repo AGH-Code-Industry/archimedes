@@ -61,6 +61,8 @@ jobs:
           $profilePath = "$env:USERPROFILE\.conan\profiles\msvc_debug"
           New-Item -ItemType Directory -Force -Path (Split-Path $profilePath)
           $profileContent | Out-File -FilePath $profilePath -Encoding UTF8
+          echo "##### msvc_debug #####"
+          gc "$env:USERPROFILE\.conan\profiles\msvc_debug"
 
       - name: Clone NVRHI
         run: git clone --recursive https://github.com/NVIDIAGameWorks/nvrhi.git
@@ -114,6 +116,8 @@ jobs:
               def package_info(self):
                   self.cpp_info.libs = ['nvrhi']
           " > conanfile.py
+          echo "##### conanfile.py #####"
+          gc "conanfile.py"
 
-          conan create . --build=missing --profile=msvc_debug
+          conan create . --build=missing --profile:all=msvc_debug
           conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
