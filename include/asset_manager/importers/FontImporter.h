@@ -2,7 +2,15 @@
 
 #include <asset_manager/AssetEnums.h>
 
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
+#include "msdf-atlas-gen/msdf-atlas-gen.h"
+
 #include "IAssetImporter.h"
+
+
+
+
 
 // todo		Methods implementation:
 // todo			* Path mirroring
