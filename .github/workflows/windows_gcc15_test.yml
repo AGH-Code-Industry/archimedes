@@ -1,0 +1,34 @@
+name: NVRHI build test
+
+on:
+  push:
+    branches: 
+    - master
+  pull_request:
+    branches: 
+    - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      CONAN_LOGIN_USERNAME: chris++
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
+      CONAN_REMOTE_NAME: conan_coin
+      CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+  
+          version: 15
+      - name: Test GCC
+        run: |
+          gcc --version
+          g++ --version
