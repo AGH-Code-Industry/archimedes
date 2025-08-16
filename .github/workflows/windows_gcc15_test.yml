@@ -24,6 +24,6 @@ jobs:
           
       - name: Test GCC & CMake
         run: |
-          gcc --version
-          g++ --version
+          gcc-14 --version
+          g++-14 --version
           cmake --version
