@@ -26,8 +26,8 @@ jobs:
         uses: egor-tensin/setup-mingw@v2
         with:
           platform: x64
-  
-          version: 15
+          version: 14
+          
       - name: Test GCC
         run: |
           gcc --version
