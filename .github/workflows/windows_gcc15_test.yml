@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     env:
       CONAN_LOGIN_USERNAME: chris++
@@ -21,14 +21,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-  
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
-          version: 14
           
-      - name: Test GCC
+      - name: Test GCC & CMake
         run: |
           gcc --version
           g++ --version
+          cmake --version
