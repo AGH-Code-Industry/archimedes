@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: ubuntu-latest
 
     env:
       CONAN_LOGIN_USERNAME: chris++
