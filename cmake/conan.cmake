@@ -39,8 +39,8 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR ARCHIMEDES_CONAN_INSTALL_HASH_NEQ OR NOT EX
 		message(STATUS "Conan present")
 	endif()
 
-	set(ENV{CC} CMAKE_C_COMPILER)
-	set(ENV{CXX} CMAKE_CXX_COMPILER)
+	set(ENV{CC} ${CMAKE_C_COMPILER})
+	set(ENV{CXX} ${CMAKE_CXX_COMPILER})
 	execute_process(
 		COMMAND "conan" "profile" "detect" "--force"
 		COMMAND_ERROR_IS_FATAL ANY
