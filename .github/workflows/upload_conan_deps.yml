@@ -1,0 +1,39 @@
+name: Build Conan dependencies
+
+on:
+  pull_request:
+    branches: 
+    - master
+
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+
+    env:
+      CONAN_LOGIN_USERNAME: gh-actions
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
+      CONAN_REMOTE_NAME: conan_coin
+      CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+          
+      - name: Download Conan2
+        run: pip install conan==2.*
+
+      - name: Setup Conan
+        run: |
+          conan remote add $CONAN_REMOTE_NAME $CONAN_REMOTE_URL --force
+          conan remote login $CONAN_REMOTE_NAME $CONAN_LOGIN_USERNAME -p $CONAN_PASSWORD
+      
+      - name: Read Conan Linux cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2
+          restore-keys: |
+            archimedes_conan2_cache_${{ runner.os }}_${{ hashFiles('conanfile.py') }}_
+      
+      - name: Upload Conan packages
+        run: |
+          conan upload "*" --confirm -r $CONAN_REMOTE_NAME
