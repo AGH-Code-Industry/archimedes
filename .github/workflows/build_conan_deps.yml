@@ -47,11 +47,12 @@ jobs:
         run: |
           cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
           cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          conan cache clean
       
       - name: Write Conan Linux cache
         uses: actions/cache@v4
         with:
-          path: ~/.conan2/p
+          path: ~/.conan2
           key: archimedes_conan2_cache_${{ runner.os }}_${{ hashFiles('conanfile.py') }}_${{ github.run_id }}
           
 #   windows:
