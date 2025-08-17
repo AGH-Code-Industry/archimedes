@@ -31,6 +31,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan2
+          key: archimedes_conan2_cache_${{ runner.os }}_${{ hashFiles('conanfile.py') }}_${{ github.run_id }}
           restore-keys: |
             archimedes_conan2_cache_${{ runner.os }}_${{ hashFiles('conanfile.py') }}_
       
