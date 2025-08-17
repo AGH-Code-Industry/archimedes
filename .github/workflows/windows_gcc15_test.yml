@@ -33,6 +33,7 @@ jobs:
           
       - name: Test GCC & CMake
         run: |
+          df -h
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 140 --slave /usr/bin/g++ g++ /usr/bin/g++-14
           sudo update-alternatives --set gcc /usr/bin/gcc-14
           gcc --version
