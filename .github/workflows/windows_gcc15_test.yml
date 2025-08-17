@@ -21,6 +21,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Clang
+        uses: egor-tensin/setup-clang@v1.4
+        with:
+          version: 19
+          platform: x64
           
       - name: Test GCC & CMake
         run: |
@@ -28,8 +34,18 @@ jobs:
           sudo update-alternatives --set gcc /usr/bin/gcc-14
           gcc --version
           g++ --version
+          clang --version
+          clang++ --version
           cmake --version
-          cmake --system-information | grep "^CMAKE_(C|CXX)_COMPILER "
+          export CC=gcc
+          export CXX=g++
+          cmake --system-information | grep -E "^CMAKE_(C|CXX)_COMPILER "
+          conan profile detect --force
+          export CC=clang
+          export CXX=clang++
+          cmake --system-information | grep -E "^CMAKE_(C|CXX)_COMPILER "
+          conan profile detect --force
+          
   windows:
     runs-on: windows-2025
 
@@ -47,6 +63,15 @@ jobs:
         run: |
           gcc --version
           g++ --version
+          clang --version
+          clang++ --version
           cmake --version
           cmake --system-information -G "Visual Studio 17 2022" | sls "^CMAKE_(C|CXX)_COMPILER "
+          $env:CC=gcc
+          $env:CXX=g++
           cmake --system-information -G "Ninja" | sls "^CMAKE_(C|CXX)_COMPILER "
+          conan profile detect --force
+          $env:CC=clang
+          $env:CXX=clang++
+          cmake --system-information -G "Ninja" | sls "^CMAKE_(C|CXX)_COMPILER "
+          conan profile detect --force
