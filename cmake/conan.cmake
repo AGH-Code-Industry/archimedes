@@ -56,7 +56,7 @@ if(ARCHIMEDES_FORCE_CONAN_INSTALL OR ARCHIMEDES_CONAN_INSTALL_HASH_NEQ OR NOT EX
 		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
 	endif()
 
-	separate_arguments(CONAN_ARGS_LIST UNIX_COMMAND "${CONAN_ARGS}")
+	separate_arguments(CONAN_ARGS_LIST UNIX_COMMAND "${ARCHIMEDES_CONAN_ARGS}")
 	# install conan requirements
 	execute_process(
 		COMMAND conan install . -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=${CMAKE_CXX_STANDARD} -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=${CMAKE_CXX_STANDARD} ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE} -of=cmake/conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default ${CONAN_ARGS_LIST} -o *:shared=False
