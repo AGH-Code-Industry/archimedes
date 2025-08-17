@@ -73,11 +73,11 @@ jobs:
           clang++ --version
           cmake --version
           cmake --system-information -G "Visual Studio 17 2022" | sls "^CMAKE_(C|CXX)_COMPILER "
-          $env:CC=gcc
-          $env:CXX=g++
+          $env:CC="gcc"
+          $env:CXX="g++"
           cmake --system-information -G "Ninja" | sls "^CMAKE_(C|CXX)_COMPILER "
           conan profile detect --force
-          $env:CC=clang
-          $env:CXX=clang++
+          $env:CC="clang"
+          $env:CXX="clang++"
           cmake --system-information -G "Ninja" | sls "^CMAKE_(C|CXX)_COMPILER "
           conan profile detect --force
