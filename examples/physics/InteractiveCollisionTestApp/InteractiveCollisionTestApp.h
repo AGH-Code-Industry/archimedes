@@ -145,7 +145,7 @@ struct InteractiveCollisionTestApp final: Application {
 				.type = phy::aabb,
 				.shape = phy::AABB (
 						position,
-						position + float3{ 0.1f, -0.1f , 0.0f}
+						position + float3{ 0.25f, -0.25f , 0.0f}
 				),
 				.action = collision,
 			}
