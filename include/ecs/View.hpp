@@ -231,7 +231,7 @@ bool VIEW_CIE::contains(const Entity entity) const noexcept {
 
 TEMPLATE_CE
 bool VIEW_CE::contains(const Entity entity) const noexcept {
-	return _domain.alive(entity) && _containsNoCheck(entity);
+	return _domain->alive(entity) && _containsNoCheck(entity);
 }
 
 TEMPLATE_CIE VIEW_CIE& VIEW_CIE::refresh() noexcept {
