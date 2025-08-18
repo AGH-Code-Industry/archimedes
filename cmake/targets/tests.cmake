@@ -7,5 +7,6 @@ add_executable(${ARCHIMEDES_TEST})
 file(GLOB_RECURSE ARCHIMEDES_TEST_SOURCE tests/**.cpp)
 target_sources(${ARCHIMEDES_TEST} PUBLIC ${ARCHIMEDES_TEST_SOURCE})
 target_link_libraries(${ARCHIMEDES_TEST} PUBLIC ${PROJECT_NAME})
+target_precompile_headers(${ARCHIMEDES_TEST} REUSE_FROM ${PROJECT_NAME})
 
 LaunchAddTarget(${ARCHIMEDES_TEST})
