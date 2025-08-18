@@ -1,9 +1,9 @@
 name: Build Conan dependencies
 
 on:
-  pull_request:
+  push:
     branches: 
-    - master
+      - master
 
 jobs:
   Linux:
