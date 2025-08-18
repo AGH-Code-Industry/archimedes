@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      CONAN_LOGIN_USERNAME: gh-actions
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
       CONAN_REMOTE_NAME: conan_coin
       CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
 
@@ -47,6 +49,7 @@ jobs:
       - name: Setup Conan
         run: |
           conan remote add $CONAN_REMOTE_NAME $CONAN_REMOTE_URL --force
+          conan remote login $CONAN_REMOTE_NAME $CONAN_LOGIN_USERNAME -p $CONAN_PASSWORD
 
       - name: "Environment setup"
         run: |
