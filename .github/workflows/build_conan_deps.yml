@@ -1,9 +1,9 @@
-name: Build Conan dependencies
+name: Build Conan dependencies & Archimedes, run tests
 
 on:
   pull_request:
     branches: 
-    - master
+      - master
 
 jobs:
   Linux:
@@ -42,18 +42,48 @@ jobs:
           export CC=gcc-14
           export CXX=g++-14
           conan profile detect --force
-    
+
       - name: "GCC 14, Debug: Build Conan dependencies"
         run: |
-          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
           cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
           conan cache clean
+
+      - name: "GCC 14, Debug: Build the Engine and run tests"
+        run: |
+          cmake --build ${{ github.workspace }}/build
+          ${{github.workspace}}/build/archimedes_tests
+          rm -rf ${{ github.workspace }}/build
+
+      - name: "GCC 14, Release: Build Conan dependencies"
+        run: |
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          conan cache clean
+
+      - name: "GCC 14, Release: Build the Engine and run tests"
+        run: |
+          cmake --build ${{ github.workspace }}/build
+          ${{github.workspace}}/build/archimedes_tests
+          rm -rf ${{ github.workspace }}/build
+
+      - name: "GCC 14, RelWithDebInfo: Build Conan dependencies"
+        run: |
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
+          conan cache clean
+
+      - name: "GCC 14, RelWithDebInfo: Build the Engine and run tests"
+        run: |
+          cmake --build ${{ github.workspace }}/build
+          ${{github.workspace}}/build/archimedes_tests
+          rm -rf ${{ github.workspace }}/build
       
-      - name: Write Conan Linux cache
+      - name: "GCC 14: Write Conan cache"
         uses: actions/cache@v4
         with:
           path: ~/.conan2
-          key: archimedes_conan2_cache_${{ runner.os }}_${{ hashFiles('conanfile.py') }}_${{ github.run_id }}
+          key: archimedes_conan2_cache_${{ runner.os }}_gcc14_${{ hashFiles('conanfile.py') }}_${{ github.run_id }}
           
 #   windows:
 #     runs-on: windows-2025
