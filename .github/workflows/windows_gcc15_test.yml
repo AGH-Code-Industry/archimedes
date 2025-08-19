@@ -24,6 +24,9 @@ jobs:
     runs-on: windows-2025
 
     steps:
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
       - name: Test
         run: |
-          cl --version
+          cl
