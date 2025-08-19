@@ -30,6 +30,7 @@ void TestAssetManager() {
 	AssetImporterManager im("assets/source", "assets/processed");
 	im.Register<MeshImporter>();
 	im.Register<ShaderImporter>();
+	im.Register<FontImporter>();
 
 	im.ImportAsset("meshes/arrow_triangulated", AssetType::MESH);
 
@@ -37,6 +38,8 @@ void TestAssetManager() {
 	im.ImportAsset("shaders/fragment_default2", AssetType::SHADER);
 	im.SetShaderImportSettings(ShaderOptimizationMode::SIZE, ShaderType::VERTEX, ShaderSourceLanguage::GLSL);
 	im.ImportAsset("shaders/vertex_default", AssetType::SHADER);
+
+	im.ImportAsset("fonts/Lato-Regular", AssetType::FONT);
 
 	AssetManager am;
 	am.Register<assets::Mesh, MeshLoader>("assets/processed");

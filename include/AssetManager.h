@@ -15,6 +15,7 @@
 #include <asset_manager/importers/MeshImporter.h>
 #include <asset_manager/importers/ShaderImporter.h>
 #include <asset_manager/importers/TextureImporter.h>
+#include <asset_manager/importers/FontImporter.h>
 
 #include <asset_manager/loaders/AudioLoader.h>
 #include <asset_manager/loaders/IAssetLoader.h>

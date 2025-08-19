@@ -19,6 +19,7 @@ void AssetImporterManager::ImportAsset(const std::filesystem::path& sourceFile, 
 	switch (assetType) {
 		case arch::assetManager::AssetType::MESH:	fileExtensions = { ".obj" }; break;
 		case arch::assetManager::AssetType::SHADER: fileExtensions = { ".glsl", ".hlsl" }; break;
+		case arch::assetManager::AssetType::FONT:	fileExtensions = { ".ttf", ".otf" }; break;
 		default:									arch::Logger::error("Asset type handling not implemented."); return;
 	}
 

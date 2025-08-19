@@ -8,7 +8,8 @@ enum class AssetType {
 	MESH,
 	SHADER,
 	TEXTURE,
-	AUDIO
+	AUDIO,
+	FONT
 };
 
 enum class ShaderOptimizationMode {
