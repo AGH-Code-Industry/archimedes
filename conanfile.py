@@ -32,7 +32,7 @@ class Archimedes(ConanFile):
         self.requires("nvrhi/2025.08.19")
 
         # SPIRV (Shader compiler)
-        self.requires("shaderc/2023.6")  # waiting for conan repo update
+        self.requires("shaderc/2024.1")  # waiting for conan repo update
 
     def configure(self):
         self.options["spdlog/1.12.0"].use_std_fmt = True
