@@ -94,7 +94,7 @@ jobs:
             # gcc-14,
             # clang-18,
             # clang-19,
-            gcc, # gcc-14
+            # gcc, # gcc-14
             cl
           ]
         build_type: [Debug, Release, RelWithDebInfo]
@@ -107,8 +107,8 @@ jobs:
           #   cxx: clang++-18
           # - compiler: clang-19
           #   cxx: clang++-19
-          - compiler: gcc
-            cxx: g++
+          # - compiler: gcc
+          #   cxx: g++
           - compiler: cl
             cxx: cl
 
