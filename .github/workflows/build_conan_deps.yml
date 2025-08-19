@@ -137,8 +137,8 @@ jobs:
 
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Build Conan dependencies"
         run: |
-          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
-          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=True ${{ matrix.compiler == 'gcc' && '-o nvrhi/*:with_dx11=False -o nvrhi/*:with_dx12=False' || '' }}" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DARCHIMEDES_CONAN_ARGS="-o glfw/*:with_wayland=False ${{ matrix.compiler == 'gcc' && '-o nvrhi/*:with_dx11=False -o nvrhi/*:with_dx12=False' || '' }}" -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
           conan cache clean
 
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Build the Engine and run tests"
