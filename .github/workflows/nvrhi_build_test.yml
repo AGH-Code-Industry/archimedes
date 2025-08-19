@@ -1,9 +1,6 @@
 name: NVRHI build test
 
 on:
-  push:
-    branches: 
-    - master
   pull_request:
     branches: 
     - master
@@ -13,7 +10,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CONAN_LOGIN_USERNAME: chris++
+      CONAN_LOGIN_USERNAME: gh-actions
       CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
       CONAN_REMOTE_NAME: conan_coin
       CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
@@ -25,17 +22,7 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          toolset: 14.44
           arch: x64
-  
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: "~3.31.0"  # <--= optional, use most recent 3.25.x version
-          ninjaVersion: latest
-  
-      - name: Setup Ninja
-        run: choco install ninja --no-progress --yes
   
       - name: Setup Conan2
         run: |
@@ -75,7 +62,7 @@ jobs:
           from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
           from conan.tools.files import copy
           import os
-          
+
           class NvrhiConan(ConanFile):
               name = 'nvrhi'
               version = '2025.08.13'
@@ -83,36 +70,63 @@ jobs:
               url = 'https://github.com/NVIDIAGameWorks/nvrhi'
               description = 'NVIDIA Rendering Hardware Interface'
               settings = 'os', 'compiler', 'build_type', 'arch'
+              
               options = {
-                  'shared': [True, False]
+                  'shared': [True, False],
+                  'with_validation': [True, False],
+                  'with_vulkan': [True, False],
+                  'with_rtxmu': [True, False],
+                  'with_aftermath': [True, False],
+                  'with_nvapi': [True, False],
+                  'with_dx11': [True, False],
+                  'with_dx12': [True, False],
+                  'install': [True, False]
               }
+              
               default_options = {
-                  'shared': False
+                  'shared': False,
+                  'with_validation': True,
+                  'with_vulkan': True,
+                  'with_rtxmu': False,
+                  'with_aftermath': False,
+                  'with_nvapi': False,
+                  'with_dx11': True,
+                  'with_dx12': True,
+                  'install': True
               }
+
               package_type = 'library'
               exports_sources = '*'
               generators = 'CMakeDeps'
-          
+
               def layout(self):
                   cmake_layout(self)
-          
+
               def generate(self):
                   tc = CMakeToolchain(self)
-                  tc.variables['BUILD_SHARED_LIBS'] = self.options.shared
+                  tc.variables['NVRHI_BUILD_SHARED'] = self.options.shared
+                  tc.variables['NVRHI_WITH_VALIDATION'] = self.options.with_validation
+                  tc.variables['NVRHI_WITH_VULKAN'] = self.options.with_vulkan
+                  tc.variables['NVRHI_WITH_RTXMU'] = self.options.with_rtxmu
+                  tc.variables['NVRHI_WITH_AFTERMATH'] = self.options.with_aftermath
+                  tc.variables['NVRHI_WITH_NVAPI'] = self.options.with_nvapi
+                  tc.variables['NVRHI_WITH_DX11'] = self.options.with_dx11
+                  tc.variables['NVRHI_WITH_DX12'] = self.options.with_dx12
+                  tc.variables['NVRHI_INSTALL'] = self.options.install
                   tc.generate()
-          
+
               def build(self):
                   cmake = CMake(self)
                   cmake.configure()
                   cmake.build()
-          
+
               def package(self):
                   copy(self, '*.h', src=os.path.join(self.source_folder, 'include/nvrhi'), dst=os.path.join(self.package_folder, 'include/nvrhi'))
                   copy(self, '*.lib', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
                   copy(self, '*.a', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
                   copy(self, '*.so*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
                   copy(self, '*.dylib*', src=self.build_folder, dst=os.path.join(self.package_folder, 'lib'), keep_path=False)
-          
+
               def package_info(self):
                   self.cpp_info.libs = ['nvrhi']
           " > conanfile.py
@@ -120,4 +134,4 @@ jobs:
           gc "conanfile.py"
 
           conan create . --build=missing --profile:all=msvc_debug
-          conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME
+          conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME --only-recipe
