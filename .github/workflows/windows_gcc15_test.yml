@@ -9,18 +9,21 @@ on:
     - master
 
 jobs:        
-  Windows:
+  Windows_clang:
     runs-on: windows-2025
 
     steps:
       - name: Test
         run: |
-          gcc --version
-          gcc-14 --version
-          g++ --version
-          g++-14 --version
           clang --version
           clang-20 --version
           clang++ --version
           clang++-20 --version
+
+  Window_MSVC:
+    runs-on: windows-2025
+
+    steps:
+      - name: Test
+        run: |
           cl --version
