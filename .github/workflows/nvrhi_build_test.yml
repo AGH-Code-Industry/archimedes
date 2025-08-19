@@ -65,7 +65,7 @@ jobs:
 
           class NvrhiConan(ConanFile):
               name = 'nvrhi'
-              version = '2025.08.13'
+              version = '2025.08.19'
               license = 'MIT'
               url = 'https://github.com/NVIDIAGameWorks/nvrhi'
               description = 'NVIDIA Rendering Hardware Interface'
@@ -134,4 +134,4 @@ jobs:
           gc "conanfile.py"
 
           conan create . --build=missing --profile:all=msvc_debug
-          conan upload nvrhi/2025.08.13 -r $env:CONAN_REMOTE_NAME --only-recipe
+          conan upload nvrhi/2025.08.19 -r $env:CONAN_REMOTE_NAME --only-recipe
