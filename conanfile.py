@@ -26,16 +26,13 @@ class Archimedes(ConanFile):
 
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
-        self.requires("glslang/1.3.268.0", override=True)
-        self.requires("spirv-tools/1.3.268.0", override=True)
-        self.requires("spirv-headers/1.3.268.0", override=True)
         self.requires("vulkan-headers/1.4.313.0", override=True)
         self.requires("vulkan-memory-allocator/cci.20231120")
 
         self.requires("nvrhi/2025.08.19")
 
         # SPIRV (Shader compiler)
-        self.requires("shaderc/2024.1")  # waiting for conan repo update
+        self.requires("shaderc/2023.6")  # waiting for conan repo update
 
     def configure(self):
         self.options["spdlog/1.12.0"].use_std_fmt = True
