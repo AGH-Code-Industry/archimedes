@@ -57,6 +57,7 @@ struct AtlasImageData {
 };
 
 struct Font {
+	Font() {}
 	FontMetrics metrics;
 	AtlasImageData atlas;
 	std::vector<GlyphData> glyphs;

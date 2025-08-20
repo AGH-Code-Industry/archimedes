@@ -44,6 +44,7 @@ void TestAssetManager() {
 	AssetManager am;
 	am.Register<assets::Mesh, MeshLoader>("assets/processed");
 	am.Register<assets::Shader, ShaderLoader>("assets/processed");
+	am.Register<assets::Font, FontLoader>("assets/processed");
 
 	auto mesh = am.LoadAsync<assets::Mesh>("meshes/arrow_triangulated");
 

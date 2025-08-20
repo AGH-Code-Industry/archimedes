@@ -22,3 +22,4 @@
 #include <asset_manager/loaders/MeshLoader.h>
 #include <asset_manager/loaders/ShaderLoader.h>
 #include <asset_manager/loaders/TextureLoader.h>
+#include <asset_manager/loaders/FontLoader.h>

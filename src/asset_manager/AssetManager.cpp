@@ -95,4 +95,11 @@ template AssetHandle<arch::assetManager::assets::Shader> AssetManager::LoadAsync
 template std::optional<std::shared_ptr<arch::assetManager::assets::Shader>> AssetManager::LoadSync<
 	arch::assetManager::assets::Shader>(const std::filesystem::path&);
 
+template void AssetManager::RegisterLoader<
+	arch::assetManager::assets::Font>(std::unique_ptr<IAssetLoader<arch::assetManager::assets::Font>>);
+template AssetHandle<arch::assetManager::assets::Font> AssetManager::LoadAsync<
+	arch::assetManager::assets::Font>(const std::filesystem::path&);
+template std::optional<std::shared_ptr<arch::assetManager::assets::Font>> AssetManager::LoadSync<
+	arch::assetManager::assets::Font>(const std::filesystem::path&);
+
 } // namespace arch::assetManager

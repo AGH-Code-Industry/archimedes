@@ -11,6 +11,7 @@
 #include "loaders/IAssetLoader.h"
 #include "loaders/MeshLoader.h"
 #include "loaders/ShaderLoader.h"
+#include "loaders/FontLoader.h"
 #include "AssetID.h"
 
 
