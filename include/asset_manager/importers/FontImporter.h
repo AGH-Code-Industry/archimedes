@@ -1,12 +1,16 @@
 #pragma once
 
+#include <vector>
+#include <algorithm>
+
 #include <asset_manager/AssetEnums.h>
 #include <font/MSDFAtlasGen.h>
+#include <asset_manager/assets/Font.h>
 
-#include <freetype2/ft2build.h>
-#include FT_FREETYPE_H
+#include <json/json.h>
 
 #include "IAssetImporter.h"
+
 
 
 // todo		Methods implementation:
