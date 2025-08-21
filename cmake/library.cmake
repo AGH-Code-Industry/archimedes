@@ -3,7 +3,7 @@ include_guard()
 include("${PROJECT_SOURCE_DIR}/cmake/conan.cmake")
 
 add_library(${PROJECT_NAME})
-target_precompile_headers(${PROJECT_NAME} PUBLIC "include/pch.h")
+target_precompile_headers(${PROJECT_NAME} PUBLIC "include/archimedes/pch.h")
 
 # find source files
 file(GLOB_RECURSE ARCHIMEDES_SOURCE CONFIGURE_DEPENDS src/**.cpp src/platform/**.h)
@@ -18,7 +18,7 @@ if(NOT MSVC)
 endif()
 
 target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC "include/archimedes")
 
 # link conan libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC nvrhi_vk ${ARCHIMEDES_LIBRARIES})
