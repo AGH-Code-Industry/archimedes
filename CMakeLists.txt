@@ -19,6 +19,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # Add MSVC-specific behavior
 include("cmake/msvc.cmake")
 
+# Add OS handling
+include("cmake/os.cmake")
+
 # Add CMake options
 include("cmake/options.cmake")
 
@@ -36,9 +39,6 @@ include("cmake/ninja_fix.cmake")
 
 # Add library behavior
 include("cmake/library.cmake")
-
-# Add OS handling
-include("cmake/os.cmake")
 
 # Add installation behavior
 include("cmake/install.cmake")

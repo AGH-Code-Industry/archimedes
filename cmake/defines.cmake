@@ -16,3 +16,18 @@ else()
 		ARCHIMEDES_RELEASE=1
 	)
 endif()
+
+# Add macros
+if(ARCHIMEDES_WINDOWS)    
+    target_compile_definitions(archimedes PUBLIC
+		ARCHIMEDES_WINDOWS=1
+		ARCHIMEDES_LINUX=0
+		ARCHIMEDES_UNIX=0
+	)
+elseif(ARCHIMEDES_LINUX)    
+   target_compile_definitions(archimedes PUBLIC
+		ARCHIMEDES_WINDOWS=0
+		ARCHIMEDES_LINUX=1
+		ARCHIMEDES_UNIX=1
+	)
+endif()
