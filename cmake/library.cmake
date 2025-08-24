@@ -22,8 +22,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_SOUR
 
 # link conan libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC nvrhi_vk ${ARCHIMEDES_LIBRARIES})
+set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-get_target_property(LINKED_LIBS ${PROJECT_NAME} LINK_LIBRARIES)
-message(STATUS "Libraries linked to ${PROJECT_NAME}: ${LINKED_LIBS}")
 
 #include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
