@@ -2,6 +2,8 @@
 
 include_guard()
 
+include("${PROJECT_SOURCE_DIR}/cmake/os.cmake")
+
 set(ARCHIMEDES_CONAN_FILES "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators")
 
 set(ARCHIMEDES_CONANFILE "${PROJECT_SOURCE_DIR}/conanfile_dev.py")
@@ -69,6 +71,12 @@ if(ARCHIMEDES_CONAN_INSTALL)
 	# MSVC-only setting
 	if(MSVC)
 		set(ARCHIMEDES_CONAN_COMPILER_RUNTIME_TYPE "-s:b compiler.runtime_type=${CMAKE_BUILD_TYPE} -s:h compiler.runtime_type=${CMAKE_BUILD_TYPE}")
+	endif()
+
+	if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+		if(NOT ${ARCHIMEDES_LINUX})
+			message(FATAL_ERROR "${ARCHIMEDES_LINUX} != 1")
+		endif()
 	endif()
 
 	# Set package manager settings for Linux
