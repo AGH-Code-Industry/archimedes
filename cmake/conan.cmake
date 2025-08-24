@@ -97,3 +97,4 @@ if(CMAKE_GENERATOR MATCHES "Ninja")
 	unset(CMAKE_GENERATOR_TOOLSET CACHE)
 endif()
 
+add_compile_definitions(SPDLOG_USE_STD_FORMAT=1)
