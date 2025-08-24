@@ -2,10 +2,10 @@ include_guard()
 
 include("${PROJECT_SOURCE_DIR}/cmake/os.cmake")
 
-SET(ARCHIMEDES_CONAN_TOOLCHAIN_PATH "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators/conan_toolchain.cmake")
+SET(ARCHIMEDES_CONAN_TOOLCHAIN_PATH "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
 SET(ARCHIMEDES_CONAN_INSTALL_HASH_PATH "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conanfile.hash")
 
-file(SHA256 "${PROJECT_SOURCE_DIR}/conanfile.py" ARCHIMEDES_CONANFILE_HASH)
+file(SHA256 "${PROJECT_SOURCE_DIR}/conanfile_dev.py" ARCHIMEDES_CONANFILE_HASH)
 if(EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
 	file(STRINGS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH} ARCHIMEDES_CONAN_INSTALL_HASH_LIST LIMIT_COUNT 1)
 	list(GET ARCHIMEDES_CONAN_INSTALL_HASH_LIST 0 ARCHIMEDES_CONAN_INSTALL_HASH)
@@ -81,14 +81,14 @@ else()
 endif()
 
 # manual include conan toolchain
-include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators/conan_toolchain.cmake")
+include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
 list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE})
 
 # includes from conan
 include_directories(${CMAKE_INCLUDE_PATH})
 
 # automatic find_package()
-include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators/conandeps_legacy.cmake")
+include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conandeps_legacy.cmake")
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
 
 # Ninja breaks when conan settings.arch is set
