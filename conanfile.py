@@ -1,40 +1,99 @@
+# ConanFile for packaging archimedes
+
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
+class ArchimedesConan(ConanFile):
+	name = "archimedes"
+	version = "2025.08.24"
+	license = "Apache-2.0"
+	url = 'https://github.com/AGH-Code-Industry/archimedes'
+	description = "Archimedes Game Engine, @AGH Code Industry"
+	settings = 'os', 'compiler', 'build_type', 'arch'
 
-class Archimedes(ConanFile):
-    name = "Archimedes"
-    settings = "build_type"
+	options = {
+		'shared': [True, False],
+		'install': [True, False],
+		'build_tests': [True, False],
+		'build_examples': [True, False]
+	}
 
-    def requirements(self):
-        self.requires("glm/0.9.9.8")
-        self.requires("assimp/5.2.2")
-        self.requires("spdlog/1.12.0")
-        self.requires("gtest/1.13.0")
-        self.requires("stb/cci.20230920")
-        self.requires("draco/1.5.6", override=True)
-        self.requires("ctre/3.9.0")
-        self.requires("openssl/3.3.2")
+	default_options = {
+		'shared': False,
+		'install': True,
+		'build_tests': False,
+		'build_examples': False
+	}
 
-        # Audio system
-        self.requires("openal-soft/1.23.1")
-        self.requires("libsndfile/1.2.2")
+	package_type = 'library'
+	exports_sources = (
+		'cmake/*',
+		'src/*',
+		'examples/*',
+		'include/*',
+		'src/*',
+		'test/*',
+		'CMakeLists.txt',
+		'conanfile_dev.py',
+		'conanfile.py'
+	)
+	generators = "CMakeDeps"
+	
+	def layout(self):
+		cmake_layout(self)
 
-        self.requires("freetype/2.13.2")
-        self.requires("jsoncpp/1.9.6")
+	def requirements(self):
 		self.requires("glfw/3.4")
+		self.requires("glm/0.9.9.8", transitive_headers=True)
+		self.requires("spdlog/1.12.0")
+		self.requires("gtest/1.13.0")
+		self.requires("stb/cci.20230920", transitive_headers=True)
+		self.requires("draco/1.5.6", override=True)
+		self.requires("ctre/3.9.0", transitive_headers=True)
+		self.requires("openssl/3.3.2")
+		self.requires("jsoncpp/1.9.6")
 
-        # Vulkan SDK
-        self.requires("volk/1.3.268.0")
-        self.requires("vulkan-headers/1.4.313.0", override=True)
-        self.requires("vulkan-memory-allocator/cci.20231120")
+		# Audio system
+		self.requires("openal-soft/1.23.1")
+		self.requires("libsndfile/1.2.2")
 
-        self.requires("nvrhi/2025.08.19")
+		# Font atlas generator
+		self.requires("msdf-atlas-gen/1.3")
+		self.requires("freetype/2.13.2")
 
-        # SPIRV (Shader compiler)
-        self.requires("shaderc/2023.6")  # waiting for conan repo update
+		# Vulkan SDK
+		self.requires("volk/1.3.268.0")
+		self.requires("vulkan-headers/1.4.313.0", override=True, transitive_headers=True)
+		self.requires("vulkan-memory-allocator/cci.20231120", transitive_headers=True)
+		self.requires("nvrhi/2025.08.19")
 
-    def configure(self):
-        self.options["spdlog/1.12.0"].use_std_fmt = True
+		# SPIRV (Shader compiler)
+		self.requires("shaderc/2023.6")
 
-    generators = "CMakeDeps", "CMakeToolchain"
+	def configure(self):
+		self.options["spdlog/1.12.0"].use_std_fmt = True
+
+		if self.settings.os == "Linux": # use both X11 and wayland in binaries
+			self.options["glfw/3.4"].with_x11 = True
+			self.options["glfw/3.4"].with_wayland = True
+
+	def build(self):
+		cmake = CMake(self)
+		cmake.configure(variables={'CMAKE_BUILD_TYPE': self.settings.build_type})
+		cmake.build()
+
+	def generate(self):
+		tc = CMakeToolchain(self, "Ninja")
+		tc.variables["ARCHIMEDES_SHARED"] = self.options.shared
+		tc.variables["ARCHIMEDES_INSTALL"] = self.options.install
+		tc.variables["ARCHIMEDES_BUILD_TESTS"] = self.options.build_tests
+		tc.variables["ARCHIMEDES_BUILD_EXAMPLES"] = self.options.build_examples
+		tc.generate()
+
+	def package(self):
+		cmake = CMake(self)
+		cmake.install()
+
+	def package_info(self):
+		self.cpp_info.libs = ['archimedes']
