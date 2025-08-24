@@ -21,6 +21,7 @@ include("cmake/defines.cmake")
 include("cmake/conan.cmake")
 
 include("cmake/library.cmake")
+include("cmake/install.cmake")
 
 include("cmake/launch.cmake")
 
