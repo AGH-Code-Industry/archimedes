@@ -7,7 +7,6 @@ class Archimedes(ConanFile):
     settings = "build_type"
 
     def requirements(self):
-        self.requires("glfw/3.3.8")
         self.requires("glm/0.9.9.8")
         self.requires("assimp/5.2.2")
         self.requires("spdlog/1.12.0")
@@ -23,6 +22,7 @@ class Archimedes(ConanFile):
 
         self.requires("freetype/2.13.2")
         self.requires("jsoncpp/1.9.6")
+		self.requires("glfw/3.4")
 
         # Vulkan SDK
         self.requires("volk/1.3.268.0")
