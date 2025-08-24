@@ -22,10 +22,11 @@ foreach(EXAMPLE_CATEGORY ${EXAMPLES_CATEGORIES})
 			add_executable(${EXAMPLE_TARGET} ${EXAMPLE_SOURCES})
 			target_link_libraries(${EXAMPLE_TARGET} PUBLIC ${PROJECT_NAME})
 			target_precompile_headers(${EXAMPLE_TARGET} REUSE_FROM ${PROJECT_NAME})
+			set_property(TARGET ${EXAMPLE_TARGET} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 			
 			LaunchAddTarget(${EXAMPLE_TARGET})
 		endif()
 	endforeach()
-endforeach()endforeach()
+endforeach()
 
 endif()
