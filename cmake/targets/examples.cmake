@@ -1,5 +1,7 @@
 include_guard()
 
+if(ARCHIMEDES_BUILD_EXAMPLES)
+
 include("${PROJECT_SOURCE_DIR}/cmake/library.cmake")
 
 set(EXAMPLES_DIR "${PROJECT_SOURCE_DIR}/examples")
@@ -24,4 +26,6 @@ foreach(EXAMPLE_CATEGORY ${EXAMPLES_CATEGORIES})
 			LaunchAddTarget(${EXAMPLE_TARGET})
 		endif()
 	endforeach()
-endforeach()
+endforeach()endforeach()
+
+endif()
