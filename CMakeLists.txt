@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(
         archimedes
-        VERSION 0.1.0
+        VERSION 2025.08.24
         LANGUAGES CXX C
 )
 
