@@ -5,8 +5,8 @@
 #include "ChildNode.h"
 #include "ChildrenIterator.h"
 #include "HierarchyIterator.h"
-#include <ecs/ComponentTraits.h>
-#include <utils/OptRef.h>
+#include <archimedes/ecs/ComponentTraits.h>
+#include <archimedes/utils/OptRef.h>
 
 namespace arch::scene {
 class Scene;

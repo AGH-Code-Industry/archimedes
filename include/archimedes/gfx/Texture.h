@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gfx/texture/Texture.h"
-#include "gfx/texture/TextureFilterMode.h"
-#include "gfx/texture/TextureWrapMode.h"
 #include "texture/TextureManager.h"
+#include <archimedes/gfx/texture/Texture.h>
+#include <archimedes/gfx/texture/TextureFilterMode.h>
+#include <archimedes/gfx/texture/TextureWrapMode.h>
 
 namespace arch::gfx {
 

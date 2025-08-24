@@ -3,8 +3,8 @@
 #include <array>
 #include <string>
 
-#include <ArchMath.h>
-#include <net/GetMac.h>
+#include <archimedes/ArchMath.h>
+#include <archimedes/net/GetMac.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 

@@ -1,25 +1,24 @@
 #pragma once
 
 #include <concepts>
-#include <sstream>
 #include <source_location>
+#include <sstream>
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <audio/AudioException.h>
+#include <archimedes/audio/AudioException.h>
 
 ///@brief Calls an AL function and checks if it threw an error.
 ///@param function function to be called.
 ///@param ... parameters of the function.
-#define alCall(function, ...) arch::audio::alCallImplementation(std::source_location::current(), \
-																function, __VA_ARGS__)
+#define alCall(function, ...) arch::audio::alCallImplementation(std::source_location::current(), function, __VA_ARGS__)
 
 ///@brief Calls an ALC function and checks if it threw an error.
 ///@param function function to be called.
 ///@param device ALCDevice returned by alcOpenDevice call.
 ///@param ... parameters of the function.
-#define alcCall(function, device, ...) alcCallImplementation(std::source_location::current(), function, \
-																device, __VA_ARGS__)
+#define alcCall(function, device, ...) \
+	alcCallImplementation(std::source_location::current(), function, device, __VA_ARGS__)
 
 namespace arch::audio {
 /// @brief Check for errors after "al" function call.
@@ -128,8 +127,12 @@ auto alCallImplementation(const std::source_location location, AlFunction functi
 /// @param params wrapped function's parameters.
 template<typename AlcFunction, typename... Params>
 requires VoidReturn<AlcFunction, Params...>
-auto alcCallImplementation(const std::source_location location, AlcFunction function,
-							ALCdevice* device, Params&&... params) {
+auto alcCallImplementation(
+	const std::source_location location,
+	AlcFunction function,
+	ALCdevice* device,
+	Params&&... params
+) {
 	function(std::forward<Params>(params)...);
 	checkAlcErrors(device, location);
 }
@@ -144,8 +147,12 @@ auto alcCallImplementation(const std::source_location location, AlcFunction func
 /// @return return value of wrapped function.
 template<typename AlcFunction, typename... Params>
 requires NormalReturn<AlcFunction, Params...>
-auto alcCallImplementation(const std::source_location location, AlcFunction function,
-							ALCdevice* device, Params&&... params) {
+auto alcCallImplementation(
+	const std::source_location location,
+	AlcFunction function,
+	ALCdevice* device,
+	Params&&... params
+) {
 	auto returnValue = function(std::forward<Params>(params)...);
 	checkAlcErrors(device, location);
 	return returnValue;

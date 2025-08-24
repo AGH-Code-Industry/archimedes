@@ -1,4 +1,4 @@
-#include <hier/HierarchyNode.h>
+#include <archimedes/hier/HierarchyNode.h>
 
 namespace arch::hier {
 

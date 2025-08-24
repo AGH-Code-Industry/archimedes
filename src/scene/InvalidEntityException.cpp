@@ -1,4 +1,4 @@
-#include <scene/InvalidEntityException.h>
+#include <archimedes/scene/InvalidEntityException.h>
 
 namespace arch::scene {
 

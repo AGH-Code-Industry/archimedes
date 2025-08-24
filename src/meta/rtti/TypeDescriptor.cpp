@@ -1,5 +1,5 @@
-#include <meta/rtti/TypeDescriptor.h>
-#include <meta/rtti/TypeDescriptorWrapper.h>
+#include <archimedes/meta/rtti/TypeDescriptor.h>
+#include <archimedes/meta/rtti/TypeDescriptorWrapper.h>
 
 namespace arch::meta::rtti {
 bool TypeDescriptor::operator==(const TypeDescriptor& other) const noexcept {

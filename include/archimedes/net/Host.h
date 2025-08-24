@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "net/IPv4.h"
+#include <archimedes/net/IPv4.h>
 
 namespace arch::net {
 
@@ -56,7 +56,7 @@ private:
 
 	std::string _updateHostname();
 
-	std::vector<IPv4> _ips{IPv4()};
+	std::vector<IPv4> _ips{ IPv4() };
 	std::string _hostname;
 };
 

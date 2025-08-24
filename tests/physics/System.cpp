@@ -1,7 +1,7 @@
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/physics/System.h>
+#include <archimedes/physics/components/Moveable.h>
 #include <gtest/gtest.h>
-#include <physics/System.h>
-#include <physics/components/Moveable.h>
 
 namespace physics {
 namespace ecs = arch::ecs;
@@ -33,7 +33,5 @@ TEST(Physics, TestUpdate) {
 	EXPECT_EQ(entity.velocity, startV + t * entity.force);
 }
 
-TEST(Physics, CheckCollisions) {
-
-}
+TEST(Physics, CheckCollisions) {}
 } // namespace physics

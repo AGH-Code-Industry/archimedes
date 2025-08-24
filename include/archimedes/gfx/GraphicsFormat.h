@@ -1,6 +1,6 @@
 #pragma once
-#include "ArchMath.h"
-#include "exceptions/InvalidEnumException.h"
+#include <archimedes/ArchMath.h>
+#include <archimedes/exceptions/InvalidEnumException.h>
 
 namespace arch::gfx {
 

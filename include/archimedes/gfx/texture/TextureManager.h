@@ -2,8 +2,8 @@
 
 #include <filesystem>
 
-#include "Ref.h"
 #include "Texture.h"
+#include <archimedes/Ref.h>
 
 namespace arch::gfx::texture {
 

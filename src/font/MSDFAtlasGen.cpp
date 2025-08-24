@@ -4,7 +4,7 @@
 #include <regex>
 #include <string>
 
-#include <font/MSDFAtlasGen.h>
+#include <archimedes/font/MSDFAtlasGen.h>
 
 namespace arch::font {
 

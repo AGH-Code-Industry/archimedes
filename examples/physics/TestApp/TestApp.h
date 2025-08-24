@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Ecs.h>
-#include <Engine.h>
-#include <Scene.h>
-#include <physics/System.h>
-#include <physics/components/Colliding.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
+#include <archimedes/physics/System.h>
+#include <archimedes/physics/components/Colliding.h>
 
 namespace physicsExample {
 using namespace arch;
@@ -22,9 +22,9 @@ struct PhysicsTestApp final: Application {
 
 		std::vector<Vertex> vertices{
 			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
-			{ { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
-			{ { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
+			{	  { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
+			{	  { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
 		};
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 
@@ -34,7 +34,7 @@ struct PhysicsTestApp final: Application {
 			Mat4x4 projection;
 		};
 
-		UniformBuffer ubo{ glm::mat4{1} };
+		UniformBuffer ubo{ glm::mat4{ 1 } };
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
@@ -49,7 +49,8 @@ struct PhysicsTestApp final: Application {
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
+		auto ideallyElasticCollision = [&,
+										&domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
 			phy::Moveable& myBody = domain.getComponent<phy::Colliding>(me).body;
 			phy::Moveable& otherBody = domain.getComponent<phy::Colliding>(other).body;
 
@@ -129,4 +130,4 @@ struct PhysicsTestApp final: Application {
 private:
 	Ref<phy::System> _physicsSystem;
 };
-} // namespace physics_example
+} // namespace physicsExample

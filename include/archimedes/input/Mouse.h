@@ -1,8 +1,8 @@
 #pragma once
 
 #include "MouseButtonCode.h"
-#include <Mmath.h>
-#include <Ref.h>
+#include <archimedes/Mmath.h>
+#include <archimedes/Ref.h>
 
 #define ARCH_BUTTON(button) static Key button;
 #define ARCH_BUTTON_ALIAS(alias, button) static constexpr Key& alias = (Key&)button;

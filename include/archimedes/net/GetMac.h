@@ -2,9 +2,9 @@
 
 #include <array>
 
-#include <ArchMath.h>
-#include <net/_UtilitiesUnix.h>
-#include <net/_UtilitiesWindows.h>
+#include <archimedes/ArchMath.h>
+#include <archimedes/net/_UtilitiesUnix.h>
+#include <archimedes/net/_UtilitiesWindows.h>
 
 namespace arch::net {
 

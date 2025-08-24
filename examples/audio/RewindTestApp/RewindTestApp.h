@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Helpers.h"
-#include <Input.h>
+#include <archimedes/Input.h>
 
 using namespace arch;
 

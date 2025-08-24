@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/TCPSocket.h>
-#include <net/async/Host.h>
+#include <archimedes/net/TCPSocket.h>
+#include <archimedes/net/async/Host.h>
 
 namespace arch::net::async {
 /// @brief Represents asynchronous TCP sockets.

@@ -1,4 +1,4 @@
-#include "exceptions/InitException.h"
+#include <archimedes/exceptions/InitException.h>
 
 namespace arch {
 

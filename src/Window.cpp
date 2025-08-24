@@ -1,7 +1,6 @@
-#include "Window.h"
-
-#include "exceptions/GLFWException.h"
 #include <GLFW/glfw3.h>
+#include <archimedes/Window.h>
+#include <archimedes/exceptions/GLFWException.h>
 
 namespace arch {
 

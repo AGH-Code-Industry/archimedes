@@ -1,6 +1,6 @@
-#include <scene/ChildrenIterator.h>
-#include <scene/Entity.h>
-#include <utils/Res.h>
+#include <archimedes/scene/ChildrenIterator.h>
+#include <archimedes/scene/Entity.h>
+#include <archimedes/utils/Res.h>
 
 namespace arch::scene {
 

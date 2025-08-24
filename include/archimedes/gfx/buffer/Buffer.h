@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BufferType.h"
-#include "Mmath.h"
-#include "Ref.h"
+#include <archimedes/Mmath.h>
+#include <archimedes/Ref.h>
 
 namespace arch::gfx::buffer {
 

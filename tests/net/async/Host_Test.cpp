@@ -1,7 +1,7 @@
 #include <iostream>
 
+#include <archimedes/Net.h>
 #include <gtest/gtest.h>
-#include <Net.h>
 
 TEST(AsyncHost, LocalHost) {
 	namespace net = arch::net;

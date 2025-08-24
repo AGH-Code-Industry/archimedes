@@ -3,10 +3,10 @@
 #include "ChildrenIterator.h"
 #include "HierarchyIterator.h"
 #include "NameComponent.h"
-#include <Hier.h>
-#include <utils/BoundedRange.h>
-#include <utils/Res.h>
-#include <utils/UUID.h>
+#include <archimedes/Hier.h>
+#include <archimedes/utils/BoundedRange.h>
+#include <archimedes/utils/Res.h>
+#include <archimedes/utils/UUID.h>
 
 #define ARCH_CTRAITS arch::ecs::_details::ComponentTraits
 

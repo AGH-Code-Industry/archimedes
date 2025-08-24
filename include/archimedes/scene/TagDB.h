@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <ecs/Entity.h>
+#include <archimedes/ecs/Entity.h>
 
 namespace arch::scene {
 

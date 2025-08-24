@@ -1,5 +1,5 @@
-#include <scene/ChildrenIterator.h>
-#include <scene/Entity.h>
+#include <archimedes/scene/ChildrenIterator.h>
+#include <archimedes/scene/Entity.h>
 
 namespace arch::scene {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <net/UDPSocket.h>
-#include <net/async/Host.h>
+#include <archimedes/net/UDPSocket.h>
+#include <archimedes/net/async/Host.h>
 
 namespace arch::net::async {
 /// @brief Class representing asynchronous UDPSocket.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <meta/Typeof.hpp>
+#include <archimedes/meta/Typeof.hpp>
 
 #include "TypeDescriptor.h"
 #include "TypeDescriptorOwner.h"

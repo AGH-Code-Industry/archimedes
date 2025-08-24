@@ -1,5 +1,5 @@
-#include <input/Key.h>
-#include <input/Keyboard.h>
+#include <archimedes/input/Key.h>
+#include <archimedes/input/Keyboard.h>
 
 namespace arch::input {
 

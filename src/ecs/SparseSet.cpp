@@ -1,7 +1,7 @@
 #include <bit>
 
-#include "utils/Assert.h"
-#include <ecs/SparseSet.h>
+#include <archimedes/ecs/SparseSet.h>
+#include <archimedes/utils/Assert.h>
 
 namespace arch::ecs::_details {
 

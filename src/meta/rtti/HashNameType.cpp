@@ -1,4 +1,4 @@
-#include <meta/rtti/HashTypeName.h>
+#include <archimedes/meta/rtti/HashTypeName.h>
 
 namespace arch::meta::rtti {
 size_t hashTypeName(std::string_view typeName) noexcept {

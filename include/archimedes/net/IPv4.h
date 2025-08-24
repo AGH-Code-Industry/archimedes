@@ -2,7 +2,7 @@
 
 #include <compare>
 
-#include "net/Utilities.h"
+#include <archimedes/net/Utilities.h>
 
 namespace arch::net {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "net/Host.h"
-#include "net/Socket.h"
+#include <archimedes/net/Host.h>
+#include <archimedes/net/Socket.h>
 
 namespace arch::net {
 

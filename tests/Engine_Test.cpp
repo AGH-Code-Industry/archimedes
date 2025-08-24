@@ -1,4 +1,4 @@
-#include <Engine.h>
+#include <archimedes/Engine.h>
 #include <gtest/gtest.h>
 
 TEST(EngineTest, CreatingEngine) {

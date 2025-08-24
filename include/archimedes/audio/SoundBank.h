@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <audio/Clip.h>
+#include <archimedes/audio/Clip.h>
 
 namespace fs = std::filesystem;
 
@@ -13,7 +13,6 @@ namespace arch::audio {
 /// Thanks to this, you can save each audio file just once for all Sources,
 /// even if some play the same sound.
 class SoundBank {
-
 	fs::path soundsDirectory;
 
 	/// @brief A map storing all Clip objects.

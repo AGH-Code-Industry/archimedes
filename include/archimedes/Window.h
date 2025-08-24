@@ -3,7 +3,7 @@
 #include <string>
 
 #include <GLFW/glfw3.h>
-#include <Mmath.h>
+#include <archimedes/Mmath.h>
 
 namespace arch {
 

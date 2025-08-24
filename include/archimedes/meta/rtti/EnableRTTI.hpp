@@ -2,7 +2,7 @@
 
 #include <concepts>
 
-#include <meta/ThisT.h>
+#include <archimedes/meta/ThisT.h>
 
 /// @brief Unique RTTI type name macro for internal usage
 #define _ARCH_RTTI_UNIQUE _RTTIUnique

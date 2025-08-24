@@ -3,7 +3,7 @@
 #include <ranges>
 
 #include "SparseSet.h"
-#include <utils/ReadonlyCounter.h>
+#include <archimedes/utils/ReadonlyCounter.h>
 
 namespace arch::ecs {
 
@@ -27,9 +27,10 @@ protected:
 	template<bool, class, class>
 	friend class ::arch::ecs::View;
 
-	using EntitiesViewT =
-		decltype(std::views::filter(*std::declval<const DenseContainer*>(), _details::EntityTraits::Version::hasNotNull)
-		);
+	using EntitiesViewT = decltype(std::views::filter(
+		*std::declval<const DenseContainer*>(),
+		_details::EntityTraits::Version::hasNotNull
+	));
 
 	// range with all valid entities in _dense
 	EntitiesViewT _entitiesForView() const noexcept;

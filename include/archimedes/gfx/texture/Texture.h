@@ -2,7 +2,7 @@
 
 #include "TextureFilterMode.h"
 #include "TextureWrapMode.h"
-#include "gfx/GraphicsFormat.h"
+#include <archimedes/gfx/GraphicsFormat.h>
 
 namespace arch::gfx::texture {
 

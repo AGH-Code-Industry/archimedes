@@ -1,9 +1,9 @@
 #pragma once
 
 #if ARCHIMEDES_WINDOWS
-#include <net/_UtilitiesWindows.h>
+#include <archimedes/net/_UtilitiesWindows.h>
 #elif ARCHIMEDES_UNIX
-#include <net/_UtilitiesUnix.h>
+#include <archimedes/net/_UtilitiesUnix.h>
 #endif
 
 #include <chrono>

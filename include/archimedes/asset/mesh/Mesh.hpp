@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Mesh.h"
-#include "gfx/Renderer.h"
-#include "gfx/buffer/BufferManager.h"
+#include <archimedes/gfx/Renderer.h>
+#include <archimedes/gfx/buffer/BufferManager.h>
 
 namespace arch::asset::mesh {
 

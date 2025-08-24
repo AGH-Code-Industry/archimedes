@@ -8,8 +8,8 @@
 #include "CommonComponentPool.h"
 #include "ComponentPoolIterator.h"
 #include "ComponentTraits.h"
-#include <utils/MoveFlag.h>
-#include <utils/OptRef.h>
+#include <archimedes/utils/MoveFlag.h>
+#include <archimedes/utils/OptRef.h>
 
 namespace arch::ecs {
 

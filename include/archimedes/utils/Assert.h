@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <Logger.h>
+#include <archimedes/Logger.h>
 
 #if ARCHIMEDES_DEBUG
 

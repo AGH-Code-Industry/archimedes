@@ -1,7 +1,7 @@
 #pragma once
 
-#include "math/Math.h"
-#include "physics/components/Mass.h"
+#include <archimedes/math/Math.h>
+#include <archimedes/physics/components/Mass.h>
 
 namespace arch::physics {
 
@@ -10,5 +10,5 @@ struct MassCenter {
 	math::float2 position;
 };
 
-}
+} // namespace arch::physics
 

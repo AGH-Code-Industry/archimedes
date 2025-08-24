@@ -24,11 +24,11 @@
 #include <utility>
 #include <vector>
 
-#include <Ecs.h>
-#include <Logger.h>
-#include <Meta.h>
-#include <TUtils.h>
-#include <input/Key.h>
-#include <input/Keyboard.h>
-#include <input/Mouse.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Logger.h>
+#include <archimedes/Meta.h>
+#include <archimedes/TUtils.h>
+#include <archimedes/input/Key.h>
+#include <archimedes/input/Keyboard.h>
+#include <archimedes/input/Mouse.h>
 #include <stb_image.h>

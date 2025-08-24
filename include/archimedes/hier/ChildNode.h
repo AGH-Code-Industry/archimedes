@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ecs/EntityTraits.h>
+#include <archimedes/ecs/EntityTraits.h>
 
 namespace arch::hier {
 

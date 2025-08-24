@@ -1,5 +1,5 @@
-#include "utils/Assert.h"
-#include <ecs/EntityPool.h>
+#include <archimedes/ecs/EntityPool.h>
+#include <archimedes/utils/Assert.h>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations

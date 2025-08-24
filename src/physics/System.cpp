@@ -1,10 +1,9 @@
-#include "physics/System.h"
-
-#include "ecs/Domain.h"
-#include "ecs/View.h"
-#include "math/Math.h"
-#include "physics/components/Colliding.h"
-#include "physics/components/Moveable.h"
+#include <archimedes/ecs/Domain.h>
+#include <archimedes/ecs/View.h>
+#include <archimedes/math/Math.h>
+#include <archimedes/physics/System.h>
+#include <archimedes/physics/components/Colliding.h>
+#include <archimedes/physics/components/Moveable.h>
 
 namespace arch::physics {
 

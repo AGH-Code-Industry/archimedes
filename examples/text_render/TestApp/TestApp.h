@@ -3,11 +3,11 @@
 #include <codecvt>
 #include <locale>
 
-#include <Ecs.h>
-#include <Engine.h>
-#include <Font.h>
-#include <Scene.h>
-#include <Text.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Font.h>
+#include <archimedes/Scene.h>
+#include <archimedes/Text.h>
 
 using namespace arch;
 

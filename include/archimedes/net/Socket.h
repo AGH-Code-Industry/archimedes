@@ -2,8 +2,8 @@
 
 #include <type_traits>
 
-#include <net/IPv4.h>
-#include <net/Utilities.h>
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/Utilities.h>
 
 namespace arch::net {
 class UDPSocket;

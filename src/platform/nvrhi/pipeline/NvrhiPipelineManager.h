@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gfx/pipeline/PipelineManager.h"
+#include <archimedes/gfx/pipeline/PipelineManager.h>
 
 namespace arch::gfx::nvrhi {
 class NvrhiRenderer;

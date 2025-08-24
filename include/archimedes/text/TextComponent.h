@@ -2,9 +2,9 @@
 
 #include <unordered_map>
 
-#include <asset/mesh/Mesh.h>
-#include <font/Face.h>
-#include <gfx/pipeline/Pipeline.h>
+#include <archimedes/asset/mesh/Mesh.h>
+#include <archimedes/font/Face.h>
+#include <archimedes/gfx/pipeline/Pipeline.h>
 
 namespace arch::text {
 

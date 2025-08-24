@@ -2,13 +2,12 @@
 #include <limits>
 #include <string>
 
-#include <Logger.h>
+#include <archimedes/Logger.h>
 
 namespace arch::audio {
 
 /// @brief ECS component used to store all data about a sound source on the scene.
 struct AudioSourceComponent {
-
 	/// @brief Path to the audio file.
 	std::string path = "";
 
@@ -50,11 +49,11 @@ struct AudioSourceComponent {
 	float rolloffFactor = 1.0f;
 
 	///@brief Inside this range, the gain is constant.
-	///It applies only to directional sources.
+	/// It applies only to directional sources.
 	float coneInnerAngle = 360.0f;
 
 	///@brief Outside this range, the gain is set to the value in coneOuterGain.
-	///Between this range and the one in coneInnerAngle, the gain decreases.
+	/// Between this range and the one in coneInnerAngle, the gain decreases.
 	///@see coneOuterGain
 	///@see coneInnerAngle
 	float coneOuterAngle = 360.0f;
@@ -65,13 +64,12 @@ struct AudioSourceComponent {
 	float coneOuterGain = 0.0f;
 
 	///@brief Set this to true if the SourcePlayer assigned to this
-	///shouldn't be marked as removed after the sound ends.
+	/// shouldn't be marked as removed after the sound ends.
 	bool dontRemoveFinished = false;
-
 
 private:
 	///@brief The index of the SourcePlayer assigned to this source.
-	///If set to -1, a source isn't assigned.
+	/// If set to -1, a source isn't assigned.
 	int _id = -1;
 
 	friend class AudioManager;

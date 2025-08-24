@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hier/ChildNode.h>
-#include <hier/ChildrenIterator.h>
-#include <hier/HierarchyIterator.h>
-#include <hier/HierarchyNode.h>
+#include <archimedes/hier/ChildNode.h>
+#include <archimedes/hier/ChildrenIterator.h>
+#include <archimedes/hier/HierarchyIterator.h>
+#include <archimedes/hier/HierarchyNode.h>

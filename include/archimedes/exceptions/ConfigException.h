@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Exception.h"
+#include <archimedes/Exception.h>
 
 namespace arch {
 

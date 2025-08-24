@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "Ref.h"
+#include <archimedes/Ref.h>
 
 namespace arch::gfx::buffer {
 class Buffer;

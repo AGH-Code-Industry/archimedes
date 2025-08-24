@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Pipeline.h"
-#include "Ref.h"
+#include <archimedes/Ref.h>
 
 namespace arch::gfx::pipeline {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include <Exception.h>
+#include <archimedes/Exception.h>
 
 namespace arch::audio {
 /// @brief Exception thrown when an error occurs in the audio system.

@@ -1,5 +1,6 @@
-#include <audio/Calls.hpp>
-#include <audio/SourcePlayer.h>
+#include <archimedes/audio/Calls.hpp>
+
+#include <archimedes/audio/SourcePlayer.h>
 
 namespace arch::audio {
 
@@ -56,17 +57,12 @@ void SourcePlayer::update(
 	}
 }
 
-
 bool SourcePlayer::_initiallyLoadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format{};
-	switch(clip.getFormat()) {
-		case mono:
-			format = AL_FORMAT_MONO16;
-			break;
-		case stereo:
-			format = AL_FORMAT_STEREO16;
-			break;
+	switch (clip.getFormat()) {
+		case mono:	 format = AL_FORMAT_MONO16; break;
+		case stereo: format = AL_FORMAT_STEREO16; break;
 	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
@@ -81,13 +77,9 @@ bool SourcePlayer::_initiallyLoadSound() {
 bool SourcePlayer::_loadSound() {
 	Clip& clip = _soundBank->getClip(_clipPath);
 	ALenum format{};
-	switch(clip.getFormat()) {
-		case mono:
-			format = AL_FORMAT_MONO16;
-			break;
-		case stereo:
-			format = AL_FORMAT_STEREO16;
-			break;
+	switch (clip.getFormat()) {
+		case mono:	 format = AL_FORMAT_MONO16; break;
+		case stereo: format = AL_FORMAT_STEREO16; break;
 	}
 	std::size_t bufferElements = clip.getBufferElements();
 	ALint sampleRate = clip.getSampleRate();
@@ -118,9 +110,7 @@ bool SourcePlayer::run() {
 	switch (alState) {
 		case AL_PLAYING: _doNextFrame(); break;
 		case AL_PAUSED:	 _continuePlaying(); break;
-		case AL_STOPPED:
-			isStopped = true;
-			break;
+		case AL_STOPPED: isStopped = true; break;
 		case AL_INITIAL: _startFromBeginning(); break;
 		default:		 throw AudioException("Source player has an invalid state");
 	}
@@ -163,7 +153,6 @@ void SourcePlayer::rewindPlaying() {
 	_isEndFound = false;
 	alCall(alSourcePlay, _source);
 }
-
 
 void SourcePlayer::pausePlaying() {
 	alCall(alSourcePause, _source);

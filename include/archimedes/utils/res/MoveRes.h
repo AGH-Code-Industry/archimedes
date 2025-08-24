@@ -3,7 +3,7 @@
 #include <concepts>
 
 #include "Err.h"
-#include <utils/MoveFlag.h>
+#include <archimedes/utils/MoveFlag.h>
 
 namespace arch::utils {
 
@@ -61,7 +61,7 @@ private:
 		T val;
 		E err;
 
-		~Union() noexcept {};
+		~Union() noexcept {}
 	} _union = E();
 
 	bool _hasValue = false;

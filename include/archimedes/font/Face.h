@@ -5,10 +5,10 @@
 #include <unordered_map>
 
 #include "GlyphData.h"
-#include <Mmath.h>
-#include <gfx/Renderer.h>
-#include <utils/OptRef.h>
-#include <utils/PairHasher.h>
+#include <archimedes/Mmath.h>
+#include <archimedes/gfx/Renderer.h>
+#include <archimedes/utils/OptRef.h>
+#include <archimedes/utils/PairHasher.h>
 
 namespace arch::font {
 

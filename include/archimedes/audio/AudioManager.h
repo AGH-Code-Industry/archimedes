@@ -1,10 +1,10 @@
 #pragma once
 
-#include <audio/AudioSourceComponent.h>
-#include <audio/Listener.h>
-#include <audio/SourcePlayer.h>
-#include <ecs/Domain.h>
-#include <physics/components/Moveable.h>
+#include <archimedes/audio/AudioSourceComponent.h>
+#include <archimedes/audio/Listener.h>
+#include <archimedes/audio/SourcePlayer.h>
+#include <archimedes/ecs/Domain.h>
+#include <archimedes/physics/components/Moveable.h>
 
 namespace arch::audio {
 
@@ -16,7 +16,12 @@ namespace arch::audio {
 /// Each SourcePlayer that cleaned its own buffers gets 'removed' state.
 /// After that, the manager should free the SourcePlayer, marking it as 'unused'.
 enum SourceState {
-	playing, paused, stopped, removed, unused, assigned
+	playing,
+	paused,
+	stopped,
+	removed,
+	unused,
+	assigned
 };
 
 /// @brief Stores all SourcePlayers on the scene and synchronizes their work.
@@ -33,7 +38,7 @@ class AudioManager {
 	Listener _listener;
 
 	///@brief Each SourcePlayer has a flag telling if it should be marked as removed
-	///after finishing the sound on its own (i.e. the user didn't stop the sound yourself)
+	/// after finishing the sound on its own (i.e. the user didn't stop the sound yourself)
 	bool _dontRemoveFinished[16]{};
 
 	///@brief Tells if the Listener was assigned to a ListenerComponent.
@@ -70,7 +75,7 @@ public:
 	void stop();
 
 	///@brief Finds an empty SourcePlayer and assign it to the AudioSourceComponent.
-	///Doesn't use spatial data.
+	/// Doesn't use spatial data.
 	///@param source ECS component with info about the sound source.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
 	void assignSource(AudioSourceComponent& source);
@@ -80,8 +85,11 @@ public:
 	///@param transform ECS component with info about position.
 	///@param moveable ECS component with info about velocity.
 	///@throws AudioException if a non-used SourcePlayer can't be found.
-	void assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable);
+	void assignSource(
+		AudioSourceComponent& source,
+		const scene::components::TransformComponent& transform,
+		const physics::Moveable& moveable
+	);
 
 	///@brief Starts playing the sound. If it's paused, continues it.
 	///@param source ECS component of the audio source.
@@ -89,7 +97,7 @@ public:
 	void playSource(AudioSourceComponent& source);
 
 	///@brief Starts playing the sound from the beginning, if it was already playing.
-	///Also, works if the sound was finished and the '_dontRemoveFinished' flag is set to true.
+	/// Also, works if the sound was finished and the '_dontRemoveFinished' flag is set to true.
 	///@param source ECS component of the audio source.
 	///@throw AudioException if the source isn't assigned.
 	///@view _dontRemoveFinished
@@ -101,65 +109,75 @@ public:
 	void pauseSource(const AudioSourceComponent& source);
 
 	///@brief Stops playing the sound.
-	///Stopped source can't be played/paused until it's marked as unused.
+	/// Stopped source can't be played/paused until it's marked as unused.
 	///@param source ECS component of the audio source.
 	///@throws AudioException if the source isn't assigned.
 	void stopSource(const AudioSourceComponent& source);
 
 	///@brief Synchronizes the AudioManager's thread with ECS.
-	///Updates the SourcePlayers and the Listener according to their components.
-	///Marks removed SourcePlayers as unused while unassigning them from the components.
-	///Checks if there is any ListenerComponent on the scene.
+	/// Updates the SourcePlayers and the Listener according to their components.
+	/// Marks removed SourcePlayers as unused while unassigning them from the components.
+	/// Checks if there is any ListenerComponent on the scene.
 	///@param domain ECS domain of the scene.
 	///@warning Should be called every frame in the main application loop.
 	void synchronize(ecs::Domain& domain);
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
-	///to the SourcePlayer. The source shouldn't be in 'stopped' or in 'removed' state.
+	/// to the SourcePlayer. The source shouldn't be in 'stopped' or in 'removed' state.
 	///@param source ECS component of the audio source.
 	///@param transform ECS component of the source's position.
 	///@param moveable ECS component of the source's velocity.
 	///@throws AudioException if the source isn't assigned.
-	void updateSource(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable);
+	void updateSource(
+		const AudioSourceComponent& source,
+		const scene::components::TransformComponent& transform,
+		const physics::Moveable& moveable
+	);
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
-	///to the SourcePlayer. A version that doesn't use spatial data.
-	///The source shouldn't be in 'stopped' or in 'removed' state.
+	/// to the SourcePlayer. A version that doesn't use spatial data.
+	/// The source shouldn't be in 'stopped' or in 'removed' state.
 	///@param source ECS component of the audio source.
 	///@throws AudioException if the source isn't assigned.
 	void updateSource(const AudioSourceComponent& source);
 
 	///@brief Send all the listener parameters from the ListenerComponent
-	///to the Listener. Doesn't use spatial data.
+	/// to the Listener. Doesn't use spatial data.
 	///@param listener ECS component of the listener.
 	void updateListener(const ListenerComponent& listener);
 
 	///@brief Send all the listener parameters from the ListenerComponent
-	///to the Listener.
+	/// to the Listener.
 	///@param listener ECS component of the listener.
 	///@param transform ECS component with info about position.
 	///@param moveable ECS component with info about velocity.
-	void updateListener(const ListenerComponent& listener, const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable);
+	void updateListener(
+		const ListenerComponent& listener,
+		const scene::components::TransformComponent& transform,
+		const physics::Moveable& moveable
+	);
 
 	///@brief Assign Listener to a ListenerComponent. Unassign it from
-	///all other components. Doesn't use spatial data.
+	/// all other components. Doesn't use spatial data.
 	///@param listener ECS component of the listener.
 	///@param domain ECS domain of the scene.
 	void setListener(ecs::Domain& domain, ListenerComponent& listener);
 
 	///@brief Assign Listener to a ListenerComponent. Unassign it from
-	///all other components.
+	/// all other components.
 	///@param listener ECS component of the listener.
 	///@param transform ECS component with position data.
 	///@param moveable ECS component with velocity data.
 	///@param domain ECS domain of the scene.
-	void setListener(ecs::Domain& domain, ListenerComponent& listener, const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable);
+	void setListener(
+		ecs::Domain& domain,
+		ListenerComponent& listener,
+		const scene::components::TransformComponent& transform,
+		const physics::Moveable& moveable
+	);
 
 	///@brief Get state of a SourcePlayer assigned to the AudioSourceComponent.
-	///Returns 'unused' if a player isn't assigned.
+	/// Returns 'unused' if a player isn't assigned.
 	///@param source ECS component of the audio source.
 	SourceState getState(const AudioSourceComponent& source) const;
 };

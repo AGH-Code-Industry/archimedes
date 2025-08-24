@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <ecs/Entity.h>
+#include <archimedes/ecs/Entity.h>
 
 namespace arch::scene {
 

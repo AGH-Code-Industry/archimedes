@@ -3,8 +3,8 @@
 #include <unordered_set>
 
 #include "ReturnHandleFlag.h"
-#include <Ecs.h>
-#include <Hier.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Hier.h>
 
 namespace arch::scene {
 

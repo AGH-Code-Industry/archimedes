@@ -2,7 +2,7 @@
 
 #include <iterator>
 
-#include <hier/HierarchyIterator.h>
+#include <archimedes/hier/HierarchyIterator.h>
 
 namespace arch::scene {
 

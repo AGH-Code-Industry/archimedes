@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hier/ChildrenIterator.h>
+#include <archimedes/hier/ChildrenIterator.h>
 
 namespace arch::scene {
 

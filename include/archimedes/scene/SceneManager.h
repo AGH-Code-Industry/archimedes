@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Ref.h"
-#include "Scene.h"
+#include <archimedes/Ref.h>
+#include <archimedes/Scene.h>
 
 namespace arch::gfx {
 class Renderer;

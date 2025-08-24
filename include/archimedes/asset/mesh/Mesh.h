@@ -2,9 +2,9 @@
 
 #include <span>
 
-#include "Mmath.h"
-#include "Ref.h"
-#include "gfx/Buffer.h"
+#include <archimedes/Mmath.h>
+#include <archimedes/Ref.h>
+#include <archimedes/gfx/Buffer.h>
 
 namespace arch::asset::mesh {
 

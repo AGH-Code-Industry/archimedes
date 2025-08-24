@@ -1,7 +1,7 @@
 #include <sstream>
 
+#include <archimedes/Net.h>
 #include <gtest/gtest.h>
-#include <Net.h>
 
 TEST(IPv4, StringToBinary) {
 	arch::net::IPv4 ip;

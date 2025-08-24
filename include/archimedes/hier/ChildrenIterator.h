@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ChildNode.h"
-#include <ecs/Domain.h>
+#include <archimedes/ecs/Domain.h>
 
 namespace arch::hier {
 

@@ -1,5 +1,5 @@
 #include "ComponentPool.h"
-#include <utils/Assert.h>
+#include <archimedes/utils/Assert.h>
 
 #define TEMPLATE_C template<class C>
 #define POOL_C ComponentPool<C>

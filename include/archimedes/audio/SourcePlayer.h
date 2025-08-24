@@ -1,9 +1,9 @@
 #pragma once
 
-#include <audio/AudioSourceComponent.h>
-#include <audio/SoundBank.h>
-#include <physics/components/Moveable.h>
-#include <scene/components/TransformComponent.h>
+#include <archimedes/audio/AudioSourceComponent.h>
+#include <archimedes/audio/SoundBank.h>
+#include <archimedes/physics/components/Moveable.h>
+#include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::audio {
 
@@ -68,8 +68,11 @@ public:
 	/// @param transform ECS component with info about the source position.
 	/// @param moveable ECS component with info about velocity.
 	/// @throws AudioException if the clip path was modified during the playback.
-	void update(const AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-				const physics::Moveable& moveable);
+	void update(
+		const AudioSourceComponent& source,
+		const scene::components::TransformComponent& transform,
+		const physics::Moveable& moveable
+	);
 
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.
 	/// Doesn't use spatial data.
@@ -77,7 +80,7 @@ public:
 	/// @throws AudioException if the clip path was modified during the playback.
 	void update(const AudioSourceComponent& source);
 
-	//TODO add clean method to use after stop
+	// TODO add clean method to use after stop
 
 	/// @brief Initializes the _soundBank variable, OpenAL source and OpenAL buffers.
 	/// @param soundBank SoundBank responsible for loading the files.
@@ -106,7 +109,7 @@ public:
 
 	///@brief Rewinds the playing sound.
 	///@warning It's advised to use it only when the source is playing and
-	///it won't be automatically removed when it ends.
+	/// it won't be automatically removed when it ends.
 	void rewindPlaying();
 
 	///@brief Sets the new clip path.
@@ -114,7 +117,7 @@ public:
 	void setClipPath(const std::string& clipPath);
 
 	///@brief Deletes the clip path.
-	///Sets all parameters to default values.
+	/// Sets all parameters to default values.
 	void clean();
 };
 
