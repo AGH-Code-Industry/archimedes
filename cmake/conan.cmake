@@ -72,7 +72,7 @@ if(ARCHIMEDES_CONAN_INSTALL)
 	endif()
 
 	# Set package manager settings for Linux
-	if(ARCHIMEDES_LINUX)
+	if(${ARCHIMEDES_LINUX})
 		set(ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_MODE "-c tools.system.package_manager:mode=install")
 		set(ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
 	endif()
