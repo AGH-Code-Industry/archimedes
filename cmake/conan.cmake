@@ -90,3 +90,10 @@ include_directories(${CMAKE_INCLUDE_PATH})
 # automatic find_package()
 include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators/conandeps_legacy.cmake")
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
+
+# Ninja breaks when conan settings.arch is set
+if(CMAKE_GENERATOR MATCHES "Ninja")
+	unset(CMAKE_GENERATOR_PLATFORM CACHE)
+	unset(CMAKE_GENERATOR_TOOLSET CACHE)
+endif()
+
