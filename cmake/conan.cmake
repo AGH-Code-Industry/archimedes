@@ -1,100 +1,116 @@
+# Conan handling
+
 include_guard()
 
-include("${PROJECT_SOURCE_DIR}/cmake/os.cmake")
+set(ARCHIMEDES_CONAN_FILES "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/build/generators")
 
-SET(ARCHIMEDES_CONAN_TOOLCHAIN_PATH "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
-SET(ARCHIMEDES_CONAN_INSTALL_HASH_PATH "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conanfile.hash")
+set(ARCHIMEDES_CONANFILE "${PROJECT_SOURCE_DIR}/conanfile_dev.py")
+set(ARCHIMEDES_CONANFILE_HASH "${ARCHIMEDES_CONAN_FILES}/conanfile.hash")
 
-file(SHA256 "${PROJECT_SOURCE_DIR}/conanfile_dev.py" ARCHIMEDES_CONANFILE_HASH)
-if(EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
-	file(STRINGS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH} ARCHIMEDES_CONAN_INSTALL_HASH_LIST LIMIT_COUNT 1)
-	list(GET ARCHIMEDES_CONAN_INSTALL_HASH_LIST 0 ARCHIMEDES_CONAN_INSTALL_HASH)
+# Check for changes in conanfile
+file(SHA256 "${ARCHIMEDES_CONANFILE}" ARCHIMEDES_CONANFILE_HASH_NEW_VALUE) # compute hash
+if(EXISTS ${ARCHIMEDES_CONANFILE_HASH})
+	set(ARCHIMEDES_CONAN_INSTALLED TRUE)
 
-	if(${ARCHIMEDES_CONAN_INSTALL_HASH} STREQUAL ${ARCHIMEDES_CONANFILE_HASH})
-		SET(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ FALSE)
+	# get hash value from file
+	file(STRINGS ${ARCHIMEDES_CONANFILE_HASH} ARCHIMEDES_CONAN_INSTALL_HASH_CONTENTS LIMIT_COUNT 1)
+	list(GET ARCHIMEDES_CONAN_INSTALL_HASH_CONTENTS 0 ARCHIMEDES_CONANFILE_HASH_OLD_VALUE)
+
+	if(${ARCHIMEDES_CONANFILE_HASH_OLD_VALUE} STREQUAL ${ARCHIMEDES_CONANFILE_HASH_NEW_VALUE})
+		set(ARCHIMEDES_CONANFILE_HASH_EQ TRUE)
+		set(ARCHIMEDES_CONAN_INSTALL FALSE)
 	else()
-		SET(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ TRUE)
+		set(ARCHIMEDES_CONANFILE_HASH_EQ FALSE)
+		set(ARCHIMEDES_CONAN_INSTALL TRUE)
 	endif()
+else() # conanfile was not installed
+	set(ARCHIMEDES_CONAN_INSTALLED FALSE)
+	set(ARCHIMEDES_CONAN_INSTALL TRUE)
+endif()
+if(ARCHIMEDES_FORCE_CONAN_INSTALL)
+	set(ARCHIMEDES_CONAN_INSTALL TRUE)
 endif()
 
-# check for conan files
-if(ARCHIMEDES_FORCE_CONAN_INSTALL OR ARCHIMEDES_CONAN_INSTALL_HASH_NEQ OR NOT EXISTS ${ARCHIMEDES_CONAN_TOOLCHAIN_PATH} OR NOT EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
+message("Conan installation status:")
+if(ARCHIMEDES_CONAN_INSTALL)
 	if(ARCHIMEDES_FORCE_CONAN_INSTALL)
-		message(STATUS "Forced Conan configuration for ${ARCHIMEDES_BUILD_TYPE} mode")
-	elseif(NOT EXISTS ${ARCHIMEDES_CONAN_TOOLCHAIN_PATH} OR NOT EXISTS ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH})
-		message(STATUS "Conan files not found for ${ARCHIMEDES_BUILD_TYPE} mode, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
-	elseif(ARCHIMEDES_CONAN_INSTALL_HASH_NEQ)
-		message(STATUS "conanfile.py was edited, configuring conan for ${ARCHIMEDES_BUILD_TYPE} mode")
+		message("    forced")
+	elseif(NOT ARCHIMEDES_CONANFILE_HASH_EQ)
+		message("    conanfile changed")
+	elseif(NOT ARCHIMEDES_CONAN_INSTALLED)
+		message("    not installed")
 	endif()
 
-	# check if conan is installed
-	execute_process(
-		COMMAND "conan" "--version"
+	# check for conan
+	execute_process(COMMAND
+		conan version
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		OUTPUT_VARIABLE CONAN_CHECK_OUT
+		OUTPUT_VARIABLE ARCHIMEDES_CONAN_OUTPUT
 	)
-	if(NOT CONAN_CHECK_OUT MATCHES ".?Conan.?")
+	# match with expected output
+	if(NOT ARCHIMEDES_CONAN_OUTPUT MATCHES "^version:[^\n]*\nconan_path:[^\n]*")
 		message(FATAL_ERROR "Conan not found")
 	else()
-		message(STATUS "Conan present")
+		message(STATUS "Conan found")
 	endif()
 
+	# set environment variables
 	set(ENV{CC} ${CMAKE_C_COMPILER})
 	set(ENV{CXX} ${CMAKE_CXX_COMPILER})
+
+	# detect conan profile
 	execute_process(
-		COMMAND "conan" "profile" "detect" "--force"
+		COMMAND conan profile detect --force
 		COMMAND_ERROR_IS_FATAL ANY
 	)
 
-	file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/")
+	file(MAKE_DIRECTORY ${ARCHIMEDES_CONAN_FILES})
 
-	# option only for MSCV
+	# MSVC-only setting
 	if(MSVC)
-		set(ARCHIMEDES_CONAN_COMPILER_RUNTIME_TYPE "-s:b compiler.runtime_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.runtime_type=${ARCHIMEDES_BUILD_TYPE}")
+		set(ARCHIMEDES_CONAN_COMPILER_RUNTIME_TYPE "-s:b compiler.runtime_type=${CMAKE_BUILD_TYPE} -s:h compiler.runtime_type=${CMAKE_BUILD_TYPE}")
 	endif()
 
-	if(${ARCHIMEDES_LINUX})
-		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE "-c tools.system.package_manager:mode=install")
-		set(ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
+	# Set package manager settings for Linux
+	if(ARCHIMEDES_LINUX)
+		set(ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_MODE "-c tools.system.package_manager:mode=install")
+		set(ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_SUDO "-c tools.system.package_manager:sudo=True")
 	endif()
 
-	separate_arguments(CONAN_ARGS_LIST UNIX_COMMAND "${ARCHIMEDES_CONAN_ARGS}")
-	# install conan requirements
+	# Parse additional conan args
+	separate_arguments(ARCHIMEDES_CONAN_ARGS_LIST UNIX_COMMAND "${ARCHIMEDES_CONAN_ARGS}")
+
+	# run the install command
 	execute_process(
-		COMMAND conan install ./conanfile_dev.py -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=${CMAKE_CXX_STANDARD} -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=${CMAKE_CXX_STANDARD} ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE} -of=conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default ${CONAN_ARGS_LIST}
+		COMMAND conan install . -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=${CMAKE_CXX_STANDARD} -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=${CMAKE_CXX_STANDARD} ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_SYSTEM_PACKAGE_MANAGER_MODE} -of=conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		OUTPUT_VARIABLE ARCHIMEDES_CONAN_INSTALL_OUTPUT
-		RESULT_VARIABLE ARCHIMEDES_CONAN_INSTALL_RESULT
+		OUTPUT_VARIABLE ARCHIEMDES_CONAN_INSTALL_OUTPUT
+		RESULT_VARIABLE ARCHIEMDES_CONAN_INSTALL_RESULT
+		#COMMAND_ECHO STDOUT
 	)
 
-	# check conan result
-	if(NOT ${ARCHIMEDES_CONAN_INSTALL_RESULT} EQUAL 0)
-		file(REMOVE_RECURSE "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/")
+	# check installation results
+	if(NOT ${ARCHIEMDES_CONAN_INSTALL_RESULT} EQUAL 0)
+		file(REMOVE_RECURSE ${ARCHIMEDES_CONAN_FILES})
 		message(FATAL_ERROR "Conan installation failed")
 	else()
-		file(WRITE ${ARCHIMEDES_CONAN_INSTALL_HASH_PATH} ${ARCHIMEDES_CONANFILE_HASH})
-
-		message(STATUS "Conan installation succeded")
+		file(WRITE ${ARCHIMEDES_CONANFILE_HASH} ${ARCHIMEDES_CONANFILE_HASH_NEW_VALUE})
+		message("Conan installation completed")
 	endif()
 else()
-	message(STATUS "Conan files found for ${ARCHIMEDES_BUILD_TYPE} mode") 
+	message("\tfound files for ${CMAKE_BUILD_TYPE}")
 endif()
 
-# manual include conan toolchain
-include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conan_toolchain.cmake")
-list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE})
+# Include conan toolchain
+include("${ARCHIMEDES_CONAN_FILES}/conan_toolchain.cmake")
 
-# includes from conan
-include_directories(${CMAKE_INCLUDE_PATH})
+# Add conan_files to prefix
+list(PREPEND CMAKE_PREFIX_PATH ${ARCHIEMDES_CONAN_FILES})
 
-# automatic find_package()
-include("${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/conandeps_legacy.cmake")
+#include_directories(${CMAKE_INCLUDE_PATH})
+
+# Include conan libraries
+include("${ARCHIMEDES_CONAN_FILES}/conandeps_legacy.cmake")
+
+# Add conan libraries to archimedes
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
-
-# Ninja breaks when conan settings.arch is set
-if(CMAKE_GENERATOR MATCHES "Ninja")
-	unset(CMAKE_GENERATOR_PLATFORM CACHE)
-	unset(CMAKE_GENERATOR_TOOLSET CACHE)
-endif()
-
-add_compile_definitions(SPDLOG_USE_STD_FORMAT=1)

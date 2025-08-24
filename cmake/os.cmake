@@ -1,6 +1,8 @@
+# OS handling file
+
 include_guard()
 
-# check for OS
+# Check for OS
 if(WIN32)
     set(ARCHIMEDES_WINDOWS TRUE)
     set(ARCHIMEDES_LINUX FALSE)
@@ -9,17 +11,21 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(ARCHIMEDES_LINUX TRUE)
 endif()
 
-# set user home directory
+# Add macros
 if(ARCHIMEDES_WINDOWS)    
-    add_compile_definitions(ARCHIMEDES_WINDOWS=1)
-    add_compile_definitions(ARCHIMEDES_LINUX=0)
-    add_compile_definitions(ARCHIMEDES_UNIX=0)
+    target_compile_definitions(archimedes PUBLIC
+		ARCHIMEDES_WINDOWS=1
+		ARCHIMEDES_LINUX=0
+		ARCHIMEDES_UNIX=0
+	)
 
     message(STATUS "OS: Windows")
 elseif(ARCHIMEDES_LINUX)    
-    add_compile_definitions(ARCHIMEDES_WINDOWS=0)
-    add_compile_definitions(ARCHIMEDES_LINUX=1)
-    add_compile_definitions(ARCHIMEDES_UNIX=1)
+   target_compile_definitions(archimedes PUBLIC
+		ARCHIMEDES_WINDOWS=0
+		ARCHIMEDES_LINUX=1
+		ARCHIMEDES_UNIX=1
+	)
 
     message(STATUS "OS: Linux")
 endif()
