@@ -6,7 +6,7 @@
 #include "ComponentPool.h"
 #include "EntityPool.h"
 #include "ExcludeT.h"
-#include <archimedes/Rtti.h>
+#include <archimedes/meta/Rtti.h>
 #include <archimedes/tUtils/TypeList.h>
 
 namespace arch::ecs {
