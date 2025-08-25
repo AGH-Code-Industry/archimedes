@@ -3,6 +3,7 @@
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+import os
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
@@ -80,7 +81,11 @@ class ArchimedesConan(ConanFile):
 
 	def build(self):
 		cmake = CMake(self)
-		cmake.configure(variables={'CMAKE_BUILD_TYPE': self.settings.build_type})
+		cmake.configure(variables={
+			'CMAKE_BUILD_TYPE': self.settings.build_type,
+			'CMAKE_C_COMPILER': os.environ.get("CC"),
+			'CMAKE_CXX_COMPILER': os.environ.get("CXX")
+		})
 		cmake.build()
 
 	def generate(self):
