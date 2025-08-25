@@ -4,7 +4,7 @@
 #include "Domain.h"
 //
 #include "View.h"
-#include "tUtils/Functions/IsApplicable.h"
+#include <archimedes/tUtils/Functions/IsApplicable.h>
 
 #define TEMPLATE_CIE template<bool Const, class... Includes, class... Excludes>
 #define TEMPLATE_CE template<bool Const, class... Excludes>
@@ -182,7 +182,7 @@ VIEW_CIE& VIEW_CIE::operator=(View&& other) noexcept {
 }
 
 TEMPLATE_CE VIEW_CE::View(DomainT* domain) noexcept:
-	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain -> template _tryGetCPool<Excludes>())... },
+	_excludedCPools{ dynamic_cast<CCPoolPtr>(domain->template _tryGetCPool<Excludes>())... },
 	// can't just call refresh(), _entities is not default_initializable
 	_entities(domain->entities(), std::bind(&View::_containsNoCheck, (const View*)this, std::placeholders::_1)),
 	_domain{ domain } {

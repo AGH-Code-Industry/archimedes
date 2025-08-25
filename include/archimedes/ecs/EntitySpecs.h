@@ -2,8 +2,8 @@
 
 #include <type_traits>
 
-#include "ArchMath.h"
 #include "Entity.h"
+#include <archimedes/ArchMath.h>
 
 namespace arch::ecs {
 
