@@ -32,6 +32,7 @@ jobs:
             cxx: g++-14
             profile_compiler: gcc
             profile_compiler_version: 14
+            profile_compiler_libcxx: 'compiler.libcxx=libstdc++11'
 
           # - compiler: clang-18
           #   cxx: clang++-18
@@ -89,6 +90,7 @@ jobs:
           build_type=${{ matrix.build_type }}
           compiler=${{ matrix.profile_compiler }}
           compiler.cppstd=23
+          ${{ matrix.profile_compiler_libcxx }}
           compiler.version=${{ matrix.profile_compiler_version }}
           os=Linux
           " > ~/.conan2/profiles/archimedes
