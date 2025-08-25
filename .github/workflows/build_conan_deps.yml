@@ -132,6 +132,12 @@ jobs:
             cxx: cl
             profile_compiler: msvc
             profile_compiler_version: 194
+          - build_type: Release
+            runtime_type: Release
+          - build_type: Debug
+            runtime_type: Debug
+          - build_type: RelWithDebInfo
+            runtime_type: Release
 
 
     steps:
@@ -182,7 +188,7 @@ jobs:
           compiler=${{ matrix.profile_compiler }}
           compiler.cppstd=23
           ${{ matrix.compiler == 'cl' && 'compiler.runtime=dynamic' || '' }}
-          ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.build_type) || '' }}
+          ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.runtime_type) || '' }}
           compiler.version=${{ matrix.profile_compiler_version }}
           os=Windows
           ' > ~/.conan2/profiles/archimedes
