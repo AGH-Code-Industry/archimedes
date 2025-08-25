@@ -30,6 +30,9 @@ jobs:
           #   cxx: g++-13
           - compiler: gcc-14
             cxx: g++-14
+            profile_compiler: gcc
+            profile_compiler_version: 14
+
           # - compiler: clang-18
           #   cxx: clang++-18
           # - compiler: clang-19
@@ -77,6 +80,20 @@ jobs:
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload Conan dependencies to remote"
         run: |
           conan upload "*" --confirm -r $CONAN_REMOTE_NAME
+      
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Package archimedes"
+        run: |
+          echo "
+          [settings]
+          arch=x86_64
+          build_type=${{ matrix.build_type }}
+          compiler=${{ matrix.profile_compiler }}
+          compiler.cppstd=23
+          compiler.version=${{ matrix.profile_compiler_version }}
+          os=Linux
+          " > ~/.conan2/profiles/archimedes
+          conan create . --build=missing --profile:all=archimedes
+
   Windows:
     runs-on: windows-2025
 
@@ -95,7 +112,7 @@ jobs:
             # clang-18,
             # clang-19,
             # gcc, # gcc-14
-            cl
+            cl # msvc
           ]
         build_type: [Debug, Release, RelWithDebInfo]
         include:
@@ -111,6 +128,9 @@ jobs:
           #   cxx: g++
           - compiler: cl
             cxx: cl
+            profile_compiler: msvc
+            profile_compiler_version: 194
+
 
     steps:
       - name: Checkout
@@ -150,6 +170,21 @@ jobs:
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload Conan dependencies to remote"
         run: |
           conan upload "*" --confirm -r $env:CONAN_REMOTE_NAME
+
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Package archimedes"
+        run: |
+          echo '
+          [settings]
+          arch=x86_64
+          build_type=${{ matrix.build_type }}
+          compiler=${{ matrix.profile_compiler }}
+          compiler.cppstd=23
+          ${{ matrix.compiler == 'cl' && 'compiler.runtime=dynamic' || '' }}
+          ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.build_type) || '' }}
+          compiler.version=${{ matrix.profile_compiler_version }}
+          os=Windows
+          ' > ~/.conan2/profiles/archimedes
+          conan create . --build=missing --profile:all=archimedes
           
 #   windows:
 #     runs-on: windows-2025
