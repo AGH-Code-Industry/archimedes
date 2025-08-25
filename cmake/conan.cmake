@@ -103,16 +103,11 @@ else()
 	message("\tfound files for ${CMAKE_BUILD_TYPE}")
 endif()
 
-# Include conan toolchain
-include("${ARCHIMEDES_CONAN_FILES}/conan_toolchain.cmake")
-
-# Add conan_files to prefix
-list(PREPEND CMAKE_PREFIX_PATH ${ARCHIEMDES_CONAN_FILES})
-
-#include_directories(${CMAKE_INCLUDE_PATH})
-
-# Include conan libraries
-include("${ARCHIMEDES_CONAN_FILES}/conandeps_legacy.cmake")
+# find & include toolchain & conandeps
+file(GLOB_RECURSE ARCHIMEDES_TOOLCHAIN_CONANDEPS "${PROJECT_SOURCE_DIR}/*/conan_toolchain.cmake" "${PROJECT_SOURCE_DIR}/*/conandeps_legacy.cmake")
+foreach(ARCHIMEDES_TOOLCHAIN_CONANDEPS_FILE ${ARCHIMEDES_TOOLCHAIN_CONANDEPS})
+	include(${ARCHIMEDES_TOOLCHAIN_CONANDEPS_FILE})
+endforeach()
 
 # Add conan libraries to archimedes
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
