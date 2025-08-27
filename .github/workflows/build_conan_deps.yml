@@ -30,7 +30,6 @@ jobs:
           #   cxx: g++-13
           - compiler: gcc-14
             cxx: g++-14
-
           # - compiler: clang-18
           #   cxx: clang++-18
           # - compiler: clang-19
@@ -44,10 +43,6 @@ jobs:
         run: |
           echo "CC=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "CXX=${{ matrix.cxx }}" >> $GITHUB_ENV
-
-      - name: Setup Wayland
-        run: |
-          sudo apt-get install -y libwayland-dev wayland-protocols libxkbcommon-dev libegl1-mesa-dev
 
       - name: Download Clang-19
         if: matrix.compiler == 'clang-19'
