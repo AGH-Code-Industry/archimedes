@@ -1,3 +1,3 @@
 #pragma once
 
-#define ARCHIMEDES_VERSION 20'250'825
+#define ARCHIMEDES_VERSION 20'250'828

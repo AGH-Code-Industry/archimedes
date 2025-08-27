@@ -8,7 +8,7 @@ endif()
 
 project(
         archimedes
-        VERSION 2025.08.25
+        VERSION 2025.08.28
         LANGUAGES CXX C
 )
 
