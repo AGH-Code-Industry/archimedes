@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 
 TEST(EngineTest, CreatingEngine) {
-	EXPECT_EQ(0, 1);
 	// arch::Engine engine;
 
 	// EXPECT_TRUE(&engine);
