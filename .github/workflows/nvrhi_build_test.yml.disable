@@ -1,4 +1,4 @@
-name: NVRHI build test
+name: NVRHI build & upload recipe
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     env:
       CONAN_LOGIN_USERNAME: gh-actions
@@ -45,19 +45,9 @@ jobs:
           [options]
           shared=False
           '@
-          # [settings]
-          # arch=x86_64
-          # build_type=Debug
-          # compiler=gcc
-          # compiler.cppstd=23
-          # compiler.libcxx=libstdc++11
-          # compiler.version=14
-          # os=Linux
           $profilePath = "$env:USERPROFILE\.conan2\profiles\msvc_debug"
           New-Item -ItemType Directory -Force -Path (Split-Path $profilePath)
           $profileContent | Out-File -FilePath $profilePath -Encoding UTF8
-          echo "##### msvc_debug #####"
-          gc "$env:USERPROFILE\.conan2\profiles\msvc_debug"
 
       - name: Clone NVRHI
         run: git clone --recursive https://github.com/NVIDIAGameWorks/nvrhi.git
@@ -73,7 +63,7 @@ jobs:
 
           class NvrhiConan(ConanFile):
               name = 'nvrhi'
-              version = '2025.08.19'
+              version = '2025.08.19' # adjust to day of build
               license = 'MIT'
               url = 'https://github.com/NVIDIAGameWorks/nvrhi'
               description = 'NVIDIA Rendering Hardware Interface'
@@ -138,8 +128,6 @@ jobs:
               def package_info(self):
                   self.cpp_info.libs = ['nvrhi']
           " > conanfile.py
-          echo "##### conanfile.py #####"
-          gc "conanfile.py"
 
           conan create . --build=missing --profile:all=msvc_debug
-          conan upload nvrhi/2025.08.19 -r $env:CONAN_REMOTE_NAME --only-recipe
+          conan upload nvrhi/* -r $env:CONAN_REMOTE_NAME --only-recipe
