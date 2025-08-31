@@ -1,3 +1,4 @@
+#include <ecs/EntityOperators.h>
 #include <scene/ChildrenIterator.h>
 #include <scene/Entity.h>
 #include <utils/Res.h>
