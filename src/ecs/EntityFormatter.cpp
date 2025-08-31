@@ -1,76 +1,59 @@
 #include <ecs/EntityFormatter.h>
+#include <ecs/EntityOperators.h>
 
 std::format_context::iterator std::formatter<arch::ecs::Entity>::format(
 	const arch::ecs::Entity entity,
 	std::format_context& ctx
 ) const noexcept {
-	const auto width = _hasIdx && _widthIdx < 0 ? std::visit_format_arg(*this, ctx.arg(-_widthIdx)) : _width;
+	const auto width = (_flags & Flags::hasIdx) ? std::visit_format_arg(*this, ctx.arg(_width)) : _width;
 
 	// max length:
-	// 0b<48 chars><sep>0b<16 chars>
+	// 0b<48 bits><1 separator>0b<16 bits>
 	static_assert(2 + 48 + 1 + 2 + 16 == 69);
 	// I did not made this up
 	char entityStr[69]{};
 	char* end = nullptr;
 
-	auto id = arch::ecs::_details::EntityTraits::Id::part(entity);
+#define IF_TYPE(to, type, prefix, ...)                           \
+	if (_type == (#type)[0]) {                                   \
+		end = std::format_to(to, prefix #type "}", __VA_ARGS__); \
+	}
 
-	// <format>'s format strings need to be constexpr
-	if (id == arch::ecs::_details::EntityTraits::Id::null) {
+#define ELSE_IF_TYPE(to, type, prefix, ...) else IF_TYPE(to, type, prefix, __VA_ARGS__)
+
+#define FORMAT_WITH_PREFIX(to, prefix, ...)  \
+	IF_TYPE(to, b, prefix, __VA_ARGS__)      \
+	ELSE_IF_TYPE(to, B, prefix, __VA_ARGS__) \
+	ELSE_IF_TYPE(to, o, prefix, __VA_ARGS__) \
+	ELSE_IF_TYPE(to, x, prefix, __VA_ARGS__) \
+	ELSE_IF_TYPE(to, X, prefix, __VA_ARGS__) \
+	ELSE_IF_TYPE(to, d, prefix, __VA_ARGS__)
+
+	auto id = *entity;
+
+	if (id == arch::ecs::nullID) {
 		end = std::format_to(entityStr, "null");
-	} else if (_prefix) {
-		if (_type == 'b') {
-			end = std::format_to(entityStr, "{:#b}", id);
-		} else if (_type == 'o') {
-			end = std::format_to(entityStr, "{:#o}", id);
-		} else if (_type == 'x') {
-			end = std::format_to(entityStr, "{:#x}", id);
-		} else /* if (_type == 'd') */ {
-			end = std::format_to(entityStr, "{}", id);
-		}
+	} else if (_flags & Flags::hasPrefix) {
+		FORMAT_WITH_PREFIX(entityStr, "{:#", id)
 	} else {
-		if (_type == 'b') {
-			end = std::format_to(entityStr, "{:b}", id);
-		} else if (_type == 'o') {
-			end = std::format_to(entityStr, "{:o}", id);
-		} else if (_type == 'x') {
-			end = std::format_to(entityStr, "{:x}", id);
-		} else /* if (_type == 'd') */ {
-			end = std::format_to(entityStr, "{}", id);
-		}
+		FORMAT_WITH_PREFIX(entityStr, "{:", id)
 	}
 
 	if (_versionSep) {
-		auto ver = arch::ecs::_details::EntityTraits::Version::part(entity);
-		if (ver == arch::ecs::_details::EntityTraits::Version::null) {
+		auto ver = ~entity;
+		if (ver == arch::ecs::nullVersion) {
 			end = std::format_to(end, "{}null", _versionSep);
-		} else if (_prefix) {
-			if (_type == 'b') {
-				end = std::format_to(end, "{}{:#b}", _versionSep, ver);
-			} else if (_type == 'o') {
-				end = std::format_to(end, "{}{:#o}", _versionSep, ver);
-			} else if (_type == 'x') {
-				end = std::format_to(end, "{}{:#x}", _versionSep, ver);
-			} else /* if (_type == 'd') */ {
-				end = std::format_to(end, "{}{}", _versionSep, ver);
-			}
+		} else if (_flags & Flags::hasPrefix) {
+			FORMAT_WITH_PREFIX(end, "{}{:#", _versionSep, ver)
 		} else {
-			if (_type == 'b') {
-				end = std::format_to(end, "{}{:b}", _versionSep, ver);
-			} else if (_type == 'o') {
-				end = std::format_to(end, "{}{:o}", _versionSep, ver);
-			} else if (_type == 'x') {
-				end = std::format_to(end, "{}{:x}", _versionSep, ver);
-			} else /* if (_type == 'd') */ {
-				end = std::format_to(end, "{}{}", _versionSep, ver);
-			}
+			FORMAT_WITH_PREFIX(end, "{}{:", _versionSep, ver)
 		}
 	}
 
 	const uint32_t len = end - entityStr;
 
 	if (len < width) {
-		auto fillLeft = _alignment == '^' ? (width - len) / 2 : (_alignment == '<' ? 0 : width - len);
+		auto fillLeft = _flags & Flags::alignCenter ? (width - len) / 2 : (_flags & Flags::alignLeft ? 0 : width - len);
 		auto fillRight = width - len - fillLeft;
 
 		for (; fillLeft; --fillLeft) {
