@@ -7,6 +7,7 @@
 #include "ecs/Domain.h"
 #include "ecs/Entity.h"
 #include "ecs/EntityFormatter.h"
+#include "ecs/EntityOperators.h"
 #include "ecs/EntityPool.h"
 #include "ecs/EntitySpecs.h"
 #include "ecs/EntityTraits.h"

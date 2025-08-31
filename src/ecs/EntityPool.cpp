@@ -1,4 +1,5 @@
 #include "utils/Assert.h"
+#include <ecs/EntityOperators.h>
 #include <ecs/EntityPool.h>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
@@ -14,12 +15,12 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 		const auto entity = Traits::Ent::fromParts(_size++, 0);
 
 		_dense.push_back(entity);
-		_sparseAssure(Traits::Id::part(entity)) = entity;
+		_sparseAssure(*entity) = entity;
 
 		return entity;
 	} else { // recycle
 		const auto entity = _dense[_size++];
-		auto&& inSparse = _sparseGet(Traits::Id::part(entity));
+		auto&& inSparse = _sparseGet(*entity);
 
 		inSparse = Traits::Ent::fromOthers(inSparse, entity);
 
@@ -28,12 +29,12 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 }
 
 EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
-	if (!containsID(Traits::Id::part(entity)) /*&& _size <= Traits::Id::max*/) {
-		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
+	if (!containsID(*entity) /*&& _size <= Traits::Id::max*/) {
+		auto& wantedSparse = _sparseGet(*entity);
 		auto& toSwapDense = _dense[_size++];
 
-		// std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
+		// std::swap(_dense[*wantedSparse], toSwapDense);
+		Traits::Id::swap(wantedSparse, _sparseGet(*toSwapDense));
 
 		toSwapDense = Traits::Ent::fromOthers(toSwapDense, entity);
 		wantedSparse = Traits::Ent::fromOthers(wantedSparse, toSwapDense);
@@ -48,8 +49,8 @@ EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 		auto& wantedSparse = _sparseGet(id);
 		auto& toSwapDense = _dense[_size++];
 
-		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(toSwapDense)));
+		std::swap(_dense[*wantedSparse], toSwapDense);
+		Traits::Id::swap(wantedSparse, _sparseGet(*toSwapDense));
 
 		wantedSparse = Traits::Ent::fromOthers(wantedSparse, toSwapDense);
 
@@ -60,12 +61,12 @@ EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 
 void EntityPool::kill(const EntityT entity) noexcept {
 	if (contains(entity)) {
-		auto& wantedSparse = _sparseGet(Traits::Id::part(entity));
+		auto& wantedSparse = _sparseGet(*entity);
 		auto& toSwapDense = _dense[--_size];
 
 		const auto temp = toSwapDense;
-		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(temp)));
+		std::swap(_dense[*wantedSparse], toSwapDense);
+		Traits::Id::swap(wantedSparse, _sparseGet(*temp));
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
@@ -78,8 +79,8 @@ void EntityPool::kill(const IdT id) noexcept {
 		auto& toSwapDense = _dense[--_size];
 
 		const auto temp = toSwapDense;
-		std::swap(_dense[Traits::Id::part(wantedSparse)], toSwapDense);
-		Traits::Id::swap(wantedSparse, _sparseGet(Traits::Id::part(temp)));
+		std::swap(_dense[*wantedSparse], toSwapDense);
+		Traits::Id::swap(wantedSparse, _sparseGet(*temp));
 
 		toSwapDense = Traits::Version::withNext(toSwapDense);
 		wantedSparse = Traits::Version::withNull(wantedSparse);
@@ -95,11 +96,11 @@ void EntityPool::kill(std::initializer_list<IdT> ids) noexcept {
 }
 
 EntityPool::Iterator EntityPool::find(const EntityT entity) noexcept {
-	return find(Traits::Id::part(entity));
+	return find(*entity);
 }
 
 EntityPool::ConstIterator EntityPool::find(const EntityT entity) const noexcept {
-	return find(Traits::Id::part(entity));
+	return find(*entity);
 }
 
 EntityPool::Iterator EntityPool::find(const IdT id) noexcept {

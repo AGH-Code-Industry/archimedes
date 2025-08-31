@@ -81,19 +81,17 @@ TEST(ECS, Entity_Recycle) {
 
 	// are entites queued in order they were killed?
 	for (int i = 0; i != entityCount; ++i) {
-		ASSERT_EQ(ETraits::Id::part(domain.newEntity()), ETraits::Id::part(entities.rbegin()[i]));
+		ASSERT_EQ(*domain.newEntity(), *entities.rbegin()[i]);
 	}
 
 	// are old entities dead?
 	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return !domain.alive(entity); }));
 
 	// were old entities recycled?
-	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return domain.contains(ETraits::Id::part(entity)); }));
+	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return domain.contains(*entity); }));
 
 	// were versions incremented?
-	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) {
-		return domain.version(ETraits::Id::part(entity)) == 1;
-	}));
+	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return domain.version(*entity) == 1; }));
 }
 
 namespace {

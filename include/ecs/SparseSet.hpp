@@ -1,3 +1,4 @@
+#include "EntityOperators.h"
 #include "SparseSet.h"
 
 namespace arch::ecs::_details {
@@ -53,23 +54,23 @@ const typename SparseSet::EntityT* SparseSet::_sparseTryCGet(const IdT id) const
 size_t SparseSet::find(const IdT id) const noexcept {
 	const auto sparsePtr = _sparseTryGet(id);
 
-	return sparsePtr && !Traits::Version::hasNull(*sparsePtr) ? Traits::Id::part(*sparsePtr) : (size_t)-1;
+	return sparsePtr && ~*sparsePtr != nullVersion ? **sparsePtr : (size_t)-1;
 }
 
 size_t SparseSet::find(const EntityT entity) const noexcept {
-	const auto sparsePtr = _sparseTryGet(Traits::Id::part(entity));
+	const auto sparsePtr = _sparseTryGet(*entity);
 
-	return sparsePtr && Traits::Version::equal(*sparsePtr, entity) ? Traits::Id::part(*sparsePtr) : (size_t)-1;
+	return sparsePtr && ~*sparsePtr == ~entity ? **sparsePtr : (size_t)-1;
 }
 
 typename SparseSet::VersionT SparseSet::version(const IdT id) const noexcept {
 	const auto sparsePtr = _sparseTryGet(id);
 
-	return sparsePtr ? Traits::Version::part(*sparsePtr) : Traits::Version::null;
+	return sparsePtr ? ~*sparsePtr : Traits::Version::null;
 }
 
 typename SparseSet::VersionT SparseSet::version(const EntityT entity) const noexcept {
-	return version(Traits::Id::part(entity));
+	return version(*entity);
 }
 
 bool SparseSet::containsID(const IdT id) const noexcept {
@@ -79,9 +80,9 @@ bool SparseSet::containsID(const IdT id) const noexcept {
 }
 
 bool SparseSet::contains(const EntityT entity) const noexcept {
-	const auto sparsePtr = _sparseTryGet(Traits::Id::part(entity));
+	const auto sparsePtr = _sparseTryGet(*entity);
 
-	return sparsePtr && Traits::Version::equal(*sparsePtr, entity);
+	return sparsePtr && ~*sparsePtr == ~entity;
 }
 
 } // namespace arch::ecs::_details
