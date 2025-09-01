@@ -69,7 +69,7 @@ jobs:
           build_type=${{ matrix.build_type }}
           compiler.cppstd=23
           " > ~/.conan2/profiles/archimedes
-          conan create . --build=missing --profile:all=archimedes
+          conan create . --build=missing --profile:all=archimedes -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload to remote"
         run: |
