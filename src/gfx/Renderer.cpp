@@ -1,8 +1,7 @@
-#include "gfx/Renderer.h"
-
 #include "../platform/nvrhi/NvrhiRenderer.h"
 #include "../platform/vulkan/VulkanRenderer.h"
-#include "Logger.h"
+#include <archimedes/Logger.h>
+#include <archimedes/gfx/Renderer.h>
 
 namespace arch::gfx {
 

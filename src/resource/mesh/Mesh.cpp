@@ -1,4 +1,4 @@
-#include "asset/mesh/Mesh.h"
+#include <archimedes/asset/mesh/Mesh.h>
 
 namespace arch::asset::mesh {
 

@@ -4,12 +4,12 @@
 #include <locale>
 #include <random>
 
-#include <Ecs.h>
-#include <Engine.h>
-#include <Font.h>
-#include <Input.h>
-#include <Scene.h>
-#include <Text.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Font.h>
+#include <archimedes/Input.h>
+#include <archimedes/Scene.h>
+#include <archimedes/Text.h>
 
 using namespace arch;
 
@@ -60,12 +60,14 @@ class InputTestApp: public Application {
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
-		auto linePipeline = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
-			.textures = {},
-			.buffers = { uniformBuffer },
-		});
+		auto linePipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
 
 		{
 			auto line = testScene->newEntity();

@@ -1,6 +1,6 @@
-#include <Window.h>
-#include <input/Key.h>
-#include <input/Mouse.h>
+#include <archimedes/Window.h>
+#include <archimedes/input/Key.h>
+#include <archimedes/input/Mouse.h>
 
 namespace arch::input {
 

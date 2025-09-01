@@ -1,13 +1,12 @@
-#include "Engine.h"
-
-#include "Exception.h"
-#include "Gfx.h"
-#include "Logger.h"
-#include "font/FontDB.h"
-#include "resource/ModelLoader.h"
-#include "resource/TextureLoader.h"
-#include "scene/SceneManager.h"
-#include <input/System.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Exception.h>
+#include <archimedes/Gfx.h>
+#include <archimedes/Logger.h>
+#include <archimedes/font/FontDB.h>
+#include <archimedes/input/System.h>
+#include <archimedes/resource/ModelLoader.h>
+#include <archimedes/resource/TextureLoader.h>
+#include <archimedes/scene/SceneManager.h>
 
 namespace arch {
 

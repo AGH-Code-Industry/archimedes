@@ -1,0 +1,162 @@
+name: Build and upload archimedes to remote
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+
+    env:
+      CONAN_LOGIN_USERNAME: gh-actions
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
+      CONAN_REMOTE_NAME: conan_coin
+      CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [
+            # gcc-13,
+            gcc-14,
+            # clang-18,
+            # clang-19
+          ]
+        build_type: [Debug, Release, RelWithDebInfo]
+        include:
+          # - compiler: gcc-13
+          #   cxx: g++-13
+          - compiler: gcc-14
+            cxx: g++-14
+          # - compiler: clang-18
+          #   cxx: clang++-18
+          # - compiler: clang-19
+          #   cxx: clang++-19
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Environment setup
+        run: |
+          echo "CC=${{ matrix.compiler }}" >> $GITHUB_ENV
+          echo "CXX=${{ matrix.cxx }}" >> $GITHUB_ENV
+
+      - name: Download Clang-19
+        if: matrix.compiler == 'clang-19'
+        run: |
+          sudo apt-get install -y clang-19
+          
+      - name: Download Conan2
+        run: pip install conan==2.*
+
+      - name: Setup Conan
+        run: |
+          conan remote add $CONAN_REMOTE_NAME $CONAN_REMOTE_URL --force
+          conan remote login $CONAN_REMOTE_NAME $CONAN_LOGIN_USERNAME -p $CONAN_PASSWORD
+
+      - name: "Detect Conan profile"
+        run: |
+          conan profile detect --force
+      
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Package archimedes"
+        run: |
+          echo "
+          include(default)
+          [settings]
+          build_type=${{ matrix.build_type }}
+          compiler.cppstd=23
+          " > ~/.conan2/profiles/archimedes
+          conan create . --build=missing --profile:all=archimedes
+      
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload to remote"
+        run: |
+          conan upload "*" --confirm -r $CONAN_REMOTE_NAME
+
+  Windows:
+    runs-on: windows-2025
+
+    env:
+      CONAN_LOGIN_USERNAME: gh-actions
+      CONAN_PASSWORD: ${{ secrets.CONAN_TOKEN }}
+      CONAN_REMOTE_NAME: conan_coin
+      CONAN_REMOTE_URL: https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [
+            # gcc-13,
+            # gcc-14,
+            # clang-18,
+            # clang-19,
+            # gcc, # gcc-14
+            cl # msvc
+          ]
+        build_type: [Debug, Release, RelWithDebInfo]
+        include:
+          # - compiler: gcc-13
+          #   cxx: g++-13
+          # - compiler: gcc-14
+          #   cxx: g++-14
+          # - compiler: clang-18
+          #   cxx: clang++-18
+          # - compiler: clang-19
+          #   cxx: clang++-19
+          # - compiler: gcc
+          #   cxx: g++
+          - compiler: cl
+            cxx: cl
+            profile_compiler: msvc
+            profile_compiler_version: 194
+          - build_type: Release
+            runtime_type: Release
+          - build_type: Debug
+            runtime_type: Debug
+          - build_type: RelWithDebInfo
+            runtime_type: Release
+
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Environment setup
+        run: |
+          "CC=${{ matrix.compiler }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CXX=${{ matrix.cxx }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.compiler == 'cl'
+        with:
+          arch: x64
+          
+      - name: Download Conan2
+        run: pip install conan==2.*
+
+      - name: Setup Conan
+        run: |
+          conan remote add $env:CONAN_REMOTE_NAME $env:CONAN_REMOTE_URL --force
+          conan remote login $env:CONAN_REMOTE_NAME $env:CONAN_LOGIN_USERNAME -p $env:CONAN_PASSWORD
+
+      - name: "Detect Conan profile"
+        run: |
+          conan profile detect --force
+
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Package archimedes"
+        run: |
+          echo '
+          include(default)
+          [settings]
+          build_type=${{ matrix.build_type }}
+          compiler.cppstd=23
+          ${{ matrix.compiler == 'cl' && 'compiler.runtime=dynamic' || '' }}
+          ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.runtime_type) || '' }}
+          ' > ~/.conan2/profiles/archimedes
+          conan create . --build=missing --profile:all=archimedes
+      
+      - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload to remote"
+        run: |
+          conan upload "*" --confirm -r $env:CONAN_REMOTE_NAME

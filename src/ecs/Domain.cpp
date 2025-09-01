@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include <ecs/Domain.h>
+#include <archimedes/ecs/Domain.h>
 
 namespace arch::ecs {
 

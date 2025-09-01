@@ -1,7 +1,6 @@
-#include "net/Init.h"
-
-#include "net/NetException.h"
-#include "net/Utilities.h"
+#include <archimedes/net/Init.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/Utilities.h>
 
 namespace arch::net {
 

@@ -1,4 +1,3 @@
-#include "Logger.h"
 #include "NvrhiRenderer.h"
 #include "buffer/NvrhiBufferManager.h"
 #include "buffer/NvrhiIndexBuffer.h"
@@ -9,6 +8,7 @@
 #include "pipeline/NvrhiPipeline.h"
 #include "pipeline/NvrhiPipelineManager.h"
 #include "texture/NvrhiTextureManager.h"
+#include <archimedes/Logger.h>
 
 namespace arch::gfx::nvrhi {
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "gfx/texture/Texture.h"
 #include "nvrhi/nvrhi.h"
-#include <Ref.h>
+#include <archimedes/Ref.h>
+#include <archimedes/gfx/texture/Texture.h>
 
 namespace arch::gfx::nvrhi::texture {
 class NvrhiTextureManager;

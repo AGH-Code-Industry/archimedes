@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <iostream>
 
-#include <font/Face.h>
-#include <font/MSDFAtlasGen.h>
+#include <archimedes/font/Face.h>
+#include <archimedes/font/MSDFAtlasGen.h>
 #include <freetype2/ft2build.h>
 #include <json/json.h>
 #include FT_FREETYPE_H
@@ -111,10 +111,12 @@ bool Face::load() noexcept {
 	}
 
 	for (auto&& kerning : json["kerning"]) {
-		auto [it, ignored] = _kerning.insert({
-			{ kerning["unicode1"].asUInt(), kerning["unicode2"].asUInt() },
-			kerning["advance"].asFloat()
-		 });
+		auto [it, ignored] = _kerning.insert(
+			{
+				{ kerning["unicode1"].asUInt(), kerning["unicode2"].asUInt() },
+				kerning["advance"].asFloat()
+		 }
+		);
 	}
 
 	// END loading from json

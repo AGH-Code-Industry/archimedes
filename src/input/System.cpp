@@ -1,9 +1,9 @@
-#include <input/Key.h>
-#include <input/KeyCode.h>
-#include <input/KeyState.h>
-#include <input/Mouse.h>
-#include <input/MouseButtonCode.h>
-#include <input/System.h>
+#include <archimedes/input/Key.h>
+#include <archimedes/input/KeyCode.h>
+#include <archimedes/input/KeyState.h>
+#include <archimedes/input/Mouse.h>
+#include <archimedes/input/MouseButtonCode.h>
+#include <archimedes/input/System.h>
 
 using Clock = std::chrono::high_resolution_clock;
 
