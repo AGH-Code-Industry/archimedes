@@ -6,7 +6,7 @@ from conan.tools.cmake import cmake_layout
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = '2025.08.28'
+	version = open('version.txt').read()
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'

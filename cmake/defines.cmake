@@ -3,6 +3,9 @@
 include_guard()
 
 add_compile_definitions(SPDLOG_USE_STD_FORMAT=1)
+# Parse & set version
+string(REPLACE "." "" ARCHIMEDES_VERSION_INT "${ARCHIMEDES_VERSION}")
+target_compile_definitions(archimedes PUBLIC ARCHIMEDES_VERSION=${ARCHIMEDES_VERSION_INT})
 
 # Add macros
 if(ARCHIMEDES_DEBUG)
