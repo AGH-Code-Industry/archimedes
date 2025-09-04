@@ -43,14 +43,14 @@ include("cmake/ninja_fix.cmake")
 # Add library behavior
 include("cmake/library.cmake")
 
+# Add macro defines
+include("cmake/defines.cmake")
+
 # Add installation behavior
 include("cmake/install.cmake")
 
 # Add lauch settings creation
 include("cmake/launch.cmake")
-
-# Add macro defines
-include("cmake/defines.cmake")
 
 # CMake targets
 include("cmake/targets.cmake")
