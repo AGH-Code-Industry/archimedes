@@ -4,10 +4,19 @@ from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
+from pathlib import Path
+
+# while packaging, this file is in 'e' directory
+# meanwhile, the version.txt is in 'es' directory
+def read_version() -> str:
+	version_path = Path.cwd() / 'version.txt'
+	if not version_path.exists():
+		version_path = Path.cwd().parent / 'es/version.txt'
+	return version_path.open().read().strip()
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = open('version.txt').read()
+	version = read_version()
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
@@ -38,6 +47,7 @@ class ArchimedesConan(ConanFile):
 		'CMakeLists.txt',
 		'conanfile_dev.py',
 		'conanfile.py',
+		'version.txt',
 	)
 	generators = 'CMakeDeps'
 	
