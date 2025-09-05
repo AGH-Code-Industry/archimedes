@@ -12,7 +12,10 @@ def read_version() -> str:
 	version_path = Path.cwd() / 'version.txt'
 	if not version_path.exists():
 		version_path = Path.cwd().parent / 'es/version.txt'
-	return version_path.open().read().strip()
+	version = version_path.open().read().strip()
+	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+		raise ValueError(f'\'{version}\' is not a valid version')
+	return version
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'

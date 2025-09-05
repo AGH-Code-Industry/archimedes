@@ -3,6 +3,13 @@
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import cmake_layout
+import re
+
+def read_version() -> str:
+	version = open('version.txt').read().strip()
+	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+		raise ValueError(f'\'{version}\' is not a valid version')
+	return version
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
