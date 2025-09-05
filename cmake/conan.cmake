@@ -104,7 +104,7 @@ else()
 endif()
 
 # find & include toolchain & conandeps
-file(GLOB_RECURSE ARCHIMEDES_TOOLCHAIN_CONANDEPS "${PROJECT_SOURCE_DIR}/*/conan_toolchain.cmake" "${PROJECT_SOURCE_DIR}/*/conandeps_legacy.cmake")
+file(GLOB_RECURSE ARCHIMEDES_TOOLCHAIN_CONANDEPS "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/*/conan_toolchain.cmake" "${PROJECT_SOURCE_DIR}/conan_files/${ARCHIMEDES_BUILD_TYPE}/*/conandeps_legacy.cmake")
 foreach(ARCHIMEDES_TOOLCHAIN_CONANDEPS_FILE ${ARCHIMEDES_TOOLCHAIN_CONANDEPS})
 	include(${ARCHIMEDES_TOOLCHAIN_CONANDEPS_FILE})
 endforeach()
