@@ -5,6 +5,7 @@ from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 from pathlib import Path
+import re
 
 # while packaging, this file is in 'e' directory
 # meanwhile, the version.txt is in 'es' directory
@@ -128,9 +129,9 @@ class ArchimedesConan(ConanFile):
 		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_DAY={version_day}')
 		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION={version_year}{version_month}{version_day}')
 
-		self.cpp_info.defines.append(f'ARCHIMEDES_DEBUG={1 if self.settings.build_type == 'Debug' else 0}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_RELEASE={0 if self.settings.build_type == 'Debug' else 1}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_DEBUG={1 if self.settings.build_type == "Debug" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_RELEASE={0 if self.settings.build_type == "Debug" else 1}')
 
-		self.cpp_info.defines.append(f'ARCHIMEDES_WINDOWS={1 if self.settings.os == 'Windows' else 0}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_LINUX={1 if self.settings.os == 'Linux' else 0}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_UNIX={1 if self.settings.os == 'Linux' else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_WINDOWS={1 if self.settings.os == "Windows" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_LINUX={1 if self.settings.os == "Linux" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_UNIX={1 if self.settings.os == "Linux" else 0}')
