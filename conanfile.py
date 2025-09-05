@@ -112,3 +112,22 @@ class ArchimedesConan(ConanFile):
 
 	def package_info(self):
 		self.cpp_info.libs = ['archimedes']
+
+		self.cpp_info.defines = []
+		
+		self.cpp_info.defines.append('SPDLOG_USE_STD_FORMAT=1')
+
+		version_year = self.version[0:4]
+		version_month = self.version[5:7]
+		version_day = self.version[8:10]
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_YEAR={version_year}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_MONTH={version_month}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_DAY={version_day}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION={version_year}{version_month}{version_day}')
+
+		self.cpp_info.defines.append(f'ARCHIMEDES_DEBUG={1 if self.settings.build_type == 'Debug' else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_RELEASE={0 if self.settings.build_type == 'Debug' else 1}')
+
+		self.cpp_info.defines.append(f'ARCHIMEDES_WINDOWS={1 if self.settings.os == 'Windows' else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_LINUX={1 if self.settings.os == 'Linux' else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_UNIX={1 if self.settings.os == 'Linux' else 0}')
