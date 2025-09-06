@@ -1,11 +1,10 @@
 #pragma once
 
-#include "physics/RigidBodyComponent.h"
-#include <Ecs.h>
-#include <Engine.h>
-#include <Scene.h>
-#include <physics/ColliderComponent.h>
-#include <physics/System.h>
+#include <archimedes/physics/RigidBodyComponent.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
+#include <archimedes/physics/ColliderComponent.h>
+#include <archimedes/physics/System.h>
 
 namespace physicsExample {
 using namespace arch;

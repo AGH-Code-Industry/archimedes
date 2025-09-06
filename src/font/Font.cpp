@@ -1,10 +1,10 @@
 #include <ranges>
 
-#include <font/Face.h>
-#include <font/Font.h>
-#include <font/FontDB.h>
+#include <archimedes/font/Face.h>
+#include <archimedes/font/Font.h>
+#include <archimedes/font/FontDB.h>
+#include <archimedes/utils/Assert.h>
 #include <freetype2/ft2build.h>
-#include <utils/Assert.h>
 #include FT_FREETYPE_H
 
 #define ft (reinterpret_cast<FT_Library&>(FontDB::get()._pimpl))

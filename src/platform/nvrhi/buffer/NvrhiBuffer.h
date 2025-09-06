@@ -1,6 +1,6 @@
 #pragma once
-#include "gfx/buffer/Buffer.h"
 #include "nvrhi/nvrhi.h"
+#include <archimedes/gfx/buffer/Buffer.h>
 
 namespace arch::gfx::nvrhi::buffer {
 class NvrhiBufferManager;

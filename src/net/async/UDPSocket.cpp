@@ -1,6 +1,5 @@
-#include "net/async/UDPSocket.h"
-
-#include "net/NetException.h"
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/async/UDPSocket.h>
 
 namespace arch::net::async {
 

@@ -1,18 +1,17 @@
-#include "physics/System.h"
-
-#include <physics/ColliderComponent.h>
-#include <physics/RigidBodyComponent.h>
-#include "ecs/View.h"
-#include "scene/components/TransformComponent.h"
-
-using TransformComponent = arch::scene::components::TransformComponent;
+#include <archimedes/ecs/Domain.h>
+#include <archimedes/ecs/View.h>
+#include <archimedes/math/Math.h>
+#include <archimedes/physics/System.h>
+#include <archimedes/physics/RigidBodyComponent.h>
+#include <archimedes/scene/components/TransformComponent.h>
+#include <archimedes/physics/ColliderComponent.h>
 
 namespace arch::physics {
 
 System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
 f32 System::update() {
-	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
+	auto viewRigidBodies = _domain.view<RigidBodyComponent, scene::components::TransformComponent>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();

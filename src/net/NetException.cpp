@@ -1,4 +1,4 @@
-#include "net/NetException.h"
+#include <archimedes/net/NetException.h>
 
 namespace arch::net {
 

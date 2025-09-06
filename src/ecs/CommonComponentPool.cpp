@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include <ecs/CommonComponentPool.h>
+#include <archimedes/ecs/CommonComponentPool.h>
 
 namespace arch::ecs::_details { // NOLINT
 

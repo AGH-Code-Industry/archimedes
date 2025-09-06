@@ -1,12 +1,12 @@
 #pragma once
 #include <thread>
 
-#include <Application.h>
-#include <Ecs.h>
-#include <Engine.h>
-#include <Scene.h>
-#include <audio/AudioManager.h>
-#include <audio/SoundDevice.h>
+#include <archimedes/Application.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
+#include <archimedes/audio/AudioManager.h>
+#include <archimedes/audio/SoundDevice.h>
 
 using namespace arch;
 
@@ -49,18 +49,22 @@ struct GraphicsManager {
 		texture = renderer->getTextureManager()->createTexture2D(1, 1, pixels);
 		uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
-		pipeline = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default.glsl",
-			.textures = { texture },
-			.buffers = { uniformBuffer },
-		});
-		pipeline2 = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
-			.textures = {},
-			.buffers = { uniformBuffer },
-		});
+		pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default.glsl",
+				.textures = { texture },
+				.buffers = { uniformBuffer },
+			}
+		);
+		pipeline2 = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
 		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 	}
 

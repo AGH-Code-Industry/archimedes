@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Exception.h"
+#include <archimedes/Exception.h>
 
 namespace arch::gfx::nvrhi::exception {
 
@@ -9,4 +9,4 @@ public:
 	NvrhiException(const std::string& message, const std::source_location& location = std::source_location::current());
 };
 
-} // namespace arch::gfx::nvrhi::exceptions
+} // namespace arch::gfx::nvrhi::exception

@@ -1,6 +1,6 @@
-include_guard()
+# Automatic setup for launch targets for Visual Studio (including workdir)
 
-# adds interface for automatically setting run as working directory in Visual Studio
+include_guard()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 	# make global targets list
@@ -15,7 +15,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 		set_property(GLOBAL PROPERTY LAUNCH_VISUAL_STUDIO_LIST "${CURR}")
 	endfunction()
 
-	# creates .vs/launch.vs.json from targets list
+	# creates launch.vs.json from targets list
 	function(LaunchVisualStudioMake)
 		get_property(TARGETS_LIST GLOBAL PROPERTY LAUNCH_VISUAL_STUDIO_LIST)
 		set(LAUNCH_VISUAL_STUDIO_PATH "${CMAKE_SOURCE_DIR}/.vs/launch.vs.json")
@@ -28,6 +28,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 		)
 
 		foreach(EXE_TARGET ${TARGETS_LIST})
+			# write config for each target
 			string(APPEND LAUNCH_VISUAL_STUDIO_STR 
 "
 		{
@@ -40,7 +41,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 			)
 		endforeach()
 
-		# remove comma
+		# remove last comma
 		string(LENGTH ${LAUNCH_VISUAL_STUDIO_STR} LEN)
 		math(EXPR LEN "${LEN}-1")
 		string(SUBSTRING ${LAUNCH_VISUAL_STUDIO_STR} 0 ${LEN} LAUNCH_VISUAL_STUDIO_STR)
@@ -51,10 +52,11 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.vs" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.vs")
 }
 "
 		)
+		# write file
 		file(WRITE ${LAUNCH_VISUAL_STUDIO_PATH} ${LAUNCH_VISUAL_STUDIO_STR})
 	endfunction()
 else()
-	# empty variants if not VS
+	# empty variants if not Visual Studio
 
 	function(LaunchVisualStudioAddTarget EXE_TARGET)
 	endfunction()

@@ -1,6 +1,6 @@
 #include <tuple>
 
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
 #include <gtest/gtest.h>
 
 namespace ecs = arch::ecs;

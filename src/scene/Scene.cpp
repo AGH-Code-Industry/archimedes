@@ -1,9 +1,9 @@
-#include <Scene.h>
-#include <scene/Entity.h>
-#include <scene/NameComponent.h>
-#include <scene/TagDB.h>
-#include <scene/Tags.h>
-#include <utils/UUID.h>
+#include <archimedes/Scene.h>
+#include <archimedes/scene/Entity.h>
+#include <archimedes/scene/NameComponent.h>
+#include <archimedes/scene/TagDB.h>
+#include <archimedes/scene/Tags.h>
+#include <archimedes/utils/UUID.h>
 
 namespace arch::scene {
 
@@ -52,7 +52,7 @@ void Scene::removeEntity(const ecs::Entity entity) noexcept {
 	node._unparent();
 
 	untag(entity);
-  
+
 	_domain.kill(node._entity);
 }
 

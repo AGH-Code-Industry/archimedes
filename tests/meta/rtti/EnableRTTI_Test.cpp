@@ -1,5 +1,5 @@
+#include <archimedes/meta/Rtti.h>
 #include <gtest/gtest.h>
-#include <meta/Rtti.h>
 
 class FooBase {
 	THIS_T(FooBase);

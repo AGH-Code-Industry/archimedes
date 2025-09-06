@@ -1,86 +1,27 @@
 #pragma once
 
-#include "physics/RigidBodyComponent.h"
-#include <Ecs.h>
-#include <Engine.h>
-#include <Scene.h>
-#include <physics/ColliderComponent.h>
-#include <physics/System.h>
-#include <InputHandler.h>
+#include <archimedes/physics/RigidBodyComponent.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
+#include <archimedes/physics/ColliderComponent.h>
+#include <archimedes/physics/System.h>
+#include <archimedes/Input.h>
 
 
 namespace physicsExample {
 using namespace arch;
 namespace phy = physics;
 
-enum MoveDirection {
-	up,
-	down,
-	left,
-	right
-};
 
 struct InteractiveCollisionTestApp final: Application {
 
 	std::mutex mutex;
 	ecs::Entity player;
 	Ref<Scene> scene;
-	std::unordered_map<MoveDirection, bool> moves;
 
 	float velocityBase = 1.0f;
 
-	float3 directionToVector(MoveDirection direction) {
-		switch (direction) {
-			case up:	return { 0.0f, velocityBase, 0.0f };
-			case down:	return { 0.0f, -velocityBase, 0.0f };
-			case left:	return { -velocityBase, 0.0f, 0.0f };
-			case right: return { velocityBase, 0.0f, 0.0f };
-		}
-		return {0.0f, 0.0f, 0.0f};
-	}
-
-	void addHandlers() {
-		InputHandler::get().bindKey('W', [&](int action) {
-			auto lock = std::lock_guard(mutex);
-			if (action == GLFW_PRESS) {
-				moves[up] = true;
-			}
-			else if (action == GLFW_RELEASE) {
-				moves[up] = false;
-			}
-		});
-		InputHandler::get().bindKey('S', [&](int action) {
-			auto lock = std::lock_guard(mutex);
-			if (action == GLFW_PRESS) {
-				moves[down] = true;
-			}
-			else if (action == GLFW_RELEASE) {
-				moves[down] = false;
-			}
-		});
-		InputHandler::get().bindKey('D', [&](int action) {
-			auto lock = std::lock_guard(mutex);
-			if (action == GLFW_PRESS) {
-				moves[right] = true;
-			}
-			else if (action == GLFW_RELEASE) {
-				moves[right] = false;
-			}
-		});
-		InputHandler::get().bindKey('A', [&](int action) {
-			auto lock = std::lock_guard(mutex);
-			if (action == GLFW_PRESS) {
-				moves[left] = true;
-			}
-			else if (action == GLFW_RELEASE) {
-				moves[left] = false;
-			}
-		});
-
-	}
-
 	void init() override {
-		addHandlers();
 		scene = createRef<Scene>();
 
 		// 2D square
@@ -185,17 +126,26 @@ struct InteractiveCollisionTestApp final: Application {
 		_physicsSystem = createRef<phy::System>(std::ref(scene->domain()));
 	}
 
-	void update() override {
+	float3 getVelocity() {
+		auto lock = std::lock_guard(mutex);
 		float3 velocity{};
-		{
-			auto lock = std::lock_guard(mutex);
-			for (auto& [direction, isMoving] : std::views::all(moves)) {
-				if (isMoving) {
-					velocity += directionToVector(direction);
-				}
-			}
-
+		if (Keyboard::W.down()) {
+			velocity += float3{0.0f, 1.0f, 0.0f};
 		}
+		if (Keyboard::S.down()) {
+			velocity -= float3{0.0f, 1.0f, 0.0f};
+		}
+		if (Keyboard::A.down()) {
+			velocity -= float3{1.0f, 0.0f, 0.0f};
+		}
+		if (Keyboard::D.down()) {
+			velocity += float3{1.0f, 0.0f, 0.0f};
+		}
+		return velocity;
+	}
+
+	void update() override {
+		const float3 velocity = velocityBase * getVelocity();
 		scene->domain().getComponent<phy::RigidBodyComponent>(player).velocity = velocity;
 		_physicsSystem->update();
 	}

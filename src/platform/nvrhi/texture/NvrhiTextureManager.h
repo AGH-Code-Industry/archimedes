@@ -1,7 +1,7 @@
 #pragma once
 #include "NvrhiTexture.h"
-#include "gfx/texture/TextureManager.h"
 #include "nvrhi/nvrhi.h"
+#include <archimedes/gfx/texture/TextureManager.h>
 
 namespace arch::gfx::nvrhi {
 class NvrhiRenderer;
@@ -9,7 +9,9 @@ class NvrhiRenderer;
 
 namespace arch::gfx::nvrhi::texture {
 
-class NvrhiTextureManager final: public gfx::texture::TextureManager, public std::enable_shared_from_this<NvrhiTextureManager> {
+class NvrhiTextureManager final:
+	public gfx::texture::TextureManager,
+	public std::enable_shared_from_this<NvrhiTextureManager> {
 public:
 	NvrhiTextureManager(const WeakRef<NvrhiRenderer>& renderer);
 	~NvrhiTextureManager() override = default;
@@ -29,6 +31,7 @@ private:
 	friend class NvrhiTexture;
 
 	void _setTextureData(const NvrhiTexture& texture, const void* data) const;
+
 private:
 	WeakRef<NvrhiRenderer> _renderer;
 	::nvrhi::CommandListHandle _stageCommandBuffer;

@@ -20,9 +20,10 @@ Testing/
 .vscode
 CMakeUserPresets.json
 compile_commands.json
-cmake/conan_files/
+conan_files/
 CMakeSettings.json
 cmake-build-*
 cmake/conanfile.hash
 *cache*
 .run/
+out/

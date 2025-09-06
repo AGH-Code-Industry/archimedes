@@ -1,8 +1,8 @@
-#include <font/Face.h>
-#include <font/Font.h>
-#include <font/FontDB.h>
-#include <font/FontException.h>
-#include <text/TextComponent.h>
+#include <archimedes/font/Face.h>
+#include <archimedes/font/Font.h>
+#include <archimedes/font/FontDB.h>
+#include <archimedes/font/FontException.h>
+#include <archimedes/text/TextComponent.h>
 
 namespace arch::text {
 
@@ -190,12 +190,12 @@ void TextComponent::_compute(std::vector<Ref<gfx::buffer::Buffer>> buffers) noex
 	_bottomRight = float3{ localMin.x, localMax.y, 0 };
 
 	_mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
-	_pipeline =
-		gfx::Renderer::getCurrent()->getPipelineManager()->create({ .vertexShaderPath = "shaders/vertex_default.glsl",
-																	.fragmentShaderPath =
-																		"shaders/text/fragment_atlas.glsl",
-																	.textures = { _face->atlasTexture() },
-																	.buffers = std::move(buffers) });
+	_pipeline = gfx::Renderer::getCurrent()->getPipelineManager()->create(
+		{ .vertexShaderPath = "shaders/vertex_default.glsl",
+		  .fragmentShaderPath = "shaders/text/fragment_atlas.glsl",
+		  .textures = { _face->atlasTexture() },
+		  .buffers = std::move(buffers) }
+	);
 }
 
 } // namespace arch::text

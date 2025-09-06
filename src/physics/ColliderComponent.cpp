@@ -1,7 +1,6 @@
-#include <physics/Collisions.hpp>
+#include <archimedes/physics/Collisions.hpp>
 
-#include <physics/ColliderComponent.h>
-#include <physics/PhysicsException.h>
+#include <archimedes/physics/ColliderComponent.h>
 
 namespace arch::physics {
 bool ColliderComponent::areColliding(const ColliderComponent& lhs, const ColliderComponent& rhs) {

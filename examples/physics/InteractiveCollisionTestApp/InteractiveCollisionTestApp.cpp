@@ -1,6 +1,6 @@
 #include "InteractiveCollisionTestApp.h"
-#include <Engine.h>
-#include <Logger.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Logger.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);

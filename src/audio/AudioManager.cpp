@@ -1,11 +1,11 @@
-#include <Logger.h>
-#include <audio/AudioException.h>
-#include <audio/AudioManager.h>
-#include <ecs/View.h>
+#include <archimedes/Logger.h>
+#include <archimedes/audio/AudioException.h>
+#include <archimedes/audio/AudioManager.h>
+#include <archimedes/ecs/View.h>
 
 namespace arch::audio {
 
-AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank){
+AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank) {
 	for (int i = 0; i < 16; i++) {
 		_sources[i].initialize(soundBank);
 		_sourceStates[i] = unused;
@@ -36,17 +36,14 @@ void AudioManager::play() {
 						_sourceStates[source] = stopped;
 					}
 					break;
-				case paused:
-					_sources[source].pausePlaying();
-					break;
+				case paused: _sources[source].pausePlaying(); break;
 				case stopped:
 					if (_sources[source].stopPlaying()) {
 						_sources[source].clean();
 						_sourceStates[source] = removed;
 					}
 					break;
-				default:
-					break;
+				default: break;
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -78,7 +75,6 @@ void AudioManager::rewindSource(AudioSourceComponent& source) {
 		_sourceStates[source._id] = playing;
 	}
 }
-
 
 void AudioManager::pauseSource(const AudioSourceComponent& source) {
 	if (source._id == -1) {
@@ -115,9 +111,11 @@ void AudioManager::assignSource(AudioSourceComponent& source) {
 	Logger::info("Audio system: audio manager assigned Source with index {}", index);
 }
 
-
-void AudioManager::assignSource(AudioSourceComponent& source, const scene::components::TransformComponent& transform,
-	const physics::RigidBodyComponent& moveable) {
+void AudioManager::assignSource(
+	AudioSourceComponent& source,
+	const scene::components::TransformComponent& transform,
+	const physics::RigidBodyComponent& moveable
+) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
 		throw AudioException("Audio manager can't find empty source slot");
@@ -145,11 +143,9 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			_dontRemoveFinished[audioSource._id] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", audioSource._id);
 			audioSource._id = -1;
-		}
-		else if (transform.hasValue() && moveable.hasValue()) {
+		} else if (transform.hasValue() && moveable.hasValue()) {
 			updateSource(audioSource, transform.get(), moveable.get());
-		}
-		else {
+		} else {
 			updateSource(audioSource);
 		}
 	}
@@ -158,7 +154,6 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			_sourceStates[source] = unused;
 			_dontRemoveFinished[source] = false;
 			Logger::info("Audio system: audio manager removed Source with index {}", source);
-
 		}
 	}
 
@@ -175,8 +170,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			auto moveable = domain.tryGetComponent<physics::RigidBodyComponent>(entity);
 			if (transform.hasValue() && moveable.hasValue()) {
 				updateListener(listener, transform.get(), moveable.get());
-			}
-			else {
+			} else {
 				updateListener(listener);
 			}
 			if (!_listenerSet) {
@@ -238,8 +232,12 @@ void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener)
 	updateListener(listener);
 }
 
-void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener, const scene::components::TransformComponent& transform,
-	const physics::RigidBodyComponent& moveable) {
+void AudioManager::setListener(
+	ecs::Domain& domain,
+	ListenerComponent& listener,
+	const scene::components::TransformComponent& transform,
+	const physics::RigidBodyComponent& moveable
+) {
 	auto view = domain.view<ListenerComponent>();
 	for (auto [entity, listener] : view.all()) {
 		listener._isActive = false;

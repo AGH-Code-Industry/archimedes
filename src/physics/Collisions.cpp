@@ -1,4 +1,4 @@
-#include <physics/Collisions.hpp>
+#include <archimedes/physics/Collisions.hpp>
 
 namespace arch::physics {
 	bool checkCollision(const AABB& lhs, const AABB& rhs) {
