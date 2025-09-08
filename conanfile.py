@@ -4,10 +4,23 @@ from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
+from pathlib import Path
+import re
+
+# while packaging, this file is in 'e' directory
+# meanwhile, the version.txt is in 'es' directory
+def read_version() -> str:
+	version_path = Path.cwd() / 'version.txt'
+	if not version_path.exists():
+		version_path = Path.cwd().parent / 'es/version.txt'
+	version = version_path.open().read().strip()
+	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+		raise ValueError(f'\'{version}\' is not a valid version')
+	return version
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = '2025.08.28'
+	version = read_version()
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
@@ -38,6 +51,7 @@ class ArchimedesConan(ConanFile):
 		'CMakeLists.txt',
 		'conanfile_dev.py',
 		'conanfile.py',
+		'version.txt',
 	)
 	generators = 'CMakeDeps'
 	
@@ -102,3 +116,22 @@ class ArchimedesConan(ConanFile):
 
 	def package_info(self):
 		self.cpp_info.libs = ['archimedes']
+
+		self.cpp_info.defines = []
+		
+		self.cpp_info.defines.append('SPDLOG_USE_STD_FORMAT=1')
+
+		version_year = self.version[0:4]
+		version_month = self.version[5:7]
+		version_day = self.version[8:10]
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_YEAR={version_year}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_MONTH={version_month}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_DAY={version_day}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION={version_year}{version_month}{version_day}')
+
+		self.cpp_info.defines.append(f'ARCHIMEDES_DEBUG={1 if self.settings.build_type == "Debug" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_RELEASE={0 if self.settings.build_type == "Debug" else 1}')
+
+		self.cpp_info.defines.append(f'ARCHIMEDES_WINDOWS={1 if self.settings.os == "Windows" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_LINUX={1 if self.settings.os == "Linux" else 0}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_UNIX={1 if self.settings.os == "Linux" else 0}')
