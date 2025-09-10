@@ -74,7 +74,6 @@ class ArchimedesConan(ConanFile):
 		self.requires('libsndfile/1.2.2')
 
 		# Font atlas generator
-		self.requires('msdf-atlas-gen/1.3')
 		self.requires('freetype/2.13.2')
 
 		# Vulkan SDK
