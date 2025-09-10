@@ -6,6 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 from pathlib import Path
 import re
+import subprocess
 
 # while packaging, this file is in 'e' directory
 # meanwhile, the version.txt is in 'es' directory
@@ -84,6 +85,9 @@ class ArchimedesConan(ConanFile):
 
 		# SPIRV (Shader compiler)
 		self.requires('shaderc/2023.6')
+
+		# msdf-atlas-gen
+		subprocess.run(['conan', 'install', '--requires=msdf-atlas-gen/1.3', '--build=missing'])
 
 	def configure(self):
 		self.options['spdlog/1.12.0'].use_std_fmt = True
