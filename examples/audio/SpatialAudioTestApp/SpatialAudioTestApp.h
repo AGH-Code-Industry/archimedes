@@ -33,7 +33,7 @@ struct SpatialAudioTestApp: Application {
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline });
 		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
-		moveable.velocity = float3{ 0.0f, 0.0f, 0.0f };
+		moveable.linearVelocity = float3{ 0.0f, 0.0f, 0.0f };
 		auto& listener = e.addComponent<audio::ListenerComponent>();
 		soundManager.audioManager->setListener(domain, listener, transform, moveable);
 	}
@@ -47,7 +47,7 @@ struct SpatialAudioTestApp: Application {
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
 		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
-		moveable.velocity = sourceVelocity;
+		moveable.linearVelocity = sourceVelocity;
 		auto& source = e.addComponent<audio::AudioSourceComponent>();
 		source.path = soundFile;
 		source.isLooped = true;
@@ -86,8 +86,8 @@ struct SpatialAudioTestApp: Application {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
 			transform.position.x = listenerPosition.x + radius * std::cos(angle);
 			transform.position.y = listenerPosition.y + radius * std::sin(angle);
-			moveable.velocity.x = radius * std::sin(angle);
-			moveable.velocity.y = radius * std::cos(angle);
+			moveable.linearVelocity.x = radius * std::sin(angle);
+			moveable.linearVelocity.y = radius * std::cos(angle);
 		}
 		circleStep = (circleStep + 1) % stepsLimit;
 		soundManager.audioManager->synchronize(domain);

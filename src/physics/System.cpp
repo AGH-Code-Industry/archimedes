@@ -18,17 +18,21 @@ f32 System::update() {
 
 	for (auto [entity, rigidBody, transform] : viewRigidBodies.all()) {
 		// update position
-		transform.position += rigidBody.velocity * t;
+		transform.position += rigidBody.linearVelocity * t;
+
+		// update rotation
+		transform.rotation *= quaternion(rigidBody.angularVelocity * t);
+		transform.rotation = glm::normalize(transform.rotation);
 
 		// update speed
 		const float3 a = rigidBody.force / rigidBody.mass;
-		rigidBody.velocity += a * t;
+		rigidBody.linearVelocity += a * t;
 
 		auto collider = _domain.tryGetComponent<ColliderComponent>(entity);
 
 		if (collider.hasValue()) {
 			std::visit([&](auto& shape) {
-				shape.update(rigidBody.velocity, t);
+				shape.update(rigidBody.linearVelocity, t);
 			}, collider.get().shape);
 		}
 

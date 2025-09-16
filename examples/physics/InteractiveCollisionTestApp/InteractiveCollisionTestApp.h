@@ -18,7 +18,8 @@ struct InteractiveCollisionTestApp final: Application {
 	ecs::Entity player;
 	Ref<Scene> scene;
 
-	float velocityBase = 1.0f;
+	f32 linearVelocityBase = 1.0f;
+	f32 angularVelocityBase = glm::pi<f32>() / 4.0f;
 
 	void init() override {
 		scene = createRef<Scene>();
@@ -30,11 +31,12 @@ struct InteractiveCollisionTestApp final: Application {
 		};
 
 		std::vector<Vertex> vertices{
-			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
-			{ { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
-			{ { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
+		    { { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
+			{ {  0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
+			{ {  0.25f,  0.25f, 0.1f }, { 1.f, 1.f } },
+			{ { -0.25f,  0.25f, 0.1f }, { 0.f, 1.f } },
 		};
+
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 
 		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
@@ -84,7 +86,7 @@ struct InteractiveCollisionTestApp final: Application {
 			phy::ColliderComponent{
 				.type = phy::aabb,
 				.shape = phy::AABB (
-						position,
+						position - float3{0.25f, -0.25f, 0.0f},
 						position + float3{ 0.25f, -0.25f , 0.0f}
 				),
 				.action = collision,
@@ -107,14 +109,14 @@ struct InteractiveCollisionTestApp final: Application {
 			phy::RigidBodyComponent{
 				.mass = 5.f,
 				.force = { 0.f, 0.f, 0.f },
-				.velocity = { 0.f, 0.f, 0.f } ,
+				.linearVelocity = { 0.f, 0.f, 0.f } ,
 			}
 		);
 		scene->domain().addComponent(e2,
 			phy::ColliderComponent{
 				.type = phy::aabb,
 				.shape = phy::AABB (
-						position,
+						position - float3{0.25f, -0.25f, 0.0f},
 						position + float3{0.25f, -0.25f, 0.0f}
 				),
 				.action = collision,
@@ -125,7 +127,7 @@ struct InteractiveCollisionTestApp final: Application {
 		_physicsSystem = createRef<phy::System>(std::ref(scene->domain()));
 	}
 
-	float3 getVelocity() {
+	float3 getLinearVelocity() {
 		auto lock = std::lock_guard(mutex);
 		float3 velocity{};
 		if (Keyboard::W.down()) {
@@ -143,9 +145,23 @@ struct InteractiveCollisionTestApp final: Application {
 		return velocity;
 	}
 
+	f32 getAngularVelocity() {
+		f32 velocity{};
+		if (Keyboard::Q.down()) {
+			velocity -= 1.0f;
+		}
+		if (Keyboard::E.down()) {
+			velocity += 1.0f;
+		}
+		return velocity;
+	}
+
 	void update() override {
-		const float3 velocity = velocityBase * getVelocity();
-		scene->domain().getComponent<phy::RigidBodyComponent>(player).velocity = velocity;
+		const float3 linearVelocity = linearVelocityBase * getLinearVelocity();
+		const f32 angularVelocity = angularVelocityBase * getAngularVelocity();
+		auto& rigidBody = scene->domain().getComponent<phy::RigidBodyComponent>(player);
+		rigidBody.linearVelocity = linearVelocity;
+		rigidBody.angularVelocity = angularVelocity;
 		_physicsSystem->update();
 	}
 

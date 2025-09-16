@@ -53,16 +53,16 @@ struct RepulseTestApp final: Application {
 			phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
 			phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
 
-			float3 v1 = myBody.velocity * (myBody.mass - otherBody.mass);
-			v1 += 2 * otherBody.mass * otherBody.velocity;
+			float3 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
+			v1 += 2 * otherBody.mass * otherBody.linearVelocity;
 			v1 /= myBody.mass + otherBody.mass;
 
-			float3 v2 = otherBody.velocity * (otherBody.mass - myBody.mass);
-			v2 += 2 * myBody.mass * myBody.velocity;
+			float3 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
+			v2 += 2 * myBody.mass * myBody.linearVelocity;
 			v2 /= myBody.mass + otherBody.mass;
 
-			myBody.velocity = v1;
-			otherBody.velocity = v2;
+			myBody.linearVelocity = v1;
+			otherBody.linearVelocity = v2;
 		};
 
 		const ecs::Entity e1 = testScene->newEntity();
@@ -109,7 +109,7 @@ struct RepulseTestApp final: Application {
 			phy::RigidBodyComponent{
 				.mass = 5.f,
 				.force = { 0.f, 0.f, 0.f },
-				.velocity = { -0.1f, 0.f, 0.f } ,
+				.linearVelocity = { -0.1f, 0.f, 0.f } ,
 			}
 		);
 		testScene->domain().addComponent(e2,
