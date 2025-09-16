@@ -1,7 +1,6 @@
-#include "Window.h"
-
-#include "exceptions/GLFWException.h"
 #include <GLFW/glfw3.h>
+#include <archimedes/Window.h>
+#include <archimedes/exceptions/GLFWException.h>
 
 namespace arch {
 
@@ -23,6 +22,7 @@ void Window::_initialize(int width, int height, const char* name, GLFWmonitor* m
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	_window = glfwCreateWindow(width, height, name, monitor, window);
+	_size = { width, height };
 
 	if (!_window) {
 		glfwTerminate();
@@ -32,6 +32,10 @@ void Window::_initialize(int width, int height, const char* name, GLFWmonitor* m
 	glfwMakeContextCurrent(_window);
 	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
 
+	});
+	glfwSetWindowUserPointer(_window, this);
+	glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
+		((Window*)glfwGetWindowUserPointer(window))->_size = { width, height };
 	});
 }
 
@@ -45,6 +49,10 @@ void Window::setTitle(const std::string& title) const {
 
 GLFWwindow* Window::get() const {
 	return _window;
+}
+
+uint2 Window::getSize() const {
+	return _size;
 }
 
 void Window::swapBuffers() const {

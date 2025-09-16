@@ -1,11 +1,10 @@
-#include "scene/SceneManager.h"
-
 #include <ranges>
 #include <algorithm>
 
-#include "Ecs.h"
-#include "scene/Components.h"
-#include "text/TextComponent.h"
+#include <archimedes/Ecs.h>
+#include <archimedes/scene/Components.h>
+#include <archimedes/scene/SceneManager.h>
+#include <archimedes/text/TextComponent.h>
 
 namespace arch::scene {
 

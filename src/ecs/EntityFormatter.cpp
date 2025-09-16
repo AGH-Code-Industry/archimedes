@@ -1,5 +1,5 @@
-#include <ecs/EntityFormatter.h>
-#include <ecs/EntityOperators.h>
+#include <archimedes/ecs/EntityFormatter.h>
+#include <archimedes/ecs/EntityOperators.h>
 
 std::format_context::iterator std::formatter<arch::ecs::Entity>::format(
 	const arch::ecs::Entity entity,

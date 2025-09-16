@@ -1,6 +1,8 @@
+# Build type handling
+
 include_guard()
 
-# check build type
+# Check build type
 if(
     "${CMAKE_CONFIGURATION_TYPES}" STREQUAL Debug OR
     "${CMAKE_BUILD_TYPE}" STREQUAL Debug
@@ -9,9 +11,6 @@ if(
     set(ARCHIMEDES_RELEASE FALSE)
 
     set(ARCHIMEDES_BUILD_TYPE "Debug")
-    
-    add_compile_definitions(ARCHIMEDES_DEBUG=1)
-    add_compile_definitions(ARCHIMEDES_RELEASE=0)
 elseif(
     "${CMAKE_CONFIGURATION_TYPES}" STREQUAL "RelWithDebInfo" OR
     "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"
@@ -20,17 +19,13 @@ elseif(
     set(ARCHIMEDES_RELEASE TRUE)
     
     set(ARCHIMEDES_BUILD_TYPE "RelWithDebInfo")
-    
-    add_compile_definitions(ARCHIMEDES_DEBUG=0)
-    add_compile_definitions(ARCHIMEDES_RELEASE=1)
-else()
+else(
+	# Release or MinSizeRel
+)  
     set(ARCHIMEDES_DEBUG FALSE)
     set(ARCHIMEDES_RELEASE TRUE)
     
     set(ARCHIMEDES_BUILD_TYPE "Release")
-    
-    add_compile_definitions(ARCHIMEDES_DEBUG=0)
-    add_compile_definitions(ARCHIMEDES_RELEASE=1)
 endif()
 
 message(STATUS "Build mode: ${ARCHIMEDES_BUILD_TYPE}")

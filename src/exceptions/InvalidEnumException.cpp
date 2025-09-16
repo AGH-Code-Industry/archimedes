@@ -1,4 +1,4 @@
-#include "exceptions/InvalidEnumException.h"
+#include <archimedes/exceptions/InvalidEnumException.h>
 
 namespace arch {
 

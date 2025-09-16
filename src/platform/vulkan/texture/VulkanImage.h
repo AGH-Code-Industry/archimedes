@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Mmath.h"
-#include "Ref.h"
-#include "gfx/texture/TextureType.h"
+#include <archimedes/Mmath.h>
+#include <archimedes/Ref.h>
+#include <archimedes/gfx/texture/TextureType.h>
 #include <volk.h>
 
 namespace arch::gfx::vulkan {

@@ -4,7 +4,7 @@
 #include <regex>
 #include <string>
 
-#include <font/MSDFAtlasGen.h>
+#include <archimedes/font/MSDFAtlasGen.h>
 
 namespace arch::font {
 
@@ -44,7 +44,7 @@ void MSDFAtlasGen::_cachePath() noexcept {
 			inputFull += input;
 		}
 
-		auto regex = std::regex(R"regex(packages\s*(\S.*\S)\s*info)regex");
+		auto regex = std::regex(R"regex(packages\s*([a-f0-9]+)\s*info)regex");
 		std::smatch matches;
 		std::regex_search(inputFull, matches, regex);
 

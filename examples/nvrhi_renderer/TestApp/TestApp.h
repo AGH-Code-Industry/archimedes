@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Ecs.h>
-#include <Engine.h>
-#include <Scene.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
 
 using namespace arch;
 

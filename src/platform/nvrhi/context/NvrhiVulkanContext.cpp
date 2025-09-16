@@ -7,8 +7,8 @@
 #include "../NvrhiMessageCallback.h"
 #include "../NvrhiUtils.h"
 #include "../exception/NvrhiException.h"
-#include "Window.h"
 #include "nvrhi/vulkan.h"
+#include <archimedes/Window.h>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 

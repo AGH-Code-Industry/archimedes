@@ -1,7 +1,6 @@
-#include "net/UDPSocket.h"
-
-#include "net/IPv4.h"
-#include "net/NetException.h"
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/UDPSocket.h>
 
 namespace arch::net {
 

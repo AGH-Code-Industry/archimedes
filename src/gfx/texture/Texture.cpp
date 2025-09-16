@@ -1,4 +1,4 @@
-#include "gfx/texture/Texture.h"
+#include <archimedes/gfx/texture/Texture.h>
 
 namespace arch::gfx::texture {
 

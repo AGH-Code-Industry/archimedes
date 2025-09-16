@@ -4,7 +4,7 @@
 
 #include "VulkanContext.h"
 #include "VulkanUtils.h"
-#include "Window.h"
+#include <archimedes/Window.h>
 
 namespace arch::gfx::vulkan {
 

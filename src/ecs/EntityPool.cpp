@@ -1,6 +1,6 @@
-#include "utils/Assert.h"
-#include <ecs/EntityOperators.h>
-#include <ecs/EntityPool.h>
+#include <archimedes/utils/Assert.h>
+#include <archimedes/ecs/EntityOperators.h>
+#include <archimedes/ecs/EntityPool.h>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations

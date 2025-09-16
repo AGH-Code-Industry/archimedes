@@ -1,6 +1,5 @@
 #include <cstdint>
-
-#include <utils/ReadonlyCounter.h>
+#include <archimedes/utils/ReadonlyCounter.h>
 
 namespace arch::utils {
 

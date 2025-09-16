@@ -2,7 +2,7 @@
 
 #include "../VulkanRenderer.h"
 #include "../VulkanUtils.h"
-#include "gfx/Renderer.h"
+#include <archimedes/gfx/Renderer.h>
 
 namespace arch::gfx::vulkan::texture {
 

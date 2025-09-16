@@ -1,7 +1,6 @@
-#include "net/Socket.h"
-
-#include "net/IPv4.h"
-#include "net/NetException.h"
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/Socket.h>
 
 namespace arch::net {
 
@@ -153,7 +152,7 @@ Socket::UsableData Socket::usable() const {
 
 	int result = poll(&pollData, 1, 0);
 	if (result != 1) {
-		return {false, false};
+		return { false, false };
 	}
 	if (pollData.revents & POLLERR) {
 		retval = false;
@@ -162,7 +161,7 @@ Socket::UsableData Socket::usable() const {
 		retval = false;
 	}
 	if (not retval) {
-		return {false, false};
+		return { false, false };
 	}
 
 	UsableData data;
