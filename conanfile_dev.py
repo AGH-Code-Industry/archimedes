@@ -3,10 +3,18 @@
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
 from conan.tools.cmake import cmake_layout
+import re
+import subprocess
+
+def read_version() -> str:
+	version = open('version.txt').read().strip()
+	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+		raise ValueError(f'\'{version}\' is not a valid version')
+	return version
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = '2025.08.28'
+	version = read_version()
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
@@ -29,7 +37,6 @@ class ArchimedesConan(ConanFile):
 		self.requires('libsndfile/1.2.2')
 
 		self.requires('freetype/2.13.2')
-		self.requires('msdf-atlas-gen/1.3')
 
 		# Vulkan SDK
 		self.requires('volk/1.3.268.0')
@@ -39,6 +46,9 @@ class ArchimedesConan(ConanFile):
 
 		# SPIRV (Shader compiler)
 		self.requires('shaderc/2023.6')
+
+		# msdf-atlas-gen
+		subprocess.run(['conan', 'install', '--requires=msdf-atlas-gen/1.3', '--build=missing'])
 
 	def configure(self):
 		self.options['spdlog/1.12.0'].use_std_fmt = True

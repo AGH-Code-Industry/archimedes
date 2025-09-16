@@ -6,9 +6,12 @@ if(${CMAKE_MAJOR_VERSION} GREATER 3)
 	message(FATAL_ERROR "CMake >=4.X.X is not supported")
 endif()
 
+# Read version from file
+include("cmake/read_version.cmake")
+
 project(
         archimedes
-        VERSION 2025.08.28
+        VERSION ${ARCHIMEDES_VERSION}
         LANGUAGES CXX C
 )
 
@@ -40,14 +43,14 @@ include("cmake/ninja_fix.cmake")
 # Add library behavior
 include("cmake/library.cmake")
 
+# Add macro defines
+include("cmake/defines.cmake")
+
 # Add installation behavior
 include("cmake/install.cmake")
 
 # Add lauch settings creation
 include("cmake/launch.cmake")
-
-# Add macro defines
-include("cmake/defines.cmake")
 
 # CMake targets
 include("cmake/targets.cmake")
