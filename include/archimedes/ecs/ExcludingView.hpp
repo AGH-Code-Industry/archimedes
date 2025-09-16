@@ -4,9 +4,9 @@
 
 #include "Domain.h"
 #include "IsEntity.h"
-#include <tUtils/Functions/CallableTraits.h>
-#include <tUtils/Functions/IsApplicable.h>
-#include <tUtils/LogicalTraits.h>
+#include <archimedes/tUtils/Functions/CallableTraits.h>
+#include <archimedes/tUtils/Functions/IsApplicable.h>
+#include <archimedes/tUtils/LogicalTraits.h>
 
 #define TEMPLATE_E template<class... Excludes>
 #define VIEW_E View<TypeList<>, TypeList<Excludes...>>
@@ -57,9 +57,8 @@ auto VIEW_E::entities() const noexcept {
 
 TEMPLATE_E
 bool VIEW_E::contains(const Entity entity) const noexcept {
-	return _pool->contains(entity) && std::ranges::none_of(_excludedCpools, [entity](const auto cpool) {
-			   return cpool && cpool->contains(entity);
-		   });
+	return _pool->contains(entity) &&
+		std::ranges::none_of(_excludedCpools, [entity](const auto cpool) { return cpool && cpool->contains(entity); });
 }
 
 } // namespace arch::ecs

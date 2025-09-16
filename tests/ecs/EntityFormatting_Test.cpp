@@ -2,7 +2,7 @@
 #include <print>
 #include <ranges>
 
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
 #include <gtest/gtest.h>
 
 using namespace arch;

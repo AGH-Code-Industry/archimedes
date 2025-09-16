@@ -1,6 +1,6 @@
 #include <print>
 
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
 #include <gtest/gtest.h>
 
 using namespace arch;
@@ -353,10 +353,8 @@ TEST(ECS, Component_PageSize) {
 	for (int p = 0; p != pageCount; ++p) {
 		// is each page continous?
 		auto trackerPagePtr = &*std::next(domain.components<TrackerComponent>().begin(), p * pageSize);
-		for (auto&& [i, tracker] : domain.components<TrackerComponent>()
-				 | std::views::drop(p * pageSize)
-				 | std::views::take(pageSize)
-				 | std::views::enumerate) {
+		for (auto&& [i, tracker] : domain.components<TrackerComponent>() | std::views::drop(p * pageSize) |
+				 std::views::take(pageSize) | std::views::enumerate) {
 			ASSERT_EQ(&tracker, trackerPagePtr + i);
 		}
 	}

@@ -7,7 +7,7 @@
 #include "CommonComponentPool.h"
 #include "Entity.h"
 #include "ViewFwd.h"
-#include <tUtils/TypeList.h>
+#include <archimedes/tUtils/TypeList.h>
 
 namespace arch::ecs {
 
@@ -98,7 +98,8 @@ struct std::iterator_traits<arch::ecs::ViewIterator<I, E>> {
 };
 
 // ViewIterator models bidirectional_iterator
-static_assert(std::bidirectional_iterator<
-			  arch::ecs::ViewIterator<arch::TypeList<int, float, double>, arch::TypeList<>>>);
+static_assert(
+	std::bidirectional_iterator<arch::ecs::ViewIterator<arch::TypeList<int, float, double>, arch::TypeList<>>>
+);
 
 #include "ViewIterator.hpp"

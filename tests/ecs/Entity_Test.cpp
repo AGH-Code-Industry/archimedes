@@ -3,7 +3,7 @@
 #include <ranges>
 #include <unordered_set>
 
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
 #include <gtest/gtest.h>
 
 using namespace arch;

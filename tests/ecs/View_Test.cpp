@@ -3,10 +3,10 @@
 #include <ranges>
 #include <unordered_set>
 
-#include <Ecs.h>
+#include <archimedes/Ecs.h>
+#include <archimedes/tUtils/Functions/CallableTraits.h>
+#include <archimedes/tUtils/Functions/IsApplicable.h>
 #include <gtest/gtest.h>
-#include <tUtils/Functions/CallableTraits.h>
-#include <tUtils/Functions/IsApplicable.h>
 
 using namespace arch;
 
@@ -40,9 +40,8 @@ TEST(ECS, View_OneComponent) {
 	ASSERT_TRUE(std::ranges::equal(domain.entities(), domain.view<NormalComponent>()));
 
 	// pairwise view of components
-	auto componentPairs = domain.view<NormalComponent>().components()
-		| std::views::transform([](auto tuple) -> auto& { return std::get<0>(tuple); })
-		| std::views::pairwise;
+	auto componentPairs = domain.view<NormalComponent>().components() |
+		std::views::transform([](auto tuple) -> auto& { return std::get<0>(tuple); }) | std::views::pairwise;
 	ASSERT_TRUE(std::ranges::all_of(componentPairs, [](auto pair) {
 		auto&& [first, second] = pair;
 		// are all components on a page adjacent?
@@ -162,16 +161,15 @@ TEST(ECS, View_AfterRemoval) {
 		}
 	}
 
-	auto expectedEntities = domain.entities()
-		| std::views::filter([&domain](auto entity) {
-								return domain.hasComponent<NormalComponent>(entity)
-									&& domain.hasComponent<InPlaceComponent>(entity)
-									&& domain.hasComponent<FlagComponent>(entity);
-							})
-		| std::ranges::to<std::unordered_set>();
+	auto expectedEntities = domain.entities() | std::views::filter([&domain](auto entity) {
+								return domain.hasComponent<NormalComponent>(entity) &&
+									domain.hasComponent<InPlaceComponent>(entity) &&
+									domain.hasComponent<FlagComponent>(entity);
+							}) |
+		std::ranges::to<std::unordered_set>();
 
-	auto actualEntities = domain.view<NormalComponent, InPlaceComponent, FlagComponent>()
-		| std::ranges::to<std::unordered_set>();
+	auto actualEntities = domain.view<NormalComponent, InPlaceComponent, FlagComponent>() |
+		std::ranges::to<std::unordered_set>();
 
 	// are entities from view the extected ones?
 	ASSERT_EQ(actualEntities, expectedEntities);
@@ -200,17 +198,15 @@ TEST(ECS, View_WithExcludes) {
 	}
 
 	// has all the components, and has no int
-	auto expectedEntities = domain.entities()
-		| std::views::filter([&domain](auto entity) {
-								return domain.hasComponent<NormalComponent>(entity)
-									&& domain.hasComponent<InPlaceComponent>(entity)
-									&& domain.hasComponent<FlagComponent>(entity)
-									&& !domain.hasComponent<int>(entity);
-							})
-		| std::ranges::to<std::unordered_set>();
+	auto expectedEntities = domain.entities() | std::views::filter([&domain](auto entity) {
+								return domain.hasComponent<NormalComponent>(entity) &&
+									domain.hasComponent<InPlaceComponent>(entity) &&
+									domain.hasComponent<FlagComponent>(entity) && !domain.hasComponent<int>(entity);
+							}) |
+		std::ranges::to<std::unordered_set>();
 
-	auto actualEntities = domain.view<NormalComponent, InPlaceComponent, FlagComponent>(exclude<int>)
-		| std::ranges::to<std::unordered_set>();
+	auto actualEntities = domain.view<NormalComponent, InPlaceComponent, FlagComponent>(exclude<int>) |
+		std::ranges::to<std::unordered_set>();
 
 	// are entities from view the extected ones?
 	ASSERT_EQ(actualEntities, expectedEntities);
