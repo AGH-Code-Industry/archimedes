@@ -4,7 +4,6 @@
 #include <array>
 #include <chrono>
 #include <codecvt>
-#include <ctre.hpp>
 #include <filesystem>
 #include <fstream>
 #include <functional>

@@ -1,6 +1,8 @@
 #include <ranges>
 
 #include "Domain.h"
+//
+#include "View.h"
 
 namespace arch::ecs {
 
@@ -51,6 +53,10 @@ const ComponentPool<std::remove_const_t<C>>* Domain::_tryGetCPool() const noexce
 	const auto found = _componentPools.find(typedesc<Comp>().wrap());
 	return found != _componentPools.end() ? reinterpret_cast<const ComponentPool<Comp>*>(found->second.storage.data()) :
 											nullptr;
+}
+
+void Domain::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
+	_entityPool.kill(first, last);
 }
 
 template<class C, class... Args>
@@ -126,43 +132,17 @@ size_t Domain::count() const noexcept {
 
 template<class... Includes, class... Excludes>
 auto Domain::view(ExcludeT<Excludes...>) noexcept {
-	if constexpr (sizeof...(Includes) != 0) {
-		/*ARCH_ASSERT(
-			std::ranges::none_of(
-				std::initializer_list<const _details::CommonComponentPool<E>*>{
-					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
-					)... },
-				[](const auto ptr) { return ptr == nullptr; }
-			),
-			"One of requested ComponentPools does not exist"
-		);*/
-		return View<false, TypeList<Includes...>, TypeList<Excludes...>>(this);
-	} else {
-		return View<false, TypeList<>, TypeList<Excludes...>>(this);
-	}
-}
-
-template<class... Includes, class... Excludes>
-auto Domain::view(ExcludeT<Excludes...>) const noexcept {
-	if constexpr (sizeof...(Includes) != 0) {
-		/*ARCH_ASSERT(
-			std::ranges::none_of(
-				std::initializer_list<const _details::CommonComponentPool<E>*>{
-					dynamic_cast<const _details::CommonComponentPool<E>*>(_tryGetCPool<std::remove_const_t<Includes>>()
-					)... },
-				[](const auto ptr) { return ptr == nullptr; }
-			),
-			"One of requested ComponentPools does not exist"
-		);*/
-		return View<true, TypeList<Includes...>, TypeList<Excludes...>>(this);
-	} else {
-		return View<true, TypeList<>, TypeList<Excludes...>>(this);
-	}
+	return View<TypeList<Includes...>, TypeList<std::remove_const_t<Excludes>...>>(this);
 }
 
 template<class... Includes, class... Excludes>
 auto Domain::readonlyView(ExcludeT<Excludes...>) const noexcept {
-	return view<Includes...>(exclude<Excludes...>);
+	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(this);
+}
+
+template<class... Includes, class... Excludes>
+auto Domain::view(ExcludeT<Excludes...>) const noexcept {
+	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(this);
 }
 
 template<class T>
