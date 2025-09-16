@@ -55,4 +55,10 @@ using Color = glm::vec4;
 
 using Quat = glm::qua<f32>;
 
+/// @brief Returns a quaternion from a rotation angle.
+/// @param angle The angle in degrees.
+inline Quat quaternion(f32 angle) {
+	return glm::angleAxis(glm::radians(angle), float3(0.0f, 0.0f, 1.0f));
+}
+
 } // namespace arch::math

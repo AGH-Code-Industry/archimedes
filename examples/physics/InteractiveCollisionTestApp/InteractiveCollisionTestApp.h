@@ -70,7 +70,7 @@ struct InteractiveCollisionTestApp final: Application {
 			player,
 			{
 				position,
-				{ 0.f, 0.f, 0.f, 1.f },
+				quaternion(0.0f),
 				float3(1)
 		  }
 		);
@@ -99,7 +99,7 @@ struct InteractiveCollisionTestApp final: Application {
 			e2,
 			{
 				position,
-				{ 0.f, 0.f, 0.f, 1.f },
+				quaternion(0.0f),
 				float3(1)
 		  }
 		);

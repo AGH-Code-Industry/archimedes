@@ -28,7 +28,7 @@ struct SpatialAudioTestApp: Application {
 		auto& domain = testScene->domain();
 		auto& transform = e.addComponent<scene::components::TransformComponent>({
 			listenerPosition,
-			{ 0.0f, 0.0f, 0.0f, 0.0f },
+			quaternion(0.0f),
 			{ 100.0f, 50.0f, 0.0f },
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline });
@@ -42,7 +42,7 @@ struct SpatialAudioTestApp: Application {
 		Entity e = testScene->newEntity();
 		auto& transform = e.addComponent<scene::components::TransformComponent>({
 			sourcePosition,
-			{ 0.0f, 0.0f, 0.0f, 0.0f },
+			quaternion(0.0f),
 			{ 100.0f, 50.0f, 0.0f }
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });

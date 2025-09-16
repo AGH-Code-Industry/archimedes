@@ -71,7 +71,7 @@ struct RepulseTestApp final: Application {
 			e1,
 			{
 				position,
-				{ 0.f, 0.f, 0.f, 1.f },
+				quaternion(0.0f),
 				float3(1)
 		  }
 		);
@@ -100,7 +100,7 @@ struct RepulseTestApp final: Application {
 			e2,
 			{
 				position,
-				{ 0.f, 0.f, 0.f, 1.f },
+				quaternion(0.0f),
 				float3(1)
 		  }
 		);
