@@ -1,10 +1,10 @@
+#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/System.h>
-#include <archimedes/physics/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
-#include <archimedes/physics/ColliderComponent.h>
 
 namespace arch::physics {
 

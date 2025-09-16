@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "archimedes/ecs/Domain.h"
+#include <archimedes/ecs/Domain.h>
 
 namespace arch::physics {
 

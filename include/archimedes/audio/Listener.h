@@ -1,6 +1,6 @@
 #pragma once
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/audio/ListenerComponent.h>
-#include <archimedes/physics/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::audio {
