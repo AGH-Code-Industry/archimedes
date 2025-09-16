@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <variant>
 
 #include <archimedes/physics/collision_shapes/AABB.h>
 #include <archimedes/ecs/Entity.h>
