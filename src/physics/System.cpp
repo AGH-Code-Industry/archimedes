@@ -1,17 +1,21 @@
-#include <archimedes/physics/components/ColliderComponent.h>
-#include <archimedes/physics/components/RigidBodyComponent.h>
+#include "archimedes/physics/Collisions.hpp"
+
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/System.h>
+#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
 
+using TransformComponent = scene::components::TransformComponent;
+
 System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
 f32 System::update() {
-	auto viewRigidBodies = _domain.view<RigidBodyComponent, scene::components::TransformComponent>();
+	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
@@ -27,15 +31,6 @@ f32 System::update() {
 		// update speed
 		const float3 a = rigidBody.force / rigidBody.mass;
 		rigidBody.linearVelocity += a * t;
-
-		auto collider = _domain.tryGetComponent<ColliderComponent>(entity);
-
-		if (collider.hasValue()) {
-			std::visit([&](auto& shape) {
-				shape.update(rigidBody.linearVelocity, t);
-			}, collider.get().shape);
-		}
-
 	}
 
 	_collisionDetection(t);
@@ -46,7 +41,7 @@ f32 System::update() {
 }
 
 void System::_collisionDetection(f32 t) const {
-	auto viewColliding = _domain.view<ColliderComponent>();
+	auto viewColliding = _domain.view<ColliderComponent, TransformComponent>();
 
 	// collide every CollidingComponent with every other CollidingComponent
 	for (auto lhsIt = viewColliding.begin(); lhsIt != viewColliding.end(); ++lhsIt) {
@@ -55,13 +50,14 @@ void System::_collisionDetection(f32 t) const {
 		}
 
 		const ecs::Entity lhs = *lhsIt;
-		auto [c1] = viewColliding.get(lhs);
+		auto [collider1, transform1] = viewColliding.get(lhs);
 
 		for (auto rhsIt = std::next(lhsIt); rhsIt != viewColliding.end(); ++rhsIt) {
 			const ecs::Entity rhs = *rhsIt;
 
-			if (auto [c2] = viewColliding.get(rhs); ColliderComponent::areColliding(c1, c2)) {
-				c1.action(lhs, rhs);
+			auto [collider2, transform2] = viewColliding.get(rhs);
+			if (ColliderComponent::areColliding(collider1, collider2, transform1, transform2)) {
+				collider1.action(lhs, rhs);
 			}
 		}
 	}

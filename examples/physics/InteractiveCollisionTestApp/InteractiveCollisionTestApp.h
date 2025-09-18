@@ -84,10 +84,9 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 		scene->domain().addComponent(player,
 			phy::ColliderComponent{
-				.type = phy::aabb,
 				.shape = phy::AABB (
-						position - float3{0.25f, -0.25f, 0.0f},
-						position + float3{ 0.25f, -0.25f , 0.0f}
+						float3{-0.25f, 0.25f, 0.0f},
+						float3{ 0.25f, -0.25f , 0.0f}
 				),
 				.action = collision,
 			}
@@ -114,10 +113,9 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 		scene->domain().addComponent(e2,
 			phy::ColliderComponent{
-				.type = phy::aabb,
 				.shape = phy::AABB (
-						position - float3{0.25f, -0.25f, 0.0f},
-						position + float3{0.25f, -0.25f, 0.0f}
+						float3{-0.25f, 0.25f, 0.0f},
+						float3{0.25f, -0.25f, 0.0f}
 				),
 				.action = collision,
 			}

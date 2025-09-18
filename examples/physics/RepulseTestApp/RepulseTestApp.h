@@ -84,10 +84,9 @@ struct RepulseTestApp final: Application {
 		);
 		testScene->domain().addComponent(e1,
 			phy::ColliderComponent{
-				.type = phy::aabb,
 				.shape = phy::AABB (
-						position,
-						position + float3{ .25f, -.25f , 0.0f}
+						float3(0.0f),
+						float3{ .25f, -.25f , 0.0f}
 				),
 				.action = ideallyElasticCollision
 			}
@@ -114,10 +113,9 @@ struct RepulseTestApp final: Application {
 		);
 		testScene->domain().addComponent(e2,
 			phy::ColliderComponent{
-				.type = phy::aabb,
 				.shape = phy::AABB (
-						position,
-						position + float3{0.25f, -0.25f, 0.0f}
+						float3(0.0f),
+						float3{0.25f, -0.25f, 0.0f}
 				),
 				.action = ideallyElasticCollision
 			}
