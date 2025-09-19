@@ -1,6 +1,6 @@
 #include <../../include/archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/Scene.h>
-#include <archimedes/physics/System.h>
+#include <archimedes/physics/PhysicsSystem.h>
 #include <gtest/gtest.h>
 
 namespace physics {
@@ -11,7 +11,7 @@ namespace scene = arch::scene;
 
 TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
-	phy::System system(domain);
+	phy::PhysicsSystem system(domain);
 
 	constexpr auto startV = math::float3(1.f, 0.f, 0.f);
 

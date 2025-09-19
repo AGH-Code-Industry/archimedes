@@ -3,7 +3,7 @@
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
-#include <archimedes/physics/System.h>
+#include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/components/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
@@ -12,9 +12,9 @@ namespace arch::physics {
 
 using TransformComponent = scene::components::TransformComponent;
 
-System::System(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
+PhysicsSystem::PhysicsSystem(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
 
-f32 System::update() {
+f32 PhysicsSystem::update() {
 	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
 
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
@@ -40,7 +40,7 @@ f32 System::update() {
 	return t;
 }
 
-void System::_collisionDetection(f32 t) const {
+void PhysicsSystem::_collisionDetection(f32 t) const {
 	auto viewColliding = _domain.view<ColliderComponent, TransformComponent>();
 
 	// collide every CollidingComponent with every other CollidingComponent

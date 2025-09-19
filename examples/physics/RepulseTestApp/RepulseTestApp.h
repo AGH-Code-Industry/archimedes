@@ -1,10 +1,10 @@
 #pragma once
 
-#include <archimedes/physics/components/ColliderComponent.h>
-#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/Engine.h>
 #include <archimedes/Scene.h>
-#include <archimedes/physics/System.h>
+#include <archimedes/physics/PhysicsSystem.h>
+#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 
 namespace physicsExample {
 using namespace arch;
@@ -124,7 +124,7 @@ struct RepulseTestApp final: Application {
 		);
 
 		scene::SceneManager::get()->changeScene(testScene);
-		_physicsSystem = createRef<phy::System>(std::ref(testScene->domain()));
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()));
 	}
 
 	void update() override {
@@ -132,6 +132,6 @@ struct RepulseTestApp final: Application {
 	}
 
 private:
-	Ref<phy::System> _physicsSystem;
+	Ref<phy::PhysicsSystem> _physicsSystem;
 };
 } // namespace physics_example

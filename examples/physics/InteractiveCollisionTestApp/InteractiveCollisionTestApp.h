@@ -1,11 +1,11 @@
 #pragma once
 
-#include <archimedes/physics/components/ColliderComponent.h>
-#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/Engine.h>
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
-#include <archimedes/physics/System.h>
+#include <archimedes/physics/PhysicsSystem.h>
+#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 
 namespace physicsExample {
 using namespace arch;
@@ -124,7 +124,7 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 
 		scene::SceneManager::get()->changeScene(scene);
-		_physicsSystem = createRef<phy::System>(std::ref(scene->domain()));
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()));
 	}
 
 	float3 getLinearVelocity() {
@@ -166,6 +166,6 @@ struct InteractiveCollisionTestApp final: Application {
 	}
 
 private:
-	Ref<phy::System> _physicsSystem;
+	Ref<phy::PhysicsSystem> _physicsSystem;
 };
 } // namespace physics_example
