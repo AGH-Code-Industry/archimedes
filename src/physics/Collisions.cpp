@@ -1,7 +1,7 @@
 #include <archimedes/physics/Collisions.hpp>
 
 namespace arch::physics {
-	bool checkCollision(const AABB& shape1, const AABB& shape2,
+	bool checkCollision(const OBB& shape1, const OBB& shape2,
 		const TransformComponent& transform1, const TransformComponent& transform2) {
 
 		auto topLeft1 = shape1.topLeft + transform1.position;

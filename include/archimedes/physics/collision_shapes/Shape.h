@@ -1,7 +1,7 @@
 #pragma once
 
 namespace arch::physics {
-	struct Shape {
+struct Shape {
 	virtual ~Shape() = default;
-	};
+};
 } // namespace arch::physics

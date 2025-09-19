@@ -20,6 +20,6 @@ namespace arch::physics {
 		return checkCollision(shape2, shape1, transform2, transform1);
 	}
 
-	bool checkCollision(const AABB& shape1, const AABB& shape2, const TransformComponent& transform1,
+	bool checkCollision(const OBB& shape1, const OBB& shape2, const TransformComponent& transform1,
 		const TransformComponent& transform2);
 } // namespace arch::physics
