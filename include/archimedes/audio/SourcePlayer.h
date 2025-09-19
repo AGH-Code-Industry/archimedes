@@ -1,8 +1,8 @@
 #pragma once
 
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/audio/AudioSourceComponent.h>
 #include <archimedes/audio/SoundBank.h>
-#include <archimedes/physics/components/Moveable.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::audio {
@@ -71,7 +71,7 @@ public:
 	void update(
 		const AudioSourceComponent& source,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	/// @brief Copies all sound parameters from the AudioSourceComponent into this object.

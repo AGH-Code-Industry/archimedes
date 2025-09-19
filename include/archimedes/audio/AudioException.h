@@ -13,7 +13,7 @@ public:
 	/// @param message Message of the exception.
 	/// @param location Source location of the exception.
 	///
-	AudioException(const std::string& message, const std::source_location& location = std::source_location::current());
+	AudioException(const std::string& message,const std::source_location& location = std::source_location::current());
 };
 
 using Exception = AudioException;

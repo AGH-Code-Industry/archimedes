@@ -6,13 +6,13 @@
 
 namespace arch::physics {
 
-class System {
+class PhysicsSystem {
 public:
 	using Clock = std::chrono::high_resolution_clock;
 	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 	using Duration = std::chrono::duration<f32>;
 
-	explicit System(ecs::Domain& domain);
+	explicit PhysicsSystem(ecs::Domain& domain);
 	f32 update();
 
 private:

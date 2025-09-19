@@ -1,12 +1,11 @@
-#include "TestApp.h"
-
+#include "InteractiveCollisionTestApp.h"
 #include <archimedes/Engine.h>
 #include <archimedes/Logger.h>
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);
 
-	arch::Unique<arch::Application> myApp = arch::createUnique<physicsExample::PhysicsTestApp>();
+	arch::Unique<arch::Application> myApp = arch::createUnique<physicsExample::InteractiveCollisionTestApp>();
 
 	arch::EngineConfig config{ .windowWidth = 1'200,
 							   .windowHeight = 600,
