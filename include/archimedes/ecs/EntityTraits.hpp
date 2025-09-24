@@ -1,6 +1,6 @@
 #include "EntityTraits.h"
 //
-#include "ArchMath.h"
+#include <archimedes/ArchMath.h>
 
 namespace arch::ecs::_details {
 
