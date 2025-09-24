@@ -1,3 +1,4 @@
+#include <archimedes/ecs/EntityOperators.h>
 #include <archimedes/scene/ChildrenIterator.h>
 #include <archimedes/scene/Entity.h>
 #include <archimedes/utils/Res.h>
@@ -91,11 +92,11 @@ void Entity::swap(Entity& other) noexcept {
 }
 
 ecs::_details::EntityTraits::IdT Entity::id() const noexcept {
-	return ecs::_details::EntityTraits::Id::part(_entity);
+	return *_entity;
 }
 
 ecs::_details::EntityTraits::VersionT Entity::version() const noexcept {
-	return ecs::_details::EntityTraits::Version::part(_entity);
+	return ~_entity;
 }
 
 bool Entity::hasTag(std::string_view tag) const {

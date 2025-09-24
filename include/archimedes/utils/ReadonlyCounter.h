@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace arch::utils {
 
@@ -16,7 +17,7 @@ protected:
 	T _counter{};
 };
 
-extern template class ReadonlyCounter<size_t>;
+extern template class ReadonlyCounter<uint32_t>;
 
 } // namespace arch::utils
 
