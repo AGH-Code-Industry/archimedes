@@ -2,7 +2,8 @@
 
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
-from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import cmake_layout, CMakeToolchain
+
 import re
 import subprocess
 
@@ -19,7 +20,7 @@ class ArchimedesConan(ConanFile):
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
 	settings = 'os', 'compiler', 'build_type', 'arch'
-	generators = 'CMakeDeps', 'CMakeToolchain'
+	generators = ('CMakeDeps',)
 
 	def requirements(self):
 		self.requires('glfw/3.4')
@@ -59,3 +60,8 @@ class ArchimedesConan(ConanFile):
 			
 	def layout(self):
 		cmake_layout(self)
+
+	def generate(self):
+		tc = CMakeToolchain(self)
+		tc.user_presets_path = False
+		tc.generate()
