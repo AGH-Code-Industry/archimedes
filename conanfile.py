@@ -107,6 +107,7 @@ class ArchimedesConan(ConanFile):
 
 	def generate(self):
 		tc = CMakeToolchain(self, 'Ninja')
+		tc.user_presets_path = False
 		tc.variables['ARCHIMEDES_SHARED'] = self.options.shared
 		tc.variables['ARCHIMEDES_INSTALL'] = self.options.install
 		tc.variables['ARCHIMEDES_BUILD_TESTS'] = self.options.build_tests
