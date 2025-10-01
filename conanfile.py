@@ -14,7 +14,7 @@ def read_version() -> str:
 	if not version_path.exists():
 		version_path = Path.cwd().parent / 'es/version.txt'
 	version = version_path.open().read().strip()
-	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+	if not re.search("^[0-9]+\.[0-9]+\.[0-9]+$", version):
 		raise ValueError(f'\'{version}\' is not a valid version')
 	return version
 
@@ -121,13 +121,10 @@ class ArchimedesConan(ConanFile):
 		
 		self.cpp_info.defines.append('SPDLOG_USE_STD_FORMAT=1')
 
-		version_year = self.version[0:4]
-		version_month = self.version[5:7]
-		version_day = self.version[8:10]
-		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_YEAR={version_year}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_MONTH={version_month}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_DAY={version_day}')
-		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION={version_year}{version_month}{version_day}')
+		version_major, version_minor, version_patch = self.version.split('.')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_MAJOR={version_major}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_MINOR={version_minor}')
+		self.cpp_info.defines.append(f'ARCHIMEDES_VERSION_PATCH={version_patch}')
 
 		self.cpp_info.defines.append(f'ARCHIMEDES_DEBUG={1 if self.settings.build_type == "Debug" else 0}')
 		self.cpp_info.defines.append(f'ARCHIMEDES_RELEASE={0 if self.settings.build_type == "Debug" else 1}')

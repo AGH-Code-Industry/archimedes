@@ -7,7 +7,7 @@ import re
 
 def read_version() -> str:
 	version = open('version.txt').read().strip()
-	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
+	if not re.search("^[0-9]+\.[0-9]+\.[0-9]+$", version):
 		raise ValueError(f'\'{version}\' is not a valid version')
 	return version
 
