@@ -45,7 +45,11 @@ VIEW_IE::Iterator VIEW_IE::cbegin() const noexcept {
 
 TEMPLATE_IE
 VIEW_IE::Iterator VIEW_IE::end() const noexcept {
-	return Iterator(this, _minIdx == (u32)-1 ? 0 : _cpools[_minIdx]->_dense.size(), _minIdx != (u32)-1);
+	if constexpr (includeCount == 1 && !_details::ComponentTraits<IncludeTL::template get<0>>::inPlace) {
+		return Iterator(this, _minIdx == (u32)-1 ? 0 : _cpools[_minIdx]->count(), _minIdx != (u32)-1);
+	} else {
+		return Iterator(this, _minIdx == (u32)-1 ? 0 : _cpools[_minIdx]->_dense.size(), _minIdx != (u32)-1);
+	}
 }
 
 TEMPLATE_IE
@@ -118,16 +122,18 @@ void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
 		const auto excludeCpoolsBegin = _excludedCpools.cbegin(), excludeCpoolsEnd = _excludedCpools.cend();
 		for (const auto entity : _cpools[_minIdx]->_dense) {
 			// cpools[minIdx] check
-			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
-				&&
+			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
 				// rest check
-				std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
-				&& std::all_of(
+				std::all_of(
+					cpoolsBegin,
+					cpoolsMiddle,
+					[entity](const auto cpool) { return cpool->contains(entity); }
+				) &&
+				std::all_of(
 					cpoolsMiddleNext,
 					cpoolsEnd,
 					[entity](const auto cpool) { return cpool->contains(entity); }
-				)
-				&&
+				) &&
 				// excludedCpools check
 				std::none_of(excludeCpoolsBegin, excludeCpoolsEnd, [entity](const auto cpool) {
 					// excluded cpool can be nullptr
@@ -150,13 +156,16 @@ void VIEW_IE::_forEach(Fn&& fn, TypeList<Cs...>) noexcept {
 	} else {
 		for (const auto entity : _cpools[_minIdx]->_dense) {
 			// cpools[minIdx] check
-			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
-				&&
+			if (arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
 				// rest check
-				std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
-				&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) {
-					   return cpool->contains(entity);
-				   })) {
+				std::all_of(
+					cpoolsBegin,
+					cpoolsMiddle,
+					[entity](const auto cpool) { return cpool->contains(entity); }
+				) &&
+				std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) {
+					return cpool->contains(entity);
+				})) {
 				if constexpr (PassEntity) {
 					fn(entity,
 					   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
@@ -264,15 +273,15 @@ bool VIEW_IE::contains(const Entity entity) const noexcept {
 	const auto cpoolsBegin = _cpools.cbegin(), cpoolsMiddle = _cpools.cbegin() + _minIdx,
 			   cpoolsMiddleNext = _cpools.cbegin() + _minIdx + 1, cpoolsEnd = _cpools.cend();
 	if constexpr (excludeCount == 0) {
-		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
-			&& std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
-			&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); });
+		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
+			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); });
 	} else {
 		const auto excludedCpoolsBegin = _excludedCpools.cbegin(), excludedCpoolsEnd = _excludedCpools.cend();
-		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity)
-			&& std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); })
-			&& std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); })
-			&& std::none_of(excludedCpoolsBegin, excludedCpoolsEnd, [entity](const auto cpool) {
+		return arch::ecs::_details::EntityTraits::Version::hasNotNull(entity) &&
+			std::all_of(cpoolsBegin, cpoolsMiddle, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::all_of(cpoolsMiddleNext, cpoolsEnd, [entity](const auto cpool) { return cpool->contains(entity); }) &&
+			std::none_of(excludedCpoolsBegin, excludedCpoolsEnd, [entity](const auto cpool) {
 				   return cpool && cpool->contains(entity);
 			   });
 	}
