@@ -45,7 +45,7 @@ VIEW_IE::Iterator VIEW_IE::cbegin() const noexcept {
 
 TEMPLATE_IE
 VIEW_IE::Iterator VIEW_IE::end() const noexcept {
-	if constexpr (includeCount == 1 && !_details::ComponentTraits<IncludeTL::template get<0>>::inPlace) {
+	if constexpr (includeCount == 1 && !_details::ComponentTraits<typename IncludeTL::front>::inPlace) {
 		return Iterator(this, _minIdx == (u32)-1 ? 0 : _cpools[_minIdx]->count(), _minIdx != (u32)-1);
 	} else {
 		return Iterator(this, _minIdx == (u32)-1 ? 0 : _cpools[_minIdx]->_dense.size(), _minIdx != (u32)-1);
