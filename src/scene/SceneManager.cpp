@@ -1,3 +1,6 @@
+#include <ranges>
+#include <algorithm>
+
 #include <archimedes/Ecs.h>
 #include <archimedes/scene/Components.h>
 #include <archimedes/scene/SceneManager.h>

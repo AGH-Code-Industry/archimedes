@@ -123,7 +123,7 @@ class TextRenderTestApp: public Application {
 		}
 
 		viewPosVel.forEach([&viewPosVel](ecs::Entity entity) {
-			auto&& [pos, vel] = viewPosVel.get<Pos, Vel>(entity);
+			auto&& [pos, vel] = viewPosVel.get(entity);
 			pos.x += vel.x;
 			pos.y += vel.y;
 		});

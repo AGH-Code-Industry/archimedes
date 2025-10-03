@@ -1,13 +1,5 @@
 #include "EntityFormatter.h"
 
-constexpr int std::formatter<arch::ecs::Entity>::_svToInt(std::string_view sv) noexcept {
-	int result = 0;
-	for (auto&& ch : sv) {
-		result = result * 10 + (ch - '0');
-	}
-	return result;
-}
-
 template<class T>
 constexpr uint32_t std::formatter<arch::ecs::Entity>::operator()(const T val) const {
 	if constexpr (std::integral<T>) {
@@ -26,92 +18,134 @@ constexpr uint32_t std::formatter<arch::ecs::Entity>::operator()(const T val) co
 }
 
 constexpr std::format_parse_context::iterator std::formatter<arch::ecs::Entity>::parse(std::format_parse_context& ctx) {
-	auto data = std::string_view(ctx.begin(), ctx.end());
+	// https://en.cppreference.com/w/cpp/utility/format/spec.html
 
-	auto match = ctre::search<
-		R"jaPitoleAleBydle(^(?:(?:(.)([\<\>\^])|([\<\>\^])?)(#?)(0?)(?:(?:)|(\d*)|\{(\d*)\}))(?:(?:)|([boxd]?))((.)?v)?(\}))jaPitoleAleBydle">(
-		data
-	);
+	auto i = ctx.begin();
+	auto end = ctx.end();
 
-	if (!match) {
-		throw std::format_error("ecs::Entity formatting sequence error");
+#define END_CHECK                \
+	if (i == end || *i == '}') { \
+		return i;                \
 	}
 
-	// fill character
-	// (.)
-	auto fillOpt = match.get<1>().to_optional_view();
-	if (fillOpt) {
-		_fill = fillOpt.value()[0];
+	END_CHECK
 
-		// alignment
-		// ([\<\>\^])
-		auto alignOpt = match.get<2>().to_optional_view();
-		if (alignOpt) {
-			_alignment = alignOpt.value()[0];
-		}
-	} else {
-		// alignment
-		// ([\<\>\^])?
-		auto alignOpt = match.get<3>().to_optional_view();
-		if (alignOpt) {
-			_alignment = alignOpt.value()[0];
-		} else if (!match.get<5>().to_optional_view().value().empty()) { // fill with zeroes; (0?)
-			_fill = '0';
-		}
+	// fill & align
+	unsigned char alignFlags = 0;
+
+	auto alignIt = i + 1;
+	if (alignIt == end) {
+		alignIt == i;
 	}
 
-	// prefix indicating base
-	// (#?)
-	_prefix = match.get<4>().to_view().length();
-
-	// literal width
-	// (\d*)
-	auto widthOpt = match.get<6>().to_optional_view();
-	if (widthOpt) {
-		auto value = _svToInt(widthOpt.value());
-		if (value < 0) {
-			throw std::format_error("width is negative");
+	for (;;) {
+		switch (*alignIt) {
+			case '<': alignFlags |= Flags::alignLeft; break;
+			case '^': alignFlags |= Flags::alignCenter; break;
+			case '>': alignFlags |= Flags::alignRight; break;
 		}
-		_width = value;
-	} else {
-		// dynamic width (std::format parameter)
-		// \{(\d*)\}
-		auto widthIdxOpt = match.get<7>().to_optional_view();
-		if (widthIdxOpt) {
-			_hasIdx = true;
-			if (widthIdxOpt.value().empty()) {
-				_widthIdx = -(short)ctx.next_arg_id();
-			} else {
-				_widthIdx = _svToInt(widthIdxOpt.value());
-				if (_widthIdx < 0) {
-					throw std::format_error("width is negative");
+
+		if (alignFlags) {
+			if (alignIt != i) { // has fill
+				if (*i == '{' || *i == '}') {
+					throw std::format_error("'{' and '}' are not allowed for fill");
 				}
+				_fill = *i;
+				i = alignIt + 1;
+			} else {
+				++i;
 			}
+			_flags |= alignFlags;
+			break;
+		} else if (alignIt == i) {
+			break;
+		}
+		alignIt = i;
+	}
+	END_CHECK
+
+	// base prefix
+	if (*i == '#') {
+		_flags |= Flags::hasPrefix;
+		++i;
+	}
+	END_CHECK
+
+	// fill with zeros
+	// align overrides zeros
+	if (*i == '0' && !(_flags & Flags::align)) {
+		_fill = '0';
+		++i;
+	}
+	END_CHECK
+
+	// width nested replacement field
+	if (*i == '{') {
+		auto nestedEnd = std::find(i + 1, end, '}');
+		if (nestedEnd == end) {
+			throw std::format_error("Width nested replacement field not escaped");
+		}
+
+		if (nestedEnd - i == 1) {
+			_width = ctx.next_arg_id();
+		} else if (std::from_chars(&*(i + 1), &*nestedEnd, _width).ec != std::errc()) {
+			throw std::format_error("Error parsing width nested replacement field");
+		}
+
+		_flags |= Flags::hasIdx;
+		i = nestedEnd + 1;
+	}
+
+	// width literal
+	for (;;) {
+		END_CHECK
+		if ('0' <= *i && *i <= '9') {
+			(_width *= 10) += *i++ - '0';
+		} else {
+			break;
 		}
 	}
+	END_CHECK
 
-	// base
-	// ([boxd]?)
-	auto typeOpt = match.get<8>().to_optional_view();
-	if (typeOpt) {
-		_type = typeOpt.value()[0];
+	// type
+	switch (*i) {
+		case 'b':
+		case 'B':
+		case 'o':
+		case 'x':
+		case 'X':
+		case 'd':
+			_type = *i;
+			++i;
+			break;
+		default: _type = 'd'; break;
 	}
+	END_CHECK
 
-	// version separator
-	// (.)?
-	auto versionSepOpt = match.get<10>().to_optional_view();
-	if (versionSepOpt && !versionSepOpt.value().empty()) {
-		_versionSep = versionSepOpt.value()[0];
-	} else {
-		// format with version, use default separator '.'
-		// ((.)?v)?
-		auto versionOpt = match.get<9>().to_optional_view();
-		if (versionOpt) {
-			_versionSep = '.';
+	// version
+	if (*i == 'v') {
+		_versionSep = '.';
+		++i;
+
+		END_CHECK else {
+			if (*i == '{') {
+				throw std::format_error("'{' is not allowed as version separator");
+			}
+			_versionSep = *i;
 		}
+		++i;
+	}
+	END_CHECK
+
+	// set default alignment
+	if (!(_flags & Flags::align)) {
+		_flags |= Flags::alignRight;
 	}
 
-	// format specification ending
-	// (\})
-	return match.get<11>().begin();
+	while (i != end && *i != '}') {
+		++i;
+	}
+	return i;
+
+	//	R"jaPitoleAleBydle(^(?:(?:(.)([\<\>\^])|([\<\>\^])?)(#?)(0?)(?:(?:)|(\d*)|\{(\d*)\}))(?:(?:)|([boxd]?))((.)?v)?(\}))jaPitoleAleBydle"
 }

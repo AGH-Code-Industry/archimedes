@@ -20,7 +20,7 @@ struct EntitySpecs {
 	/// @brief Bit length of id
 	static inline constexpr size_t idLength = 48;
 	/// @brief Size of sparse pages
-	static inline constexpr size_t pageSize = 1'024;
+	static inline constexpr size_t pageSize = 1'024 * 8;
 };
 
 } // namespace arch::ecs
