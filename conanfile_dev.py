@@ -2,8 +2,10 @@
 
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
-from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import cmake_layout, CMakeToolchain
+
 import re
+import subprocess
 
 def read_version() -> str:
 	version = open('version.txt').read().strip()
@@ -13,12 +15,12 @@ def read_version() -> str:
 
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = open('version.txt').read()
+	version = read_version()
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
 	settings = 'os', 'compiler', 'build_type', 'arch'
-	generators = 'CMakeDeps', 'CMakeToolchain'
+	generators = ('CMakeDeps',)
 
 	def requirements(self):
 		self.requires('glfw/3.4')
@@ -36,7 +38,6 @@ class ArchimedesConan(ConanFile):
 		self.requires('libsndfile/1.2.2')
 
 		self.requires('freetype/2.13.2')
-		self.requires('msdf-atlas-gen/1.3')
 
 		# Vulkan SDK
 		self.requires('volk/1.3.268.0')
@@ -47,6 +48,9 @@ class ArchimedesConan(ConanFile):
 		# SPIRV (Shader compiler)
 		self.requires('shaderc/2023.6')
 
+		# msdf-atlas-gen
+		subprocess.run(['conan', 'install', '--requires=msdf-atlas-gen/1.3', '--build=missing'])
+
 	def configure(self):
 		self.options['spdlog/1.12.0'].use_std_fmt = True
 
@@ -56,3 +60,8 @@ class ArchimedesConan(ConanFile):
 			
 	def layout(self):
 		cmake_layout(self)
+
+	def generate(self):
+		tc = CMakeToolchain(self)
+		tc.user_presets_path = False
+		tc.generate()

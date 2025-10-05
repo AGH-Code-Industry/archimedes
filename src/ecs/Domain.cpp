@@ -21,7 +21,7 @@ bool Domain::alive(const Entity entity) const noexcept {
 }
 
 bool Domain::contains(const IdT id) const noexcept {
-	return _entityPool.contains(id);
+	return _entityPool.containsID(id);
 }
 
 Domain::VersionT Domain::version(const Entity entity) const noexcept {
@@ -50,14 +50,10 @@ Entity Domain::recycleId(const IdT id) noexcept {
 
 void Domain::kill(const Entity entity) noexcept {
 	for (auto&& [type, poolStorage] : _componentPools) {
-		reinterpret_cast<_details::CommonComponentPool*>(&poolStorage)->removeComponent(entity);
+		reinterpret_cast<_details::CommonComponentPool*>(&poolStorage)->virtualRemoveComponent(entity);
 	}
 
 	_entityPool.kill(entity);
-}
-
-void Domain::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
-	_entityPool.kill(first, last);
 }
 
 void Domain::kill(std::initializer_list<Entity> entities) noexcept {
