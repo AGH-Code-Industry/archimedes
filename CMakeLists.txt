@@ -6,12 +6,8 @@ if(${CMAKE_MAJOR_VERSION} GREATER 3)
 	message(FATAL_ERROR "CMake >=4.X.X is not supported")
 endif()
 
-# Read version from file
-include("cmake/read_version.cmake")
-
 project(
         archimedes
-        VERSION ${ARCHIMEDES_VERSION}
         LANGUAGES CXX C
 )
 

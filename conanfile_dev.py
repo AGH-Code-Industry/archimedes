@@ -7,15 +7,9 @@ from conan.tools.cmake import cmake_layout, CMakeToolchain
 import re
 import subprocess
 
-def read_version() -> str:
-	version = open('version.txt').read().strip()
-	if not re.search("^[0-9]+\.[0-9]+\.[0-9]+$", version):
-		raise ValueError(f'\'{version}\' is not a valid version')
-	return version
-
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = read_version()
+	version = '0.1.0' # dummy
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
