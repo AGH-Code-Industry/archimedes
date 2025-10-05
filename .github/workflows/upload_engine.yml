@@ -1,9 +1,8 @@
 name: Build and upload archimedes to remote
 
 on:
-  push:
-    branches: 
-      - master
+  release:
+    types: [published]
 
 jobs:
   Linux:
@@ -78,7 +77,7 @@ jobs:
           build_type=${{ matrix.build_type }}
           compiler.cppstd=23
           " > ~/.conan2/profiles/archimedes
-          conan create . --build=missing --profile:all=archimedes -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          conan create . --build=missing --profile:all=archimedes -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True --version ${{ github.event.release.tag_name }}
       
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload to remote"
         run: |
@@ -173,7 +172,7 @@ jobs:
           ${{ matrix.compiler == 'cl' && 'compiler.runtime=dynamic' || '' }}
           ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.runtime_type) || '' }}
           ' > ~/.conan2/profiles/archimedes
-          conan create . --build=missing --profile:all=archimedes
+          conan create . --build=missing --profile:all=archimedes --version ${{ github.event.release.tag_name }}
       
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload to remote"
         run: |
