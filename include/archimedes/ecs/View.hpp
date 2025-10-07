@@ -210,7 +210,12 @@ auto VIEW_IE::all() noexcept {
 		using First = GetTL::front;
 		static_assert(!std::same_as<First, typeList::NoneT>, "Cannot call all() while the only component is flag");
 		using CPool = SelectCPool<First>::type;
-		return std::views::zip(*this, std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
+		if (_cpools[0]) {
+			return std::views::zip(*this, std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
+		} else {
+			static std::remove_pointer_t<CPool> dummy;
+			return std::views::zip(*this, std::ranges::ref_view(dummy));
+		}
 	} else {
 		return _all(GetTL());
 	}
@@ -243,7 +248,12 @@ auto VIEW_IE::components() noexcept {
 			"Cannot call components() while the only component is flag"
 		);
 		using CPool = SelectCPool<First>::type;
-		return std::ranges::zip_view(std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
+		if (_cpools[0]) {
+			return std::ranges::zip_view(std::ranges::ref_view(*reinterpret_cast<CPool>(_cpools[0])));
+		} else {
+			static std::remove_pointer_t<CPool> dummy;
+			return std::ranges::zip_view(std::ranges::ref_view(dummy));
+		}
 	} else {
 		return _components(GetTL());
 	}
