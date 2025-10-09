@@ -1,6 +1,6 @@
 #pragma once
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/audio/ListenerComponent.h>
-#include <archimedes/physics/components/Moveable.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::audio {
@@ -16,7 +16,7 @@ public:
 	void update(
 		const ListenerComponent& listener,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	///@brief Sends the parameters to the OpenAL context.

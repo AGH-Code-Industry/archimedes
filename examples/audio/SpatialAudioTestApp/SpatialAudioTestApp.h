@@ -13,7 +13,7 @@ struct SpatialAudioTestApp: Application {
 	SoundManager soundManager;
 
 	float3 sourcePosition = { 450.0f, 200.0f, 0.0f };
-	float2 sourceVelocity = { 1.0f, 0.0f };
+	float3 sourceVelocity = { 1.0f, 0.0f, 0.0f };
 
 	int circleStep = 0;
 	const int stepsPerCircle = 1'000;
@@ -28,12 +28,12 @@ struct SpatialAudioTestApp: Application {
 		auto& domain = testScene->domain();
 		auto& transform = e.addComponent<scene::components::TransformComponent>({
 			listenerPosition,
-			{ 0.0f, 0.0f, 0.0f, 0.0f },
+			quaternion(0.0f),
 			{ 100.0f, 50.0f, 0.0f },
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline });
-		auto& moveable = e.addComponent<physics::Moveable>();
-		moveable.velocity = float2{ 0.0f, 0.0f };
+		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
+		moveable.linearVelocity = float3{ 0.0f, 0.0f, 0.0f };
 		auto& listener = e.addComponent<audio::ListenerComponent>();
 		soundManager.audioManager->setListener(domain, listener, transform, moveable);
 	}
@@ -42,12 +42,12 @@ struct SpatialAudioTestApp: Application {
 		Entity e = testScene->newEntity();
 		auto& transform = e.addComponent<scene::components::TransformComponent>({
 			sourcePosition,
-			{ 0.0f, 0.0f, 0.0f, 0.0f },
+			quaternion(0.0f),
 			{ 100.0f, 50.0f, 0.0f }
 		});
 		e.addComponent<scene::components::MeshComponent>({ graphicsManager->mesh, graphicsManager->pipeline2 });
-		auto& moveable = e.addComponent<physics::Moveable>();
-		moveable.velocity = sourceVelocity;
+		auto& moveable = e.addComponent<physics::RigidBodyComponent>();
+		moveable.linearVelocity = sourceVelocity;
 		auto& source = e.addComponent<audio::AudioSourceComponent>();
 		source.path = soundFile;
 		source.isLooped = true;
@@ -80,14 +80,14 @@ struct SpatialAudioTestApp: Application {
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 
 		auto view =
-			domain.view<scene::components::TransformComponent, physics::Moveable, audio::AudioSourceComponent>();
+			domain.view<scene::components::TransformComponent, physics::RigidBodyComponent, audio::AudioSourceComponent>();
 
 		for (auto [entity, transform, moveable, audioSource] : view.all()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
 			transform.position.x = listenerPosition.x + radius * std::cos(angle);
 			transform.position.y = listenerPosition.y + radius * std::sin(angle);
-			moveable.velocity.x = radius * std::sin(angle);
-			moveable.velocity.y = radius * std::cos(angle);
+			moveable.linearVelocity.x = radius * std::sin(angle);
+			moveable.linearVelocity.y = radius * std::cos(angle);
 		}
 		circleStep = (circleStep + 1) % stepsLimit;
 		soundManager.audioManager->synchronize(domain);

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/audio/AudioSourceComponent.h>
 #include <archimedes/audio/Listener.h>
 #include <archimedes/audio/SourcePlayer.h>
 #include <archimedes/ecs/Domain.h>
-#include <archimedes/physics/components/Moveable.h>
 
 namespace arch::audio {
 
@@ -88,7 +88,7 @@ public:
 	void assignSource(
 		AudioSourceComponent& source,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	///@brief Starts playing the sound. If it's paused, continues it.
@@ -131,7 +131,7 @@ public:
 	void updateSource(
 		const AudioSourceComponent& source,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	///@brief Send all the sound parameters from the AudioSourceComponent
@@ -154,7 +154,7 @@ public:
 	void updateListener(
 		const ListenerComponent& listener,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	///@brief Assign Listener to a ListenerComponent. Unassign it from
@@ -173,7 +173,7 @@ public:
 		ecs::Domain& domain,
 		ListenerComponent& listener,
 		const scene::components::TransformComponent& transform,
-		const physics::Moveable& moveable
+		const physics::RigidBodyComponent& moveable
 	);
 
 	///@brief Get state of a SourcePlayer assigned to the AudioSourceComponent.
