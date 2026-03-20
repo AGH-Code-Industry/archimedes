@@ -4,8 +4,9 @@
 
 
 namespace arch::physics {
-
 	using TransformComponent = scene::components::TransformComponent;
+
+	bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 
 	template<typename ShapeA, typename ShapeB>
 	concept CollidableReversed = requires(const ShapeB& shape1, const ShapeA& shape2,

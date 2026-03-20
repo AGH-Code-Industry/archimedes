@@ -1,39 +1,31 @@
 #include <archimedes/physics/Collisions.hpp>
 
 namespace arch::physics {
+
+	bool areProjectionsOverlapping(float2 projection1, float2 projection2) {
+		return !(projection1.y < projection2.x || projection2.y < projection1.x);
+	}
+
 	bool checkCollision(const OBB& shape1, const OBB& shape2,
 		const TransformComponent& transform1, const TransformComponent& transform2) {
 
-		auto topLeft1 = shape1.topLeft + transform1.position;
-		auto bottomRight1 = shape1.bottomRight + transform1.position;
+		std::vector<float3> axes1 = shape1.getSeparatingAxes(transform1);
+		std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
 
-		auto topLeft2 = shape2.topLeft + transform2.position;
-		auto bottomRight2 = shape2.bottomRight + transform2.position;
-
-		if (topLeft1.x <= topLeft2.x && topLeft2.x <= bottomRight1.x) {
-			// top left corner of right rectangle is in the left rectangle
-			if (bottomRight1.y <= topLeft2.y && topLeft2.y <= topLeft1.y) {
-				return true;
-			}
-
-			// bottom left corner of right rectangle is in the left rectangle
-			if (bottomRight1.y <= bottomRight2.y && bottomRight2.y <= topLeft1.y) {
-				return true;
+		for (auto& axis : axes1) {
+			float2 projection1 = shape1.getProjection(axis, transform1);
+			float2 projection2 = shape2.getProjection(axis, transform2);
+			if (!areProjectionsOverlapping(projection1, projection2)) {
+				return false;
 			}
 		}
-
-		if (topLeft1.x <= bottomRight2.x && bottomRight2.x <= bottomRight1.x) {
-			// top right corner of right rectangle is in the left rectangle
-			if (bottomRight1.y <= topLeft2.y && topLeft2.y <= topLeft1.y) {
-				return true;
-			}
-
-			// bottom right corner of right rectangle is in the left rectangle
-			if (bottomRight1.y <= bottomRight2.y && bottomRight2.y <= topLeft1.y) {
-				return true;
+		for (auto& axis : axes2) {
+			float2 projection1 = shape1.getProjection(axis, transform1);
+			float2 projection2 = shape2.getProjection(axis, transform2);
+			if (!areProjectionsOverlapping(projection1, projection2)) {
+				return false;
 			}
 		}
-
-		return false;
+		return true;
 	}
 }
