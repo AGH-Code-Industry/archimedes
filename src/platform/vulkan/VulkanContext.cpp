@@ -301,9 +301,13 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
+    std::string deviceName = deviceProperties.deviceName;
+    Logger::info("Evaluating Vulkan device: {}", deviceName);
+
 	// Device features requirements
 	{
 		if (!deviceFeatures.geometryShader) {
+			Logger::warn("Vulkan device is missing geometry shader support");
 			return -1;
 		}
 
@@ -327,6 +331,10 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 		}
 
 		if (!requiredExtensions.empty()) {
+			Logger::warn("Vulkan device is missing GPU extensions:");
+			for (auto& extension : requiredExtensions){
+				Logger::warn("{}", extension);
+			}
 			return -1;
 		}
 	}
@@ -334,6 +342,7 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 	// Device Queue Families requirements
 	Queues queues = _getDeviceQueues(device, surface);
 	if (!queues.isComplete()) {
+		Logger::warn("Vulkan device is missing queue families (graphics + present)");
 		return -1;
 	}
 
@@ -342,10 +351,12 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 		VulkanSwapchain::SupportDetails::getSupportDetails(device, surface);
 
 	if (swapchainSupport.formats.empty()) {
+		Logger::warn("Vulkan device is missing swapchain surface formats");
 		return -1;
 	}
 
 	if (swapchainSupport.presentModes.empty()) {
+		Logger::warn("Vulkan device is missing swapchain present modes");
 		return -1;
 	}
 
