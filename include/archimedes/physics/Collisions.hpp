@@ -8,6 +8,10 @@ namespace arch::physics {
 
 	bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 
+	bool checkSAT(const std::vector<float3>& axes1, const std::vector<float3>& axes2,
+				const TransformComponent& transform1, const TransformComponent& transform2,
+				const ShapeSAT& shape1, const ShapeSAT& shape2);
+
 	template<typename ShapeA, typename ShapeB>
 	concept CollidableReversed = requires(const ShapeB& shape1, const ShapeA& shape2,
 		const TransformComponent& transform1, const TransformComponent& transform2) {
@@ -23,4 +27,11 @@ namespace arch::physics {
 
 	bool checkCollision(const OBB& shape1, const OBB& shape2, const TransformComponent& transform1,
 		const TransformComponent& transform2);
+
+	bool checkCollision(const Triangle& shape1, const Triangle& shape2, const TransformComponent& transform1,
+		const TransformComponent& transform2);
+
+	bool checkCollision(const Triangle& shape1, const OBB& shape2, const TransformComponent& transform1,
+		const TransformComponent& transform2);
+	
 } // namespace arch::physics

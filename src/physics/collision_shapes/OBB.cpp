@@ -1,5 +1,6 @@
 #include <archimedes/physics/collision_shapes/OBB.h>
 #include <archimedes/Mmath.h>
+#include <archimedes/physics/Helpers.h>
 
 
 namespace arch::physics {
@@ -10,23 +11,13 @@ namespace arch::physics {
 		}
 	}
 
-	float3 OBB::_getSeparatingAxis(float3 pairVertex1, float3 pairVertex2, float3 otherVertex) const {
-		float3 edge = pairVertex2 - pairVertex1;
-		float3 candidate1 = { -edge.y, edge.x, 0.0f };
-		float3 candidate2 = -candidate1;
-		if (glm::dot(candidate1, otherVertex - pairVertex1) > 0) {
-			return candidate2;
-		}
-		return candidate1;
-	}
-
 	std::vector<float3> OBB::getSeparatingAxes(TransformComponent transform) const {
 		std::vector<float3> vertices = getRealVertices(transform);
+		Quat quaternion = arch::quaternion(rotation);
 		std::vector<float3> axes;
-		axes.push_back(_getSeparatingAxis(vertices[0], vertices[1], vertices[2]));
-		axes.push_back(_getSeparatingAxis(vertices[1], vertices[2], vertices[3]));
+		axes.push_back(getConvexPolygonNorm(vertices[0], vertices[1], vertices[2]));
+		axes.push_back(getConvexPolygonNorm(vertices[1], vertices[2], vertices[3]));
 		for (auto& axis : axes) {
-			Quat quaternion = arch::quaternion(rotation);
 			axis = quaternion * axis;
 			axis = glm::normalize(axis);
 		}
@@ -41,8 +32,8 @@ namespace arch::physics {
 			{ topLeft.x, bottomRight.y, 0.0f }
 		};
 		Mat4x4 model = transform.getTransformMatrix();
+		Quat quaternion = arch::quaternion(rotation);
 		for (auto& vertex : vertices) {
-			Quat quaternion = arch::quaternion(rotation);
 			vertex = quaternion * vertex;
 			vertex = float3(model * float4(vertex, 1.0f));
 		}

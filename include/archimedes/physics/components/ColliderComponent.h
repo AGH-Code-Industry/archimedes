@@ -5,6 +5,7 @@
 
 #include <archimedes/ecs/Entity.h>
 #include <archimedes/physics/collision_shapes/OBB.h>
+#include <archimedes/physics/collision_shapes/Triangle.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
@@ -12,7 +13,7 @@ namespace arch::physics {
 using TransformComponent = scene::components::TransformComponent;
 
 struct ColliderComponent {
-	std::variant<OBB> shape;
+	std::variant<OBB, Triangle> shape;
 	std::function<void(ecs::Entity, ecs::Entity)> action;
 
 	static bool areColliding(const ColliderComponent& collider1, const ColliderComponent& collider2,

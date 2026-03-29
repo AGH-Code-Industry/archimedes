@@ -4,12 +4,10 @@
 
 namespace arch::physics {
 
-struct OBB : public ShapeSAT {
-	float3 topLeft;
-	float3 bottomRight;
-	f32 rotation;
+struct Triangle : public ShapeSAT {
+    std::array<float3, 3> points;
 
-	OBB(float3 topLeft, float3 bottomRight, f32 rotation);
+	Triangle(float3 pointA, float3 pointB, float3 pointC);
 	std::vector<float3> getSeparatingAxes(TransformComponent transform) const override;
 	float2 getProjection(float3 axis, TransformComponent transform) const override;
 	std::vector<float3> getRealVertices(TransformComponent transform) const;
