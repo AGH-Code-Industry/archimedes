@@ -1,4 +1,4 @@
-#include <../../include/archimedes/physics/components/RigidBodyComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <gtest/gtest.h>
@@ -22,9 +22,11 @@ TEST(Physics, TestUpdate) {
 		{
 			1.f,
 			{1.f, 1.f, 0.f},
-			startV
+			startV,
+			0.0f
 		}
 	);
+
 	auto& transform = domain.addComponent<scene::components::TransformComponent>(
 		e0,
 		{
@@ -41,10 +43,7 @@ TEST(Physics, TestUpdate) {
 	EXPECT_EQ(transform.position, t * startV);
 
 	// Expect that velocity updated accordingly to the force
-	EXPECT_EQ(rigidBody.velocity, startV + t * rigidBody.force);
+	EXPECT_EQ(rigidBody.linearVelocity, startV + t * rigidBody.force);
 }
 
-TEST(Physics, CheckCollisions) {
-
-}
 } // namespace physics
