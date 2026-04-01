@@ -92,7 +92,7 @@ jobs:
           build_type=${{ matrix.build_type }}
           compiler.cppstd=23
           " > ~/.conan2/profiles/archimedes
-          conan create . --build=missing --profile:all=archimedes
+          conan create . --build=missing --profile:all=archimedes --version 0.1.0
 
   Windows:
     runs-on: windows-2025
@@ -197,4 +197,4 @@ jobs:
           ${{ matrix.compiler == 'cl' && 'compiler.runtime=dynamic' || '' }}
           ${{ matrix.compiler == 'cl' && format('compiler.runtime_type={0}', matrix.runtime_type) || '' }}
           ' > ~/.conan2/profiles/archimedes
-          conan create . --build=missing --profile:all=archimedes
+          conan create . --build=missing --profile:all=archimedes --version 0.1.0

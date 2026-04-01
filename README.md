@@ -1,78 +1,25 @@
 # Archimedes
-Archimedes - Game Engine
 
-# Installation
-Archimedes is actually a C++ library. A tested way to link it into your game
-is using `git submodule`. 
+<img src="https://raw.githubusercontent.com/wiki/AGH-Code-Industry/archimedes/images/logo.png"> <br>
 
-First, clone this repo into your directory with dependencies using `git submodule` command.
+Archimedes is a game engine, developed at [AGH Code Industry](https://github.com/agh-Code-Industry).
 
-``` sh
-git submodule add 'https://github.com/AGH-Code-Industry/archimedes' <dependencies>/archimedes
-```
+## Installation
 
-Then, you can include it in your CMake project.
+For installation steps, please check out this [wiki entry](https://github.com/AGH-Code-Industry/archimedes/wiki/Installation).
 
-``` cmake
-...
+## Usage
 
-add_subdirectory(extern/archimedes)
-target_link_libraries(${PROJECT_NAME} archimedes)
-
-...
-```
-
-# Updating to newest version
-If you have followed [Installation](#Installation) section, you should be able
-to bump archimedes version using 
-``` sh
-git submodule update --remote
-```
+**Archimedes** can be used as a [Conan2](https://conan.io/) package, available at `https://artifactory.coin.agh.edu.pl/artifactory/api/conan/conan-local`. <br>
+[This template repository](https://github.com/AGH-Code-Industry/archimedes-template) is preconfigured to use **Archimedes** with Conan2 and CMake. <br>
 
 
-# Compiling
+## Support
 
-Prerequred:
-- Conan 2.x
-- git
-- CMake >= 3.19
+As of now, Archimedes supports: <br>
 
-```sh
-git clone https://github.com/AGH-Code-Industry/archimedes
-```
-```sh
-cd archimedes
-```
-
-```sh
-cmake . -B build -DCMAKE_BUILD_TYPE=<Release/Debug> -DARCHIMEDES_FORCE_CONAN_INSTALL=TRUE
-```
-```sh
-cmake --build ./build
-```
-
-# Running Tests
-If you have followed [Compiling](#Compiling) section, you should be able run tests
-```sh
-cd build
-./test_archimedes
-```
-
-# Project structure
-```
-- archimedes
-  - conanfile.py
-  - CMakeLists.txt
-  - README.md
-  - LICENSE.md
-  - cmake
-      - ... <pliki cmake>
-  - include
-      - ... <pliki nagłówkowe .h i implementacje szablonów .hpp>
-  - src
-      - ... <pliki źródłowe .cpp>
-  - archimedes_bin
-      - ... <przykładowy projekt testowy>
-  - tests
-      - ... <pliki źródłowe .cpp testów jednostkowych>
-```
+- x64:
+  - Windows:
+	- MSVC (19.44)
+  - GNU/Linux:
+	- GCC (14)

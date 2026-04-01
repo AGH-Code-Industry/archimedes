@@ -2,24 +2,19 @@
 
 from conan import ConanFile
 from conan.tools.microsoft.visual import is_msvc
-from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import cmake_layout, CMakeToolchain
+
 import re
 import subprocess
 
-def read_version() -> str:
-	version = open('version.txt').read().strip()
-	if not re.search("^[0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]$", version):
-		raise ValueError(f'\'{version}\' is not a valid version')
-	return version
-
 class ArchimedesConan(ConanFile):
 	name = 'archimedes'
-	version = read_version()
+	version = '0.1.0' # dummy
 	license = 'Apache-2.0'
 	url = 'https://github.com/AGH-Code-Industry/archimedes'
 	description = 'Archimedes Game Engine, @AGH Code Industry'
 	settings = 'os', 'compiler', 'build_type', 'arch'
-	generators = 'CMakeDeps', 'CMakeToolchain'
+	generators = ('CMakeDeps',)
 
 	def requirements(self):
 		self.requires('glfw/3.4')
@@ -59,3 +54,8 @@ class ArchimedesConan(ConanFile):
 			
 	def layout(self):
 		cmake_layout(self)
+
+	def generate(self):
+		tc = CMakeToolchain(self)
+		tc.user_presets_path = False
+		tc.generate()

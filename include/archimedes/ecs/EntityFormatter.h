@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ctre.hpp>
+#include <cstdint>
 #include <format>
 #include <iostream>
 
@@ -11,16 +11,19 @@ template<>
 struct std::formatter<arch::ecs::Entity> {
 private:
 	uint32_t _width = 0;
-	short _widthIdx = -1;
 	char _type = 'd';
-	char _alignment = '>';
 	char _versionSep = '\0';
 	char _fill = ' ';
-	bool _prefix = false;
-	bool _hasIdx = false;
+	uint8_t _flags = 0;
 
-	// ctre's to_optional_number did not work
-	static constexpr int _svToInt(std::string_view sv) noexcept;
+	enum Flags : uint8_t {
+		hasIdx = 1 << 0,
+		hasPrefix = 1 << 1,
+		alignLeft = 1 << 2,
+		alignCenter = 1 << 3,
+		alignRight = 1 << 4,
+		align = alignLeft | alignRight | alignCenter
+	};
 
 public:
 
