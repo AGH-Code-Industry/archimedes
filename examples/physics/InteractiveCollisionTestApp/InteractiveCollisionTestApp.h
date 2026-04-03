@@ -51,8 +51,8 @@ struct InteractiveCollisionTestApp final: Application {
 
 		const auto pipeline = renderer->getPipelineManager()->create(
 			{
-				.vertexShaderPath = "run/shaders/vertex_default.glsl",
-				.fragmentShaderPath = "run/shaders/fragment_default2.glsl",
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
 				.textures = {},
 				.buffers = { uniformBuffer },
 			}
