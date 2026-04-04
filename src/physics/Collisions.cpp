@@ -72,4 +72,114 @@ namespace arch::physics {
 		return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 	}
 
+	bool checkCollision(const HorizontalLine& shape1, const HorizontalLine& shape2,
+    	const TransformComponent& transform1, const TransformComponent& transform2){
+			return false;
+		}
+
+	bool checkCollision(const VerticalLine& shape1, const VerticalLine& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2) {
+		return false;
+	}
+
+	bool checkCollision(const HorizontalLine& shape1, const VerticalLine& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2) {
+		return false;
+	}
+
+	bool checkCollision(const HorizontalLine& shape1, const Circle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 y = shape1.getRealPosition(transform1);
+		float3 center = shape2.getRealCenter(transform2);
+		return std::abs(center.y - y) <= shape2.radius;
+	}
+
+	bool checkCollision(const HorizontalLine& shape1, const Triangle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 y = shape1.getRealPosition(transform1);
+		std::vector<float3> vertices = shape2.getRealVertices(transform2);
+		bool aboveFound = false;
+		bool belowFound = false;
+		for (const auto& vertex : vertices) {
+			if (vertex.y > y) {
+				aboveFound = true;
+			}
+			else if (vertex.y < y) {
+				belowFound = true;
+			}
+			if (aboveFound && belowFound) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool checkCollision(const HorizontalLine& shape1, const OBB& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 y = shape1.getRealPosition(transform1);
+		std::vector<float3> vertices = shape2.getRealVertices(transform2);
+		bool aboveFound = false;
+		bool belowFound = false;
+		for (const auto& vertex : vertices) {
+			if (vertex.y > y) {
+				aboveFound = true;
+			}
+			else if (vertex.y < y) {
+				belowFound = true;
+			}
+			if (aboveFound && belowFound) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+
+	bool checkCollision(const VerticalLine& shape1, const Circle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 x = shape1.getRealPosition(transform1);
+		float3 center = shape2.getRealCenter(transform2);
+		return std::abs(center.x - x) <= shape2.radius;
+	}
+
+	bool checkCollision(const VerticalLine& shape1, const Triangle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 x = shape1.getRealPosition(transform1);
+		std::vector<float3> vertices = shape2.getRealVertices(transform2);
+		bool leftFound = false;
+		bool rightFound = false;
+		for (const auto& vertex : vertices) {
+			if (vertex.x > x) {
+				rightFound = true;
+			}
+			else if (vertex.x < x) {
+				leftFound = true;
+			}
+			if (leftFound && rightFound) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool checkCollision(const VerticalLine& shape1, const OBB& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2){
+		f32 x = shape1.getRealPosition(transform1);
+		std::vector<float3> vertices = shape2.getRealVertices(transform2);
+		bool leftFound = false;
+		bool rightFound = false;
+		for (const auto& vertex : vertices) {
+			if (vertex.x > x) {
+				rightFound = true;
+			}
+			else if (vertex.x < x) {
+				leftFound = true;
+			}
+			if (leftFound && rightFound) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

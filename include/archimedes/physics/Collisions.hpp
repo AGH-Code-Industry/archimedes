@@ -24,7 +24,7 @@ namespace arch::physics {
 		const TransformComponent& transform2) {
 		return checkCollision(shape2, shape1, transform2, transform1);
 	}
-
+	
 	bool checkCollision(const OBB& shape1, const OBB& shape2, const TransformComponent& transform1,
 		const TransformComponent& transform2);
 
@@ -42,5 +42,32 @@ namespace arch::physics {
 
 	bool checkCollision(const Circle& shape1, const OBB& shape2, const TransformComponent& transform1,
 		const TransformComponent& transform2);
+
+	bool checkCollision(const HorizontalLine& shape1, const HorizontalLine& shape2,
+    	const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const VerticalLine& shape1, const VerticalLine& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const HorizontalLine& shape1, const VerticalLine& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const HorizontalLine& shape1, const Circle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const HorizontalLine& shape1, const Triangle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const HorizontalLine& shape1, const OBB& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const VerticalLine& shape1, const Circle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const VerticalLine& shape1, const Triangle& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
+
+	bool checkCollision(const VerticalLine& shape1, const OBB& shape2,
+		const TransformComponent& transform1, const TransformComponent& transform2);
 	
 } // namespace arch::physics
