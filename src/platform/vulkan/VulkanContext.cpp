@@ -301,8 +301,8 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-    std::string deviceName = deviceProperties.deviceName;
-    Logger::info("Evaluating Vulkan device: {}", deviceName);
+	std::string deviceName = deviceProperties.deviceName;
+	Logger::info("Evaluating Vulkan device: {}", deviceName);
 
 	// Device features requirements
 	{
@@ -332,7 +332,7 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 
 		if (!requiredExtensions.empty()) {
 			Logger::warn("Vulkan device is missing GPU extensions:");
-			for (auto& extension : requiredExtensions){
+			for (auto& extension : requiredExtensions) {
 				Logger::warn("{}", extension);
 			}
 			return -1;

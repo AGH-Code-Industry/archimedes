@@ -111,12 +111,10 @@ bool Face::load() noexcept {
 	}
 
 	for (auto&& kerning : json["kerning"]) {
-		auto [it, ignored] = _kerning.insert(
-			{
-				{ kerning["unicode1"].asUInt(), kerning["unicode2"].asUInt() },
-				kerning["advance"].asFloat()
-		 }
-		);
+		auto [it, ignored] = _kerning.insert({
+			{ kerning["unicode1"].asUInt(), kerning["unicode2"].asUInt() },
+			kerning["advance"].asFloat()
+		 });
 	}
 
 	// END loading from json

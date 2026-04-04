@@ -98,8 +98,7 @@ struct std::iterator_traits<arch::ecs::ViewIterator<I, E>> {
 };
 
 // ViewIterator models bidirectional_iterator
-static_assert(
-	std::bidirectional_iterator<arch::ecs::ViewIterator<arch::TypeList<int, float, double>, arch::TypeList<>>>
-);
+static_assert(std::bidirectional_iterator<
+			  arch::ecs::ViewIterator<arch::TypeList<int, float, double>, arch::TypeList<>>>);
 
 #include "ViewIterator.hpp"

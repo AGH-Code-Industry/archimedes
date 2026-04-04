@@ -1,10 +1,10 @@
 #pragma once
-#include <archimedes/physics/collision_shapes/SATShape.h>
 #include <archimedes/physics/PhysicsException.h>
+#include <archimedes/physics/collision_shapes/SATShape.h>
 
 namespace arch::physics {
 
-struct OBB : public SATShape {
+struct OBB: public SATShape {
 	float3 topLeft;
 	float3 bottomRight;
 	f32 rotation;

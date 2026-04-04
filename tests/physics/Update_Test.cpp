@@ -1,7 +1,7 @@
-#include <archimedes/physics/components/RigidBodyComponent.h>
-#include <archimedes/physics/components/ColliderComponent.h>
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
+#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
 #include <gtest/gtest.h>
 
 namespace physics {
@@ -22,31 +22,28 @@ TEST(Physics, TestUpdate) {
 		e0,
 		{
 			1.f,
-			{1.f, 1.f, 0.f},
+			{ 1.f, 1.f, 0.f },
 			startV,
 			0.0f
-		}
+	 }
 	);
 
 	auto& transform = domain.addComponent<scene::components::TransformComponent>(
 		e0,
 		{
-			{0.f, 0.f, 0.f},
-			{0.f, 0.f, 0.f, 1.f},
+			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f, 0.f, 1.f },
 			math::float3(1)
-		}
+	}
 	);
 
-	auto collision = [&, &domain = domain](const ecs::Entity me, const ecs::Entity other) {};
+	auto collision = [&, &domain = domain](const ecs::Entity me, const ecs::Entity other) {
+	};
 
-
-	domain.addComponent(e0,
+	domain.addComponent(
+		e0,
 		phy::ColliderComponent{
-			.shape = phy::OBB (
-					math::float3{-0.25f, 0.25f, 0.0f},
-					math::float3{ 0.25f, -0.25f , 0.0f},
-					0.0f
-			),
+			.shape = phy::OBB(math::float3{ -0.25f, 0.25f, 0.0f }, math::float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
 			.action = collision,
 		}
 	);

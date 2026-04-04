@@ -1,11 +1,11 @@
 #pragma once
-#include <archimedes/physics/collision_shapes/SATShape.h>
 #include <archimedes/physics/PhysicsException.h>
+#include <archimedes/physics/collision_shapes/SATShape.h>
 
 namespace arch::physics {
 
-struct Triangle : public SATShape {
-    std::array<float3, 3> points;
+struct Triangle: public SATShape {
+	std::array<float3, 3> points;
 
 	Triangle(float3 pointA, float3 pointB, float3 pointC);
 	std::vector<float3> getSeparatingAxes(const TransformComponent& transform) const;

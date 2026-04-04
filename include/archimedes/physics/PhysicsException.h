@@ -13,7 +13,10 @@ public:
 	/// @param message Message of the exception.
 	/// @param location Source location of the exception.
 	///
-	PhysicsException(const std::string& message, const std::source_location& location = std::source_location::current());
+	PhysicsException(
+		const std::string& message,
+		const std::source_location& location = std::source_location::current()
+	);
 };
 
 using Exception = PhysicsException;

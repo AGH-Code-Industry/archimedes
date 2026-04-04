@@ -36,10 +36,10 @@ public:
 
 private:
 
-	EngineConfig _engineConfig; 
+	EngineConfig _engineConfig;
 	Ref<Window> _mainWindow;
-	Ref<gfx::Renderer> _renderer; 
-	Ref<scene::SceneManager> _sceneManager; 
+	Ref<gfx::Renderer> _renderer;
+	Ref<scene::SceneManager> _sceneManager;
 	Unique<Application> _application;
 
 private:
