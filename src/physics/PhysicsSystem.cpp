@@ -33,34 +33,22 @@ f32 PhysicsSystem::update() {
 		rigidBody.linearVelocity += a * t;
 	}
 
-	_collisionDetection(t);
-
+	_collisionSystem.update();
 	_prevTimePoint = Clock::now();
 
 	return t;
 }
 
-void PhysicsSystem::_collisionDetection(f32 t) const {
-	auto viewColliding = _domain.view<ColliderComponent, TransformComponent>();
+std::vector<ecs::Entity> PhysicsSystem::getEnteredCollisions(ecs::Entity entity) const{
+	return _collisionSystem.getEnteredCollisions(entity);
+}
 
-	// collide every CollidingComponent with every other CollidingComponent
-	for (auto lhsIt = viewColliding.begin(); lhsIt != viewColliding.end(); ++lhsIt) {
-		if (std::next(lhsIt) == viewColliding.end()) {
-			break;
-		}
+std::vector<ecs::Entity> PhysicsSystem::getExitedCollisions(ecs::Entity entity) const {
+	return _collisionSystem.getExitedCollisions(entity);
+}
 
-		const ecs::Entity lhs = *lhsIt;
-		auto [collider1, transform1] = viewColliding.get(lhs);
-
-		for (auto rhsIt = std::next(lhsIt); rhsIt != viewColliding.end(); ++rhsIt) {
-			const ecs::Entity rhs = *rhsIt;
-
-			auto [collider2, transform2] = viewColliding.get(rhs);
-			if (ColliderComponent::areColliding(collider1, collider2, transform1, transform2)) {
-				collider1.action(lhs, rhs);
-			}
-		}
-	}
+std::vector<ecs::Entity> PhysicsSystem::getLastingCollisions(ecs::Entity entity) const {
+	return _collisionSystem.getLastingCollisions(entity);
 }
 
 } // namespace arch::physics

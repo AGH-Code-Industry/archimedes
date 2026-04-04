@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include <archimedes/ecs/Domain.h>
+#include <archimedes/physics/CollisionSystem.h>
 
 namespace arch::physics {
 
@@ -12,14 +13,17 @@ public:
 	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 	using Duration = std::chrono::duration<f32>;
 
+	std::vector<ecs::Entity> getEnteredCollisions(ecs::Entity entity) const;
+	std::vector<ecs::Entity> getExitedCollisions(ecs::Entity entity) const;
+	std::vector<ecs::Entity> getLastingCollisions(ecs::Entity entity) const;
+
 	explicit PhysicsSystem(ecs::Domain& domain);
 	f32 update();
 
 private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
-
-	void _collisionDetection(f32 t) const;
+	CollisionSystem _collisionSystem;
 };
 
 } // namespace arch::physics
