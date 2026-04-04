@@ -10,7 +10,7 @@ namespace arch::physics {
 
 	bool checkSAT(const std::vector<float3>& axes1, const std::vector<float3>& axes2,
 				const TransformComponent& transform1, const TransformComponent& transform2,
-				const ShapeSAT& shape1, const ShapeSAT& shape2);
+				const SATShape& shape1, const SATShape& shape2);
 
 	template<typename ShapeA, typename ShapeB>
 	concept CollidableReversed = requires(const ShapeB& shape1, const ShapeA& shape2,
@@ -32,6 +32,15 @@ namespace arch::physics {
 		const TransformComponent& transform2);
 
 	bool checkCollision(const Triangle& shape1, const OBB& shape2, const TransformComponent& transform1,
+		const TransformComponent& transform2);
+
+	bool checkCollision(const Circle& shape1, const Circle& shape2, const TransformComponent& transform1,
+		const TransformComponent& transform2);
+
+	bool checkCollision(const Circle& shape1, const Triangle& shape2, const TransformComponent& transform1,
+		const TransformComponent& transform2);
+
+	bool checkCollision(const Circle& shape1, const OBB& shape2, const TransformComponent& transform1,
 		const TransformComponent& transform2);
 	
 } // namespace arch::physics

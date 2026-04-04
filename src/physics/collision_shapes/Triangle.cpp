@@ -10,7 +10,7 @@ namespace arch::physics {
         points[2] = pointC;
 	}
 
-	std::vector<float3> Triangle::getSeparatingAxes(TransformComponent transform) const {
+	std::vector<float3> Triangle::getSeparatingAxes(const TransformComponent& transform) const {
 		std::vector<float3> vertices = getRealVertices(transform);
 		std::vector<float3> axes;
         for (i32 i=0; i<3; i++){
@@ -23,7 +23,7 @@ namespace arch::physics {
 		return axes;
 	}
 
-	std::vector<float3> Triangle::getRealVertices(TransformComponent transform) const {
+	std::vector<float3> Triangle::getRealVertices(const TransformComponent& transform) const {
 		std::vector<float3> vertices(points.begin(), points.end());
 		Mat4x4 model = transform.getTransformMatrix();
 		for (auto& vertex : vertices) {
@@ -32,7 +32,7 @@ namespace arch::physics {
 		return vertices;
 	}
 
-	float2 Triangle::getProjection(float3 axis, TransformComponent transform) const {
+	float2 Triangle::getProjection(float3 axis, const TransformComponent& transform) const {
 		std::vector<float3> vertices = getRealVertices(transform);
 		f32 min = glm::dot(axis, vertices[0]);
 		f32 max = min;

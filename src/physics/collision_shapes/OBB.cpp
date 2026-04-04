@@ -11,7 +11,7 @@ namespace arch::physics {
 		}
 	}
 
-	std::vector<float3> OBB::getSeparatingAxes(TransformComponent transform) const {
+	std::vector<float3> OBB::getSeparatingAxes(const TransformComponent& transform) const {
 		std::vector<float3> vertices = getRealVertices(transform);
 		Quat quaternion = arch::quaternion(rotation);
 		std::vector<float3> axes;
@@ -24,7 +24,7 @@ namespace arch::physics {
 		return axes;
 	}
 
-	std::vector<float3> OBB::getRealVertices(TransformComponent transform) const {
+	std::vector<float3> OBB::getRealVertices(const TransformComponent& transform) const {
 		std::vector<float3> vertices = {
 			topLeft,
 			{ bottomRight.x, topLeft.y, 0.0f },
@@ -40,7 +40,7 @@ namespace arch::physics {
 		return vertices;
 	}
 
-	float2 OBB::getProjection(float3 axis, TransformComponent transform) const {
+	float2 OBB::getProjection(float3 axis, const TransformComponent& transform) const {
 		std::vector<float3> vertices = getRealVertices(transform);
 		f32 min = glm::dot(axis, vertices[0]);
 		f32 max = min;
