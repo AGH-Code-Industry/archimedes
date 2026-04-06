@@ -1,6 +1,6 @@
 #pragma once
 #include <archimedes/Mmath.h>
-#include <archimedes/physics/collision_shapes/Shape.h>
+#include <archimedes/physics/collisions/collision_shapes/Shape.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {

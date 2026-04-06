@@ -3,7 +3,7 @@
 #include <archimedes/Engine.h>
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
-#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 
 namespace physicsExample {

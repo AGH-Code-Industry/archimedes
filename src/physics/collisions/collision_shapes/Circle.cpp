@@ -1,6 +1,6 @@
 #include <archimedes/Mmath.h>
 #include <archimedes/physics/Helpers.h>
-#include <archimedes/physics/collision_shapes/Circle.h>
+#include <archimedes/physics/collisions/collision_shapes/Circle.h>
 
 namespace arch::physics {
 Circle::Circle(float3 center, f32 radius): center(center), radius(radius) {}

@@ -2,7 +2,6 @@
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/PhysicsSystem.h>
-#include <archimedes/physics/components/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 

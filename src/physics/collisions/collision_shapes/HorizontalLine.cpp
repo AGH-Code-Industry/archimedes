@@ -1,5 +1,5 @@
 #include <archimedes/Mmath.h>
-#include <archimedes/physics/collision_shapes/HorizontalLine.h>
+#include <archimedes/physics/collisions/collision_shapes/HorizontalLine.h>
 
 namespace arch::physics {
 

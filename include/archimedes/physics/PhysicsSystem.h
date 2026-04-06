@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include <archimedes/ecs/Domain.h>
-#include <archimedes/physics/CollisionSystem.h>
+#include <archimedes/physics/collisions/CollisionSystem.h>
 
 namespace arch::physics {
 

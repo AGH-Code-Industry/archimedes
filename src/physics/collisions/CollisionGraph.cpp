@@ -1,4 +1,4 @@
-#include <archimedes/physics/CollisionGraph.h>
+#include <archimedes/physics/collisions/CollisionGraph.h>
 
 
 namespace arch::physics {

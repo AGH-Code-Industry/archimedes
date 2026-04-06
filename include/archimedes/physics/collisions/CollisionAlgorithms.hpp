@@ -1,5 +1,5 @@
 #pragma once
-#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {

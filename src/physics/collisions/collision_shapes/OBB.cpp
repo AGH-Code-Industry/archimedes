@@ -1,6 +1,6 @@
 #include <archimedes/Mmath.h>
 #include <archimedes/physics/Helpers.h>
-#include <archimedes/physics/collision_shapes/OBB.h>
+#include <archimedes/physics/collisions/collision_shapes/OBB.h>
 
 namespace arch::physics {
 OBB::OBB(float3 topLeft, float3 bottomRight, f32 rotation):

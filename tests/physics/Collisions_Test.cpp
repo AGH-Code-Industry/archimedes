@@ -1,6 +1,6 @@
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
-#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <gtest/gtest.h>
 

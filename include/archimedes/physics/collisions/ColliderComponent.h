@@ -4,11 +4,11 @@
 #include <variant>
 
 #include <archimedes/ecs/Entity.h>
-#include <archimedes/physics/collision_shapes/Circle.h>
-#include <archimedes/physics/collision_shapes/HorizontalLine.h>
-#include <archimedes/physics/collision_shapes/OBB.h>
-#include <archimedes/physics/collision_shapes/Triangle.h>
-#include <archimedes/physics/collision_shapes/VerticalLine.h>
+#include <archimedes/physics/collisions/collision_shapes/Circle.h>
+#include <archimedes/physics/collisions/collision_shapes/HorizontalLine.h>
+#include <archimedes/physics/collisions/collision_shapes/OBB.h>
+#include <archimedes/physics/collisions/collision_shapes/Triangle.h>
+#include <archimedes/physics/collisions/collision_shapes/VerticalLine.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {

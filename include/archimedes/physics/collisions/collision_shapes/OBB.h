@@ -1,6 +1,6 @@
 #pragma once
 #include <archimedes/physics/PhysicsException.h>
-#include <archimedes/physics/collision_shapes/SATShape.h>
+#include <archimedes/physics/collisions/collision_shapes/SATShape.h>
 
 namespace arch::physics {
 

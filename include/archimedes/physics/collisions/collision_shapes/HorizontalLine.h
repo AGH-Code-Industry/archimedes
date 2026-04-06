@@ -1,15 +1,15 @@
 #pragma once
 #include <archimedes/physics/PhysicsException.h>
-#include <archimedes/physics/collision_shapes/Shape.h>
+#include <archimedes/physics/collisions/collision_shapes/Shape.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
 using TransformComponent = arch::scene::components::TransformComponent;
 
-struct VerticalLine: public Shape {
-	f32 x;
+struct HorizontalLine: public Shape {
+	f32 y;
 
-	VerticalLine(f32 x);
+	HorizontalLine(f32 y);
 	f32 getRealPosition(const TransformComponent& transform) const;
 };
 } // namespace arch::physics

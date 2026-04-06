@@ -1,6 +1,6 @@
 #pragma once
 #include <archimedes/ecs/Domain.h>
-#include <archimedes/physics/CollisionGraph.h>
+#include <archimedes/physics/collisions/CollisionGraph.h>
 
 namespace arch::physics {
 

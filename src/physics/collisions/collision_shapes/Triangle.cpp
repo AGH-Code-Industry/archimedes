@@ -1,6 +1,6 @@
 #include <archimedes/Mmath.h>
 #include <archimedes/physics/Helpers.h>
-#include <archimedes/physics/collision_shapes/Triangle.h>
+#include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 
 namespace arch::physics {
 Triangle::Triangle(float3 pointA, float3 pointB, float3 pointC) {

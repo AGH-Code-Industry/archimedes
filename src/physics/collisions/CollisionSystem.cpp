@@ -1,5 +1,5 @@
-#include <archimedes/physics/CollisionSystem.h>
-#include <archimedes/physics/components/ColliderComponent.h>
+#include <archimedes/physics/collisions/CollisionSystem.h>
+#include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 
