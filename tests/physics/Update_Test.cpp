@@ -1,6 +1,5 @@
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
-#include <archimedes/physics/components/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <gtest/gtest.h>
 
@@ -35,17 +34,6 @@ TEST(Physics, TestUpdate) {
 			{ 0.f, 0.f, 0.f, 1.f },
 			math::float3(1)
 	}
-	);
-
-	auto collision = [&, &domain = domain](const ecs::Entity me, const ecs::Entity other) {
-	};
-
-	domain.addComponent(
-		e0,
-		phy::ColliderComponent{
-			.shape = phy::OBB(math::float3{ -0.25f, 0.25f, 0.0f }, math::float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
-			.action = collision,
-		}
 	);
 
 	// Update physics system

@@ -60,11 +60,6 @@ struct InteractiveCollisionTestApp final: Application {
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		auto collision = [&, &domain = scene->domain()](const ecs::Entity me, const ecs::Entity other) {
-			auto position = domain.getComponent<scene::components::TransformComponent>(me).position;
-			Logger::info("Collision spotted at: ({}, {}, {})", position.x, position.y, position.z);
-		};
-
 		player = scene->newEntity();
 		float3 position{ 0.f, 0.f, 0.f };
 		scene->domain().addComponent<scene::components::TransformComponent>(
@@ -89,7 +84,6 @@ struct InteractiveCollisionTestApp final: Application {
 						float3{ 0.25f, -0.25f , 0.0f},
 						0.0f
 				),
-				.action = collision,
 			}
 		);
 
@@ -119,7 +113,6 @@ struct InteractiveCollisionTestApp final: Application {
 						float3{0.25f, -0.25f, 0.0f},
 						0.0f
 				),
-				.action = collision,
 			}
 		);
 
@@ -157,6 +150,13 @@ struct InteractiveCollisionTestApp final: Application {
 	}
 
 	void update() override {
+		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
+		if(_physicsSystem->getEnteredCollisions(player).size() > 0) {
+			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
+		}
+		if(_physicsSystem->getExitedCollisions(player).size() > 0) {
+			Logger::info("Collision ended! Position: {}, {}", playerPosition.x, playerPosition.y);
+		}
 		const float3 linearVelocity = linearVelocityBase * getLinearVelocity();
 		const f32 angularVelocity = angularVelocityBase * getAngularVelocity();
 		auto& rigidBody = scene->domain().getComponent<phy::RigidBodyComponent>(player);

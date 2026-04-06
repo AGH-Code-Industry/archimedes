@@ -11,8 +11,28 @@ using namespace arch;
 namespace phy = physics;
 
 struct RepulseTestApp final: Application {
+	ecs::Entity e1, e2;
+	Ref<Scene> testScene;
+
+	void ideallyElasticCollision(const ecs::Entity me, const ecs::Entity other) {
+		auto& domain = testScene->domain();
+		phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
+		phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
+
+		float3 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
+		v1 += 2 * otherBody.mass * otherBody.linearVelocity;
+		v1 /= myBody.mass + otherBody.mass;
+
+		float3 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
+		v2 += 2 * myBody.mass * myBody.linearVelocity;
+		v2 /= myBody.mass + otherBody.mass;
+
+		myBody.linearVelocity = v1;
+		otherBody.linearVelocity = v2;
+	};
+
 	void init() override {
-		const Ref<Scene> testScene = createRef<Scene>();
+		testScene = createRef<Scene>();
 
 		// 2D square
 		struct Vertex {
@@ -49,23 +69,7 @@ struct RepulseTestApp final: Application {
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		auto ideallyElasticCollision = [&, &domain = testScene->domain()](const ecs::Entity me, const ecs::Entity other) {
-			phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
-			phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
-
-			float3 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
-			v1 += 2 * otherBody.mass * otherBody.linearVelocity;
-			v1 /= myBody.mass + otherBody.mass;
-
-			float3 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
-			v2 += 2 * myBody.mass * myBody.linearVelocity;
-			v2 /= myBody.mass + otherBody.mass;
-
-			myBody.linearVelocity = v1;
-			otherBody.linearVelocity = v2;
-		};
-
-		const ecs::Entity e1 = testScene->newEntity();
+		e1 = testScene->newEntity();
 		float3 position{ -.875f, 0.f, 0.f };
 		testScene->domain().addComponent<scene::components::TransformComponent>(
 			e1,
@@ -89,12 +93,11 @@ struct RepulseTestApp final: Application {
 						float3{ .25f, -.25f , 0.0f},
 						0.0f
 				),
-				.action = ideallyElasticCollision
 			}
 		);
 
 
-		const ecs::Entity e2 = testScene->newEntity();
+		e2 = testScene->newEntity();
 		position = { .75f, 0.f, 0.f };
 		testScene->domain().addComponent<scene::components::TransformComponent>(
 			e2,
@@ -119,7 +122,6 @@ struct RepulseTestApp final: Application {
 						float3{0.25f, -0.25f, 0.0f},
 						0.0f
 				),
-				.action = ideallyElasticCollision
 			}
 		);
 
@@ -128,6 +130,11 @@ struct RepulseTestApp final: Application {
 	}
 
 	void update() override {
+		auto enteredCollisions = _physicsSystem->getEnteredCollisions(e1);
+		if(std::find(enteredCollisions.begin(), enteredCollisions.end(), e2) != enteredCollisions.end()) {
+			Logger::info("Collision detected!");
+			ideallyElasticCollision(e1, e2);
+		}
 		_physicsSystem->update();
 	}
 

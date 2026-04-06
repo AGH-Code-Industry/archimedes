@@ -17,7 +17,6 @@ using TransformComponent = scene::components::TransformComponent;
 
 struct ColliderComponent {
 	std::variant<OBB, Triangle, Circle, HorizontalLine, VerticalLine> shape;
-	std::function<void(ecs::Entity, ecs::Entity)> action;
 
 	static bool areColliding(
 		const ColliderComponent& collider1,

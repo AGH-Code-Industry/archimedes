@@ -1,4 +1,4 @@
-#include <archimedes/physics/Collisions.hpp>
+#include <archimedes/physics/CollisionAlgorithms.hpp>
 
 #include <archimedes/physics/components/ColliderComponent.h>
 

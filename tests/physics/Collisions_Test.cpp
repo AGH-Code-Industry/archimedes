@@ -17,8 +17,6 @@ protected:
 	void SetUp() override {
 		_domain = std::make_unique<ecs::Domain>();
 		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
-		_collision = [&, &domain = _domain](ecs::Entity, ecs::Entity) {
-		};
 	}
 
 	ecs::Entity createOBB(
@@ -29,7 +27,7 @@ protected:
 	) {
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = obb, .action = _collision });
+		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = obb });
 		return e;
 	}
 
@@ -41,7 +39,7 @@ protected:
 	) {
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = tri, .action = _collision });
+		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = tri });
 		return e;
 	}
 
@@ -54,7 +52,7 @@ protected:
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
 		_domain
-			->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = circle, .action = _collision });
+			->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = circle});
 		return e;
 	}
 
@@ -66,7 +64,7 @@ protected:
 	) {
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line, .action = _collision });
+		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line });
 		return e;
 	}
 
@@ -78,13 +76,12 @@ protected:
 	) {
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line, .action = _collision });
+		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line });
 		return e;
 	}
 
 	std::unique_ptr<ecs::Domain> _domain;
 	std::unique_ptr<phy::PhysicsSystem> _system;
-	std::function<void(ecs::Entity, ecs::Entity)> _collision;
 };
 
 TEST_F(CollisionTest, OBBvsOBB_Collision) {

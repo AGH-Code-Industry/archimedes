@@ -1,5 +1,3 @@
-#include <archimedes/physics/Collisions.hpp>
-
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
@@ -12,7 +10,8 @@ namespace arch::physics {
 
 using TransformComponent = scene::components::TransformComponent;
 
-PhysicsSystem::PhysicsSystem(ecs::Domain& domain): _domain(domain), _prevTimePoint(Clock::now()) {}
+PhysicsSystem::PhysicsSystem(ecs::Domain& domain):
+	_domain(domain), _prevTimePoint(Clock::now()), _collisionSystem(domain) {}
 
 f32 PhysicsSystem::update() {
 	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
