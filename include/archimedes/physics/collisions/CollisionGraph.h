@@ -1,17 +1,9 @@
 #pragma once
 #include <archimedes/ecs/Domain.h>
+#include <archimedes/physics/collisions/CollisionState.h>
 #include <unordered_map>
 
 namespace arch::physics {
-
-enum CollisionState {
-    Entered,
-    Exited,
-    Lasting,
-    NotExisting,
-    CurrentlyFound
-};
-
 
 class CollisionGraph {
     std::unordered_map<ecs::Entity, std::unordered_map<ecs::Entity, CollisionState>> _graph;

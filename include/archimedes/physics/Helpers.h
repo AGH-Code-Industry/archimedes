@@ -13,4 +13,6 @@ inline float3 getConvexPolygonNorm(float3 edgeVertex1, float3 edgeVertex2, float
 	return candidate1;
 }
 
+
+
 } // namespace arch::physics

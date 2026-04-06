@@ -4,13 +4,18 @@
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
+#include <GLFW/glfw3.h>
 
 namespace arch::physics {
 
 using TransformComponent = scene::components::TransformComponent;
 
-PhysicsSystem::PhysicsSystem(ecs::Domain& domain):
-	_domain(domain), _prevTimePoint(Clock::now()), _collisionSystem(domain) {}
+PhysicsSystem::PhysicsSystem(ecs::Domain& domain, f32 windowWidth, f32 windowHeight):
+	_domain(domain),
+	_prevTimePoint(Clock::now()),
+	_collisionSystem(domain),
+	_windowWidth(windowWidth),
+	_windowHeight(windowHeight) {}
 
 f32 PhysicsSystem::update() {
 	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
@@ -31,7 +36,8 @@ f32 PhysicsSystem::update() {
 		rigidBody.linearVelocity += a * t;
 	}
 
-	_collisionSystem.update();
+	float3 mousePosition = getMousePositionOnMap();
+	_collisionSystem.update(mousePosition);
 	_prevTimePoint = Clock::now();
 
 	return t;
@@ -45,8 +51,27 @@ std::vector<ecs::Entity> PhysicsSystem::getExitedCollisions(ecs::Entity entity) 
 	return _collisionSystem.getExitedCollisions(entity);
 }
 
-std::vector<ecs::Entity> PhysicsSystem::getLastingCollisions(ecs::Entity entity) const {
-	return _collisionSystem.getLastingCollisions(entity);
+std::vector<ecs::Entity> PhysicsSystem::getCollisions(ecs::Entity entity) const {
+	return _collisionSystem.getCollisions(entity);
 }
 
+bool PhysicsSystem::hasMouseEntered(ecs::Entity entity) const {
+	return _collisionSystem.hasMouseEntered(entity);
+}
+
+bool PhysicsSystem::hasMouse(ecs::Entity entity) const {
+	return _collisionSystem.hasMouse(entity);
+}
+
+bool PhysicsSystem::hasMouseExited(ecs::Entity entity) const {
+	return _collisionSystem.hasMouseExited(entity);
+}
+
+float3 PhysicsSystem::getMousePositionOnMap() const {
+	float2 mousePos = input::Mouse::pos();
+	mousePos.x = glm::mix(-1.0f, 1.0f, mousePos.x / _windowWidth);
+	mousePos.y = glm::mix(-1.0f, 1.0f, mousePos.y / _windowHeight);
+	return float3(mousePos.x, mousePos.y, 0.0f);
+
 } // namespace arch::physics
+}

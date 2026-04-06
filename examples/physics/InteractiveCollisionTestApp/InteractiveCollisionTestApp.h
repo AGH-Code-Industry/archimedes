@@ -14,6 +14,9 @@ namespace phy = physics;
 
 struct InteractiveCollisionTestApp final: Application {
 
+	f32 windowWidth = 1'200.f;
+	f32 windowHeight = 600.f;
+
 	std::mutex mutex;
 	ecs::Entity player;
 	Ref<Scene> scene;
@@ -84,12 +87,13 @@ struct InteractiveCollisionTestApp final: Application {
 						float3{ 0.25f, -0.25f , 0.0f},
 						0.0f
 				),
+				.detectsMouse = true
 			}
 		);
 
 
 		const ecs::Entity e2 = scene->newEntity();
-		position = { 0.75f, 0.f, 0.f };
+		position = { 0.6f, 0.f, 0.f };
 		scene->domain().addComponent<scene::components::TransformComponent>(
 			e2,
 			{
@@ -117,7 +121,7 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 
 		scene::SceneManager::get()->changeScene(scene);
-		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()));
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()), windowWidth, windowHeight);
 	}
 
 	float3 getLinearVelocity() {
@@ -153,9 +157,30 @@ struct InteractiveCollisionTestApp final: Application {
 		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
 		if(_physicsSystem->getEnteredCollisions(player).size() > 0) {
 			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
+			auto& variant1 = scene->domain().getComponent<phy::ColliderComponent>(player).shape;
+			arch::physics::OBB& shape1 = std::get<arch::physics::OBB>(variant1);
+			auto vertices1 = shape1.getRealVertices(scene->domain().getComponent<scene::components::TransformComponent>(player));
+			for (const auto& v : vertices1) {
+				Logger::info("Player vertex: {}, {}", v.x, v.y);
+			}
 		}
 		if(_physicsSystem->getExitedCollisions(player).size() > 0) {
 			Logger::info("Collision ended! Position: {}, {}", playerPosition.x, playerPosition.y);
+			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
+			auto& variant1 = scene->domain().getComponent<phy::ColliderComponent>(player).shape;
+			arch::physics::OBB& shape1 = std::get<arch::physics::OBB>(variant1);
+			auto vertices1 = shape1.getRealVertices(scene->domain().getComponent<scene::components::TransformComponent>(player));
+			for (const auto& v : vertices1) {
+				Logger::info("Player vertex: {}, {}", v.x, v.y);
+			}
+			
+		}
+		float3 mousePosition = _physicsSystem->getMousePositionOnMap();
+		if(_physicsSystem->hasMouseEntered(player)) {
+			Logger::info("Mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
+		}
+		if(_physicsSystem->hasMouseExited(player)) {
+			Logger::info("Mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
 		}
 		const float3 linearVelocity = linearVelocityBase * getLinearVelocity();
 		const f32 angularVelocity = angularVelocityBase * getAngularVelocity();

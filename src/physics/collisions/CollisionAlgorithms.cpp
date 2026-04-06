@@ -136,7 +136,7 @@ bool checkCollision(
 ) {
 	f32 y = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
-	return std::abs(center.y - y) <= shape2.radius;
+	return std::abs(center.y - y) < shape2.radius + 0.0001f;
 }
 
 bool checkCollision(
@@ -193,7 +193,7 @@ bool checkCollision(
 ) {
 	f32 x = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
-	return std::abs(center.x - x) <= shape2.radius;
+	return std::abs(center.x - x) < shape2.radius + 0.0001f;
 }
 
 bool checkCollision(

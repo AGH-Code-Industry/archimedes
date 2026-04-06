@@ -11,8 +11,12 @@ using namespace arch;
 namespace phy = physics;
 
 struct RepulseTestApp final: Application {
+	f32 windowWidth = 1'200.f;
+	f32 windowHeight = 600.f;
+
 	ecs::Entity e1, e2;
 	Ref<Scene> testScene;
+
 
 	void ideallyElasticCollision(const ecs::Entity me, const ecs::Entity other) {
 		auto& domain = testScene->domain();
@@ -126,7 +130,7 @@ struct RepulseTestApp final: Application {
 		);
 
 		scene::SceneManager::get()->changeScene(testScene);
-		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()));
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()), windowWidth, windowHeight);
 	}
 
 	void update() override {

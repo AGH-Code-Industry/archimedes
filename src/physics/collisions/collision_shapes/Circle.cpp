@@ -11,7 +11,7 @@ float3 Circle::getSeparatingAxis(const TransformComponent& transform, const std:
 	float3 closestVertex;
 	float3 realCenter = getRealCenter(transform);
 	for (const auto& vertex : realPolygonVertices) {
-		f64 distance = glm::dot(vertex - realCenter, vertex - realCenter);
+		f64 distance = glm::distance2(vertex, realCenter);
 		if (distance < minDistance) {
 			minDistance = distance;
 			closestVertex = vertex;

@@ -11,7 +11,7 @@ namespace scene = arch::scene;
 
 TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
-	phy::PhysicsSystem system(domain);
+	phy::PhysicsSystem system(domain, 800.f, 600.f);
 
 	constexpr auto startV = math::float3(1.f, 0.f, 0.f);
 

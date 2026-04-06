@@ -15,15 +15,24 @@ public:
 
 	std::vector<ecs::Entity> getEnteredCollisions(ecs::Entity entity) const;
 	std::vector<ecs::Entity> getExitedCollisions(ecs::Entity entity) const;
-	std::vector<ecs::Entity> getLastingCollisions(ecs::Entity entity) const;
+	std::vector<ecs::Entity> getCollisions(ecs::Entity entity) const;
 
-	explicit PhysicsSystem(ecs::Domain& domain);
+	bool hasMouseEntered(ecs::Entity entity) const;
+	bool hasMouse(ecs::Entity entity) const;
+	bool hasMouseExited(ecs::Entity entity) const;
+
+	float3 getMousePositionOnMap() const;
+
+	PhysicsSystem(ecs::Domain& domain, f32 windowWidth, f32 windowHeight);
 	f32 update();
 
 private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
 	CollisionSystem _collisionSystem;
+	f32 _windowWidth;
+	f32 _windowHeight;
+
 };
 
 } // namespace arch::physics

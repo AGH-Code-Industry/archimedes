@@ -17,12 +17,19 @@ using TransformComponent = scene::components::TransformComponent;
 
 struct ColliderComponent {
 	std::variant<OBB, Triangle, Circle, HorizontalLine, VerticalLine> shape;
+	bool detectsMouse = false;
 
 	static bool areColliding(
 		const ColliderComponent& collider1,
 		const ColliderComponent& collider2,
 		const TransformComponent& transform1,
 		const TransformComponent& transform2
+	);
+
+	static bool isCollidingWithMouse(
+		const ColliderComponent& collider,
+		const TransformComponent& transform,
+		float3 mousePosition
 	);
 };
 

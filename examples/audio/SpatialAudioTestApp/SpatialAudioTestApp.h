@@ -8,6 +8,10 @@
 using namespace arch;
 
 struct SpatialAudioTestApp: Application {
+	f32 windowWidth = 1'200.f;
+	f32 windowHeight = 600.f;
+
+
 	const std::string soundFile = "wind.mp3";
 	Ref<GraphicsManager> graphicsManager;
 	SoundManager soundManager;
