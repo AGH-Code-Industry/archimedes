@@ -13,6 +13,9 @@ inline float3 getConvexPolygonNorm(float3 edgeVertex1, float3 edgeVertex2, float
 	return candidate1;
 }
 
-
-
+inline f32 getTriangleArea(float3 vertex1, float3 vertex2, float3 vertex3) {
+	return 0.5f * std::abs(vertex1.x * (vertex2.y - vertex3.y) +
+		vertex2.x * (vertex3.y - vertex1.y) +
+		vertex3.x * (vertex1.y - vertex2.y));
+}
 } // namespace arch::physics

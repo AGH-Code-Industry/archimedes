@@ -157,23 +157,9 @@ struct InteractiveCollisionTestApp final: Application {
 		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
 		if(_physicsSystem->getEnteredCollisions(player).size() > 0) {
 			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
-			auto& variant1 = scene->domain().getComponent<phy::ColliderComponent>(player).shape;
-			arch::physics::OBB& shape1 = std::get<arch::physics::OBB>(variant1);
-			auto vertices1 = shape1.getRealVertices(scene->domain().getComponent<scene::components::TransformComponent>(player));
-			for (const auto& v : vertices1) {
-				Logger::info("Player vertex: {}, {}", v.x, v.y);
-			}
 		}
 		if(_physicsSystem->getExitedCollisions(player).size() > 0) {
 			Logger::info("Collision ended! Position: {}, {}", playerPosition.x, playerPosition.y);
-			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
-			auto& variant1 = scene->domain().getComponent<phy::ColliderComponent>(player).shape;
-			arch::physics::OBB& shape1 = std::get<arch::physics::OBB>(variant1);
-			auto vertices1 = shape1.getRealVertices(scene->domain().getComponent<scene::components::TransformComponent>(player));
-			for (const auto& v : vertices1) {
-				Logger::info("Player vertex: {}, {}", v.x, v.y);
-			}
-			
 		}
 		float3 mousePosition = _physicsSystem->getMousePositionOnMap();
 		if(_physicsSystem->hasMouseEntered(player)) {
