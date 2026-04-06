@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <variant>
+#include <bitset>
 
 #include <archimedes/ecs/Entity.h>
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
@@ -18,6 +19,8 @@ using TransformComponent = scene::components::TransformComponent;
 struct ColliderComponent {
 	std::variant<OBB, Triangle, Circle, HorizontalLine, VerticalLine> shape;
 	bool detectsMouse = false;
+	std::bitset<32> isScannedMask{1};
+	std::bitset<32> scansMask{1};
 
 	static bool areColliding(
 		const ColliderComponent& collider1,

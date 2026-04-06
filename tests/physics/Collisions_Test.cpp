@@ -418,4 +418,76 @@ TEST_F(CollisionTest, VerticalLineVsCircle_Touching) {
 	));
 }
 
+TEST_F(CollisionTest, Mask_NoMatch) {
+    phy::Circle circle{{0,0,0}, 1.0f};
+
+    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
+    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+
+    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+
+    c1.isScannedMask = std::bitset<32>(1 << 0);
+    c1.scansMask     = std::bitset<32>(1 << 0);
+
+    c2.isScannedMask = std::bitset<32>(1 << 1);
+    c2.scansMask     = std::bitset<32>(1 << 1);
+
+    ASSERT_FALSE(phy::ColliderComponent::areColliding(
+        c1, c2,
+        _domain->getComponent<TransformComponent>(e1),
+        _domain->getComponent<TransformComponent>(e2)
+    ));
+}
+
+TEST_F(CollisionTest, Mask_OneWayMatch) {
+    phy::Circle circle{{0,0,0}, 1.0f};
+
+    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
+    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+
+    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+
+    c1.isScannedMask = std::bitset<32>(0);
+    c1.scansMask     = std::bitset<32>(1 << 1);
+	
+    c2.isScannedMask = std::bitset<32>(1 << 1);
+    c2.scansMask     = std::bitset<32>(0);
+
+    ASSERT_TRUE(phy::ColliderComponent::areColliding(
+        c1, c2,
+        _domain->getComponent<TransformComponent>(e1),
+        _domain->getComponent<TransformComponent>(e2)
+    ));
+
+	ASSERT_FALSE(phy::ColliderComponent::areColliding(
+        c2, c1,
+		_domain->getComponent<TransformComponent>(e2),
+        _domain->getComponent<TransformComponent>(e1)
+    ));
+}
+
+TEST_F(CollisionTest, Mask_MultipleLayers) {
+    phy::Circle circle{{0,0,0}, 1.0f};
+
+    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
+    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+
+    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+
+    c1.isScannedMask = std::bitset<32>(0);
+    c1.scansMask     = std::bitset<32>(3);
+
+    c2.isScannedMask = std::bitset<32>(1);
+    c2.scansMask     = std::bitset<32>(0);
+
+    ASSERT_TRUE(phy::ColliderComponent::areColliding(
+        c1, c2,
+        _domain->getComponent<TransformComponent>(e1),
+        _domain->getComponent<TransformComponent>(e2)
+    ));
+}
+
 } // namespace physics
