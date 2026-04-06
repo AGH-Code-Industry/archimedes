@@ -72,7 +72,7 @@ CollisionGraph CollisionSystem::_getCollidableEntities() const {
 void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : _savedCollisions.getCollidingEntities()) {
         for(auto& [entity2, state] : _savedCollisions.getCollisions(entity1)) {
-            if(_savedCollisions.getCollisionState(entity1, entity2) == CollisionState::NotExisting) {
+            if(newCollisions.getCollisionState(entity1, entity2) == CollisionState::NotExisting) {
                 if(state == CollisionState::Entered || state == CollisionState::Lasting) {
                     _savedCollisions.changeCollisionState(entity1, entity2, CollisionState::Exited);
                 } else if(state == CollisionState::Exited) {

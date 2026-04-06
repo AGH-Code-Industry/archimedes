@@ -18,23 +18,23 @@ std::vector<ecs::Entity> CollisionGraph::getCollidingEntities() const {
 }
 
 void CollisionGraph::addCollision(ecs::Entity entity1, ecs::Entity entity2, CollisionState state) {
-    _graph[entity1][entity2] = state;
-    _graph[entity2][entity1] = state;
+    if(!_graph.contains(entity1) && !_graph.contains(entity2)){
+        _graph[entity1][entity2] = state;
+    }
 }
 
 void CollisionGraph::changeCollisionState(ecs::Entity entity1, ecs::Entity entity2, CollisionState toState) {
     if(_graph.contains(entity1) && _graph[entity1].contains(entity2)){
         _graph[entity1][entity2] = toState;
-        _graph[entity2][entity1] = toState;
     }
 }
 
 void CollisionGraph::removeCollision(ecs::Entity entity1, ecs::Entity entity2) {
-    if(_graph.contains(entity1)){
+    if(_graph.contains(entity1) && _graph[entity1].contains(entity2)){
         _graph[entity1].erase(entity2);
     }
-    if(_graph.contains(entity2)){
-        _graph[entity2].erase(entity1);
+    if(_graph[entity1].size() == 0) {
+        _graph.erase(entity1);
     }
 }
 
