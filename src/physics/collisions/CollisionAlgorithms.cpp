@@ -26,7 +26,7 @@ std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<
 			belowFound = true;
 		}
 		if (aboveFound && belowFound) {
-			f32 depth = std::min(maxY - y, y - minY);
+			f32 depth = std::min(maxY - y, y - minY) / 2.0f;
 			float3 normal = { 0.0f, 1.0f, 0.0f };
 			return Collision(normal, depth, CollisionState::CurrentlyFound);
 		}
@@ -48,7 +48,7 @@ std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<fl
 			leftFound = true;
 		}
 		if (leftFound && rightFound) {
-			f32 depth = std::min(maxX - x, x - minX);
+			f32 depth = std::min(maxX - x, x - minX) / 2.0f;
 			float3 normal = { 1.0f, 0.0f, 0.0f };
 			return Collision(normal, depth, CollisionState::CurrentlyFound);
 		}
@@ -90,6 +90,7 @@ std::optional<Collision> checkSAT(
 			normal = axis;
 		}
 	}
+	depth /= 2.0f;
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
@@ -139,7 +140,7 @@ std::optional<Collision> checkCollision(
 	if (distanceSquared > std::pow(radiusSum, 2) + 0.0001f) {
 		return std::nullopt;
 	}
-	f32 depth = radiusSum - std::sqrt(distanceSquared);
+	f32 depth = (radiusSum - std::sqrt(distanceSquared)) / 2.0f;
 	float3 normal = glm::normalize(center2 - center1);
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
@@ -208,7 +209,7 @@ std::optional<Collision> checkCollision(
 		return std::nullopt;
 	}
 	float3 normal = { 0.0f, 1.0f, 0.0f };
-	f32 depth = shape2.radius - distance;
+	f32 depth = (shape2.radius - distance) / 2.0f;
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
@@ -247,7 +248,7 @@ std::optional<Collision> checkCollision(
 		return std::nullopt;
 	}
 	float3 normal = { 1.0f, 0.0f, 0.0f };
-	f32 depth = shape2.radius - distance;
+	f32 depth = (shape2.radius - distance) / 2.0f;
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 

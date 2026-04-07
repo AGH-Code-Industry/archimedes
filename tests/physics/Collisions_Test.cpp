@@ -501,7 +501,7 @@ TEST_F(CollisionTest, Mask_MultipleLayers) {
 }
 
 
-TEST_F(CollisionTest, CircleVsCircle_Collision_Data) {
+TEST_F(CollisionTest, CircleVsCircle_DepthNormal) {
 	phy::Circle circle{
 		{ 0, 0, 0 },
 		0.5f
@@ -518,15 +518,13 @@ TEST_F(CollisionTest, CircleVsCircle_Collision_Data) {
 	);
 
 	ASSERT_TRUE(result);
-
 	const auto& col = result.value();
 
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-
+	EXPECT_NEAR(col.depth, 0.1f, 1e-4f);
 	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
 }
 
-TEST_F(CollisionTest, OBBvsOBB_Collision_Data) {
+TEST_F(CollisionTest, OBBvsOBB_DepthNormal) {
 	phy::OBB obb{
 		{ -0.5f,	 0.5f, 0.f },
 		{  0.5f, -0.5f, 0.f },
@@ -544,11 +542,9 @@ TEST_F(CollisionTest, OBBvsOBB_Collision_Data) {
 	);
 
 	ASSERT_TRUE(result);
-
 	const auto& col = result.value();
 
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-
+	EXPECT_NEAR(col.depth, 0.1f, 1e-4f);
 	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
 }
 
@@ -572,12 +568,8 @@ TEST_F(CollisionTest, HorizontalLineVsCircle_DepthNormal) {
 	ASSERT_TRUE(colOpt.has_value());
 	auto col = colOpt.value();
 
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-
-	EXPECT_TRUE(
-		(std::abs(col.normal.y - 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f) ||
-		(std::abs(col.normal.y + 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f)
-	);
+	EXPECT_NEAR(col.depth, 0.1f, 1e-4f);
+	expectNormalApprox(col.normal, { 0.f, 1.f, 0.f });
 }
 
 TEST_F(CollisionTest, VerticalLineVsCircle_DepthNormal) {
@@ -600,12 +592,9 @@ TEST_F(CollisionTest, VerticalLineVsCircle_DepthNormal) {
 	ASSERT_TRUE(colOpt.has_value());
 	auto col = colOpt.value();
 
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+	EXPECT_NEAR(col.depth, 0.1f, 1e-4f);
 
-	EXPECT_TRUE(
-		(std::abs(col.normal.x - 1.0f) < 1e-4f && std::abs(col.normal.y) < 1e-4f) ||
-		(std::abs(col.normal.x + 1.0f) < 1e-4f && std::abs(col.normal.y) < 1e-4f)
-	);
+	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
 }
 
 TEST_F(CollisionTest, TriangleVsHorizontalLine_DepthNormal) {
@@ -630,12 +619,9 @@ TEST_F(CollisionTest, TriangleVsHorizontalLine_DepthNormal) {
 	ASSERT_TRUE(colOpt.has_value());
 	const auto& col = colOpt.value();
 
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+	EXPECT_NEAR(col.depth, 0.1f, 1e-4f);
 
-	EXPECT_TRUE(
-		(std::abs(col.normal.y - 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f) ||
-		(std::abs(col.normal.y + 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f)
-	);
+	expectNormalApprox(col.normal, { 0.f, 1.f, 0.f });
 }
 
 
