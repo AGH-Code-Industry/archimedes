@@ -10,32 +10,32 @@ using TransformComponent = arch::scene::components::TransformComponent;
 
 CollisionSystem::CollisionSystem(ecs::Domain& domain): _domain(domain) {}
 
-std::vector<ecs::Entity> CollisionSystem::getEnteredCollisions(ecs::Entity entity) const {
-    std::vector<ecs::Entity> result;
-    for(auto& [otherEntity, state] : _savedCollisions.getCollisions(entity)) {
-        if(state == CollisionState::Entered) {
-            result.push_back(otherEntity);
+std::unordered_map<ecs::Entity, Collision> CollisionSystem::getEnteredCollisions(ecs::Entity entity) const {
+    std::unordered_map<ecs::Entity, Collision> result;
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Entered) {
+			result[otherEntity] = collision;
         }
     }
     return result;
 }
 
-std::vector<ecs::Entity> CollisionSystem::getExitedCollisions(ecs::Entity entity) const {
-    std::vector<ecs::Entity> result;
-    for(auto& [otherEntity, state] : _savedCollisions.getCollisions(entity)) {
-        if(state == CollisionState::Exited) {
-            result.push_back(otherEntity);
+std::unordered_map<ecs::Entity, Collision> CollisionSystem::getExitedCollisions(ecs::Entity entity) const {
+	std::unordered_map<ecs::Entity, Collision> result;
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Exited) {
+			result[otherEntity] = collision;
         }
     }
 
     return result;
 }
 
-std::vector<ecs::Entity> CollisionSystem::getCollisions(ecs::Entity entity) const {
-    std::vector<ecs::Entity> result;
-    for(auto& [otherEntity, state] : _savedCollisions.getCollisions(entity)) {
-        if(state == CollisionState::Lasting || state == CollisionState::Entered) {
-            result.push_back(otherEntity);
+std::unordered_map<ecs::Entity, Collision> CollisionSystem::getCollisions(ecs::Entity entity) const {
+	std::unordered_map<ecs::Entity, Collision> result;
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Lasting || collision.state == CollisionState::Entered) {
+			result[otherEntity] = collision;
         }
     }
     return result;
@@ -54,16 +54,17 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
         for(i32 j=i+1; j<entities.size(); j++){
             ecs::Entity entity1 = entities[i];
             ecs::Entity entity2 = entities[j];
-            if(!ColliderComponent::areColliding(
-                _domain.getComponent<ColliderComponent>(entity1),
-                _domain.getComponent<ColliderComponent>(entity2),
-                _domain.getComponent<TransformComponent>(entity1),
-                _domain.getComponent<TransformComponent>(entity2)
-            )) {
-                continue;
+			std::optional<Collision> collision = ColliderComponent::areColliding(
+				_domain.getComponent<ColliderComponent>(entity1),
+				_domain.getComponent<ColliderComponent>(entity2),
+				_domain.getComponent<TransformComponent>(entity1),
+				_domain.getComponent<TransformComponent>(entity2)
+			);
+            if (!collision) {
+				continue;
             }
-            collisions.addCollision(entity1, entity2, CollisionState::CurrentlyFound);
-            collisions.addCollision(entity2, entity1, CollisionState::CurrentlyFound);
+            collisions.addCollision(entity1, entity2, collision.value());
+            collisions.addCollision(entity2, entity1, collision.value());
         }
     }
     return collisions;
@@ -71,13 +72,15 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
 
 void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : _savedCollisions.getCollidingEntities()) {
-        for(auto& [entity2, state] : _savedCollisions.getCollisions(entity1)) {
-            if(newCollisions.getCollisionState(entity1, entity2) == CollisionState::NotExisting) {
-                if(state == CollisionState::Entered || state == CollisionState::Lasting) {
-                    _savedCollisions.changeCollisionState(entity1, entity2, CollisionState::Exited);
-                } else if(state == CollisionState::Exited) {
-                    _savedCollisions.removeCollision(entity1, entity2);
-                }
+        for(auto& [entity2, savedCollision] : _savedCollisions.getCollisions(entity1)) {
+			std::optional<Collision> newCollision = newCollisions.getCollision(entity1, entity2); 
+            if (newCollision) {
+				continue;
+			}
+            if(savedCollision.state == CollisionState::Entered || savedCollision.state == CollisionState::Lasting) {
+                _savedCollisions.updateCollision(entity1, entity2, Collision::exitedCollision());
+            } else if(savedCollision.state == CollisionState::Exited) {
+                _savedCollisions.removeCollision(entity1, entity2);
             }
         }
     }
@@ -85,19 +88,38 @@ void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newColli
 
 void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : newCollisions.getCollidingEntities()) {
-        for(auto& [entity2, _] : newCollisions.getCollisions(entity1)) {
-            CollisionState state = _savedCollisions.getCollisionState(entity1, entity2);
-            switch(state){
+        for(auto& [entity2, newCollision] : newCollisions.getCollisions(entity1)) {
+			std::optional<Collision> savedCollision = _savedCollisions.getCollision(entity1, entity2);
+            if (!savedCollision) {
+				_savedCollisions.addCollision(
+                    entity1,
+                    entity2,
+                    newCollision.changeState(CollisionState::Entered)
+                );
+				continue;
+            }
+			CollisionState savedCollisionState = savedCollision.value().state;
+            switch(savedCollisionState){
                 case CollisionState::Entered:
-                    _savedCollisions.changeCollisionState(entity1, entity2, CollisionState::Lasting);
+                    _savedCollisions.updateCollision(
+                        entity1,
+                        entity2,
+                        newCollision.changeState(CollisionState::Lasting)
+                    );
                     break;
                 case CollisionState::Exited:
-                    _savedCollisions.changeCollisionState(entity1, entity2, CollisionState::Entered);
+                    _savedCollisions.updateCollision(
+                        entity1,
+                        entity2,
+                        newCollision.changeState(CollisionState::Entered)
+                    );
                     break;
-                case CollisionState::NotExisting:
-                    _savedCollisions.addCollision(entity1, entity2, CollisionState::Entered);
-                    break;
-                case CollisionState::Lasting:
+				case CollisionState::Lasting:
+					_savedCollisions.updateCollision(
+                        entity1,
+                        entity2,
+                        newCollision.changeState(CollisionState::Lasting)
+                    );
                     break;
                 case CollisionState::CurrentlyFound:
                     throw PhysicsException("Saved collision's state should not be CurrentlyFound");
@@ -129,29 +151,32 @@ MouseSet CollisionSystem::_getMouseEntities(float3 mousePosition) const {
 
 void CollisionSystem::_checkDisappearedMouseCollisions(const MouseSet& newMouseCollisions) {
     for(auto& entity : _mouseCollisions.getMouseEntities()) {
-        CollisionState state = _mouseCollisions.getCollisionState(entity);
-        if(newMouseCollisions.getCollisionState(entity) == CollisionState::NotExisting) {
-            if(state == CollisionState::Entered || state == CollisionState::Lasting) {
-                _mouseCollisions.changeCollisionState(entity, CollisionState::Exited);
-            } else if(state == CollisionState::Exited) {
-                _mouseCollisions.removeCollision(entity);
-            }
+        std::optional<CollisionState> state = _mouseCollisions.getCollision(entity);
+		std::optional<CollisionState> newState = newMouseCollisions.getCollision(entity);
+        if (!state || newState) {
+			continue;
         }
+		if (state.value() == CollisionState::Entered || state.value() == CollisionState::Lasting) {
+			_mouseCollisions.updateCollision(entity, CollisionState::Exited);
+		} else if (state.value() == CollisionState::Exited) {
+			_mouseCollisions.removeCollision(entity);
+		}
     }
 }
 
 void CollisionSystem::_readCurrentMouseCollisions(const MouseSet& newMouseCollisions) {
     for(auto& entity : newMouseCollisions.getMouseEntities()) {
-        CollisionState state = _mouseCollisions.getCollisionState(entity);
-        switch(state){
+        std::optional<CollisionState> state = _mouseCollisions.getCollision(entity);
+        if (!state) {
+			_mouseCollisions.addCollision(entity, CollisionState::Entered);
+			continue;
+        }
+        switch(state.value()){
             case CollisionState::Entered:
-                _mouseCollisions.changeCollisionState(entity, CollisionState::Lasting);
+                _mouseCollisions.updateCollision(entity, CollisionState::Lasting);
                 break;
             case CollisionState::Exited:
-                _mouseCollisions.changeCollisionState(entity, CollisionState::Entered);
-                break;
-            case CollisionState::NotExisting:
-                _mouseCollisions.addCollision(entity, CollisionState::Entered);
+                _mouseCollisions.updateCollision(entity, CollisionState::Entered);
                 break;
             case CollisionState::Lasting:
                 break;
@@ -162,16 +187,20 @@ void CollisionSystem::_readCurrentMouseCollisions(const MouseSet& newMouseCollis
 }
 
 bool CollisionSystem::hasMouseEntered(ecs::Entity entity) const {
-    return _mouseCollisions.getCollisionState(entity) == CollisionState::Entered;
+    return _mouseCollisions.getCollision(entity) == CollisionState::Entered;
 }
 
 bool CollisionSystem::hasMouse(ecs::Entity entity) const {
-    CollisionState state = _mouseCollisions.getCollisionState(entity);
-    return state == CollisionState::Entered || state == CollisionState::Lasting;
+	std::optional<CollisionState> state = _mouseCollisions.getCollision(entity);
+    if (!state) {
+		return false;
+    }
+    return state.value() == CollisionState::Entered || state.value() == CollisionState::Lasting;
 }
 
 bool CollisionSystem::hasMouseExited(ecs::Entity entity) const {
-    return _mouseCollisions.getCollisionState(entity) == CollisionState::Exited;
+	std::optional<CollisionState> state = _mouseCollisions.getCollision(entity);
+    return state && state.value() == CollisionState::Exited;
 }
 
 void CollisionSystem::update(float3 mousePosition) {

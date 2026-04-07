@@ -135,7 +135,7 @@ struct RepulseTestApp final: Application {
 
 	void update() override {
 		auto enteredCollisions = _physicsSystem->getEnteredCollisions(e1);
-		if(std::find(enteredCollisions.begin(), enteredCollisions.end(), e2) != enteredCollisions.end()) {
+		if(enteredCollisions.contains(e2)) {
 			Logger::info("Collision detected!");
 			ideallyElasticCollision(e1, e2);
 		}

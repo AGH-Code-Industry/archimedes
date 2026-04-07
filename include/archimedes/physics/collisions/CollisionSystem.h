@@ -20,9 +20,9 @@ class CollisionSystem {
 
 public:
     explicit CollisionSystem(ecs::Domain& domain);
-    std::vector<ecs::Entity> getEnteredCollisions(ecs::Entity entity) const;
-    std::vector<ecs::Entity> getCollisions(ecs::Entity entity) const;
-	std::vector<ecs::Entity> getExitedCollisions(ecs::Entity entity) const;
+    std::unordered_map<ecs::Entity, Collision> getEnteredCollisions(ecs::Entity entity) const;
+	std::unordered_map<ecs::Entity, Collision> getCollisions(ecs::Entity entity) const;
+	std::unordered_map<ecs::Entity, Collision> getExitedCollisions(ecs::Entity entity) const;
 
     bool hasMouseEntered(ecs::Entity entity) const;
     bool hasMouse(ecs::Entity entity) const;

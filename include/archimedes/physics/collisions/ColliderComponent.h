@@ -3,6 +3,7 @@
 #include <functional>
 #include <variant>
 #include <bitset>
+#include <optional>
 
 #include <archimedes/ecs/Entity.h>
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
@@ -10,6 +11,7 @@
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 #include <archimedes/physics/collisions/collision_shapes/VerticalLine.h>
+#include <archimedes/physics/collisions/Collision.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
@@ -22,7 +24,7 @@ struct ColliderComponent {
 	std::bitset<32> isScannedMask{1};
 	std::bitset<32> scansMask{1};
 
-	static bool areColliding(
+	static std::optional<Collision> areColliding(
 		const ColliderComponent& collider1,
 		const ColliderComponent& collider2,
 		const TransformComponent& transform1,

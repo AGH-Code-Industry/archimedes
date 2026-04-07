@@ -2,7 +2,7 @@
 
 
 namespace arch::physics {
-std::unordered_map<ecs::Entity, CollisionState> CollisionGraph::getCollisions(ecs::Entity entity) const {
+std::unordered_map<ecs::Entity, Collision> CollisionGraph::getCollisions(ecs::Entity entity) const {
     if(_graph.contains(entity)){
         return _graph.at(entity);
     }
@@ -17,15 +17,15 @@ std::vector<ecs::Entity> CollisionGraph::getCollidingEntities() const {
     return result;
 }
 
-void CollisionGraph::addCollision(ecs::Entity entity1, ecs::Entity entity2, CollisionState state) {
+void CollisionGraph::addCollision(ecs::Entity entity1, ecs::Entity entity2, const Collision& collision) {
     if(!_graph.contains(entity1) && !_graph.contains(entity2)){
-        _graph[entity1][entity2] = state;
+        _graph[entity1][entity2] = collision;
     }
 }
 
-void CollisionGraph::changeCollisionState(ecs::Entity entity1, ecs::Entity entity2, CollisionState toState) {
+void CollisionGraph::updateCollision(ecs::Entity entity1, ecs::Entity entity2, const Collision& collision) {
     if(_graph.contains(entity1) && _graph[entity1].contains(entity2)){
-        _graph[entity1][entity2] = toState;
+        _graph[entity1][entity2] = collision;
     }
 }
 
@@ -38,11 +38,11 @@ void CollisionGraph::removeCollision(ecs::Entity entity1, ecs::Entity entity2) {
     }
 }
 
-CollisionState CollisionGraph::getCollisionState(ecs::Entity entity1, ecs::Entity entity2) const {
+std::optional<Collision> CollisionGraph::getCollision(ecs::Entity entity1, ecs::Entity entity2) const {
     if(_graph.contains(entity1) && _graph.at(entity1).contains(entity2)){
         return _graph.at(entity1).at(entity2);
     }
-    return CollisionState::NotExisting;
+    return std::nullopt;
 }
 
 } // namespace arch::physics

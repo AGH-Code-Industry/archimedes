@@ -7,7 +7,13 @@ using TransformComponent = scene::components::TransformComponent;
 
 bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 
-bool checkSAT(
+f32 getOverlap(float2 projection1, float2 projection2);
+
+std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<float3>& vertices);
+
+std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<float3>& vertices);
+
+std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes1,
 	const std::vector<float3>& axes2,
 	const TransformComponent& transform1,
@@ -23,12 +29,12 @@ concept CollidableReversed = requires(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	{ checkCollision(shape1, shape2, transform1, transform2) } -> std::same_as<bool>;
+	{ checkCollision(shape1, shape2, transform1, transform2) } -> std::same_as<std::optional<Collision>>;
 };
 
 template<typename ShapeA, typename ShapeB>
 requires CollidableReversed<ShapeA, ShapeB>
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const ShapeA& shape1,
 	const ShapeB& shape2,
 	const TransformComponent& transform1,
@@ -37,105 +43,105 @@ bool checkCollision(
 	return checkCollision(shape2, shape1, transform2, transform1);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const OBB& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Triangle& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Triangle& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const HorizontalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const VerticalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const VerticalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,

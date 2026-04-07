@@ -6,7 +6,57 @@ bool areProjectionsOverlapping(float2 projection1, float2 projection2) {
 	return !(projection1.y < projection2.x || projection2.y < projection1.x);
 }
 
-bool checkSAT(
+f32 getOverlap(float2 projection1, float2 projection2) {
+	f32 maxX = projection1.x > projection2.x ? projection1.x : projection2.x;
+	f32 minY = projection1.y < projection2.y ? projection1.y : projection2.y;
+	return std::max(0.0f, minY - maxX);
+}
+
+std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<float3>& vertices) {
+	bool aboveFound = false;
+	bool belowFound = false;
+	f32 minY = std::numeric_limits<f32>::max();
+	f32 maxY = std::numeric_limits<f32>::min();
+	for (const auto& vertex : vertices) {
+		minY = std::min(minY, vertex.y);
+		maxY = std::max(maxY, vertex.y);
+		if (vertex.y > y) {
+			aboveFound = true;
+		} else if (vertex.y < y) {
+			belowFound = true;
+		}
+		if (aboveFound && belowFound) {
+			f32 depth = std::min(maxY - y, y - minY);
+			float3 normal = { 0.0f, 1.0f, 0.0f };
+			return Collision(normal, depth, CollisionState::CurrentlyFound);
+		}
+	}
+	return std::nullopt;
+}
+
+std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<float3>& vertices) {
+	bool leftFound = false;
+	bool rightFound = false;
+	f32 minX = std::numeric_limits<f32>::max();
+	f32 maxX = std::numeric_limits<f32>::min();
+	for (const auto& vertex : vertices) {
+		minX = std::min(minX, vertex.x);
+		maxX = std::max(maxX, vertex.x);
+		if (vertex.x > x) {
+			rightFound = true;
+		} else if (vertex.x < x) {
+			leftFound = true;
+		}
+		if (leftFound && rightFound) {
+			f32 depth = std::min(maxX - x, x - minX);
+			float3 normal = { 1.0f, 0.0f, 0.0f };
+			return Collision(normal, depth, CollisionState::CurrentlyFound);
+		}
+	}
+	return std::nullopt;
+}
+
+std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes1,
 	const std::vector<float3>& axes2,
 	const TransformComponent& transform1,
@@ -14,24 +64,36 @@ bool checkSAT(
 	const SATShape& shape1,
 	const SATShape& shape2
 ) {
+	float3 normal(0.0f);
+	f32 depth = std::numeric_limits<f32>::max();
 	for (auto& axis : axes1) {
 		float2 projection1 = shape1.getProjection(axis, transform1);
 		float2 projection2 = shape2.getProjection(axis, transform2);
 		if (!areProjectionsOverlapping(projection1, projection2)) {
-			return false;
+			return std::nullopt;
+		}
+		f32 overlap = getOverlap(projection1, projection2);
+		if (overlap < depth) {
+			depth = overlap;
+			normal = axis;
 		}
 	}
 	for (auto& axis : axes2) {
 		float2 projection1 = shape1.getProjection(axis, transform1);
 		float2 projection2 = shape2.getProjection(axis, transform2);
 		if (!areProjectionsOverlapping(projection1, projection2)) {
-			return false;
+			return std::nullopt;
+		}
+		f32 overlap = getOverlap(projection1, projection2);
+		if (overlap < depth) {
+			depth = overlap;
+			normal = axis;
 		}
 	}
-	return true;
+	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const OBB& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
@@ -42,7 +104,7 @@ bool checkCollision(
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Triangle& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
@@ -53,7 +115,7 @@ bool checkCollision(
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Triangle& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
@@ -64,7 +126,7 @@ bool checkCollision(
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
@@ -74,10 +136,15 @@ bool checkCollision(
 	float3 center2 = shape2.getRealCenter(transform2);
 	f32 distanceSquared = glm::dot(center1 - center2, center1 - center2);
 	f32 radiusSum = shape1.radius + shape2.radius;
-	return distanceSquared < radiusSum * radiusSum;
+	if (distanceSquared > std::pow(radiusSum, 2) + 0.0001f) {
+		return std::nullopt;
+	}
+	f32 depth = radiusSum - std::sqrt(distanceSquared);
+	float3 normal = glm::normalize(center2 - center1);
+	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
@@ -89,7 +156,7 @@ bool checkCollision(
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const Circle& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
@@ -101,34 +168,34 @@ bool checkCollision(
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const HorizontalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	return false;
+	return std::nullopt;
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const VerticalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	return false;
+	return std::nullopt;
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const VerticalLine& shape2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	return false;
+	return std::nullopt;
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
@@ -136,10 +203,16 @@ bool checkCollision(
 ) {
 	f32 y = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
-	return std::abs(center.y - y) < shape2.radius + 0.0001f;
+	f32 distance = std::abs(center.y - y);
+	if (distance > shape2.radius + 0.0001f) {
+		return std::nullopt;
+	}
+	float3 normal = { 0.0f, 1.0f, 0.0f };
+	f32 depth = shape2.radius - distance;
+	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
@@ -147,22 +220,10 @@ bool checkCollision(
 ) {
 	f32 y = shape1.getRealPosition(transform1);
 	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	bool aboveFound = false;
-	bool belowFound = false;
-	for (const auto& vertex : vertices) {
-		if (vertex.y > y) {
-			aboveFound = true;
-		} else if (vertex.y < y) {
-			belowFound = true;
-		}
-		if (aboveFound && belowFound) {
-			return true;
-		}
-	}
-	return false;
+	return checkHorizontalLineAndPolygon(y, vertices);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
@@ -170,22 +231,10 @@ bool checkCollision(
 ) {
 	f32 y = shape1.getRealPosition(transform1);
 	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	bool aboveFound = false;
-	bool belowFound = false;
-	for (const auto& vertex : vertices) {
-		if (vertex.y > y) {
-			aboveFound = true;
-		} else if (vertex.y < y) {
-			belowFound = true;
-		}
-		if (aboveFound && belowFound) {
-			return true;
-		}
-	}
-	return false;
+	return checkHorizontalLineAndPolygon(y, vertices);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const Circle& shape2,
 	const TransformComponent& transform1,
@@ -193,10 +242,16 @@ bool checkCollision(
 ) {
 	f32 x = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
-	return std::abs(center.x - x) < shape2.radius + 0.0001f;
+	f32 distance = std::abs(center.x - x);
+	if (distance > shape2.radius + 0.0001f) {
+		return std::nullopt;
+	}
+	float3 normal = { 1.0f, 0.0f, 0.0f };
+	f32 depth = shape2.radius - distance;
+	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const Triangle& shape2,
 	const TransformComponent& transform1,
@@ -204,22 +259,10 @@ bool checkCollision(
 ) {
 	f32 x = shape1.getRealPosition(transform1);
 	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	bool leftFound = false;
-	bool rightFound = false;
-	for (const auto& vertex : vertices) {
-		if (vertex.x > x) {
-			rightFound = true;
-		} else if (vertex.x < x) {
-			leftFound = true;
-		}
-		if (leftFound && rightFound) {
-			return true;
-		}
-	}
-	return false;
+	return checkVerticalLineAndPolygon(x, vertices);
 }
 
-bool checkCollision(
+std::optional<Collision> checkCollision(
 	const VerticalLine& shape1,
 	const OBB& shape2,
 	const TransformComponent& transform1,
@@ -227,19 +270,7 @@ bool checkCollision(
 ) {
 	f32 x = shape1.getRealPosition(transform1);
 	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	bool leftFound = false;
-	bool rightFound = false;
-	for (const auto& vertex : vertices) {
-		if (vertex.x > x) {
-			rightFound = true;
-		} else if (vertex.x < x) {
-			leftFound = true;
-		}
-		if (leftFound && rightFound) {
-			return true;
-		}
-	}
-	return false;
+	return checkVerticalLineAndPolygon(x, vertices);
 }
 
 } // namespace arch::physics

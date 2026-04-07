@@ -8,7 +8,7 @@ void MouseSet::addCollision(ecs::Entity entity, CollisionState state) {
     }
 }
 
-void MouseSet::changeCollisionState(ecs::Entity entity, CollisionState toState) {
+void MouseSet::updateCollision(ecs::Entity entity, CollisionState toState) {
     if(_set.contains(entity)) {
          _set[entity] = toState;
     }
@@ -28,11 +28,11 @@ std::vector<ecs::Entity> MouseSet::getMouseEntities() const {
     return result;
 }
 
-CollisionState MouseSet::getCollisionState(ecs::Entity entity) const {
+std::optional<CollisionState> MouseSet::getCollision(ecs::Entity entity) const {
     if(_set.contains(entity)) {
         return _set.at(entity);
     }
-    return CollisionState::NotExisting;
+	return std::nullopt;
 }
 
 } // namespace arch::physics

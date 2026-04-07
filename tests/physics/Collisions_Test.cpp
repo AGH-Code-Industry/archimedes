@@ -12,6 +12,16 @@ namespace scene = arch::scene;
 
 using TransformComponent = scene::components::TransformComponent;
 
+void expectNormalApprox(const math::float3& actual, const math::float3& expected, float eps = 1e-4f) {
+	bool same = std::abs(actual.x - expected.x) < eps && std::abs(actual.y - expected.y) < eps &&
+		std::abs(actual.z - expected.z) < eps;
+
+	bool opposite = std::abs(actual.x + expected.x) < eps && std::abs(actual.y + expected.y) < eps &&
+		std::abs(actual.z + expected.z) < eps;
+
+	EXPECT_TRUE(same || opposite);
+}
+
 class CollisionTest: public ::testing::Test {
 protected:
 	void SetUp() override {
@@ -489,5 +499,144 @@ TEST_F(CollisionTest, Mask_MultipleLayers) {
         _domain->getComponent<TransformComponent>(e2)
     ));
 }
+
+
+TEST_F(CollisionTest, CircleVsCircle_Collision_Data) {
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		0.5f
+	};
+
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 0.8f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto result = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_TRUE(result);
+
+	const auto& col = result.value();
+
+	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+
+	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
+}
+
+TEST_F(CollisionTest, OBBvsOBB_Collision_Data) {
+	phy::OBB obb{
+		{ -0.5f,	 0.5f, 0.f },
+		{  0.5f, -0.5f, 0.f },
+		0.f
+	};
+
+	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
+	auto e2 = createOBB({ 0.8f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
+
+	auto result = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_TRUE(result);
+
+	const auto& col = result.value();
+
+	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+
+	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
+}
+
+TEST_F(CollisionTest, HorizontalLineVsCircle_DepthNormal) {
+	phy::HorizontalLine line{ 0.0f };
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		0.5f
+	};
+
+	auto e1 = createHorizontalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
+	auto e2 = createCircle({ 0, 0.3f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto colOpt = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_TRUE(colOpt.has_value());
+	auto col = colOpt.value();
+
+	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+
+	EXPECT_TRUE(
+		(std::abs(col.normal.y - 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f) ||
+		(std::abs(col.normal.y + 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f)
+	);
+}
+
+TEST_F(CollisionTest, VerticalLineVsCircle_DepthNormal) {
+	phy::VerticalLine line{ 0.0f };
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		0.5f
+	};
+
+	auto e1 = createVerticalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
+	auto e2 = createCircle({ 0.3f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto colOpt = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_TRUE(colOpt.has_value());
+	auto col = colOpt.value();
+
+	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+
+	EXPECT_TRUE(
+		(std::abs(col.normal.x - 1.0f) < 1e-4f && std::abs(col.normal.y) < 1e-4f) ||
+		(std::abs(col.normal.x + 1.0f) < 1e-4f && std::abs(col.normal.y) < 1e-4f)
+	);
+}
+
+TEST_F(CollisionTest, TriangleVsHorizontalLine_DepthNormal) {
+	phy::HorizontalLine line{ 0.0f };
+
+	phy::Triangle tri{
+		{  0,  0.4f, 0 },
+		{ -0.5f, -0.2f, 0 },
+		{  0.5f, -0.2f, 0 }
+	};
+
+	auto e1 = createHorizontalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
+	auto e2 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
+
+	auto colOpt = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_TRUE(colOpt.has_value());
+	const auto& col = colOpt.value();
+
+	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
+
+	EXPECT_TRUE(
+		(std::abs(col.normal.y - 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f) ||
+		(std::abs(col.normal.y + 1.0f) < 1e-4f && std::abs(col.normal.x) < 1e-4f)
+	);
+}
+
 
 } // namespace physics

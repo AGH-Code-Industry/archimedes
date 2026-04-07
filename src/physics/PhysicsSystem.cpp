@@ -43,15 +43,15 @@ f32 PhysicsSystem::update() {
 	return t;
 }
 
-std::vector<ecs::Entity> PhysicsSystem::getEnteredCollisions(ecs::Entity entity) const{
+std::unordered_map<ecs::Entity, Collision> PhysicsSystem::getEnteredCollisions(ecs::Entity entity) const {
 	return _collisionSystem.getEnteredCollisions(entity);
 }
 
-std::vector<ecs::Entity> PhysicsSystem::getExitedCollisions(ecs::Entity entity) const {
+std::unordered_map<ecs::Entity, Collision> PhysicsSystem::getExitedCollisions(ecs::Entity entity) const {
 	return _collisionSystem.getExitedCollisions(entity);
 }
 
-std::vector<ecs::Entity> PhysicsSystem::getCollisions(ecs::Entity entity) const {
+std::unordered_map<ecs::Entity, Collision> PhysicsSystem::getCollisions(ecs::Entity entity) const {
 	return _collisionSystem.getCollisions(entity);
 }
 

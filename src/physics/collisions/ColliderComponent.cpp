@@ -3,17 +3,17 @@
 #include <archimedes/physics/collisions/PointAlgorithms.h>
 
 namespace arch::physics {
-bool ColliderComponent::areColliding(
+std::optional<Collision> ColliderComponent::areColliding(
 	const ColliderComponent& collider1,
 	const ColliderComponent& collider2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
 	if((collider1.scansMask & collider2.isScannedMask).none()) {
-		return false;
+		return std::nullopt;
 	}
 	return std::visit(
-		[transform1, transform2](const auto& a, const auto& b) -> bool {
+		[transform1, transform2](const auto& a, const auto& b) -> std::optional<Collision> {
 			return checkCollision(a, b, transform1, transform2);
 		},
 		collider1.shape,

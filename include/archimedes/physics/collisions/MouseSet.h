@@ -1,6 +1,6 @@
 #pragma once
 #include <archimedes/ecs/Domain.h>
-#include <archimedes/physics/collisions/CollisionState.h>
+#include <archimedes/physics/collisions/Collision.h>
 #include <unordered_map>
 
 namespace arch::physics {
@@ -11,10 +11,10 @@ class MouseSet {
     public:
 
     void addCollision(ecs::Entity entity, CollisionState state);
-    void changeCollisionState(ecs::Entity entity, CollisionState toState);
+    void updateCollision(ecs::Entity entity, CollisionState toState);
     void removeCollision(ecs::Entity entity);
     std::vector<ecs::Entity> getMouseEntities() const;
-    CollisionState getCollisionState(ecs::Entity entity) const;
+    std::optional<CollisionState> getCollision(ecs::Entity entity) const;
 
 };
 
