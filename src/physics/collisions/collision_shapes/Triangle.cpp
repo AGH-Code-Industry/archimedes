@@ -7,6 +7,9 @@ Triangle::Triangle(float3 pointA, float3 pointB, float3 pointC) {
 	points[0] = pointA;
 	points[1] = pointB;
 	points[2] = pointC;
+	if (getTriangleArea(pointA, pointB, pointC) < 0.0001f) {
+		throw PhysicsException("Triangle's area must be greater than 0");
+	}
 }
 
 std::vector<float3> Triangle::getSeparatingAxes(const TransformComponent& transform) const {

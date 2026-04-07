@@ -3,7 +3,11 @@
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
 
 namespace arch::physics {
-Circle::Circle(float3 center, f32 radius): center(center), radius(radius) {}
+Circle::Circle(float3 center, f32 radius): center(center), radius(radius) {
+	if (radius < 0.0001f) {
+		throw PhysicsException("Circle's radius must be greater than 0");
+	}
+}
 
 float3 Circle::getSeparatingAxis(const TransformComponent& transform, const std::vector<float3>& realPolygonVertices)
 	const {

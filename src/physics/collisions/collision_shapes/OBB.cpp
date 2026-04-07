@@ -8,7 +8,11 @@ OBB::OBB(float3 topLeft, float3 bottomRight, f32 rotation):
 	bottomRight(bottomRight),
 	rotation(rotation) {
 	if (topLeft.x > bottomRight.x || topLeft.y < bottomRight.y) {
-		throw PhysicsException("Corners' coordinates don't match, consider swapping them");
+		throw PhysicsException("OBB's corners' coordinates don't match, consider swapping them");
+	}
+	float3 bottomLeft = { topLeft.x, bottomRight.y, 0.0f };
+	if (getTriangleArea(topLeft, bottomLeft, bottomRight) < 0.0001f) {
+		throw PhysicsException("OBB's area must be greater than 0");
 	}
 }
 
