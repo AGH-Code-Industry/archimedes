@@ -12,5 +12,7 @@ struct Circle: public SATShape {
 	float3 getSeparatingAxis(const TransformComponent& transform, const std::vector<float3>& realPolygonVertices) const;
 	float2 getProjection(float3 axis, const TransformComponent& transform) const override;
 	float3 getRealCenter(const TransformComponent& transform) const;
+	f32 getRealRadiusSquared(const TransformComponent& transform) const;
+	f32 getRealRadius(const TransformComponent& transform) const;
 };
 } // namespace arch::physics

@@ -14,6 +14,17 @@ namespace phy = physics;
 
 struct InteractiveCollisionTestApp final: Application {
 
+	enum class PlayerColor {
+		Red,
+		Green,
+		Blue
+	};
+
+	struct Vertex {
+		float3 position;
+		float2 tex_coords;
+	};
+
 	f32 windowWidth = 1'200.f;
 	f32 windowHeight = 600.f;
 
@@ -24,101 +35,211 @@ struct InteractiveCollisionTestApp final: Application {
 	f32 linearVelocityBase = 1.0f;
 	f32 angularVelocityBase = glm::pi<f32>() / 4.0f;
 
-	void init() override {
-		scene = createRef<Scene>();
+	arch::Ref<arch::gfx::pipeline::Pipeline> pipelineRed, pipelineGreen, pipelineBlue, pipelineCircle;
+	Ref<asset::mesh::Mesh> meshRectangle, meshTriangle;
 
-		// 2D square
-		struct Vertex {
-			float3 position;
-			float2 tex_coords;
-		};
+	bool isCollidingMouse = false;
+	bool isCollidingEntity = false;
+	
+	void createRectangleMesh() {
 
 		std::vector<Vertex> vertices{
-		    { { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
-			{ {  0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
-			{ {  0.25f,  0.25f, 0.1f }, { 1.f, 1.f } },
-			{ { -0.25f,  0.25f, 0.1f }, { 0.f, 1.f } },
+			{ { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
+			{  { 0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.25f, 0.25f, 0.1f }, { 1.f, 1.f } },
+			{  { -0.25f, 0.25f, 0.1f }, { 0.f, 1.f } },
 		};
 
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
+		meshRectangle = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+	}
 
-		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+	
+	void createTriangleMesh() {
 
+		std::vector<Vertex> vertices{
+			{ { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
+			{  { 0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.0f, 0.25f, 0.1f }, { 0.5f, 1.f } },
+		};
+
+		std::vector<u32> indices{ 2, 1, 0 };
+		meshTriangle = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+	}
+
+	void createPipelines(const Ref<gfx::Renderer> renderer) {
 		struct UniformBuffer {
 			Mat4x4 projection;
 		};
 
-		UniformBuffer ubo{ glm::mat4{1} };
+		UniformBuffer ubo{ glm::mat4{ 1 } };
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
-		const auto pipeline = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default2.glsl",
-				.textures = {},
-				.buffers = { uniformBuffer },
-			}
-		);
+		pipelineRed = renderer->getPipelineManager()->create({
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default2.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		});
 
-		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+		pipelineGreen = renderer->getPipelineManager()->create({
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default3.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		});
 
-		player = scene->newEntity();
+		pipelineBlue = renderer->getPipelineManager()->create({
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default4.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		});
+		
+		pipelineCircle = renderer->getPipelineManager()->create({
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default_circle.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		});
+	}
+
+	void setPlayerColor(ecs::Entity player, PlayerColor color) {
+		switch (color) {
+			case PlayerColor::Red:
+				scene->domain().getComponent<scene::components::MeshComponent>(player).pipeline = pipelineRed;
+				break;
+			case PlayerColor::Green:
+				scene->domain().getComponent<scene::components::MeshComponent>(player).pipeline = pipelineGreen;
+				break;
+			case PlayerColor::Blue:
+				scene->domain().getComponent<scene::components::MeshComponent>(player).pipeline = pipelineBlue;
+				break;
+		}
+	}
+
+	ecs::Entity addPlayer() {
+		auto player = scene->newEntity();
 		float3 position{ 0.f, 0.f, 0.f };
-		scene->domain().addComponent<scene::components::TransformComponent>(
+		scene->domain()
+			.addComponent<scene::components::TransformComponent>(player, { position, quaternion(0.0f), float3(1) });
+		scene->domain().addComponent<scene::components::MeshComponent>(player, { meshRectangle, pipelineBlue });
+		scene->domain().addComponent(
 			player,
-			{
-				position,
-				quaternion(0.0f),
-				float3(1)
-		  }
-		);
-		scene->domain().addComponent<scene::components::MeshComponent>(player, { mesh, pipeline });
-		scene->domain().addComponent(player,
 			phy::RigidBodyComponent{
 				1.f,
-				{ 0.f, 0.f , 0.f},	{ 0.f, 0.f, 0.f },
-			}
+				{ 0.f, 0.f, 0.f },
+				{ 0.f, 0.f, 0.f },
+		}
 		);
-		scene->domain().addComponent(player,
-			phy::ColliderComponent{
-				.shape = phy::OBB (
-						float3{-0.25f, 0.25f, 0.0f},
-						float3{ 0.25f, -0.25f , 0.0f},
-						0.0f
-				),
-				.detectsMouse = true
-			}
+		scene->domain().addComponent(
+			player,
+			phy::ColliderComponent{ .shape =
+										phy::OBB(float3{ -0.25f, 0.25f, 0.0f }, float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
+									.detectsMouse = true, .isScannedMask = 0 }
 		);
+		return player;
+	}
 
-
-		const ecs::Entity e2 = scene->newEntity();
-		position = { 0.6f, 0.f, 0.f };
-		scene->domain().addComponent<scene::components::TransformComponent>(
-			e2,
-			{
-				position,
-				quaternion(0.0f),
-				float3(1)
-		  }
-		);
-		scene->domain().addComponent<scene::components::MeshComponent>(e2, { mesh, pipeline });
-		scene->domain().addComponent(e2,
-			phy::RigidBodyComponent{
-				.mass = 5.f,
-				.force = { 0.f, 0.f, 0.f },
-				.linearVelocity = { 0.f, 0.f, 0.f } ,
-			}
-		);
-		scene->domain().addComponent(e2,
+	void addRectangle() {
+		const ecs::Entity e = scene->newEntity();
+		float3 position = { 0.6f, 0.f, 0.f };
+		scene->domain()
+			.addComponent<scene::components::TransformComponent>(e, { position, quaternion(0.0f), float3(1) });
+		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineBlue });
+		scene->domain().addComponent(
+			e,
 			phy::ColliderComponent{
-				.shape = phy::OBB (
-						float3{-0.25f, 0.25f, 0.0f},
-						float3{0.25f, -0.25f, 0.0f},
-						0.0f
-				),
+				.shape = phy::OBB(float3{ -0.25f, 0.25f, 0.0f }, float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
+				.scansMask = 0
 			}
 		);
+	}
+
+	void addTriangle() {
+		const ecs::Entity e = scene->newEntity();
+		float3 position = { -0.8f, -0.5f, 0.f };
+		scene->domain()
+			.addComponent<scene::components::TransformComponent>(e, { position, quaternion(0.0f), float3(1) });
+		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshTriangle, pipelineBlue });
+		scene->domain().addComponent(
+			e,
+			phy::ColliderComponent{
+				.shape = phy::Triangle(
+					float3{ -0.25f, -0.25f, 0.0f },
+					float3{ 0.25f, -0.25f, 0.0f },
+					float3{ 0.0f, 0.25f, 0.0f }
+				),
+				.scansMask = 0
+			}
+		);
+	}
+
+	void createVerticalLines() {
+		float3 positions[2] = {
+			{ -1.0f, 0.0f, 0.0f },
+			{ 1.0, 0.0f, 0.0f }
+		};
+
+		for (int i = 0; i < 2; i++) {
+			const ecs::Entity e = scene->newEntity();
+			scene->domain()
+				.addComponent<scene::components::TransformComponent>(e, { positions[i], quaternion(0.0f), float3(1) });
+			scene->domain().addComponent(
+				e,
+				phy::ColliderComponent{
+					.shape = phy::VerticalLine(0.0f),
+					.scansMask = 0
+				}
+			);
+		}
+	}
+
+	void createHorizontalLines() {
+		float3 positions[2] = {
+			{ 0.0f, -1.0f, 0.0f },
+			{ 0.0f, 1.0f, 0.0f }
+		};
+
+		for (int i = 0; i < 2; i++) {
+			const ecs::Entity e = scene->newEntity();
+			scene->domain()
+				.addComponent<scene::components::TransformComponent>(e, { positions[i], quaternion(0.0f), float3(1) });
+			scene->domain()
+				.addComponent(e, phy::ColliderComponent { .shape = phy::HorizontalLine(0.0f), .scansMask = 0 }
+			);
+		}
+	}
+
+	void addCircle() {
+		const ecs::Entity e = scene->newEntity();
+		float3 position = { 0.1f, 0.7f, 0.f };
+		scene->domain()
+			.addComponent<scene::components::TransformComponent>(e, { position, quaternion(0.0f), float3(1) });
+		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineCircle });
+		scene->domain().addComponent(
+			e,
+			phy::ColliderComponent{ .shape =
+										phy::Circle(float3{ 0.0f, 0.0f, 0.0f },  0.25f),
+									.scansMask = 0 }
+		);
+	}
+
+	void init() override {
+		scene = createRef<Scene>();
+		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+
+		createPipelines(renderer);
+		createRectangleMesh();
+		createTriangleMesh();
+
+		player = addPlayer();
+		addRectangle();
+		addTriangle();
+		createVerticalLines();
+		createHorizontalLines();
+		addCircle();
 
 		scene::SceneManager::get()->changeScene(scene);
 		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()), windowWidth, windowHeight);
@@ -156,16 +277,32 @@ struct InteractiveCollisionTestApp final: Application {
 	void update() override {
 		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
 		if(_physicsSystem->getEnteredCollisions(player).size() > 0) {
+			if (!isCollidingMouse) {
+				setPlayerColor(player, PlayerColor::Green);
+			}
+			isCollidingEntity = true;
 			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
 		}
 		if(_physicsSystem->getExitedCollisions(player).size() > 0) {
+			if (!isCollidingMouse) {
+				setPlayerColor(player, PlayerColor::Blue);
+			}
+			isCollidingEntity = false;
 			Logger::info("Collision ended! Position: {}, {}", playerPosition.x, playerPosition.y);
 		}
 		float3 mousePosition = _physicsSystem->getMousePositionOnMap();
 		if(_physicsSystem->hasMouseEntered(player)) {
+			setPlayerColor(player, PlayerColor::Red);
+			isCollidingMouse = true;
 			Logger::info("Mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
 		}
 		if(_physicsSystem->hasMouseExited(player)) {
+			if (isCollidingEntity) {
+				setPlayerColor(player, PlayerColor::Green);
+			} else {
+				setPlayerColor(player, PlayerColor::Blue);
+			}
+			isCollidingMouse = false;
 			Logger::info("Mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
 		}
 		const float3 linearVelocity = linearVelocityBase * getLinearVelocity();

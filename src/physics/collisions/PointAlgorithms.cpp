@@ -29,7 +29,7 @@ bool containsPoint(const Triangle& shape, float3 point, const TransformComponent
 
 bool containsPoint(const Circle& shape, float3 point, const TransformComponent& transform) {
     float3 center = shape.getRealCenter(transform);
-    return glm::distance2(center, point) < std::pow(shape.radius, 2) + 0.0001f;
+	return glm::distance2(center, point) < shape.getRealRadiusSquared(transform) + 0.0001f;
 }
 
 bool containsPoint(const HorizontalLine& shape, float3 point, const TransformComponent& transform) {

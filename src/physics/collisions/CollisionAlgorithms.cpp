@@ -135,8 +135,10 @@ std::optional<Collision> checkCollision(
 ) {
 	float3 center1 = shape1.getRealCenter(transform1);
 	float3 center2 = shape2.getRealCenter(transform2);
-	f32 distanceSquared = glm::dot(center1 - center2, center1 - center2);
-	f32 radiusSum = shape1.radius + shape2.radius;
+	f32 distanceSquared = glm::distance2(center1, center2);
+	f32 radius1 = shape1.getRealRadiusSquared(transform1);
+	f32 radius2 = shape2.getRealRadiusSquared(transform2);
+	f32 radiusSum = radius1 + radius2;
 	if (distanceSquared > std::pow(radiusSum, 2) + 0.0001f) {
 		return std::nullopt;
 	}
@@ -204,12 +206,13 @@ std::optional<Collision> checkCollision(
 ) {
 	f32 y = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
+	f32 radius = shape2.getRealRadius(transform2);
 	f32 distance = std::abs(center.y - y);
-	if (distance > shape2.radius + 0.0001f) {
+	if (distance > radius + 0.0001f) {
 		return std::nullopt;
 	}
 	float3 normal = { 0.0f, 1.0f, 0.0f };
-	f32 depth = (shape2.radius - distance) / 2.0f;
+	f32 depth = (radius - distance) / 2.0f;
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
@@ -243,12 +246,13 @@ std::optional<Collision> checkCollision(
 ) {
 	f32 x = shape1.getRealPosition(transform1);
 	float3 center = shape2.getRealCenter(transform2);
+	f32 radius = shape2.getRealRadius(transform2);
 	f32 distance = std::abs(center.x - x);
-	if (distance > shape2.radius + 0.0001f) {
+	if (distance > radius + 0.0001f) {
 		return std::nullopt;
 	}
 	float3 normal = { 1.0f, 0.0f, 0.0f };
-	f32 depth = (shape2.radius - distance) / 2.0f;
+	f32 depth = (radius - distance) / 2.0f;
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 

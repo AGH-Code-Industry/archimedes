@@ -22,7 +22,6 @@ float3 Circle::getSeparatingAxis(const TransformComponent& transform, const std:
 		}
 	}
 	float3 axis = closestVertex - realCenter;
-	axis = { -axis.y, axis.x, 0.0f };
 	return glm::normalize(axis);
 }
 
@@ -33,12 +32,19 @@ float3 Circle::getRealCenter(const TransformComponent& transform) const {
 
 float2 Circle::getProjection(float3 axis, const TransformComponent& transform) const {
 	float3 realCenter = getRealCenter(transform);
-	float3 lineVector = glm::normalize(float3{ axis.y, -axis.x, 0.0f });
-	float3 pointA = realCenter + lineVector * radius;
-	float3 pointB = realCenter - lineVector * radius;
-	f32 dotA = glm::dot(axis, pointA);
-	f32 dotB = glm::dot(axis, pointB);
-	return dotA < dotB ? float2{ dotA, dotB } : float2{ dotB, dotA };
+	float centerProj = glm::dot(realCenter, axis);
+	float radius = getRealRadius(transform);
+	return float2{ centerProj - radius, centerProj + radius };
 }
 
+f32 Circle::getRealRadiusSquared(const TransformComponent& transform) const {
+	Mat4x4 model = transform.getTransformMatrix();
+	float3 radiusVector = float3{ radius, 0.0f, 0.0f };
+	radiusVector = float3(model * float4(radiusVector, 0.0f));
+	return glm::length2(radiusVector);
+}
+
+f32 Circle::getRealRadius(const TransformComponent& transform) const {
+	return std::sqrt(getRealRadiusSquared(transform));
+}
 } // namespace arch::physics
