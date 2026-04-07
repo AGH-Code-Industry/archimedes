@@ -36,7 +36,6 @@ f32 PhysicsSystem::update() {
 		rigidBody.linearVelocity += a * t;
 	}
 
-	float3 mousePosition = getMousePositionOnMap();
 	_collisionSystem.update(mousePosition);
 	_prevTimePoint = Clock::now();
 
