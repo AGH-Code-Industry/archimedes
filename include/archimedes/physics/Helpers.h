@@ -18,4 +18,9 @@ inline f32 getTriangleArea(float3 vertex1, float3 vertex2, float3 vertex3) {
 		vertex2.x * (vertex3.y - vertex1.y) +
 		vertex3.x * (vertex1.y - vertex2.y));
 }
+
+inline bool areVectorsSameDirection(float3 vector1, float3 vector2) {
+	return glm::dot(vector1, vector2) > 0;
+}
+
 } // namespace arch::physics
