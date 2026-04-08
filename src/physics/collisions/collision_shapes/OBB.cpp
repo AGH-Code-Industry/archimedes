@@ -20,6 +20,7 @@ std::vector<float3> OBB::getSeparatingAxes(const TransformComponent& transform) 
 	std::vector<float3> vertices = getRealVertices(transform);
 	Quat quaternion = arch::quaternion(rotation);
 	std::vector<float3> axes;
+	// you don't need to check parallel axes with SAT 
 	axes.push_back(getConvexPolygonNorm(vertices[0], vertices[1], vertices[2]));
 	axes.push_back(getConvexPolygonNorm(vertices[1], vertices[2], vertices[3]));
 	for (auto& axis : axes) {

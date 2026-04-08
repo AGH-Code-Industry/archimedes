@@ -26,6 +26,7 @@ std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<
 			belowFound = true;
 		}
 		if (aboveFound && belowFound) {
+			// choose the closest vertex to the line
 			f32 depth = std::min(maxY - y, y - minY);
 			float3 normal = { 0.0f, 1.0f, 0.0f };
 			return Collision(normal, depth, CollisionState::CurrentlyFound);
@@ -48,6 +49,7 @@ std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<fl
 			leftFound = true;
 		}
 		if (leftFound && rightFound) {
+			// choose the closest vertex to the line
 			f32 depth = std::min(maxX - x, x - minX);
 			float3 normal = { 1.0f, 0.0f, 0.0f };
 			return Collision(normal, depth, CollisionState::CurrentlyFound);
@@ -152,6 +154,7 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
+	// a circle has just one, special axis
 	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
 	float3 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
 	std::vector<float3> axes1 = { axis1 };
@@ -164,12 +167,14 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
+	// a circle has just one, special axis
 	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
 	float3 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
 	std::vector<float3> axes1 = { axis1 };
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
+// Lines don't collide with each other (otherwise they would either always or almost never do it)
 std::optional<Collision> checkCollision(
 	const HorizontalLine& shape1,
 	const HorizontalLine& shape2,

@@ -12,6 +12,7 @@ std::optional<Collision> ColliderComponent::areColliding(
 	if((collider1.scansMask & collider2.isScannedMask).none()) {
 		return std::nullopt;
 	}
+	// you have to resolve a std::variant variable's type
 	return std::visit(
 		[transform1, transform2](const auto& a, const auto& b) -> std::optional<Collision> {
 			return checkCollision(a, b, transform1, transform2);

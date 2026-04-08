@@ -14,6 +14,7 @@ namespace scene = arch::scene;
 
 using TransformComponent = scene::components::TransformComponent;
 
+/// @brief Checks if the normal is close to another one (or its reversed version)
 void expectNormalApprox(const math::float3& actual, const math::float3& expected, float eps = 1e-4f) {
 	bool same = std::abs(actual.x - expected.x) < eps && std::abs(actual.y - expected.y) < eps &&
 		std::abs(actual.z - expected.z) < eps;
@@ -24,6 +25,7 @@ void expectNormalApprox(const math::float3& actual, const math::float3& expected
 	EXPECT_TRUE(same || opposite);
 }
 
+/// @brief Tests calculating penetration vectors and whether they really allow to remove collisions
 class CollisionsMTVTest: public ::testing::Test {
 protected:
 	void SetUp() override {

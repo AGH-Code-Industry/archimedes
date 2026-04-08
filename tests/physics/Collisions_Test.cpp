@@ -12,6 +12,7 @@ namespace scene = arch::scene;
 
 using TransformComponent = scene::components::TransformComponent;
 
+///@brief Tests shape-shape collision algorithms and collision layers
 class CollisionTest: public ::testing::Test {
 protected:
 	void SetUp() override {

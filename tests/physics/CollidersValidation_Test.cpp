@@ -14,6 +14,8 @@ using TransformComponent = scene::components::TransformComponent;
 
 class CollidersValidationTest: public ::testing::Test {};
 
+///@brief Tests if the engine discards degenerate collision shapes
+
 TEST_F(CollidersValidationTest, OBB_Degenerate_ZeroSize) {
 	ASSERT_THROW(
 		phy::OBB({

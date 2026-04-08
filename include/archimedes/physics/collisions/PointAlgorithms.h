@@ -8,8 +8,10 @@
 
 namespace arch::physics {
 
+///@brief Divide the triangle into 3 triangles using the point (all of them use it as a vertex)
 f32 getSumOfTriangleAreas(const std::vector<float3>& vertices, float3 point);
 
+///@brief Mouse-shape collision algorithms
 bool containsPoint(const OBB& shape, float3 point, const TransformComponent& transform);
 bool containsPoint(const Triangle& shape, float3 point, const TransformComponent& transform);
 bool containsPoint(const Circle& shape, float3 point, const TransformComponent& transform);

@@ -67,6 +67,7 @@ bool PhysicsSystem::hasMouseExited(ecs::Entity entity) const {
 	return _collisionSystem.hasMouseExited(entity);
 }
 
+/// TODO: use the camera's data instead of hard coding window sizes
 float3 PhysicsSystem::getMousePositionOnMap() const {
 	float2 mousePos = input::Mouse::pos();
 	mousePos.x = glm::mix(-1.0f, 1.0f, mousePos.x / _windowWidth);

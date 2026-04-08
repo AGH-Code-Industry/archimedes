@@ -235,10 +235,18 @@ struct InteractiveCollisionTestApp final: Application {
 		createTriangleMesh();
 
 		player = addPlayer();
+
+		// a rectangle you can collide with
 		addRectangle();
+
+		// a triangle you can collide with
 		addTriangle();
+
+		// world borders you can collide with
 		createVerticalLines();
 		createHorizontalLines();
+
+		// a circle you can collide with
 		addCircle();
 
 		scene::SceneManager::get()->changeScene(scene);

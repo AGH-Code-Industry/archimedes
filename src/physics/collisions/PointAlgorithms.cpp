@@ -32,6 +32,7 @@ bool containsPoint(const Circle& shape, float3 point, const TransformComponent& 
 	return glm::distance2(center, point) < shape.getRealRadiusSquared(transform) + 0.0001f;
 }
 
+// lines never contain a point
 bool containsPoint(const HorizontalLine& shape, float3 point, const TransformComponent& transform) {
     return false;
 }

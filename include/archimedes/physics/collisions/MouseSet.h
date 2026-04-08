@@ -5,15 +5,19 @@
 
 namespace arch::physics {
 
+/// @brief Stores mouse-shape collisions in a unordered map
 class MouseSet {
     std::unordered_map<ecs::Entity, CollisionState> _set;
 
     public:
 
+    ///@brief Get all entities that collide with the mouse
+    std::vector<ecs::Entity> getMouseEntities() const;
+
+    ///@brief CRUD operations
     void addCollision(ecs::Entity entity, CollisionState state);
     void updateCollision(ecs::Entity entity, CollisionState toState);
     void removeCollision(ecs::Entity entity);
-    std::vector<ecs::Entity> getMouseEntities() const;
     std::optional<CollisionState> getCollision(ecs::Entity entity) const;
 
 };

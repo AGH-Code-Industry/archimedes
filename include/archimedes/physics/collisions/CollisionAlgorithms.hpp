@@ -5,14 +5,19 @@
 namespace arch::physics {
 using TransformComponent = scene::components::TransformComponent;
 
+/// @brief If a collision exists, all projections need to overlap
 bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 
+/// @brief Get overlap length (used for calculating collision depth)
 f32 getOverlap(float2 projection1, float2 projection2);
 
+/// @brief Horizontal line - polygon collision checking algorithm
 std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<float3>& vertices);
 
+/// @brief Vertical line - polygon collision checking algorithm
 std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<float3>& vertices);
 
+/// @brief SAT (Separate Axis Test) algorithm for checking collision between convex shapes
 std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes1,
 	const std::vector<float3>& axes2,
@@ -21,6 +26,9 @@ std::optional<Collision> checkSAT(
 	const SATShape& shape1,
 	const SATShape& shape2
 );
+
+/// @brief If there doesn't exist a function to check for collision between two shapes,
+/// swap the shapes and use an existing function
 
 template<typename ShapeA, typename ShapeB>
 concept CollidableReversed = requires(
@@ -42,6 +50,8 @@ std::optional<Collision> checkCollision(
 ) {
 	return checkCollision(shape2, shape1, transform2, transform1);
 }
+
+/// @brief All algorithms for shape-shape collisions
 
 std::optional<Collision> checkCollision(
 	const OBB& shape1,

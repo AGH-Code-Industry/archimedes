@@ -9,6 +9,7 @@ namespace phy = arch::physics;
 namespace math = arch::math;
 namespace scene = arch::scene;
 
+/// @brief Tests if the physics system really moves the objects
 TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
 	phy::PhysicsSystem system(domain, 800.f, 600.f);

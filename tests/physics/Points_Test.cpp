@@ -10,6 +10,7 @@ namespace scene = arch::scene;
 
 using TransformComponent = scene::components::TransformComponent;
 
+///@brief Tests mouse-shape collision algorithms
 class PointContainmentTest : public ::testing::Test {};
 
 
