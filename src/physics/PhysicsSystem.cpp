@@ -68,6 +68,7 @@ bool PhysicsSystem::hasMouseExited(ecs::Entity entity) const {
 }
 
 /// TODO: use the camera's data instead of hard coding window sizes
+/// TODO: this also doesn't detect if the mouse is off screen
 float3 PhysicsSystem::getMousePositionOnMap() const {
 	float2 mousePos = input::Mouse::pos();
 	mousePos.x = glm::mix(-1.0f, 1.0f, mousePos.x / _windowWidth);
