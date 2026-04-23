@@ -38,10 +38,7 @@ float2 Circle::getProjection(float3 axis, const TransformComponent& transform) c
 }
 
 f32 Circle::getRealRadiusSquared(const TransformComponent& transform) const {
-	Mat4x4 model = transform.getTransformMatrix();
-	float3 radiusVector = float3{ radius, 0.0f, 0.0f };
-	radiusVector = float3(model * float4(radiusVector, 0.0f));
-	return glm::length2(radiusVector);
+	return pow(glm::compMax(transform.scale) * radius, 2);
 }
 
 f32 Circle::getRealRadius(const TransformComponent& transform) const {

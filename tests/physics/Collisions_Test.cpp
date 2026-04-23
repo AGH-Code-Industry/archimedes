@@ -491,5 +491,55 @@ TEST_F(CollisionTest, Mask_MultipleLayers) {
     ));
 }
 
+TEST_F(CollisionTest, CircleVsCircle_BoundingCirclePreventsFalseNegative) {
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		0.5f
+	};
+
+	auto e1 = createCircle(
+		{ 0, 0, 0 },
+		{ 0, 0, 0, 1 },
+		{ 3.0f, 1.0f, 1.0f },
+		circle
+	);
+
+	auto e2 = createCircle(
+		{ 1.9f, 0, 0 },
+		{ 0, 0, 0, 1 },
+		{ 1, 1, 1 },
+		circle
+	);
+
+	ASSERT_TRUE(phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	));
+}
+
+TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		0.5f
+	};
+
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 2.0f, 1.0f, 1.0f }, circle);
+
+	auto e2 = createCircle(
+		{ 1.6f, 0, 0 },
+		{ 0, 0, 0, 1 },
+		{ 1, 1, 1 },
+		circle
+	);
+
+	ASSERT_FALSE(phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	));
+}
 
 } // namespace physics
