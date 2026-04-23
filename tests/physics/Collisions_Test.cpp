@@ -531,4 +531,41 @@ TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
 	));
 }
 
+TEST_F(CollisionTest, StatesCheck) {
+	phy::Circle circle{
+		{ 0, 0, 0 },
+		1.0f
+	};
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 3.0f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto& transform1 = _domain->getComponent<TransformComponent>(e1);
+
+	ASSERT_FALSE(_system->getEnteredCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getExitedCollisions(e1).contains(e2));
+
+	transform1.position.x += 2.0f;
+	_system->update();
+	ASSERT_TRUE(_system->getEnteredCollisions(e1).contains(e2));
+	ASSERT_TRUE(_system->getCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getExitedCollisions(e1).contains(e2));
+
+	_system->update();
+	ASSERT_FALSE(_system->getEnteredCollisions(e1).contains(e2));
+	ASSERT_TRUE(_system->getCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getExitedCollisions(e1).contains(e2));
+
+	transform1.position.x -= 2.0f;
+	_system->update();
+	ASSERT_FALSE(_system->getEnteredCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getCollisions(e1).contains(e2));
+	ASSERT_TRUE(_system->getExitedCollisions(e1).contains(e2));
+
+	_system->update();
+	ASSERT_FALSE(_system->getEnteredCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getCollisions(e1).contains(e2));
+	ASSERT_FALSE(_system->getExitedCollisions(e1).contains(e2));
+}
+
 } // namespace physics
