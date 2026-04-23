@@ -52,19 +52,29 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
     CollisionGraph collisions;
     for(i32 i=0; i<entities.size(); i++){
         for(i32 j=i+1; j<entities.size(); j++){
+			auto& collider1 = _domain.getComponent<ColliderComponent>(entities[i]);
+			auto& collider2 = _domain.getComponent<ColliderComponent>(entities[j]);
+			bool isSecondScanned = (collider1.scansMask & collider2.isScannedMask).any();
+			bool isFirstScanned = (collider2.scansMask & collider1.isScannedMask).any();
+			if (not isSecondScanned and not isFirstScanned) {
+				continue;
+			}
             ecs::Entity entity1 = entities[i];
             ecs::Entity entity2 = entities[j];
 			std::optional<Collision> collision = ColliderComponent::areColliding(
-				_domain.getComponent<ColliderComponent>(entity1),
-				_domain.getComponent<ColliderComponent>(entity2),
+				collider1,
+                collider2,
 				_domain.getComponent<TransformComponent>(entity1),
 				_domain.getComponent<TransformComponent>(entity2)
 			);
             if (!collision) {
 				continue;
             }
-            collisions.addCollision(entity1, entity2, collision.value());
-            collisions.addCollision(entity2, entity1, collision.value());
+            if (isSecondScanned) {
+				collisions.addCollision(entity1, entity2, collision.value());
+			} else {
+				collisions.addCollision(entity2, entity1, collision.value());			    
+            }
         }
     }
     return collisions;
