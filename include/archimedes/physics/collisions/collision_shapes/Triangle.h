@@ -1,11 +1,11 @@
 #pragma once
 #include <archimedes/physics/PhysicsException.h>
-#include <archimedes/physics/collisions/collision_shapes/SATShape.h>
+#include <archimedes/physics/collisions/collision_shapes/Shape.h>
 
 namespace arch::physics {
 
 /// @brief Triangle collision shape
-struct Triangle: public SATShape {
+struct Triangle: public Shape {
 	std::array<float3, 3> points;
 
 	///@warning Area should be greater than 0

@@ -3,7 +3,6 @@
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
-using TransformComponent = scene::components::TransformComponent;
 
 /// @brief If a collision exists, all projections need to overlap
 bool areProjectionsOverlapping(float2 projection1, float2 projection2);
@@ -23,8 +22,8 @@ std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2,
-	const SATShape& shape1,
-	const SATShape& shape2
+	const Shape& shape1,
+	const Shape& shape2
 );
 
 /// @brief If there doesn't exist a function to check for collision between two shapes,
@@ -95,67 +94,5 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform2
 );
 
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const HorizontalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const VerticalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const VerticalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const Circle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const Triangle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const OBB& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const Circle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const Triangle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const OBB& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-);
 
 } // namespace arch::physics

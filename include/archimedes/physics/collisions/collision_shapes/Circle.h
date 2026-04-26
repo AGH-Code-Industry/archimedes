@@ -1,12 +1,12 @@
 #pragma once
 #include <archimedes/physics/PhysicsException.h>
-#include <archimedes/physics/collisions/collision_shapes/SATShape.h>
+#include <archimedes/physics/collisions/collision_shapes/Shape.h>
 
 namespace arch::physics {
 
 ///@brief Simple circle shape
 ///@warning It might not work properly if object's scales on x and y axes are different
-struct Circle: public SATShape {
+struct Circle: public Shape {
 	f32 radius;
 	float3 center;
 

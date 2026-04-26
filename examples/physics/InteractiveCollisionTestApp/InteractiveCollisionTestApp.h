@@ -176,42 +176,6 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 	}
 
-	void createVerticalLines() {
-		float3 positions[2] = {
-			{ -1.0f, 0.0f, 0.0f },
-			{ 1.0, 0.0f, 0.0f }
-		};
-
-		for (int i = 0; i < 2; i++) {
-			const ecs::Entity e = scene->newEntity();
-			scene->domain()
-				.addComponent<scene::components::TransformComponent>(e, { positions[i], quaternion(0.0f), float3(1) });
-			scene->domain().addComponent(
-				e,
-				phy::ColliderComponent{
-					.shape = phy::VerticalLine(0.0f),
-					.scansMask = 0
-				}
-			);
-		}
-	}
-
-	void createHorizontalLines() {
-		float3 positions[2] = {
-			{ 0.0f, -1.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f }
-		};
-
-		for (int i = 0; i < 2; i++) {
-			const ecs::Entity e = scene->newEntity();
-			scene->domain()
-				.addComponent<scene::components::TransformComponent>(e, { positions[i], quaternion(0.0f), float3(1) });
-			scene->domain()
-				.addComponent(e, phy::ColliderComponent { .shape = phy::HorizontalLine(0.0f), .scansMask = 0 }
-			);
-		}
-	}
-
 	void addCircle() {
 		const ecs::Entity e = scene->newEntity();
 		float3 position = { 0.1f, 0.7f, 0.f };
@@ -241,10 +205,6 @@ struct InteractiveCollisionTestApp final: Application {
 
 		// a triangle you can collide with
 		addTriangle();
-
-		// world borders you can collide with
-		createVerticalLines();
-		createHorizontalLines();
 
 		// a circle you can collide with
 		addCircle();

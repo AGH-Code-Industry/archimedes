@@ -63,8 +63,8 @@ std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2,
-	const SATShape& shape1,
-	const SATShape& shape2
+	const Shape& shape1,
+	const Shape& shape2
 ) {
 	float3 normal(0.0f);
 	f32 depth = std::numeric_limits<f32>::max();
@@ -172,115 +172,6 @@ std::optional<Collision> checkCollision(
 	float3 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
 	std::vector<float3> axes1 = { axis1 };
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
-}
-
-// Lines don't collide with each other (otherwise they would either always or almost never do it)
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const HorizontalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	return std::nullopt;
-}
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const VerticalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	return std::nullopt;
-}
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const VerticalLine& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	return std::nullopt;
-}
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const Circle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 y = shape1.getRealPosition(transform1);
-	float3 center = shape2.getRealCenter(transform2);
-	f32 radius = shape2.getRealRadius(transform2);
-	f32 difference = center.y - y;
-	f32 distance = std::abs(difference);
-	if (distance > radius + 0.0001f) {
-		return std::nullopt;
-	}
-	float3 normal = { 0.0f, 1.0f, 0.0f };
-	f32 depth = radius - distance;
-	return Collision(normal, depth, CollisionState::CurrentlyFound);
-}
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const Triangle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 y = shape1.getRealPosition(transform1);
-	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	return checkHorizontalLineAndPolygon(y, vertices);
-}
-
-std::optional<Collision> checkCollision(
-	const HorizontalLine& shape1,
-	const OBB& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 y = shape1.getRealPosition(transform1);
-	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	return checkHorizontalLineAndPolygon(y, vertices);
-}
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const Circle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 x = shape1.getRealPosition(transform1);
-	float3 center = shape2.getRealCenter(transform2);
-	f32 radius = shape2.getRealRadius(transform2);
-	f32 distance = std::abs(center.x - x);
-	if (distance > radius + 0.0001f) {
-		return std::nullopt;
-	}
-	float3 normal = { 1.0f, 0.0f, 0.0f };
-	f32 depth = radius - distance;
-	return Collision(normal, depth, CollisionState::CurrentlyFound);
-}
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const Triangle& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 x = shape1.getRealPosition(transform1);
-	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	return checkVerticalLineAndPolygon(x, vertices);
-}
-
-std::optional<Collision> checkCollision(
-	const VerticalLine& shape1,
-	const OBB& shape2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2
-) {
-	f32 x = shape1.getRealPosition(transform1);
-	std::vector<float3> vertices = shape2.getRealVertices(transform2);
-	return checkVerticalLineAndPolygon(x, vertices);
 }
 
 } // namespace arch::physics

@@ -7,10 +7,8 @@
 
 #include <archimedes/ecs/Entity.h>
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
-#include <archimedes/physics/collisions/collision_shapes/HorizontalLine.h>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
-#include <archimedes/physics/collisions/collision_shapes/VerticalLine.h>
 #include <archimedes/physics/collisions/Collision.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
@@ -20,7 +18,7 @@ using TransformComponent = scene::components::TransformComponent;
 
 ///@brief Lets you to find collisions between entities
 struct ColliderComponent {
-	std::variant<OBB, Triangle, Circle, HorizontalLine, VerticalLine> shape;
+	std::variant<OBB, Triangle, Circle> shape;
 
 	/// @brief If true, the object can collide with mouse pointer
 	bool detectsMouse = false;

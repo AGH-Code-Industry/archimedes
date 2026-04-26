@@ -69,30 +69,6 @@ protected:
 		return e;
 	}
 
-	ecs::Entity createHorizontalLine(
-		const math::float3& pos,
-		const math::Quat& rot,
-		const math::float3& scale,
-		const phy::HorizontalLine& line
-	) {
-		auto e = _domain->newEntity();
-		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line });
-		return e;
-	}
-
-	ecs::Entity createVerticalLine(
-		const math::float3& pos,
-		const math::Quat& rot,
-		const math::float3& scale,
-		const phy::VerticalLine& line
-	) {
-		auto e = _domain->newEntity();
-		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = line });
-		return e;
-	}
-
 	std::unique_ptr<ecs::Domain> _domain;
 	std::unique_ptr<phy::PhysicsSystem> _system;
 };
@@ -142,82 +118,6 @@ TEST_F(CollisionsMTVTest, OBBvsOBB_DepthNormal) {
 
 	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
 	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
-}
-
-TEST_F(CollisionsMTVTest, HorizontalLineVsCircle_DepthNormal) {
-	phy::HorizontalLine line{ 0.0f };
-	phy::Circle circle{
-		{ 0, 0, 0 },
-		0.5f
-	};
-
-	auto e1 = createHorizontalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
-	auto e2 = createCircle({ 0, 0.3f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
-
-	auto colOpt = phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	);
-
-	ASSERT_TRUE(colOpt.has_value());
-	auto col = colOpt.value();
-
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-	expectNormalApprox(col.normal, { 0.f, 1.f, 0.f });
-}
-
-TEST_F(CollisionsMTVTest, VerticalLineVsCircle_DepthNormal) {
-	phy::VerticalLine line{ 0.0f };
-	phy::Circle circle{
-		{ 0, 0, 0 },
-		0.5f
-	};
-
-	auto e1 = createVerticalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
-	auto e2 = createCircle({ 0.3f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
-
-	auto colOpt = phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	);
-
-	ASSERT_TRUE(colOpt.has_value());
-	auto col = colOpt.value();
-
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-
-	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
-}
-
-TEST_F(CollisionsMTVTest, TriangleVsHorizontalLine_DepthNormal) {
-	phy::HorizontalLine line{ 0.0f };
-
-	phy::Triangle tri{
-		{	  0,	 0.4f, 0 },
-		{ -0.5f, -0.2f, 0 },
-		{  0.5f, -0.2f, 0 }
-	};
-
-	auto e1 = createHorizontalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
-	auto e2 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
-
-	auto colOpt = phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	);
-
-	ASSERT_TRUE(colOpt.has_value());
-	const auto& col = colOpt.value();
-
-	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-
-	expectNormalApprox(col.normal, { 0.f, 1.f, 0.f });
 }
 
 TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
@@ -277,40 +177,6 @@ TEST_F(CollisionsMTVTest, OBBvsOBB_ResolveCollision_Split) {
 
 	t1.position += correction * 0.5f;
 	t2.position -= correction * 0.5f;
-
-	auto resultAfter = phy::ColliderComponent::areColliding(col1, col2, t1, t2);
-	EXPECT_FALSE(resultAfter.has_value());
-}
-
-TEST_F(CollisionsMTVTest, HorizontalLineVsCircle_ResolveCollision) {
-	phy::HorizontalLine line{ 0.0f };
-	phy::Circle circle{
-		{ 0, 0, 0 },
-		0.5f
-	};
-
-	arch::float3 circleSpeed = { 0.0f, -1.0f, 0.0f };
-
-	auto e1 = createHorizontalLine({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, line);
-	auto e2 = createCircle({ 0, 0.3f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
-
-	auto& col1 = _domain->getComponent<phy::ColliderComponent>(e1);
-	auto& col2 = _domain->getComponent<phy::ColliderComponent>(e2);
-	auto& t1 = _domain->getComponent<TransformComponent>(e1);
-	auto& t2 = _domain->getComponent<TransformComponent>(e2);
-
-	auto result = phy::ColliderComponent::areColliding(col1, col2, t1, t2);
-	ASSERT_TRUE(result);
-
-	auto col = result.value();
-
-	math::float3 correction = col.normal * (col.depth + 0.001f);
-
-	if (areVectorsSameDirection(circleSpeed, correction)) {
-		correction = -correction;
-	}
-
-	t2.position += correction;
 
 	auto resultAfter = phy::ColliderComponent::areColliding(col1, col2, t1, t2);
 	EXPECT_FALSE(resultAfter.has_value());
