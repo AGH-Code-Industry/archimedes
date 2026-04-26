@@ -12,52 +12,6 @@ f32 getOverlap(float2 projection1, float2 projection2) {
 	return std::max(0.0f, minY - maxX);
 }
 
-std::optional<Collision> checkHorizontalLineAndPolygon(f32 y, const std::vector<float3>& vertices) {
-	bool aboveFound = false;
-	bool belowFound = false;
-	f32 minY = std::numeric_limits<f32>::max();
-	f32 maxY = std::numeric_limits<f32>::min();
-	for (const auto& vertex : vertices) {
-		minY = std::min(minY, vertex.y);
-		maxY = std::max(maxY, vertex.y);
-		if (vertex.y > y) {
-			aboveFound = true;
-		} else if (vertex.y < y) {
-			belowFound = true;
-		}
-		if (aboveFound && belowFound) {
-			// choose the closest vertex to the line
-			f32 depth = std::min(maxY - y, y - minY);
-			float3 normal = { 0.0f, 1.0f, 0.0f };
-			return Collision(normal, depth, CollisionState::CurrentlyFound);
-			}
-		}
-	return std::nullopt;
-}
-
-std::optional<Collision> checkVerticalLineAndPolygon(f32 x, const std::vector<float3>& vertices) {
-	bool leftFound = false;
-	bool rightFound = false;
-	f32 minX = std::numeric_limits<f32>::max();
-	f32 maxX = std::numeric_limits<f32>::min();
-	for (const auto& vertex : vertices) {
-		minX = std::min(minX, vertex.x);
-		maxX = std::max(maxX, vertex.x);
-		if (vertex.x > x) {
-			rightFound = true;
-		} else if (vertex.x < x) {
-			leftFound = true;
-		}
-		if (leftFound && rightFound) {
-			// choose the closest vertex to the line
-			f32 depth = std::min(maxX - x, x - minX);
-			float3 normal = { 1.0f, 0.0f, 0.0f };
-			return Collision(normal, depth, CollisionState::CurrentlyFound);
-			}
-		}
-	return std::nullopt;
-}
-
 std::optional<Collision> checkSAT(
 	const std::vector<float3>& axes1,
 	const std::vector<float3>& axes2,

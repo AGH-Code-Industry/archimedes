@@ -9,6 +9,8 @@ using TransformComponent = scene::components::TransformComponent;
 struct Shape {
 	virtual ~Shape() = default;
 
-	virtual float2 getProjection(float3 axis, const TransformComponent& transform) const = 0;
+	inline float2 getProjection(float3 axis, const TransformComponent& transform) const {
+		return float2{0.0f, 0.0f};
+	}
 };
 } // namespace arch::physics

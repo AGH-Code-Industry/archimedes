@@ -13,7 +13,7 @@ struct Triangle: public Shape {
 
 	///@brief Used for SAT collision algorithm
 	std::vector<float3> getSeparatingAxes(const TransformComponent& transform) const;
-	float2 getProjection(float3 axis, const TransformComponent& transform) const override;
+	float2 getProjection(float3 axis, const TransformComponent& transform) const;
 
 	///@brief Used to cast the shape to the map coordinates
 	std::vector<float3> getRealVertices(const TransformComponent& transform) const;

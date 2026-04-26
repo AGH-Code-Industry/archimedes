@@ -11,7 +11,7 @@ std::optional<Collision> ColliderComponent::areColliding(
 ) {
 	// you have to resolve a std::variant variable's type
 	return std::visit(
-		[transform1, transform2](const auto& a, const auto& b) -> std::optional<Collision> {
+		[&](const auto& a, const auto& b) -> std::optional<Collision> {
 			return checkCollision(a, b, transform1, transform2);
 		},
 		collider1.shape,
@@ -28,7 +28,7 @@ bool ColliderComponent::isCollidingWithMouse(
 		return false;
 	}
 	return std::visit(
-		[transform, mousePosition](const auto& shape) -> bool {
+		[&](const auto& shape) -> bool {
 			return containsPoint(shape, mousePosition, transform);
 		},
 		collider.shape
