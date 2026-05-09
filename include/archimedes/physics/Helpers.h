@@ -19,11 +19,12 @@ inline float3 getConvexPolygonNorm(float3 edgeVertex1, float3 edgeVertex2, float
 }
 
 
-/// @brief Get the area of a triangle, using the shoelace formula
+/// @brief Get the area of a triangle, using cross product
 inline f32 getTriangleArea(float3 vertex1, float3 vertex2, float3 vertex3) {
-	return 0.5f * std::abs(vertex1.x * (vertex2.y - vertex3.y) +
-		vertex2.x * (vertex3.y - vertex1.y) +
-		vertex3.x * (vertex1.y - vertex2.y));
+	float3 edge1 = vertex2 - vertex1;
+	float3 edge2 = vertex3 - vertex1;
+	float3 crossProduct = glm::cross(edge1, edge2);
+	return 0.5f * glm::length(crossProduct);
 }
 
 /// @brief Check if two vectors point in the same direction 
