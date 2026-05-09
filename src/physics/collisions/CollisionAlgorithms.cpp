@@ -1,4 +1,5 @@
 #include <archimedes/physics/collisions/CollisionAlgorithms.hpp>
+#include <archimedes/physics/Helpers.h>
 
 namespace arch::physics {
 
@@ -57,7 +58,7 @@ std::optional<Collision> checkCollision(
 	f32 radius1 = shape1.getRealRadius(transform1);
 	f32 radius2 = shape2.getRealRadius(transform2);
 	f32 radiusSum = radius1 + radius2;
-	if (distance > radiusSum + 0.0001f) {
+	if (distance > radiusSum + COLLISIONS_EPSILON) {
 		return std::nullopt;
 	}
 	f32 depth = radiusSum - distance;

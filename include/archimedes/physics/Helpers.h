@@ -3,6 +3,10 @@
 
 namespace arch::physics {
 
+/// @brief Used by the collision system
+constexpr f32 COLLISIONS_EPSILON = 0.0001f;
+
+
 /// @brief Get the normal vector for a given edge
 inline float3 getConvexPolygonNorm(float3 edgeVertex1, float3 edgeVertex2, float3 polygonOtherVertex) {
 	float3 edge = edgeVertex1 - edgeVertex2;

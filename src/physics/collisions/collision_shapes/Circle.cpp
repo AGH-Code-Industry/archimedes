@@ -4,7 +4,7 @@
 
 namespace arch::physics {
 Circle::Circle(float3 center, f32 radius): center(center), radius(radius) {
-	if (radius < 0.0001f) {
+	if (radius < COLLISIONS_EPSILON) {
 		throw PhysicsException("Circle's radius must be greater than 0");
 	}
 }
@@ -47,6 +47,6 @@ f32 Circle::getRealRadius(const TransformComponent& transform) const {
 
 bool Circle::containsPoint(const TransformComponent& transform, float3 point) const {
 	float3 center = getRealCenter(transform);
-	return glm::distance2(center, point) < getRealRadiusSquared(transform) + 0.0001f;
+	return glm::distance2(center, point) < getRealRadiusSquared(transform) + COLLISIONS_EPSILON;
 }
 } // namespace arch::physics

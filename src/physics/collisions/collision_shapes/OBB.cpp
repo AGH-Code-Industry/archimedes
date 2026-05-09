@@ -11,7 +11,7 @@ OBB::OBB(float3 topLeft, float3 bottomRight, f32 rotation):
 		throw PhysicsException("OBB's corners' coordinates don't match, consider swapping them");
 	}
 	float3 bottomLeft = { topLeft.x, bottomRight.y, 0.0f };
-	if (getTriangleArea(topLeft, bottomLeft, bottomRight) < 0.0001f) {
+	if (getTriangleArea(topLeft, bottomLeft, bottomRight) < COLLISIONS_EPSILON) {
 		throw PhysicsException("OBB's area must be greater than 0");
 	}
 }
@@ -65,7 +65,7 @@ bool OBB::containsPoint(const TransformComponent& transform, float3 point) const
 	std::vector<float3> vertices = getRealVertices(transform);
 	f32 areasSum = getSumOfTriangleAreas(vertices, point);
 	f32 obbArea = getTriangleArea(vertices[0], vertices[1], vertices[2]) * 2.0f;
-	return std::abs(areasSum - obbArea) < 0.0001f;
+	return std::abs(areasSum - obbArea) < COLLISIONS_EPSILON;
 }
 
 } // namespace arch::physics

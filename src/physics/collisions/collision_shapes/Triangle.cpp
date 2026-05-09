@@ -7,7 +7,7 @@ Triangle::Triangle(float3 pointA, float3 pointB, float3 pointC) {
 	points[0] = pointA;
 	points[1] = pointB;
 	points[2] = pointC;
-	if (getTriangleArea(pointA, pointB, pointC) < 0.0001f) {
+	if (getTriangleArea(pointA, pointB, pointC) < COLLISIONS_EPSILON) {
 		throw PhysicsException("Triangle's area must be greater than 0");
 	}
 }
@@ -51,7 +51,7 @@ bool Triangle::containsPoint(const TransformComponent& transform, float3 point) 
 	std::vector<float3> vertices = getRealVertices(transform);
 	f32 areasSum = getSumOfTriangleAreas(vertices, point);
 	f32 triangleArea = getTriangleArea(vertices[0], vertices[1], vertices[2]);
-	return std::abs(areasSum - triangleArea) < 0.0001f;
+	return std::abs(areasSum - triangleArea) < COLLISIONS_EPSILON;
 }
 
 
