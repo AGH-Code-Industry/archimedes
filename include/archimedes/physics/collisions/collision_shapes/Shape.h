@@ -9,8 +9,12 @@ using TransformComponent = scene::components::TransformComponent;
 struct Shape {
 	virtual ~Shape() = default;
 
-	inline float2 getProjection(float3 axis, const TransformComponent& transform) const {
+	inline float2 getProjection(const TransformComponent& transform, float3 axis) const {
 		return float2{0.0f, 0.0f};
+	}
+
+	inline bool containsPoint(const TransformComponent& transform, float3 point) const { 
+		return false;
 	}
 };
 } // namespace arch::physics

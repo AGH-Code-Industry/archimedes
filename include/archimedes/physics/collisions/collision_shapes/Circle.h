@@ -15,11 +15,14 @@ struct Circle: public Shape {
 
 	/// @brief Used for SAT collision algorithm
 	float3 getSeparatingAxis(const TransformComponent& transform, const std::vector<float3>& realPolygonVertices) const;
-	float2 getProjection(float3 axis, const TransformComponent& transform) const;
+	float2 getProjection(const TransformComponent& transform, float3 axis) const;
 
 	///@brief Used to cast the shape to map coordinates
 	float3 getRealCenter(const TransformComponent& transform) const;
 	f32 getRealRadiusSquared(const TransformComponent& transform) const;
 	f32 getRealRadius(const TransformComponent& transform) const;
+
+	///@brief Used for mouse to shape collision checking
+	bool containsPoint(const TransformComponent& transform, float3 point) const;
 };
 } // namespace arch::physics

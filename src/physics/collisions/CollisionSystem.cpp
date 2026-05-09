@@ -147,6 +147,9 @@ MouseSet CollisionSystem::_getMouseEntities(float3 mousePosition) const {
         }
         auto& collider = _domain.getComponent<ColliderComponent>(entity);
         auto& transform = _domain.getComponent<TransformComponent>(entity);
+        if (!collider.detectsMouse) {
+			continue;
+        }
         if(!ColliderComponent::isCollidingWithMouse(
             collider,
             transform,

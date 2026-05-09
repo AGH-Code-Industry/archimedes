@@ -46,7 +46,7 @@ std::vector<float3> OBB::getRealVertices(const TransformComponent& transform) co
 	return vertices;
 }
 
-float2 OBB::getProjection(float3 axis, const TransformComponent& transform) const {
+float2 OBB::getProjection(const TransformComponent& transform, float3 axis) const {
 	std::vector<float3> vertices = getRealVertices(transform);
 	f32 min = glm::dot(axis, vertices[0]);
 	f32 max = min;
@@ -59,6 +59,13 @@ float2 OBB::getProjection(float3 axis, const TransformComponent& transform) cons
 		}
 	}
 	return { min, max };
+}
+
+bool OBB::containsPoint(const TransformComponent& transform, float3 point) const {
+	std::vector<float3> vertices = getRealVertices(transform);
+	f32 areasSum = getSumOfTriangleAreas(vertices, point);
+	f32 obbArea = getTriangleArea(vertices[0], vertices[1], vertices[2]) * 2.0f;
+	return std::abs(areasSum - obbArea) < 0.0001f;
 }
 
 } // namespace arch::physics

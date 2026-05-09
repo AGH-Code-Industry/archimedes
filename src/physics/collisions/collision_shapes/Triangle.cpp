@@ -32,7 +32,7 @@ std::vector<float3> Triangle::getRealVertices(const TransformComponent& transfor
 	return vertices;
 }
 
-float2 Triangle::getProjection(float3 axis, const TransformComponent& transform) const {
+float2 Triangle::getProjection(const TransformComponent& transform, float3 axis) const {
 	std::vector<float3> vertices = getRealVertices(transform);
 	f32 min = glm::dot(axis, vertices[0]);
 	f32 max = min;
@@ -46,5 +46,13 @@ float2 Triangle::getProjection(float3 axis, const TransformComponent& transform)
 	}
 	return { min, max };
 }
+
+bool Triangle::containsPoint(const TransformComponent& transform, float3 point) const {
+	std::vector<float3> vertices = getRealVertices(transform);
+	f32 areasSum = getSumOfTriangleAreas(vertices, point);
+	f32 triangleArea = getTriangleArea(vertices[0], vertices[1], vertices[2]);
+	return std::abs(areasSum - triangleArea) < 0.0001f;
+}
+
 
 } // namespace arch::physics

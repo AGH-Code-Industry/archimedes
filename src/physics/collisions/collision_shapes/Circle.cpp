@@ -30,7 +30,7 @@ float3 Circle::getRealCenter(const TransformComponent& transform) const {
 	return float3(model * float4(center, 1.0f));
 }
 
-float2 Circle::getProjection(float3 axis, const TransformComponent& transform) const {
+float2 Circle::getProjection(const TransformComponent& transform, float3 axis) const {
 	float3 realCenter = getRealCenter(transform);
 	float centerProj = glm::dot(realCenter, axis);
 	float radius = getRealRadius(transform);
@@ -43,5 +43,10 @@ f32 Circle::getRealRadiusSquared(const TransformComponent& transform) const {
 
 f32 Circle::getRealRadius(const TransformComponent& transform) const {
 	return std::sqrt(getRealRadiusSquared(transform));
+}
+
+bool Circle::containsPoint(const TransformComponent& transform, float3 point) const {
+	float3 center = getRealCenter(transform);
+	return glm::distance2(center, point) < getRealRadiusSquared(transform) + 0.0001f;
 }
 } // namespace arch::physics

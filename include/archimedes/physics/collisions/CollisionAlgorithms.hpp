@@ -4,6 +4,14 @@
 
 namespace arch::physics {
 
+/// @brief Check mouse to shape collision
+/// (optimised by static polymorphism instead of virtual functions)
+template<typename ShapeA>
+requires std::derived_from<ShapeA, Shape>
+bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float3 mousePosition){
+	return shape.containsPoint(transform, mousePosition);
+}
+
 /// @brief If a collision exists, all projections need to overlap
 bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 
@@ -11,6 +19,7 @@ bool areProjectionsOverlapping(float2 projection1, float2 projection2);
 f32 getOverlap(float2 projection1, float2 projection2);
 
 /// @brief SAT (Separate Axis Test) algorithm for checking collision between convex shapes
+/// (optimised by static polymorphism instead of virtual functions)
 template<typename ShapeA, typename ShapeB>
 requires std::derived_from<ShapeA, Shape> && std::derived_from<ShapeB, Shape>
 std::optional<Collision> checkSAT(
@@ -24,8 +33,8 @@ std::optional<Collision> checkSAT(
 	float3 normal(0.0f);
 	f32 depth = std::numeric_limits<f32>::max();
 	for (auto& axis : axes1) {
-		float2 projection1 = shape1.getProjection(axis, transform1);
-		float2 projection2 = shape2.getProjection(axis, transform2);
+		float2 projection1 = shape1.getProjection(transform1, axis);
+		float2 projection2 = shape2.getProjection(transform2, axis);
 		if (!areProjectionsOverlapping(projection1, projection2)) {
 			return std::nullopt;
 		}
@@ -36,8 +45,8 @@ std::optional<Collision> checkSAT(
 		}
 	}
 	for (auto& axis : axes2) {
-		float2 projection1 = shape1.getProjection(axis, transform1);
-		float2 projection2 = shape2.getProjection(axis, transform2);
+		float2 projection1 = shape1.getProjection(transform1, axis);
+		float2 projection2 = shape2.getProjection(transform2, axis);
 		if (!areProjectionsOverlapping(projection1, projection2)) {
 			return std::nullopt;
 		}

@@ -28,4 +28,15 @@ inline bool areVectorsSameDirection(float3 vector1, float3 vector2) {
 	return glm::dot(vector1, vector2) > 0;
 }
 
+///@brief Divide the triangle into 3 triangles using the point (all of them use it as a vertex)
+inline f32 getSumOfTriangleAreas(const std::vector<float3>& vertices, float3 point) {
+	f32 areasSum = 0.0f;
+	for (i32 i = 0; i < vertices.size(); i++) {
+		float3 vertex1 = vertices[i];
+		float3 vertex2 = vertices[(i + 1) % vertices.size()];
+		areasSum += getTriangleArea(vertex1, vertex2, point);
+	}
+	return areasSum;
+}
+
 } // namespace arch::physics

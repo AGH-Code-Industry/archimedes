@@ -15,9 +15,12 @@ struct OBB: public Shape {
 
 	///@brief Used for SAT collision algorithm
 	std::vector<float3> getSeparatingAxes(const TransformComponent& transform) const;
-	float2 getProjection(float3 axis, const TransformComponent& transform) const;
+	float2 getProjection(const TransformComponent& transform, float3 axis) const;
 
 	///@brief Used to cast the shape to map coordinates
 	std::vector<float3> getRealVertices(const TransformComponent& transform) const;
+
+	///@brief Used for mouse to shape collision checking
+	bool containsPoint(const TransformComponent& transform, float3 point) const;
 };
 } // namespace arch::physics

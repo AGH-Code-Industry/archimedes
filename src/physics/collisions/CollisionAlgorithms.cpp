@@ -12,43 +12,6 @@ f32 getOverlap(float2 projection1, float2 projection2) {
 	return std::max(0.0f, minY - maxX);
 }
 
-std::optional<Collision> checkSAT(
-	const std::vector<float3>& axes1,
-	const std::vector<float3>& axes2,
-	const TransformComponent& transform1,
-	const TransformComponent& transform2,
-	const Shape& shape1,
-	const Shape& shape2
-) {
-	float3 normal(0.0f);
-	f32 depth = std::numeric_limits<f32>::max();
-	for (auto& axis : axes1) {
-		float2 projection1 = shape1.getProjection(axis, transform1);
-		float2 projection2 = shape2.getProjection(axis, transform2);
-		if (!areProjectionsOverlapping(projection1, projection2)) {
-			return std::nullopt;
-		}
-		f32 overlap = getOverlap(projection1, projection2);
-		if (overlap < depth) {
-			depth = overlap;
-			normal = axis;
-		}
-	}
-	for (auto& axis : axes2) {
-		float2 projection1 = shape1.getProjection(axis, transform1);
-		float2 projection2 = shape2.getProjection(axis, transform2);
-		if (!areProjectionsOverlapping(projection1, projection2)) {
-			return std::nullopt;
-		}
-		f32 overlap = getOverlap(projection1, projection2);
-		if (overlap < depth) {
-			depth = overlap;
-			normal = axis;
-		}
-	}
-	return Collision(normal, depth, CollisionState::CurrentlyFound);
-}
-
 std::optional<Collision> checkCollision(
 	const OBB& shape1,
 	const OBB& shape2,

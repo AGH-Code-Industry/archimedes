@@ -1,6 +1,5 @@
 #include <archimedes/physics/collisions/CollisionAlgorithms.hpp>
 #include <archimedes/physics/collisions/ColliderComponent.h>
-#include <archimedes/physics/collisions/PointAlgorithms.h>
 
 namespace arch::physics {
 std::optional<Collision> ColliderComponent::areColliding(
@@ -24,12 +23,9 @@ bool ColliderComponent::isCollidingWithMouse(
 	const TransformComponent& transform,
 	float3 mousePosition
 ) {
-	if (!collider.detectsMouse) {
-		return false;
-	}
 	return std::visit(
 		[&](const auto& shape) -> bool {
-			return containsPoint(shape, mousePosition, transform);
+			return checkPoint(shape, transform, mousePosition);
 		},
 		collider.shape
 	);
