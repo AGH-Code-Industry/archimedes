@@ -154,18 +154,18 @@ class CameraTestApp: public Application {
 			camera.zoomIn(1.1);
 		}
 
-		if (input::Keyboard::one.down()) {
+		if (input::Mouse::left.down()) {
 			camera.rotateDeg(1);
 		}
-		if (input::Keyboard::two.down()) {
+		if (input::Mouse::right.down()) {
 			camera.rotateDeg(-1);
 		}
 
 		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());
 		Logger::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
 
-		// if (input::Keyboard::F11.pressed()) {
-		// window.toggleFullscreen();
-		//}
+		if (input::Keyboard::F11.pressed()) {
+			window.toggleFullscreen();
+		}
 	}
 };
