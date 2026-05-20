@@ -5,11 +5,11 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
 #include <archimedes/Engine.h>
 #include <archimedes/Font.h>
 #include <archimedes/Input.h>
-#include <archimedes/Projection.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
 
@@ -63,31 +63,7 @@ std::vector<float4> rainbowColors(u32 N) {
 	return result;
 }
 
-struct Camera2D {
-	float2 extents{};
-	float2 position{ 0.f, 0.f };
-	float2 zoom = { 1, 1 };
-	float rotation = 0.f;
-
-	Ref<gfx::Buffer> buffer = gfx::Renderer::current()->getBufferManager()->createBuffer(gfx::BufferType::uniform);
-
-	void update() {
-		auto viewProj = glm::ortho(-extents.x * zoom.x, extents.x * zoom.x, -extents.y * zoom.y, extents.y * zoom.y);
-
-		viewProj *= glm::rotate(glm::mat4(1.f), rotation, glm::vec3(0, 0, 1)) *
-			glm::translate(glm::mat4(1.f), glm::vec3(-position.x, -position.y, 0.f));
-
-		buffer->setData(&viewProj, sizeof(viewProj));
-	}
-};
-
 class CameraTestApp: public Application {
-	struct Camera {
-		double2 pos{};
-		float2 extents{};
-		float zoom = 1;
-	};
-
 	void init() override {
 		Ref<Scene> scene = createRef<Scene>();
 
@@ -99,19 +75,6 @@ class CameraTestApp: public Application {
 			float2 tex_coords;
 		};
 
-		/*std::vector<u32> indices{
-			2, 3, 1, 0, 2, 1,
-		};
-
-		std::vector<Vertex> lineVertices{
-			{ { -0.5f, -0.5f, 0.f }, {} },
-			{  { 0.5f, -0.5f, 0.f }, {} },
-			{  { -0.5f, 0.5f, 0.f }, {} },
-			{	  { 0.5f, 0.5f, 0.f }, {} },
-		};*/
-
-		// 01
-		// 23
 		std::vector<u32> indices{
 			0, 1, 2, 2, 1, 3,
 		};
@@ -123,28 +86,11 @@ class CameraTestApp: public Application {
 			{ { -1.f, 1.f, 0.f }, {} },
 		};
 
-		// 10
-		// 32
-
 		Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
 
 		auto&& window = *gfx::Renderer::current()->getWindow();
-		auto windowSize = window.size();
 
-		auto&& cameraTest = scene->domain().global<Camera2D>();
-		cameraTest.extents = windowSize / 2;
-
-		cameraTest.update();
-
-		/*auto&& camera = scene->domain().global<Camera>(
-			float2{ windowSize.x / 2, windowSize.y / 2 },
-			float2{ windowSize.x / 2, windowSize.y / 2 },
-			1.f
-		);
-		auto&& cameraProj = scene->domain().global<Projection>(
-			(float2)camera.pos - camera.extents,
-			(float2)camera.pos + camera.extents
-		);*/
+		auto&& camera = scene->domain().global<Camera>();
 
 		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(lineVertices, indices);
 
@@ -166,7 +112,7 @@ class CameraTestApp: public Application {
 						.textures = { gfx::Renderer::current()
 										  ->getTextureManager()
 										  ->createTexture2D(1, 1, &*colorsI++) },
-						.buffers = { cameraTest.buffer },
+						.buffers = { camera.buffer() },
 					}
 				);
 				rect.addComponent(
@@ -181,98 +127,45 @@ class CameraTestApp: public Application {
 		}
 	}
 
-	float2 middlePressedMousePos{};
-	float2 middlePressedCameraPos{};
-
-	float step = 0;
-
 	void update() {
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-
 		auto&& scene = *scene::SceneManager::get()->currentScene();
+		auto&& camera = scene.domain().global<Camera>();
 		auto&& window = *gfx::Renderer::current()->getWindow();
 
-		auto&& cameraTest = scene.domain().global<Camera2D>();
-		bool first = true;
-		for (auto&& [_, t] : scene.domain()
-								 .view<scene::components::MeshComponent, scene::components::TransformComponent>()
-								 .components()) {
-			t.position.z = glm::cos(step);
-			if (first) {
-				first = false;
-				Logger::debug("{}", t.position.z);
-			}
-		}
-		step += 0.01;
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
 		if (input::Keyboard::arrowUp.down()) {
-			cameraTest.position.y += 2;
+			camera.changePos({ 0, 2 });
 		}
 		if (input::Keyboard::arrowDown.down()) {
-			cameraTest.position.y -= 2;
+			camera.changePos({ 0, -2 });
 		}
 		if (input::Keyboard::arrowLeft.down()) {
-			cameraTest.position.x -= 2;
+			camera.changePos({ -2, 0 });
 		}
 		if (input::Keyboard::arrowRight.down()) {
-			cameraTest.position.x += 2;
+			camera.changePos({ 2, 0 });
 		}
 
 		auto scroll = input::Mouse::scroll.y();
 		if (scroll < 0) {
-			cameraTest.zoom *= 1.1f;
+			camera.zoomOut(1.1);
 		} else if (scroll > 0) {
-			cameraTest.zoom /= 1.1f;
+			camera.zoomIn(1.1);
 		}
 
 		if (input::Keyboard::one.down()) {
-			cameraTest.rotation += std::numbers::pi / 180;
+			camera.rotateDeg(1);
 		}
 		if (input::Keyboard::two.down()) {
-			cameraTest.rotation -= std::numbers::pi / 180;
+			camera.rotateDeg(-1);
 		}
 
-		cameraTest.update();
+		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());
+		Logger::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
 
-		// auto&& camera = scene.domain().global<Camera>();
-		// if (input::Mouse::middle.pressed()) {
-		//	middlePressedMousePos = input::Mouse::pos();
-		//	middlePressedCameraPos = camera.pos;
-		// }
-		// if (input::Mouse::middle.down()) {
-		//	// GLFW cursor position gets desynced with OS cursor position :(
-		//	camera.pos = middlePressedCameraPos + (middlePressedMousePos - (float2)input::Mouse::pos()) * camera.zoom;
-		// }
-
-		//// F11 to toggle fullscreen
 		// if (input::Keyboard::F11.pressed()) {
-		//	window.toggleFullscreen();
-		//	Logger::debug("{} {}", window.size().x, window.size().y);
-
-		//	if (camera.extents != (float2)window.size() / 2.f) {
-		//		auto extentsCopy = camera.extents;
-		//		camera.extents = (float2)window.size() / 2.f;
-
-		//		// make it proportional
-		//		auto factor = extentsCopy.x / camera.extents.x;
-		//		camera.zoom *= factor;
-		//	}
+		// window.toggleFullscreen();
 		//}
-
-		//// use scroll to control zoom
-		// constexpr auto zoomOutFactor = 1.1f;
-		// constexpr auto zoomInFactor = 1.f / zoomOutFactor;
-
-		// auto scrollVal = input::Mouse::scroll.y();
-		// if (scrollVal < 0) {
-		//	camera.zoom *= zoomOutFactor;
-		// } else if (scrollVal > 0) {
-		//	camera.zoom *= zoomInFactor;
-		// }
-
-		// scene.domain().global<Projection>().update(
-		//	(float2)camera.pos - camera.extents * camera.zoom,
-		//	(float2)camera.pos + camera.extents * camera.zoom
-		//);
 	}
 };
