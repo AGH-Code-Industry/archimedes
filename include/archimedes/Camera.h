@@ -4,7 +4,7 @@
 
 namespace arch {
 
-/// @brief Class of a camera
+/// @brief Camera
 class Camera {
 public:
 	/// @brief Camera bounds
@@ -18,43 +18,78 @@ public:
 	/// @brief Constructor
 	Camera() noexcept;
 
+	/// @brief Returns position
 	float2 pos() const noexcept;
+	/// @brief Sets new position
 	void pos(float2 newPosition) noexcept;
+	/// @brief Moves camera
 	void move(float2 deltaPos) noexcept;
 
+	/// @brief Returns real extents
 	float2 extents() const noexcept;
+	/// @brief Sets real extents
+	/// @details Resets zoom
 	void extents(float2 newExtents) noexcept;
-	void changeExtents(float2 delta) noexcept;
+	/// @brief Expands real extents
+	/// @details Resets zoom
+	void changeExtents(float2 deltaExtents) noexcept;
 
+	/// @brief Returns raw extents
 	float2 rawExtents() const noexcept;
+	/// @brief Sets raw extents
+	/// @details Does not change the zoom
 	void rawExtents(float2 newExtents) noexcept;
-	void changeRawExtents(float2 delta) noexcept;
+	/// @brief Expands raw extents
+	/// @details Does not change the zoom
+	void changeRawExtents(float2 deltaRawExtents) noexcept;
 
+	/// @brief Returns real bounds
 	Bounds bounds() const noexcept;
+	/// @brief Sets real bounds
+	/// @details Resets zoom
 	void bounds(Bounds newBounds) noexcept;
 
+	/// @brief Returns raw bounds
 	Bounds rawBounds() const noexcept;
+	/// @brief Sets raw bounds
+	/// @details Does not change the zoom
 	void rawBounds(Bounds newBounds) noexcept;
 
+	/// @brief Returns zoom
 	float2 zoom() const noexcept;
+	/// @brief Sets zoom
 	void zoom(float2 newZoom) noexcept;
+	/// @brief Sets zoom
 	void zoom(float newZoom) noexcept;
 
+	/// @brief Zooms in
 	void zoomIn(float2 modifier) noexcept;
+	/// @brief Zooms in
 	void zoomIn(float modifier) noexcept;
+	/// @brief Zooms out
 	void zoomOut(float2 modifier) noexcept;
+	/// @brief Zooms out
 	void zoomOut(float modifier) noexcept;
 
+	/// @brief Returns rotation in radians
 	float rotation() const noexcept;
+	/// @brief Returns rotation in degrees
 	float rotationDeg() const noexcept;
+	/// @brief Sets rotation in radians
 	void rotation(float newRotation) noexcept;
+	/// @brief Sets rotation in degrees
 	void rotationDeg(float newRotation) noexcept;
+	/// @brief Rotates camera by given amount of radians
 	void rotate(float delta) noexcept;
+	/// @brief Rotates camera by given amount of degrees
 	void rotateDeg(float delta) noexcept;
 
+	/// @brief Computes world position of a given window position
 	float2 screenToWorldPos(float2 screenPos) const noexcept;
+	/// @brief Computes world position of a given window position (Normalized Device Coordinates)
 	float2 normalToWorldPos(float2 normalizedDeviceCoordinates) const noexcept;
 
+	/// @brief Returns uniform buffer with view-projection matrix
 	const Ref<gfx::Buffer>& buffer() const noexcept;
 
 private:
