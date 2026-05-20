@@ -45,7 +45,7 @@ void Camera::pos(float2 newPosition) noexcept {
 	_updateBuffer();
 }
 
-void Camera::changePos(float2 delta) noexcept {
+void Camera::move(float2 delta) noexcept {
 	pos(pos() + delta);
 }
 

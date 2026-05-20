@@ -20,7 +20,7 @@ public:
 
 	float2 pos() const noexcept;
 	void pos(float2 newPosition) noexcept;
-	void changePos(float2 delta) noexcept;
+	void move(float2 deltaPos) noexcept;
 
 	float2 extents() const noexcept;
 	void extents(float2 newExtents) noexcept;

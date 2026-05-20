@@ -135,16 +135,16 @@ class CameraTestApp: public Application {
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
 		if (input::Keyboard::arrowUp.down()) {
-			camera.changePos({ 0, 2 });
+			camera.move({ 0, 2 });
 		}
 		if (input::Keyboard::arrowDown.down()) {
-			camera.changePos({ 0, -2 });
+			camera.move({ 0, -2 });
 		}
 		if (input::Keyboard::arrowLeft.down()) {
-			camera.changePos({ -2, 0 });
+			camera.move({ -2, 0 });
 		}
 		if (input::Keyboard::arrowRight.down()) {
-			camera.changePos({ 2, 0 });
+			camera.move({ 2, 0 });
 		}
 
 		auto scroll = input::Mouse::scroll.y();
