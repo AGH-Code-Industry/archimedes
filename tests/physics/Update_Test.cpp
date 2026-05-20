@@ -14,7 +14,7 @@ TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
 	phy::PhysicsSystem system(domain, 800.f, 600.f);
 
-	constexpr auto startV = math::float3(1.f, 0.f, 0.f);
+	constexpr auto startV = math::float2(1.f, 0.f);
 
 	// Create movable entity
 	auto e0 = domain.newEntity();
@@ -22,7 +22,7 @@ TEST(Physics, TestUpdate) {
 		e0,
 		{
 			1.f,
-			{ 1.f, 1.f, 0.f },
+			{ 1.f, 1.f},
 			startV,
 			0.0f
 	 }
@@ -41,7 +41,7 @@ TEST(Physics, TestUpdate) {
 	const math::f32 t = system.update();
 
 	// Expect entity to move accordingly to the old velocity
-	EXPECT_EQ(transform.position, t * startV);
+	EXPECT_EQ(transform.position, t * math::float3(startV, 0.f));
 
 	// Expect that velocity updated accordingly to the force
 	EXPECT_EQ(rigidBody.linearVelocity, startV + t * rigidBody.force);

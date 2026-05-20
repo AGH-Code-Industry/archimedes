@@ -15,12 +15,10 @@ namespace scene = arch::scene;
 using TransformComponent = scene::components::TransformComponent;
 
 /// @brief Checks if the normal is close to another one (or its reversed version)
-void expectNormalApprox(const math::float3& actual, const math::float3& expected, float eps = 1e-4f) {
-	bool same = std::abs(actual.x - expected.x) < eps && std::abs(actual.y - expected.y) < eps &&
-		std::abs(actual.z - expected.z) < eps;
+void expectNormalApprox(const math::float2& actual, const math::float2& expected, float eps = 1e-4f) {
+	bool same = std::abs(actual.x - expected.x) < eps && std::abs(actual.y - expected.y) < eps;
 
-	bool opposite = std::abs(actual.x + expected.x) < eps && std::abs(actual.y + expected.y) < eps &&
-		std::abs(actual.z + expected.z) < eps;
+	bool opposite = std::abs(actual.x + expected.x) < eps && std::abs(actual.y + expected.y) < eps;
 
 	EXPECT_TRUE(same || opposite);
 }
@@ -75,7 +73,7 @@ protected:
 
 TEST_F(CollisionsMTVTest, CircleVsCircle_DepthNormal) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0, 0 },
 		0.5f
 	};
 
@@ -93,13 +91,13 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_DepthNormal) {
 	const auto& col = result.value();
 
 	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
+	expectNormalApprox(col.normal, { 1.f, 0.f });
 }
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_DepthNormal) {
 	phy::OBB obb{
-		{ -0.5f,	 0.5f, 0.f },
-		{  0.5f, -0.5f, 0.f },
+		{ -0.5f, 0.5f },
+		{  0.5f, -0.5f },
 		0.f
 	};
 
@@ -117,17 +115,16 @@ TEST_F(CollisionsMTVTest, OBBvsOBB_DepthNormal) {
 	const auto& col = result.value();
 
 	EXPECT_NEAR(col.depth, 0.2f, 1e-4f);
-	expectNormalApprox(col.normal, { 1.f, 0.f, 0.f });
+	expectNormalApprox(col.normal, { 1.f, 0.f });
 }
 
 TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0, 0 },
 		0.5f
 	};
 
-	arch::float3 firstCircleSpeed = { 0.1f, 0, 0 };
-
+	arch::float2 firstCircleSpeed = { 0.1f, 0 };
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 	auto e2 = createCircle({ 0.8f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
@@ -141,7 +138,7 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
 
 	auto col = result.value();
 
-	math::float3 correction = col.normal * (col.depth + 0.001f);
+	auto correction = math::float3(col.normal * (col.depth + 0.001f), 0.0f);
 
 	if (areVectorsSameDirection(firstCircleSpeed, correction)) {
 		correction = -correction;
@@ -155,8 +152,8 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_ResolveCollision_Split) {
 	phy::OBB obb{
-		{ -0.5f,	 0.5f, 0.f },
-		{  0.5f, -0.5f, 0.f },
+		{ -0.5f, 0.5f },
+		{  0.5f, -0.5f },
 		0.f
 	};
 
@@ -173,7 +170,7 @@ TEST_F(CollisionsMTVTest, OBBvsOBB_ResolveCollision_Split) {
 
 	auto col = result.value();
 
-	math::float3 correction = col.normal * (col.depth + 0.001f);
+	auto correction = math::float3(col.normal * (col.depth + 0.001f), 0.f);
 
 	t1.position += correction * 0.5f;
 	t2.position -= correction * 0.5f;

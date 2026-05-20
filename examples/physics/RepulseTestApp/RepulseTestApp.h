@@ -23,11 +23,11 @@ struct RepulseTestApp final: Application {
 		phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
 		phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
 
-		float3 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
+		float2 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
 		v1 += 2 * otherBody.mass * otherBody.linearVelocity;
 		v1 /= myBody.mass + otherBody.mass;
 
-		float3 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
+		float2 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
 		v2 += 2 * myBody.mass * myBody.linearVelocity;
 		v2 /= myBody.mass + otherBody.mass;
 
@@ -87,14 +87,14 @@ struct RepulseTestApp final: Application {
 		testScene->domain().addComponent(e1,
 			phy::RigidBodyComponent{
 				1.f,
-				{ 0.f, 0.f , 0.f},	{ 0.1f, 0.f, 0.f },
+				{ 0.f, 0.f },	{ 0.1f, 0.f },
 			}
 		);
 		testScene->domain().addComponent(e1,
 			phy::ColliderComponent{
 				.shape = phy::OBB (
-						float3(0.0f),
-						float3{ .25f, -.25f , 0.0f},
+						float2(0.0f),
+						float2{ .25f, -.25f },
 						0.0f
 				),
 			}
@@ -115,15 +115,15 @@ struct RepulseTestApp final: Application {
 		testScene->domain().addComponent(e2,
 			phy::RigidBodyComponent{
 				.mass = 5.f,
-				.force = { 0.f, 0.f, 0.f },
-				.linearVelocity = { -0.1f, 0.f, 0.f } ,
+				.force = { 0.f, 0.f },
+				.linearVelocity = { -0.1f, 0.f } ,
 			}
 		);
 		testScene->domain().addComponent(e2,
 			phy::ColliderComponent{
 				.shape = phy::OBB (
-						float3(0.0f),
-						float3{0.25f, -0.25f, 0.0f},
+						float2(0.0f),
+						float2{0.25f, -0.25f},
 						0.0f
 				),
 			}

@@ -19,8 +19,8 @@ class CollidersValidationTest: public ::testing::Test {};
 TEST_F(CollidersValidationTest, OBB_Degenerate_ZeroSize) {
 	ASSERT_THROW(
 		phy::OBB({
-			{ 0.f, 0.f, 0.f },
-			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f },
+			{ 0.f, 0.f },
 			0.f
 	}),
 		phy::PhysicsException
@@ -30,8 +30,8 @@ TEST_F(CollidersValidationTest, OBB_Degenerate_ZeroSize) {
 TEST_F(CollidersValidationTest, OBB_Degenerate_InvalidExtents) {
 	ASSERT_THROW(
 		phy::OBB({
-			{  1.f,  1.f, 0.f },
-			{ -1.f, -1.f, 0.f },
+			{  1.f,  1.f },
+			{ -1.f, -1.f },
 			0.f
 	}),
 		phy::PhysicsException
@@ -41,7 +41,7 @@ TEST_F(CollidersValidationTest, OBB_Degenerate_InvalidExtents) {
 TEST_F(CollidersValidationTest, Circle_Degenerate_ZeroRadius) {
 	ASSERT_THROW(
 		phy::Circle({
-			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f },
 			0.f
 	}),
 		phy::PhysicsException
@@ -51,7 +51,7 @@ TEST_F(CollidersValidationTest, Circle_Degenerate_ZeroRadius) {
 TEST_F(CollidersValidationTest, Circle_Degenerate_NegativeRadius) {
 	ASSERT_THROW(
 		phy::Circle({
-			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f },
 			-1.f
 	 }),
 		phy::PhysicsException
@@ -61,9 +61,9 @@ TEST_F(CollidersValidationTest, Circle_Degenerate_NegativeRadius) {
 TEST_F(CollidersValidationTest, Triangle_Degenerate_AllPointsEqual) {
 	ASSERT_THROW(
 		phy::Triangle({
-			{ 0.f, 0.f, 0.f },
-			{ 0.f, 0.f, 0.f },
-			{ 0.f, 0.f, 0.f }
+			{ 0.f, 0.f },
+			{ 0.f, 0.f },
+			{ 0.f, 0.f }
 	  }),
 		phy::PhysicsException
 	);
@@ -72,9 +72,9 @@ TEST_F(CollidersValidationTest, Triangle_Degenerate_AllPointsEqual) {
 TEST_F(CollidersValidationTest, Triangle_Degenerate_Collinear) {
 	ASSERT_THROW(
 		phy::Triangle({
-			{ 0.f, 0.f, 0.f },
-			{ 1.f, 1.f, 0.f },
-			{ 2.f, 2.f, 0.f }
+			{ 0.f, 0.f },
+			{ 1.f, 1.f },
+			{ 2.f, 2.f }
 	  }),
 		phy::PhysicsException
 	);

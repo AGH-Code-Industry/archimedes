@@ -8,21 +8,21 @@ namespace arch::physics {
 ///@warning It might not work properly if object's scales on x and y axes are different
 struct Circle: public Shape {
 	f32 radius;
-	float3 center;
+	float2 center;
 
 	///@warning radius must be greater than 0
-	Circle(float3 center, f32 radius);
+	Circle(float2 center, f32 radius);
 
 	/// @brief Used for SAT collision algorithm
-	float3 getSeparatingAxis(const TransformComponent& transform, const std::vector<float3>& realPolygonVertices) const;
-	float2 getProjection(const TransformComponent& transform, float3 axis) const;
+	float2 getSeparatingAxis(const TransformComponent& transform, const std::vector<float2>& realPolygonVertices) const;
+	float2 getProjection(const TransformComponent& transform, float2 axis) const;
 
 	///@brief Used to cast the shape to map coordinates
-	float3 getRealCenter(const TransformComponent& transform) const;
+	float2 getRealCenter(const TransformComponent& transform) const;
 	f32 getRealRadiusSquared(const TransformComponent& transform) const;
 	f32 getRealRadius(const TransformComponent& transform) const;
 
 	///@brief Used for mouse to shape collision checking
-	bool containsPoint(const TransformComponent& transform, float3 point) const;
+	bool containsPoint(const TransformComponent& transform, float2 point) const;
 };
 } // namespace arch::physics

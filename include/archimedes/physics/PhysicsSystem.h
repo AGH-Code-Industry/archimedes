@@ -33,7 +33,7 @@ public:
 	bool hasMouseExited(ecs::Entity entity) const;
 
 	/// @brief Calculate real mouse position (not on screen but on the map)
-	float3 getMousePositionOnMap() const;
+	float2 getMousePositionOnMap() const;
 
 	PhysicsSystem(ecs::Domain& domain, f32 windowWidth, f32 windowHeight);
 

@@ -21,7 +21,7 @@ std::optional<Collision> ColliderComponent::areColliding(
 bool ColliderComponent::isCollidingWithMouse(
 	const ColliderComponent& collider,
 	const TransformComponent& transform,
-	float3 mousePosition
+	float2 mousePosition
 ) {
 	return std::visit(
 		[&](const auto& shape) -> bool {

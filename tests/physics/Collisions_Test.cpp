@@ -63,8 +63,8 @@ protected:
 
 TEST_F(CollisionTest, OBBvsOBB_Collision) {
 	phy::OBB obb{
-		{ -0.25f,  0.25f, 0.f },
-		{  0.25f, -0.25f, 0.f },
+		{ -0.25f,  0.25f },
+		{  0.25f, -0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
@@ -80,8 +80,8 @@ TEST_F(CollisionTest, OBBvsOBB_Collision) {
 
 TEST_F(CollisionTest, OBBvsOBB_TouchingEdges) {
 	phy::OBB obb{
-		{ -0.25f,  0.25f, 0.f },
-		{  0.25f, -0.25f, 0.f },
+		{ -0.25f,  0.25f },
+		{  0.25f, -0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
@@ -97,13 +97,13 @@ TEST_F(CollisionTest, OBBvsOBB_TouchingEdges) {
 
 TEST_F(CollisionTest, OBBvsOBB_RotatedCollision) {
 	phy::OBB obb1{
-		{ -0.25f,  0.25f, 0 },
-		{  0.25f, -0.25f, 0 },
+		{ -0.25f,  0.25f },
+		{  0.25f, -0.25f },
 		0.f
 	};
 	phy::OBB obb2{
-		{ -0.25f,  0.25f, 0 },
-		{  0.25f, -0.25f, 0 },
+		{ -0.25f,  0.25f },
+		{  0.25f, -0.25f },
 		0.785398f
 	}; // ~45 deg
 
@@ -120,7 +120,7 @@ TEST_F(CollisionTest, OBBvsOBB_RotatedCollision) {
 
 TEST_F(CollisionTest, CircleVsCircle_Collision) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0, 0 },
 		0.4f
 	};
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
@@ -136,7 +136,7 @@ TEST_F(CollisionTest, CircleVsCircle_Collision) {
 
 TEST_F(CollisionTest, CircleVsCircle_NoCollision) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0, 0 },
 		0.4f
 	};
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
@@ -152,9 +152,9 @@ TEST_F(CollisionTest, CircleVsCircle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
 	phy::Triangle tri{
-		{	  0,	 0.5f, 0 },
-		{ -0.5f, -0.5f, 0 },
-		{  0.5f, -0.5f, 0 }
+		{ 0.0f, 0.5f },
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f }
 	};
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 2, 2, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
@@ -169,9 +169,9 @@ TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
 	phy::Triangle tri{
-		{	  0,	 0.5f, 0 },
-		{ -0.5f, -0.5f, 0 },
-		{  0.5f, -0.5f, 0 }
+		{ 0.0f,  0.5f },
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f }
 	};
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 0.2f, 0.1f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
@@ -186,9 +186,9 @@ TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
 	phy::Triangle tri{
-		{	  0,	 0.5f, 0 },
-		{ -0.5f, -0.5f, 0 },
-		{  0.5f, -0.5f, 0 }
+		{ 0.0f, 0.5f },
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f }
 	};
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 1, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
@@ -203,12 +203,12 @@ TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
 
 TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
 	phy::Triangle tri{
-		{	  0,	 0.5f, 0 },
-		{ -0.5f, -0.5f, 0 },
-		{  0.5f, -0.5f, 0 }
+		{ 0.0f,  0.5f },
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f }
 	};
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0.0f, 0.0f },
 		0.3f
 	};
 
@@ -225,13 +225,13 @@ TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 	phy::Triangle tri{
-		{	  0,	 0.5f, 0 },
-		{ -0.5f, -0.5f, 0 },
-		{  0.5f, -0.5f, 0 }
+		{ 0.0f,	0.5f, },
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f }
 	};
 	phy::OBB obb{
-		{ -0.25f,  0.25f, 0 },
-		{  0.25f, -0.25f, 0 },
+		{ -0.25f,  0.25f },
+		{  0.25f, -0.25f },
 		0.f
 	};
 
@@ -249,7 +249,7 @@ TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 
 TEST_F(CollisionTest, Mask_NoMatch) {
 
-    phy::Circle circle{{0,0,0}, 1.0f};
+    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
 
     auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
     auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
@@ -270,7 +270,7 @@ TEST_F(CollisionTest, Mask_NoMatch) {
 }
 
 TEST_F(CollisionTest, Mask_OneWayMatch) {
-    phy::Circle circle{{0,0,0}, 1.0f};
+    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
 
     auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
     auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
@@ -290,7 +290,7 @@ TEST_F(CollisionTest, Mask_OneWayMatch) {
 }
 
 TEST_F(CollisionTest, Mask_MultipleLayers) {
-    phy::Circle circle{{0,0,0}, 1.0f};
+    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
 
     auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
     auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
@@ -310,7 +310,7 @@ TEST_F(CollisionTest, Mask_MultipleLayers) {
 
 TEST_F(CollisionTest, CircleVsCircle_BoundingCirclePreventsFalseNegative) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0.0f, 0.0f },
 		0.5f
 	};
 
@@ -338,7 +338,7 @@ TEST_F(CollisionTest, CircleVsCircle_BoundingCirclePreventsFalseNegative) {
 
 TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0.0f, 0.0f },
 		0.5f
 	};
 
@@ -361,7 +361,7 @@ TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
 
 TEST_F(CollisionTest, StatesCheck) {
 	phy::Circle circle{
-		{ 0, 0, 0 },
+		{ 0.0f, 0.0f },
 		1.0f
 	};
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
@@ -394,6 +394,75 @@ TEST_F(CollisionTest, StatesCheck) {
 	ASSERT_FALSE(_system->getEnteredCollisions(e1).contains(e2));
 	ASSERT_FALSE(_system->getCollisions(e1).contains(e2));
 	ASSERT_FALSE(_system->getExitedCollisions(e1).contains(e2));
+}
+
+TEST_F(CollisionTest, CircleVsCircle_DifferentZ_ShouldStillCollide) {
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		0.5f
+	};
+
+	auto e1 = createCircle({ 0, 0, -100.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto e2 = createCircle({ 0.4f, 0, 250.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	ASSERT_TRUE(phy::ColliderComponent::areColliding(
+					_domain->getComponent<phy::ColliderComponent>(e1),
+					_domain->getComponent<phy::ColliderComponent>(e2),
+					_domain->getComponent<TransformComponent>(e1),
+					_domain->getComponent<TransformComponent>(e2)
+	)
+					.has_value());
+}
+
+TEST_F(CollisionTest, OBBvsOBB_DifferentZ_ShouldStillCollide) {
+	phy::OBB obb{
+		{ -0.5f,	 0.5f },
+		{  0.5f, -0.5f },
+		0.f
+	};
+
+	auto e1 = createOBB({ 0, 0, -50.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
+
+	auto e2 = createOBB({ 0.25f, 0.25f, 999.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
+
+	ASSERT_TRUE(phy::ColliderComponent::areColliding(
+					_domain->getComponent<phy::ColliderComponent>(e1),
+					_domain->getComponent<phy::ColliderComponent>(e2),
+					_domain->getComponent<TransformComponent>(e1),
+					_domain->getComponent<TransformComponent>(e2)
+	)
+					.has_value());
+}
+
+TEST_F(CollisionTest, CollisionDependsOnlyOnXY) {
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		0.5f
+	};
+
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto e2 = createCircle({ 0.75f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto collisionAtZ0 = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	_domain->getComponent<TransformComponent>(e2).position.z = 5000.0f;
+
+	auto collisionAtZ5000 = phy::ColliderComponent::areColliding(
+		_domain->getComponent<phy::ColliderComponent>(e1),
+		_domain->getComponent<phy::ColliderComponent>(e2),
+		_domain->getComponent<TransformComponent>(e1),
+		_domain->getComponent<TransformComponent>(e2)
+	);
+
+	ASSERT_EQ(collisionAtZ0.has_value(), collisionAtZ5000.has_value());
+	ASSERT_TRUE(collisionAtZ5000.has_value());
 }
 
 } // namespace physics

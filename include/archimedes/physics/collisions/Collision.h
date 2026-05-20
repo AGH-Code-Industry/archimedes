@@ -11,7 +11,7 @@ enum CollisionState {
 /// @brief Represents a collision detected by an algorithm (or stored in the system)
 struct Collision {
 	/// @brief Direction along which you have to push the objects so they don't collide
-	float3 normal;
+	float2 normal;
 	
 	/// @brief Minimal distance an object has to be pushed to exit the collision
 	/// @warning It will still be detected probably, so you need to add a small number to it
@@ -23,14 +23,15 @@ struct Collision {
 	/// @brief Helper factory method for disappearing collisions
 	inline static Collision exitedCollision() {
 		return {
-			{ 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f },
 			0.0f,
 			CollisionState::Exited
 		};
 	}
 
 	/// @brief Helper factory method
-	inline Collision changeState(CollisionState newState) { return { normal, depth, newState };
+	inline Collision changeState(CollisionState newState) { 
+		return { normal, depth, newState };
 	}
 };
 

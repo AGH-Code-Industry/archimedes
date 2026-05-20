@@ -24,8 +24,9 @@ class CollisionSystem {
     /// @brief Read shape-shape collisions that appeared in current frame, update the graph
     void _readCurrentCollisions(const CollisionGraph& newCollisions);
 
+
     /// @brief Calculate current mouse-shape collisions
-    MouseSet _getMouseEntities(float3 mousePosition) const;
+    MouseSet _getMouseEntities(float2 mousePosition) const;
 
     /// @brief Check which stored mouse-shape collisions didn't appear in current frame, update the graph
     void _checkDisappearedMouseCollisions(const MouseSet& newMouseCollisions);
@@ -55,7 +56,8 @@ public:
     /// @brief Check if mouse stopped colliding with the shape in current frame
     bool hasMouseExited(ecs::Entity entity) const;
 
+
     /// @brief Calculate the collisions and update the graph, use it each frame
-    void update(float3 mousePosition);
+    void update(float2 mousePosition);
 };
 }

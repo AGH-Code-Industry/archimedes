@@ -19,8 +19,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float3> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
+	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
+	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -30,8 +30,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float3> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
+	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
+	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -41,8 +41,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float3> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
+	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
+	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -52,8 +52,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	float3 center1 = shape1.getRealCenter(transform1);
-	float3 center2 = shape2.getRealCenter(transform2);
+	float2 center1 = shape1.getRealCenter(transform1);
+	float2 center2 = shape2.getRealCenter(transform2);
 	f32 distance = glm::distance(center1, center2);
 	f32 radius1 = shape1.getRealRadius(transform1);
 	f32 radius2 = shape2.getRealRadius(transform2);
@@ -62,7 +62,7 @@ std::optional<Collision> checkCollision(
 		return std::nullopt;
 	}
 	f32 depth = radiusSum - distance;
-	float3 normal = glm::normalize(center2 - center1);
+	float2 normal = glm::normalize(center2 - center1);
 	return Collision(normal, depth, CollisionState::CurrentlyFound);
 }
 
@@ -73,9 +73,9 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform2
 ) {
 	// a circle has just one, special axis
-	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
-	float3 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
-	std::vector<float3> axes1 = { axis1 };
+	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	float2 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
+	std::vector<float2> axes1 = { axis1 };
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -86,9 +86,9 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform2
 ) {
 	// a circle has just one, special axis
-	std::vector<float3> axes2 = shape2.getSeparatingAxes(transform2);
-	float3 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
-	std::vector<float3> axes1 = { axis1 };
+	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	float2 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
+	std::vector<float2> axes1 = { axis1 };
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 

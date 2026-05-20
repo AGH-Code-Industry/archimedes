@@ -43,7 +43,7 @@ struct ColliderComponent {
 	static bool isCollidingWithMouse(
 		const ColliderComponent& collider,
 		const TransformComponent& transform,
-		float3 mousePosition
+		float2 mousePosition
 	);
 };
 

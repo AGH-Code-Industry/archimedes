@@ -4,8 +4,8 @@ namespace arch::physics {
 
 struct RigidBodyComponent {
 	f32 mass;
-	float3 force;
-	float3 linearVelocity;
+	float2 force;
+	float2 linearVelocity;
 	f32 angularVelocity;
 };
 

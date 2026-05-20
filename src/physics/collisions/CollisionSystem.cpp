@@ -138,7 +138,7 @@ void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions
     }
 }
 
-MouseSet CollisionSystem::_getMouseEntities(float3 mousePosition) const {
+MouseSet CollisionSystem::_getMouseEntities(float2 mousePosition) const {
     MouseSet mouseSet;
     auto view = _domain.view<ColliderComponent>();
     for (auto entity : view) {
@@ -216,7 +216,7 @@ bool CollisionSystem::hasMouseExited(ecs::Entity entity) const {
     return state && state.value() == CollisionState::Exited;
 }
 
-void CollisionSystem::update(float3 mousePosition) {
+void CollisionSystem::update(float2 mousePosition) {
     CollisionGraph collidedEntities = _getCollidedEntities();
     _checkDisappearedCollisions(collidedEntities);
     _readCurrentCollisions(collidedEntities);

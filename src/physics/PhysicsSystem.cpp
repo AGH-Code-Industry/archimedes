@@ -25,18 +25,18 @@ f32 PhysicsSystem::update() {
 
 	for (auto [entity, rigidBody, transform] : viewRigidBodies.all()) {
 		// update position
-		transform.position += rigidBody.linearVelocity * t;
+		transform.position += float3(rigidBody.linearVelocity, 0.0f) * t;
 
 		// update rotation
 		transform.rotation *= quaternion(rigidBody.angularVelocity * t);
 		transform.rotation = glm::normalize(transform.rotation);
 
 		// update speed
-		const float3 a = rigidBody.force / rigidBody.mass;
+		const float2 a = rigidBody.force / rigidBody.mass;
 		rigidBody.linearVelocity += a * t;
 	}
 
-	float3 mousePosition = getMousePositionOnMap();
+	float2 mousePosition = getMousePositionOnMap();
 	_collisionSystem.update(mousePosition);
 	_prevTimePoint = Clock::now();
 
@@ -69,11 +69,11 @@ bool PhysicsSystem::hasMouseExited(ecs::Entity entity) const {
 
 /// TODO: use the camera's data instead of hard coding window sizes
 /// TODO: this also doesn't detect if the mouse is off screen
-float3 PhysicsSystem::getMousePositionOnMap() const {
+float2 PhysicsSystem::getMousePositionOnMap() const {
 	float2 mousePos = input::Mouse::pos();
 	mousePos.x = glm::mix(-1.0f, 1.0f, mousePos.x / _windowWidth);
 	mousePos.y = glm::mix(-1.0f, 1.0f, mousePos.y / _windowHeight);
-	return float3(mousePos.x, mousePos.y, 0.0f);
+	return { mousePos.x, mousePos.y };
 
 } // namespace arch::physics
 }

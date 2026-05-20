@@ -37,9 +37,6 @@ struct InteractiveCollisionTestApp final: Application {
 
 	arch::Ref<arch::gfx::pipeline::Pipeline> pipelineRed, pipelineGreen, pipelineBlue, pipelineCircle;
 	Ref<asset::mesh::Mesh> meshRectangle, meshTriangle;
-
-	bool isCollidingMouse = false;
-	bool isCollidingEntity = false;
 	
 	void createRectangleMesh() {
 
@@ -121,7 +118,7 @@ struct InteractiveCollisionTestApp final: Application {
 
 	ecs::Entity addPlayer() {
 		auto player = scene->newEntity();
-		float3 position{ 0.f, 0.f, 0.f };
+		float3 position{ 0.f, 0.f, -0.1f };
 		scene->domain()
 			.addComponent<scene::components::TransformComponent>(player, { position, quaternion(0.0f), float3(1) });
 		scene->domain().addComponent<scene::components::MeshComponent>(player, { meshRectangle, pipelineBlue });
@@ -129,14 +126,14 @@ struct InteractiveCollisionTestApp final: Application {
 			player,
 			phy::RigidBodyComponent{
 				1.f,
-				{ 0.f, 0.f, 0.f },
-				{ 0.f, 0.f, 0.f },
+				{ 0.f, 0.f },
+				{ 0.f, 0.f },
 		}
 		);
 		scene->domain().addComponent(
 			player,
 			phy::ColliderComponent{ .shape =
-										phy::OBB(float3{ -0.25f, 0.25f, 0.0f }, float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
+										phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
 									.detectsMouse = true, .isScannedMask = 0 }
 		);
 		return player;
@@ -151,7 +148,7 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent(
 			e,
 			phy::ColliderComponent{
-				.shape = phy::OBB(float3{ -0.25f, 0.25f, 0.0f }, float3{ 0.25f, -0.25f, 0.0f }, 0.0f),
+				.shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
 				.scansMask = 0
 			}
 		);
@@ -167,9 +164,9 @@ struct InteractiveCollisionTestApp final: Application {
 			e,
 			phy::ColliderComponent{
 				.shape = phy::Triangle(
-					float3{ -0.25f, -0.25f, 0.0f },
-					float3{ 0.25f, -0.25f, 0.0f },
-					float3{ 0.0f, 0.25f, 0.0f }
+					float2{ -0.25f, -0.25f },
+					float2{ 0.25f, -0.25f },
+					float2{ 0.0f, 0.25f }
 				),
 				.scansMask = 0
 			}
@@ -185,7 +182,7 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent(
 			e,
 			phy::ColliderComponent{ .shape =
-										phy::Circle(float3{ 0.0f, 0.0f, 0.0f },  0.25f),
+										phy::Circle(float2{ 0.0f, 0.0f },  0.25f),
 									.scansMask = 0 }
 		);
 	}
@@ -213,20 +210,20 @@ struct InteractiveCollisionTestApp final: Application {
 		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()), windowWidth, windowHeight);
 	}
 
-	float3 getLinearVelocity() {
+	float2 getLinearVelocity() {
 		auto lock = std::lock_guard(mutex);
-		float3 velocity{};
+		float2 velocity{};
 		if (Keyboard::W.down()) {
-			velocity += float3{0.0f, 1.0f, 0.0f};
+			velocity += float2{0.0f, 1.0f};
 		}
 		if (Keyboard::S.down()) {
-			velocity -= float3{0.0f, 1.0f, 0.0f};
+			velocity -= float2{0.0f, 1.0f};
 		}
 		if (Keyboard::A.down()) {
-			velocity -= float3{1.0f, 0.0f, 0.0f};
+			velocity -= float2{1.0f, 0.0f};
 		}
 		if (Keyboard::D.down()) {
-			velocity += float3{1.0f, 0.0f, 0.0f};
+			velocity += float2{1.0f, 0.0f};
 		}
 		return velocity;
 	}
@@ -244,36 +241,27 @@ struct InteractiveCollisionTestApp final: Application {
 
 	void update() override {
 		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
-		if(_physicsSystem->getEnteredCollisions(player).size() > 0) {
-			if (!isCollidingMouse) {
-				setPlayerColor(player, PlayerColor::Green);
-			}
-			isCollidingEntity = true;
-			Logger::info("Collision detected! Position: {}, {}", playerPosition.x, playerPosition.y);
-		}
-		if(_physicsSystem->getExitedCollisions(player).size() > 0) {
-			if (!isCollidingMouse) {
-				setPlayerColor(player, PlayerColor::Blue);
-			}
-			isCollidingEntity = false;
-			Logger::info("Collision ended! Position: {}, {}", playerPosition.x, playerPosition.y);
-		}
-		float3 mousePosition = _physicsSystem->getMousePositionOnMap();
-		if(_physicsSystem->hasMouseEntered(player)) {
+		float2 mousePosition = _physicsSystem->getMousePositionOnMap();
+		if (_physicsSystem->hasMouse(player)) {
 			setPlayerColor(player, PlayerColor::Red);
-			isCollidingMouse = true;
-			Logger::info("Mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
-		}
-		if(_physicsSystem->hasMouseExited(player)) {
-			if (isCollidingEntity) {
-				setPlayerColor(player, PlayerColor::Green);
-			} else {
-				setPlayerColor(player, PlayerColor::Blue);
+			if (_physicsSystem->hasMouseEntered(player)) {
+				Logger::info("The mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
 			}
-			isCollidingMouse = false;
-			Logger::info("Mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
+		} else if (_physicsSystem->getCollisions(player).size() > 0) {
+			setPlayerColor(player, PlayerColor::Green);
+			if (_physicsSystem->getEnteredCollisions(player).size() > 0) {
+				Logger::info("Found a collision! Position: {}, {}", playerPosition.x, playerPosition.y);
+			}
+		} else {
+				setPlayerColor(player, PlayerColor::Blue);
 		}
-		const float3 linearVelocity = linearVelocityBase * getLinearVelocity();
+		if (_physicsSystem->getExitedCollisions(player).size() > 0) {
+			Logger::info("A collision disappeared! Position: {}, {}", playerPosition.x, playerPosition.y);
+		}
+		if (_physicsSystem->hasMouseExited(player)) {
+			Logger::info("The mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
+		}
+		const float2 linearVelocity = linearVelocityBase * getLinearVelocity();
 		const f32 angularVelocity = angularVelocityBase * getAngularVelocity();
 		auto& rigidBody = scene->domain().getComponent<phy::RigidBodyComponent>(player);
 		rigidBody.linearVelocity = linearVelocity;

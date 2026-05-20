@@ -8,7 +8,7 @@ namespace arch::physics {
 /// (optimised by static polymorphism instead of virtual functions)
 template<typename ShapeA>
 requires std::derived_from<ShapeA, Shape>
-bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float3 mousePosition){
+bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float2 mousePosition){
 	return shape.containsPoint(transform, mousePosition);
 }
 
@@ -23,14 +23,14 @@ f32 getOverlap(float2 projection1, float2 projection2);
 template<typename ShapeA, typename ShapeB>
 requires std::derived_from<ShapeA, Shape> && std::derived_from<ShapeB, Shape>
 std::optional<Collision> checkSAT(
-	const std::vector<float3>& axes1,
-	const std::vector<float3>& axes2,
+	const std::vector<float2>& axes1,
+	const std::vector<float2>& axes2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2,
 	const ShapeA& shape1,
 	const ShapeB& shape2
 ) {
-	float3 normal(0.0f);
+	float2 normal(0.0f);
 	f32 depth = std::numeric_limits<f32>::max();
 	for (auto& axis : axes1) {
 		float2 projection1 = shape1.getProjection(transform1, axis);
