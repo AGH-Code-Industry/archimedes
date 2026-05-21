@@ -40,47 +40,45 @@ float2 Camera::pos() const noexcept {
 	return _position;
 }
 
-void Camera::pos(float2 newPosition) noexcept {
+void Camera::setPos(float2 newPosition) noexcept {
 	_position = newPosition;
 	_updateBuffer();
 }
 
 void Camera::move(float2 delta) noexcept {
-	pos(pos() + delta);
+	setPos(pos() + delta);
 }
 
 float2 Camera::extents() const noexcept {
 	return _extents;
 }
 
-void Camera::extents(float2 newExtents) noexcept {
+void Camera::setExtents(float2 newExtents) noexcept {
 	_rawExtents = newExtents;
 	_zoom = { 1, 1 };
 	_updateExtents();
 }
 
 void Camera::changeExtents(float2 delta) noexcept {
-	extents(extents() + delta);
+	setExtents(extents() + delta);
 }
 
 float2 Camera::rawExtents() const noexcept {
 	return _rawExtents;
 }
 
-void Camera::rawExtents(float2 newExtents) noexcept {
 	_rawExtents = newExtents;
 	_updateExtents();
 }
 
 void Camera::changeRawExtents(float2 delta) noexcept {
-	rawExtents(rawExtents() + delta);
+	setRawExtents(rawExtents() + delta);
 }
 
 Camera::Bounds Camera::bounds() const noexcept {
 	return Bounds{ .bottomLeft = _position - _extents, .topRight = _position + _extents };
 }
 
-void Camera::bounds(Bounds newBounds) noexcept {
 	_position = (newBounds.bottomLeft + newBounds.topRight) / 2.f;
 	_rawExtents = (newBounds.topRight - newBounds.bottomLeft) / 2.f;
 	_zoom = { 1, 1 };
@@ -91,7 +89,7 @@ Camera::Bounds Camera::rawBounds() const noexcept {
 	return Bounds{ .bottomLeft = _position - _rawExtents, .topRight = _position + _rawExtents };
 }
 
-void Camera::rawBounds(Bounds newBounds) noexcept {
+void Camera::setRawBounds(Bounds newBounds) noexcept {
 	_position = (newBounds.bottomLeft + newBounds.topRight) / 2.f;
 	_rawExtents = (newBounds.topRight - newBounds.bottomLeft) / 2.f;
 	_updateExtents();
@@ -101,7 +99,7 @@ float2 Camera::zoom() const noexcept {
 	return _zoom;
 }
 
-void Camera::zoom(float2 newZoom) noexcept {
+void Camera::setZoom(float newZoom) noexcept {
 	_zoom = newZoom;
 	_updateExtents();
 }
@@ -123,7 +121,7 @@ void Camera::zoomOut(float2 modifier) noexcept {
 }
 
 void Camera::zoomOut(float modifier) noexcept {
-	zoom(zoom() * modifier);
+	setZoom(zoom() * modifier);
 }
 
 float Camera::rotation() const noexcept {
@@ -145,11 +143,11 @@ void Camera::rotationDeg(float newRotation) noexcept {
 }
 
 void Camera::rotate(float delta) noexcept {
-	rotation(rotation() + delta);
 }
 
 void Camera::rotateDeg(float delta) noexcept {
 	rotation(rotation() + glm::radians(delta));
+	setRotation(rotation() + delta);
 }
 
 float2 Camera::screenToWorldPos(float2 screenPos) const noexcept {

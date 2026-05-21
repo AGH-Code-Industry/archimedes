@@ -21,7 +21,7 @@ public:
 	/// @brief Returns position
 	float2 pos() const noexcept;
 	/// @brief Sets new position
-	void pos(float2 newPosition) noexcept;
+	void setPos(float2 newPosition) noexcept;
 	/// @brief Moves camera
 	void move(float2 deltaPos) noexcept;
 
@@ -29,7 +29,7 @@ public:
 	float2 extents() const noexcept;
 	/// @brief Sets real extents
 	/// @details Resets zoom
-	void extents(float2 newExtents) noexcept;
+	void setExtents(float2 newExtents) noexcept;
 	/// @brief Expands real extents
 	/// @details Resets zoom
 	void changeExtents(float2 deltaExtents) noexcept;
@@ -38,7 +38,7 @@ public:
 	float2 rawExtents() const noexcept;
 	/// @brief Sets raw extents
 	/// @details Does not change the zoom
-	void rawExtents(float2 newExtents) noexcept;
+	void setRawExtents(float2 newExtents) noexcept;
 	/// @brief Expands raw extents
 	/// @details Does not change the zoom
 	void changeRawExtents(float2 deltaRawExtents) noexcept;
@@ -47,23 +47,23 @@ public:
 	Bounds bounds() const noexcept;
 	/// @brief Sets real bounds
 	/// @details Resets zoom
-	void bounds(Bounds newBounds) noexcept;
+	void setBounds(Bounds newBounds) noexcept;
 
 	/// @brief Returns raw bounds
 	Bounds rawBounds() const noexcept;
 	/// @brief Sets raw bounds
 	/// @details Does not change the zoom
-	void rawBounds(Bounds newBounds) noexcept;
+	void setRawBounds(Bounds newBounds) noexcept;
 
 	/// @brief Returns zoom
 	float2 zoom() const noexcept;
 	/// @brief Sets zoom
 	void zoom(float2 newZoom) noexcept;
 	/// @brief Sets zoom
-	void zoom(float newZoom) noexcept;
 
 	/// @brief Zooms in
 	void zoomIn(float2 modifier) noexcept;
+	void setZoom(float newZoom) noexcept;
 	/// @brief Zooms in
 	void zoomIn(float modifier) noexcept;
 	/// @brief Zooms out
@@ -76,9 +76,9 @@ public:
 	/// @brief Returns rotation in degrees
 	float rotationDeg() const noexcept;
 	/// @brief Sets rotation in radians
-	void rotation(float newRotation) noexcept;
 	/// @brief Sets rotation in degrees
 	void rotationDeg(float newRotation) noexcept;
+	void setRotation(float newRotation) noexcept;
 	/// @brief Rotates camera by given amount of radians
 	void rotate(float delta) noexcept;
 	/// @brief Rotates camera by given amount of degrees
