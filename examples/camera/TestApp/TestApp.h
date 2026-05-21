@@ -13,8 +13,18 @@
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
 
+// This example shows usage of the Camera class
+// There are rainbow blocks placed as 10x10 grid to make it easier to see the camera changes
+// Controls:
+// - Scroll up: zoom in
+// - Scroll down: zoom out
+// - Arrow keys: accordingly move camera in world space
+// - Left mouse button: rotate camera counterclockwise
+// - Right mouse button: rotate camera clockwise
+
 using namespace arch;
 
+// Helper for making rainbow blocks
 float4 hsvToRgb(float h, float s, float v) {
 	float c = v * s;
 	float x = c * (1.f - std::fabs(std::fmod(h / 60.f, 2.f) - 1.f));
@@ -51,6 +61,7 @@ float4 hsvToRgb(float h, float s, float v) {
 	return { r + m, g + m, b + m, 1.f };
 }
 
+// Helper for making rainbow blocks
 std::vector<float4> rainbowColors(u32 N) {
 	std::vector<float4> result;
 	result.reserve(N);
@@ -79,7 +90,7 @@ class CameraTestApp: public Application {
 			0, 1, 2, 2, 1, 3,
 		};
 
-		std::vector<Vertex> lineVertices{
+		std::vector<Vertex> vertices{
 			{  { 0.f, 0.f, 0.f }, {} },
 			{ { -1.f, 0.f, 0.f }, {} },
 			{  { 0.f, 1.f, 0.f }, {} },
@@ -87,12 +98,10 @@ class CameraTestApp: public Application {
 		};
 
 		Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
-		auto&& window = *gfx::Renderer::current()->getWindow();
-
+		// Create camera
 		auto&& camera = scene->domain().global<Camera>();
-
-		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(lineVertices, indices);
 
 		// rainbow grid
 		constexpr auto gridWidth = 10;
@@ -112,6 +121,9 @@ class CameraTestApp: public Application {
 						.textures = { gfx::Renderer::current()
 										  ->getTextureManager()
 										  ->createTexture2D(1, 1, &*colorsI++) },
+
+						// Use the view-projection matrix from camera
+						// Ordering may differ depending on the used shader
 						.buffers = { camera.buffer() },
 					}
 				);
@@ -134,6 +146,7 @@ class CameraTestApp: public Application {
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
+		// Camera movement through world space
 		if (input::Keyboard::arrowUp.down()) {
 			camera.move({ 0, 2 });
 		}
@@ -147,13 +160,15 @@ class CameraTestApp: public Application {
 			camera.move({ 2, 0 });
 		}
 
+		// Camera zooming
 		auto scroll = input::Mouse::scroll.y();
-		if (scroll < 0) {
+		if (scroll < 0) { // scroll up
 			camera.zoomOut(1.1);
-		} else if (scroll > 0) {
+		} else if (scroll > 0) { // scroll down
 			camera.zoomIn(1.1);
 		}
 
+		// Camera rotation
 		if (input::Mouse::left.down()) {
 			camera.rotate(glm::radians(1.f));
 		}
@@ -161,9 +176,12 @@ class CameraTestApp: public Application {
 			camera.rotate(glm::radians(-1.f));
 		}
 
+		// Printing out mouse position in world space
+		// The top-left corner of the red block is at (0, 0), each block is 100 in size
 		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());
 		Logger::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
 
+		// Camera works with fullscreen
 		if (input::Keyboard::F11.pressed()) {
 			window.toggleFullscreen();
 		}
