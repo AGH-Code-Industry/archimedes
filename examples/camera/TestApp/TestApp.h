@@ -155,10 +155,10 @@ class CameraTestApp: public Application {
 		}
 
 		if (input::Mouse::left.down()) {
-			camera.rotateDeg(1);
+			camera.rotate(glm::radians(1.f));
 		}
 		if (input::Mouse::right.down()) {
-			camera.rotateDeg(-1);
+			camera.rotate(glm::radians(-1.f));
 		}
 
 		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());

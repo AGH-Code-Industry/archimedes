@@ -26,6 +26,7 @@ public:
 	void move(float2 deltaPos) noexcept;
 
 	/// @brief Returns real extents
+	/// @details Extents are half the size of camera's viewport, accounting for zoom
 	float2 extents() const noexcept;
 	/// @brief Sets real extents
 	/// @details Resets zoom
@@ -35,6 +36,7 @@ public:
 	void changeExtents(float2 deltaExtents) noexcept;
 
 	/// @brief Returns raw extents
+	/// @details Raw meaning excluding the zoom
 	float2 rawExtents() const noexcept;
 	/// @brief Sets raw extents
 	/// @details Does not change the zoom
@@ -44,45 +46,34 @@ public:
 	void changeRawExtents(float2 deltaRawExtents) noexcept;
 
 	/// @brief Returns real bounds
+	/// @details Bounds are the camera's axis-aligned viewport, accounting for zoom
 	Bounds bounds() const noexcept;
 	/// @brief Sets real bounds
 	/// @details Resets zoom
 	void setBounds(Bounds newBounds) noexcept;
 
 	/// @brief Returns raw bounds
+	/// @details Raw meaning excluding the zoom
 	Bounds rawBounds() const noexcept;
 	/// @brief Sets raw bounds
 	/// @details Does not change the zoom
 	void setRawBounds(Bounds newBounds) noexcept;
 
 	/// @brief Returns zoom
-	float2 zoom() const noexcept;
+	float zoom() const noexcept;
 	/// @brief Sets zoom
-	void zoom(float2 newZoom) noexcept;
-	/// @brief Sets zoom
-
-	/// @brief Zooms in
-	void zoomIn(float2 modifier) noexcept;
 	void setZoom(float newZoom) noexcept;
 	/// @brief Zooms in
 	void zoomIn(float modifier) noexcept;
-	/// @brief Zooms out
-	void zoomOut(float2 modifier) noexcept;
 	/// @brief Zooms out
 	void zoomOut(float modifier) noexcept;
 
 	/// @brief Returns rotation in radians
 	float rotation() const noexcept;
-	/// @brief Returns rotation in degrees
-	float rotationDeg() const noexcept;
 	/// @brief Sets rotation in radians
-	/// @brief Sets rotation in degrees
-	void rotationDeg(float newRotation) noexcept;
 	void setRotation(float newRotation) noexcept;
 	/// @brief Rotates camera by given amount of radians
 	void rotate(float delta) noexcept;
-	/// @brief Rotates camera by given amount of degrees
-	void rotateDeg(float delta) noexcept;
 
 	/// @brief Computes world position of a given window position
 	float2 screenToWorldPos(float2 screenPos) const noexcept;
@@ -102,7 +93,7 @@ private:
 	float2 _rawExtents;
 	float2 _extents;
 	float2 _position;
-	float2 _zoom;
+	float _zoom;
 	float _rotation;
 	float _sinRot;
 	float _cosRot;

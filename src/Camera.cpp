@@ -9,7 +9,7 @@ Camera::Camera() noexcept {
 	_buffer = renderer.getBufferManager()->createBuffer(gfx::BufferType::uniform);
 	_rawExtents = _window->size() / 2;
 	_position = {};
-	_zoom = { 1, 1 };
+	_zoom = 1;
 	_rotation = 0;
 	_sinRot = 0;
 	_cosRot = 1;
@@ -55,7 +55,7 @@ float2 Camera::extents() const noexcept {
 
 void Camera::setExtents(float2 newExtents) noexcept {
 	_rawExtents = newExtents;
-	_zoom = { 1, 1 };
+	_zoom = 1;
 	_updateExtents();
 }
 
@@ -67,6 +67,7 @@ float2 Camera::rawExtents() const noexcept {
 	return _rawExtents;
 }
 
+void Camera::setRawExtents(float2 newExtents) noexcept {
 	_rawExtents = newExtents;
 	_updateExtents();
 }
@@ -79,9 +80,10 @@ Camera::Bounds Camera::bounds() const noexcept {
 	return Bounds{ .bottomLeft = _position - _extents, .topRight = _position + _extents };
 }
 
+void Camera::setBounds(Bounds newBounds) noexcept {
 	_position = (newBounds.bottomLeft + newBounds.topRight) / 2.f;
 	_rawExtents = (newBounds.topRight - newBounds.bottomLeft) / 2.f;
-	_zoom = { 1, 1 };
+	_zoom = 1;
 	_updateExtents();
 }
 
@@ -95,7 +97,7 @@ void Camera::setRawBounds(Bounds newBounds) noexcept {
 	_updateExtents();
 }
 
-float2 Camera::zoom() const noexcept {
+float Camera::zoom() const noexcept {
 	return _zoom;
 }
 
@@ -104,20 +106,8 @@ void Camera::setZoom(float newZoom) noexcept {
 	_updateExtents();
 }
 
-void Camera::zoom(float newZoom) noexcept {
-	zoom({ newZoom, newZoom });
-}
-
-void Camera::zoomIn(float2 modifier) noexcept {
-	zoom(zoom() / modifier);
-}
-
 void Camera::zoomIn(float modifier) noexcept {
-	zoom(zoom() / modifier);
-}
-
-void Camera::zoomOut(float2 modifier) noexcept {
-	zoom(zoom() * modifier);
+	setZoom(zoom() / modifier);
 }
 
 void Camera::zoomOut(float modifier) noexcept {
@@ -128,25 +118,12 @@ float Camera::rotation() const noexcept {
 	return _rotation;
 }
 
-float Camera::rotationDeg() const noexcept {
-	return glm::degrees(_rotation);
-}
-
-void Camera::rotation(float newRotation) noexcept {
+void Camera::setRotation(float newRotation) noexcept {
 	_rotation = newRotation;
 	_updateSinCos();
 }
 
-void Camera::rotationDeg(float newRotation) noexcept {
-	_rotation = glm::radians(newRotation);
-	_updateSinCos();
-}
-
 void Camera::rotate(float delta) noexcept {
-}
-
-void Camera::rotateDeg(float delta) noexcept {
-	rotation(rotation() + glm::radians(delta));
 	setRotation(rotation() + delta);
 }
 
