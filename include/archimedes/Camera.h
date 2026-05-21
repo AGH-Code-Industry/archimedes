@@ -16,6 +16,7 @@ public:
 	};
 
 	/// @brief Constructor
+	/// @details Default state is centered at (0, 0) with extents half the window size
 	Camera() noexcept;
 
 	/// @brief Returns position
