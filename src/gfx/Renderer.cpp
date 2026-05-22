@@ -38,4 +38,8 @@ void Renderer::setClearColor(Color color) {
 	_clearColor = color;
 }
 
+Ref<Window> Renderer::getWindow() const {
+	return _window;
+}
+
 } // namespace arch::gfx
