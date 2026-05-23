@@ -337,7 +337,7 @@ void System::_mouseButtonCallback(GLFWwindow* window, int buttonCode, int action
 
 void System::_mouseCursorCallback(GLFWwindow* window, double x, double y) noexcept {
 	// invert Y axis
-	const double actualY = (double)Mouse::_window->getSize().y - y;
+	const double actualY = (double)Mouse::_window->size().y - y;
 
 	Mouse::_dx = Mouse::_delta * (x - std::exchange(Mouse::_x, x));
 	Mouse::_dy = Mouse::_delta * (actualY - std::exchange(Mouse::_y, actualY));
