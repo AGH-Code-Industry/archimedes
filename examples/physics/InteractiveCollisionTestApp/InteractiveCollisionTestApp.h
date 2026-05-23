@@ -35,7 +35,7 @@ struct InteractiveCollisionTestApp final: Application {
 	f32 linearVelocityBase = 1.0f;
 	f32 angularVelocityBase = glm::pi<f32>() / 4.0f;
 
-	arch::Ref<arch::gfx::pipeline::Pipeline> pipelineRed, pipelineGreen, pipelineBlue, pipelineCircle;
+	Ref<arch::gfx::pipeline::Pipeline> pipelineRed, pipelineGreen, pipelineBlue, pipelineCircle;
 	Ref<asset::mesh::Mesh> meshRectangle, meshTriangle;
 	
 	void createRectangleMesh() {
@@ -190,6 +190,7 @@ struct InteractiveCollisionTestApp final: Application {
 	void init() override {
 		scene = createRef<Scene>();
 		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+		auto& camera = scene->domain().global<Camera>();
 
 		createPipelines(renderer);
 		createRectangleMesh();
@@ -207,7 +208,7 @@ struct InteractiveCollisionTestApp final: Application {
 		addCircle();
 
 		scene::SceneManager::get()->changeScene(scene);
-		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()), windowWidth, windowHeight);
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(scene->domain()), std::cref(camera));
 	}
 
 	float2 getLinearVelocity() {
@@ -240,8 +241,9 @@ struct InteractiveCollisionTestApp final: Application {
 	}
 
 	void update() override {
+		auto& camera = scene->domain().global<Camera>();
 		auto playerPosition = scene->domain().getComponent<scene::components::TransformComponent>(player).position;
-		float2 mousePosition = _physicsSystem->getMousePositionOnMap();
+		float2 mousePosition = camera.screenToWorldPos(input::Mouse::pos());
 		if (_physicsSystem->hasMouse(player)) {
 			setPlayerColor(player, PlayerColor::Red);
 			if (_physicsSystem->hasMouseEntered(player)) {

@@ -10,12 +10,11 @@ namespace arch::physics {
 
 using TransformComponent = scene::components::TransformComponent;
 
-PhysicsSystem::PhysicsSystem(ecs::Domain& domain, f32 windowWidth, f32 windowHeight):
+PhysicsSystem::PhysicsSystem(ecs::Domain& domain, const Camera& camera):
 	_domain(domain),
 	_prevTimePoint(Clock::now()),
 	_collisionSystem(domain),
-	_windowWidth(windowWidth),
-	_windowHeight(windowHeight) {}
+	_camera(camera) {}
 
 f32 PhysicsSystem::update() {
 	auto viewRigidBodies = _domain.view<RigidBodyComponent, TransformComponent>();
@@ -36,7 +35,7 @@ f32 PhysicsSystem::update() {
 		rigidBody.linearVelocity += a * t;
 	}
 
-	float2 mousePosition = getMousePositionOnMap();
+	float2 mousePosition = _camera.screenToWorldPos(input::Mouse::pos());
 	_collisionSystem.update(mousePosition);
 	_prevTimePoint = Clock::now();
 
@@ -67,13 +66,4 @@ bool PhysicsSystem::hasMouseExited(ecs::Entity entity) const {
 	return _collisionSystem.hasMouseExited(entity);
 }
 
-/// TODO: use the camera's data instead of hard coding window sizes
-/// TODO: this also doesn't detect if the mouse is off screen
-float2 PhysicsSystem::getMousePositionOnMap() const {
-	float2 mousePos = input::Mouse::pos();
-	mousePos.x = glm::mix(-1.0f, 1.0f, mousePos.x / _windowWidth);
-	mousePos.y = glm::mix(-1.0f, 1.0f, mousePos.y / _windowHeight);
-	return { mousePos.x, mousePos.y };
-
 } // namespace arch::physics
-}

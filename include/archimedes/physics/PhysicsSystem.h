@@ -4,6 +4,7 @@
 
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/physics/collisions/CollisionSystem.h>
+#include <archimedes/Camera.h>
 
 namespace arch::physics {
 
@@ -32,10 +33,7 @@ public:
 	/// @brief Check if mouse stopped colliding with the shape in current frame
 	bool hasMouseExited(ecs::Entity entity) const;
 
-	/// @brief Calculate real mouse position (not on screen but on the map)
-	float2 getMousePositionOnMap() const;
-
-	PhysicsSystem(ecs::Domain& domain, f32 windowWidth, f32 windowHeight);
+	PhysicsSystem(ecs::Domain& domain, const Camera& camera);
 
 	/// @brief Update the system. Use it each frame.
 	f32 update();
@@ -44,8 +42,7 @@ private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
 	CollisionSystem _collisionSystem;
-	f32 _windowWidth;
-	f32 _windowHeight;
+	const Camera& _camera;
 
 };
 
