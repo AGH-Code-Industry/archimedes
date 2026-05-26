@@ -8,24 +8,28 @@
 
 namespace arch::utils {
 
+template<class... Types, class... Types2>
+static consteval auto operator==(TypeList<Types...>, TypeList<Types2...>) {
+	return std::same_as<TypeList<Types...>, TypeList<Types2...>>;
+}
+
+template<class... Types, class... Types2>
+static consteval auto operator!=(TypeList<Types...>, TypeList<Types2...>) {
+	return !std::same_as<TypeList<Types...>, TypeList<Types2...>>;
+}
+
 template<class... Types>
-class TypeList: details::SingleTypeAlias<sizeof...(Types) == 1, Types...> {
+struct TypeList: details::SingleTypeAlias<sizeof...(Types) == 1, Types...> {
+private:
 	using This = TypeList<Types...>;
 	static inline constexpr size_t SIZE = sizeof...(Types);
 
+	template<size_t I>
+	using Get = std::conditional_t<SIZE != 0, typename details::TLGet<I, Types...>::type, void>;
+
 public:
 
-	static inline constexpr size_t npos = -1;
-
-	template<class... Types2>
-	consteval auto operator==(TypeList<Types2...>) const {
-		return std::same_as<TypeList<Types...>, TypeList<Types2...>>;
-	}
-
-	template<class... Types2>
-	consteval auto operator!=(TypeList<Types2...>) const {
-		return !std::same_as<TypeList<Types...>, TypeList<Types2...>>;
-	}
+	static inline constexpr size_t npos = (size_t)-1;
 
 	static consteval auto emtpy() { return SIZE == 0; }
 
@@ -39,7 +43,7 @@ public:
 			TL_ERROR("TypeList::get: index out of bounds");
 			return typelist<>;
 		} else {
-			return typelist<typename details::TLGet<I, Types...>::type>;
+			return typelist<Get<I>>;
 		}
 	}
 
@@ -70,8 +74,8 @@ public:
 			TL_ERROR("TypeList::popFront: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
-				return typelist<typename details::TLGet<Indexes + N, Types...>::type...>;
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typelist<Get<Indexes + N>...>;
 			}(std::make_index_sequence<SIZE - N>());
 		}
 	}
@@ -85,284 +89,419 @@ public:
 			TL_ERROR("TypeList::popBack: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
-				return typelist<typename details::TLGet<Indexes, Types...>::type...>;
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typelist<Get<Indexes>...>;
 			}(std::make_index_sequence<SIZE - N>());
 		}
 	}
 
-	template<size_t Begin = 0, size_t Count = -1>
+	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto sublist() {
-		if constexpr (Begin >= SIZE) {
+		if constexpr (Begin > SIZE) {
 			TL_ERROR("TypeList::sublist: Begin bigger that typelist.size()");
 			return typelist<>;
 		} else {
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
-				return typelist<typename details::TLGet<Indexes + Begin, Types...>::type...>;
-			}(std::make_index_sequence<std::min(Count, SIZE - Begin)>());
+			constexpr auto sublistSize = std::min(Count, SIZE - Begin);
+
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typelist<Get<Indexes + Begin>...>;
+			}(std::make_index_sequence<sublistSize>());
+		}
+	}
+
+	template<size_t Pos, class... Types2>
+	static consteval auto insert(TypeList<Types2...> other) {
+		if constexpr (Pos > SIZE) {
+			TL_ERROR("Typelist::insert: Pos out of range");
+			return typelist<>;
+		} else {
+			constexpr auto rightSize = SIZE - Pos;
+
+			return []<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+				return typelist<Get<Head>..., Types2..., Get<Tail + Pos>...>;
+			}(std::make_index_sequence<Pos>(), std::make_index_sequence<rightSize>());
+		}
+	}
+
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto erase() {
+		if constexpr (Begin > SIZE) {
+			TL_ERROR("Typelist::erase: Begin out of range");
+			return typelist<>;
+		} else {
+			constexpr auto toErase = std::min(Count, SIZE - Begin);
+			constexpr auto rightBegin = Begin + toErase;
+			constexpr auto rightSize = SIZE - rightBegin;
+
+			return []<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+				return typelist<Get<Head>..., Get<Tail + rightBegin>...>;
+			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>());
+		}
+	}
+
+	template<class... Types2>
+	static consteval auto append(TypeList<Types2...>) {
+		return typelist<Types..., Types2...>;
+	}
+
+	template<class... Types2>
+	consteval auto operator+(TypeList<Types2...> other) const {
+		return append(other);
+	}
+
+	template<class... Types2>
+	static consteval auto prepend(TypeList<Types2...>) {
+		return typelist<Types2..., Types...>;
+	}
+
+	template<class... Others>
+	static consteval auto cat(Others...) {
+		return typename details::TLCat<This, Others...>::type();
+	}
+
+	template<size_t Begin = 0, size_t Count = npos, class... Types2>
+	static consteval auto replace(TypeList<Types2...> other) {
+		if constexpr (Begin > SIZE) {
+			TL_ERROR("Typelist::replace: Begin out of range");
+			return typelist<>;
+		} else {
+			constexpr auto toErase = std::min(Count, SIZE - Begin);
+			constexpr auto rightBegin = Begin + toErase;
+			constexpr auto rightSize = SIZE - rightBegin;
+
+			return []<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+				return typelist<Get<Head>..., Types2..., Get<Tail + rightBegin>...>;
+			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>());
+		}
+	}
+
+	template<size_t Begin = 0, size_t Count = -1, class... Types2>
+	static consteval size_t find(TypeList<Types2...>) {
+		constexpr auto other = typelist<Types2...>;
+
+		if constexpr (other.size() == 0) {
+			return (Begin <= SIZE) ? Begin : 0;
+		} else if constexpr (Begin >= SIZE || other.size() > SIZE) {
+			return npos;
+		} else {
+			constexpr auto searchEnd = std::min(Count >= SIZE - Begin ? SIZE : Begin + Count, SIZE - other.size() + 1);
+
+			if constexpr (Begin >= searchEnd) {
+				return npos;
+			} else {
+				return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+					size_t result = npos;
+					(... ||
+					 ((result == npos && sublist<Begin + Indexes, other.size()>() == other) ?
+						  (result = Begin + Indexes, true) :
+						  false));
+					return result;
+				}(std::make_index_sequence<searchEnd - Begin>());
+			}
+		}
+	}
+
+	template<size_t Begin = npos, size_t Count = -1, class... Types2>
+	static consteval size_t rfind(TypeList<Types2...>) {
+		constexpr auto other = typelist<Types2...>;
+
+		if constexpr (other.size() == 0) {
+			return (Begin <= SIZE) ? Begin : SIZE;
+		} else if constexpr (SIZE == 0 || other.size() > SIZE) {
+			return npos;
+		} else {
+			constexpr auto lastStart = SIZE - other.size();
+			constexpr auto searchBegin = std::min(Begin == npos ? lastStart : Begin, lastStart);
+			constexpr auto searchEnd = (Count == npos) ? 0 : (searchBegin >= Count ? searchBegin - Count : 0);
+
+			if constexpr (searchBegin < searchEnd) {
+				return npos;
+			} else {
+				return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+					size_t result = npos;
+					(... ||
+					 ((result == npos && sublist<searchBegin - Indexes, other.size()>() == other) ?
+						  (result = searchBegin - Indexes, true) :
+						  false));
+					return result;
+				}(std::make_index_sequence<searchBegin - searchEnd + 1>());
+			}
+		}
+	}
+
+	template<class... Types2>
+	static consteval auto contains(TypeList<Types2...> other) {
+		return find(other) != npos;
+	}
+
+	template<class... Types2>
+	static consteval auto containsAll(TypeList<Types2...>) {
+		return (... && contains(TypeList<Types2>()));
+	}
+
+	template<class... Types2>
+	static consteval auto startsWith(TypeList<Types2...> other) {
+		return find(other) == 0;
+	}
+
+	template<class... Types2>
+	static consteval auto endsWith(TypeList<Types2...> other) {
+		return other.size() <= size() && rfind(other) == size() - other.size();
+	}
+
+	template<auto Pred, size_t Begin = 0, size_t Count = npos>
+	static consteval auto eraseIf() {
+		if constexpr (SIZE != 0 && Begin >= SIZE) {
+			TL_ERROR("TypeList::eraseIf: Begin out of range");
+		} else if constexpr (SIZE == 0 || Count == 0) {
+			return This();
+		} else {
+			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
+
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typename details::TLCat<typename details::SingleFilter<
+					(Indexes < Begin || Indexes >= searchEnd || !Pred(typelist<Get<Indexes>>)),
+					Get<Indexes>>::type...>::type();
+			}(std::make_index_sequence<SIZE>());
+		}
+	}
+
+	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto eraseIf() {
+		if constexpr (SIZE != 0 && Begin >= SIZE) {
+			TL_ERROR("TypeList::eraseIf: Begin out of range");
+		} else if constexpr (SIZE == 0 || Count == 0) {
+			return This();
+		} else {
+			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
+
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typename details::TLCat<typename details::SingleFilter<
+					(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value),
+					Get<Indexes>>::type...>::type();
+			}(std::make_index_sequence<SIZE>());
+		}
+	}
+
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto distinct() {
+		if constexpr (SIZE != 0 && Begin >= SIZE) {
+			TL_ERROR("TypeList::distinct: Begin out of range");
+		} else if constexpr (SIZE == 0 || Count == 0) {
+			return This{};
+		} else {
+			constexpr auto searchEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typename details::TLCat<typename details::SingleFilter<
+					(Indexes < Begin || Indexes >= searchEnd ||
+					 find<Begin, searchEnd - Begin>(typelist<Get<Indexes>>) == Indexes),
+					Get<Indexes>>::type...>::type();
+			}(std::make_index_sequence<SIZE>());
+		}
+	}
+
+	template<auto Pred, size_t Begin = 0, size_t Count = npos>
+	static consteval auto filter() {
+		static_assert(SIZE == 0 || Begin <= SIZE, "TypeList::filter: Begin out of range");
+		return eraseIf<[](auto tl) { return !Pred(tl); }, Begin, Count>();
+	}
+
+	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto filter() {
+		static_assert(SIZE == 0 || Begin <= SIZE, "TypeList::filter: Begin out of range");
+		return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
+	}
+
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto reverse() {
+		if constexpr (Begin >= SIZE) {
+			TL_ERROR("TypeList::reverse: Begin out of range");
+			return typelist<>;
+		} else {
+			constexpr auto reverseEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+			constexpr auto getIndex = [](size_t i) {
+				if (Begin <= i && i < reverseEnd) {
+					return (reverseEnd - 1) - (i - Begin);
+				}
+				return i;
+			};
+
+			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return typelist<Get<getIndex(Indexes)>...>;
+			}(std::make_index_sequence<SIZE>());
+		}
+	}
+
+	template<auto Fn, size_t Begin = 0, size_t Count = npos>
+	static consteval auto transform() {
+		if constexpr (Begin >= SIZE) {
+			TL_ERROR("TypeList::transform: Begin out of range");
+			return typelist<>;
+		} else {
+			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+
+			return []<size_t... Indexes, size_t... Head, size_t... Tail>(
+					   std::index_sequence<Indexes...>,
+					   std::index_sequence<Head...>,
+					   std::index_sequence<Tail...>
+				   ) {
+				return typelist<Get<Head>...>.cat(
+					Fn(typelist<Get<Indexes + Begin>>)...,
+					typelist<Get<Tail + transformEnd>...>
+				);
+			}(std::make_index_sequence<transformEnd - Begin>(),
+				   std::make_index_sequence<Begin>(),
+				   std::make_index_sequence<SIZE - transformEnd>());
+		}
+	}
+
+	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto transform() {
+		if constexpr (Begin >= SIZE) {
+			TL_ERROR("TypeList::transform: Begin out of range");
+			return typelist<>;
+		} else {
+			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+
+			return []<size_t... Indexes, size_t... Head, size_t... Tail>(
+					   std::index_sequence<Indexes...>,
+					   std::index_sequence<Head...>,
+					   std::index_sequence<Tail...>
+				   ) {
+				return typelist<Get<Head>...>.cat(
+					typelist<typename TypeTrait<Get<Indexes + Begin>>::type>...,
+					typelist<Get<Tail + transformEnd>...>
+				);
+			}(std::make_index_sequence<transformEnd - Begin>(),
+				   std::make_index_sequence<Begin>(),
+				   std::make_index_sequence<SIZE - transformEnd>());
 		}
 	}
 };
-
-/*
-static consteval auto emtpy() { return sizeof...(Types) == 0; }
-
-static consteval auto size() { return sizeof...(Types); }
-
-static consteval auto length() { return sizeof...(Types); }
-
-template<size_t Begin, size_t Count = -1>
-static consteval auto sublist() {
-	static_assert(Begin <= sizeof...(Types), "TypeList::sublist: Begin out of range");
-	if constexpr (Begin != 0 && sizeof...(Types) != 0) {
-		return popFront<Begin>().sublist<0, Count>();
-	} else if constexpr (Count < sizeof...(Types)) {
-		return popBack<sizeof...(Types) - Count>();
-	} else {
-		return typelist<Types...>;
-	}
-}
-
-template<size_t I, class... Types2>
-static consteval auto insert(TypeList<Types2...> other) {
-	static_assert(I <= sizeof...(Types), "TypeList::insert: I out of range");
-	return sublist<0, I>() + other + sublist<I>();
-}
-
-template<size_t Begin, size_t Count = -1>
-static consteval auto erase() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::erase: Begin out of range");
-	return sublist<0, Begin>() + sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-}
-
-template<size_t N = 1>
-static consteval auto popFront() {
-	static_assert(N <= sizeof...(Types), "TypeList::popFront: N bigger than typelist size");
-	return typename details::PopFrontImpl<N, Types...>::type();
-}
-
-template<size_t N = 1>
-static consteval auto popBack() {
-	static_assert(N <= sizeof...(Types), "TypeList::popBack: N bigger than typelist size");
-	if constexpr (N == 0 || sizeof...(Types) == 0) {
-		return typelist<Types...>;
-	} else if constexpr (sizeof...(Types) == N) {
-		return typelist<>;
-	} else {
-		return front() + popFront().popBack<N>();
-	}
-}
-
-template<class... Types2>
-static consteval auto append(TypeList<Types2...>) {
-	return typelist<Types..., Types2...>;
-}
-
-template<class... Types2>
-consteval auto operator+(TypeList<Types2...> other) const {
-	return append(other);
-}
-
-template<class... Types2>
-static consteval auto prepend(TypeList<Types2...>) {
-	return typelist<Types2..., Types...>;
-}
-
-template<size_t Begin, size_t Count = -1, class... Types2>
-static consteval auto replace(TypeList<Types2...> other) {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::replace: Begin out of range");
-	return sublist<0, Begin>() + other + sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-}
-
-template<size_t Begin = 0, class... Types2>
-static consteval size_t find(TypeList<Types2...> other) {
-	constexpr size_t N1 = sizeof...(Types);
-	constexpr size_t N2 = sizeof...(Types2);
-
-	if constexpr (Begin > N1) {
-		return npos;
-	} else if constexpr (N2 == 0) {
-		return Begin;
-	} else if constexpr (N1 - Begin < N2) {
-		return npos;
-	} else if constexpr (Begin == 0) {
-		if constexpr (sublist<0, N2>() == other) {
-			return 0;
-		} else {
-			constexpr size_t found = popFront().find(other);
-			if (found == npos) {
-				return npos;
-			} else {
-				return (size_t)1 + found;
-			}
-		}
-	} else {
-		constexpr size_t found = sublist<Begin>().find(other);
-		if (found == npos) {
-			return npos;
-		} else {
-			return found + Begin;
-		}
-	}
-}
-
-template<size_t Begin = npos, class... Types2>
-static consteval size_t rfind(TypeList<Types2...> other) {
-	constexpr size_t N1 = sizeof...(Types);
-	constexpr size_t N2 = sizeof...(Types2);
-
-	if constexpr (N2 == 0) {
-		return (Begin == npos || Begin > N1) ? N1 : Begin;
-	} else if constexpr (N1 < N2) {
-		return npos;
-	} else if constexpr (Begin == npos) {
-		return rfind<N1 - N2>(other);
-	} else {
-		constexpr size_t ActualBegin = (Begin > N1 - N2) ? N1 - N2 : Begin;
-		if constexpr (sublist<ActualBegin, N2>() == other) {
-			return ActualBegin;
-		} else if constexpr (ActualBegin > 0) {
-			return rfind<ActualBegin - 1>(other);
-		} else {
-			return npos;
-		}
-	}
-}
-
-template<class... Types2>
-static consteval auto contains(TypeList<Types2...> other) {
-	return find(other) != npos;
-}
-
-template<class... Types2>
-static consteval auto containsAll(TypeList<Types2...>) {
-	return (... && contains(TypeList<Types2>()));
-}
-
-template<class... Types2>
-static consteval auto startsWith(TypeList<Types2...> other) {
-	return find(other) == 0;
-}
-
-template<class... Types2>
-static consteval auto endsWith(TypeList<Types2...> other) {
-	constexpr size_t N2 = other.size();
-	if constexpr (N2 > sizeof...(Types)) {
-		return false;
-	} else {
-		return rfind(other) == sizeof...(Types) - N2;
-	}
-}
-
-template<auto Pred, size_t Begin = 0, size_t Count = -1>
-static consteval auto eraseIf() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::eraseIf: Begin out of range");
-	if constexpr (Begin == 0) {
-		if constexpr (sizeof...(Types) == 0 || Count == 0) {
-			return typelist<Types...>;
-		} else if constexpr (Pred(front())) {
-			return popFront().eraseIf<Pred, 0, Count - 1>();
-		} else {
-			return front() + popFront().eraseIf<Pred, 0, Count - 1>();
-		}
-	} else {
-		return sublist<0, Begin>() + popFront<Begin>().eraseIf<Pred, 0, Count>();
-	}
-}
-
-template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = -1>
-static consteval auto eraseIf() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::eraseIf: Begin out of range");
-	if constexpr (Begin == 0) {
-		if constexpr (sizeof...(Types) == 0 || Count == 0) {
-			return typelist<Types...>;
-		} else if constexpr (TypeTrait<typename decltype(front())::type>::value) {
-			return popFront().eraseIf<TypeTrait, 0, Count - 1>();
-		} else {
-			return front() + popFront().eraseIf<TypeTrait, 0, Count - 1>();
-		}
-	} else {
-		return sublist<0, Begin>() + popFront<Begin>().eraseIf<TypeTrait, 0, Count>();
-	}
-}
-
-template<size_t Begin = 0, size_t Count = -1>
-static consteval auto distinct() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::distinct: Begin out of range");
-	if constexpr (sizeof...(Types) <= 1 || Begin >= sizeof...(Types)) {
-		return typelist<Types...>;
-	} else if constexpr (Begin == 0 && Count == (size_t)-1) {
-		using FrontT = typename decltype(front())::type;
-		constexpr auto pred = []<class T>(TypeList<T> tl) -> bool {
-			return TypeList<T>() == TypeList<FrontT>();
-		};
-
-		return front() + popFront().eraseIf<pred>().distinct();
-	} else {
-		return sublist<0, Begin>() + sublist<Begin, Count>().distinct() +
-			sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-	}
-}
-
-template<size_t Begin = 0, size_t Count = -1>
-static consteval auto reverse() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::reverse: Begin out of range");
-	if constexpr (sizeof...(Types) <= 1 || Begin >= sizeof...(Types)) {
-		return typelist<Types...>;
-	} else if constexpr (Begin == 0 && Count == (size_t)-1) {
-		return popFront().reverse() + front();
-	} else {
-		return sublist<0, Begin>() + sublist<Begin, Count>().reverse() +
-			sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-	}
-}
-
-template<auto Pred, size_t Begin = 0, size_t Count = -1>
-static consteval auto filter() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::filter: Begin out of range");
-	return eraseIf<details::notPred<Pred>, Begin, Count>();
-}
-
-template<template<class> class TypeTrait, size_t Begin = 0, size_t Count = -1>
-static consteval auto filter() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::filter: Begin out of range");
-	return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
-}
-
-template<auto Fn, size_t Begin = 0, size_t Count = -1>
-static consteval auto transform() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::transform: Begin out of range");
-	if constexpr (sizeof...(Types) == 0 || Begin >= sizeof...(Types)) {
-		return typelist<Types...>;
-	} else if constexpr (Begin == 0 && Count == (size_t)-1) {
-		return Fn(front()) + popFront().transform<Fn>();
-	} else {
-		return sublist<0, Begin>() + sublist<Begin, Count>().transform<Fn>() +
-			sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-	}
-}
-
-template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = -1>
-static consteval auto transform() {
-	static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::transform: Begin out of range");
-	if constexpr (sizeof...(Types) == 0 || Begin >= sizeof...(Types)) {
-		return typelist<Types...>;
-	} else if constexpr (Begin == 0 && Count == (size_t)-1) {
-		return TypeList<typename TypeTrait<typename decltype(front())::type>::type>() +
-			popFront().transform<TypeTrait>();
-	} else {
-		return sublist<0, Begin>() + sublist<Begin, Count>().transform<TypeTrait>() +
-			sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
-	}
-}
-*/
 
 template<TypeList TL>
 using unwrap = decltype(TL)::type;
 
 void fn() {
-	constexpr auto x0 = typelist<int, float, char, void>;
-	constexpr auto x1 = x0.sublist<1, 2>();
+	auto pred = []<class T>(TypeList<T>) {
+		return std::floating_point<T>;
+	};
+
+	auto addPtr = []<class T>(TypeList<T>) {
+		return typelist<T*>;
+	};
+
+	constexpr auto x0 =
+		typelist<int, float, char, void, double, int, float, char, void, double, int, float, char, void, double>;
+	constexpr auto x1 = x0.distinct<5>();
+
+	constexpr auto x2 = x0.front();
+	using test = unwrap<x2>;
+
+	/*
+	template<auto Pred, size_t Begin = 0, size_t Count = -1>
+	static consteval auto eraseIf() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::eraseIf: Begin out of range");
+		if constexpr (Begin == 0) {
+			if constexpr (sizeof...(Types) == 0 || Count == 0) {
+				return typelist<Types...>;
+			} else if constexpr (Pred(front())) {
+				return popFront().eraseIf<Pred, 0, Count - 1>();
+			} else {
+				return front() + popFront().eraseIf<Pred, 0, Count - 1>();
+			}
+		} else {
+			return sublist<0, Begin>() + popFront<Begin>().eraseIf<Pred, 0, Count>();
+		}
+	}
+
+	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = -1>
+	static consteval auto eraseIf() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::eraseIf: Begin out of range");
+		if constexpr (Begin == 0) {
+			if constexpr (sizeof...(Types) == 0 || Count == 0) {
+				return typelist<Types...>;
+			} else if constexpr (TypeTrait<typename decltype(front())::type>::value) {
+				return popFront().eraseIf<TypeTrait, 0, Count - 1>();
+			} else {
+				return front() + popFront().eraseIf<TypeTrait, 0, Count - 1>();
+			}
+		} else {
+			return sublist<0, Begin>() + popFront<Begin>().eraseIf<TypeTrait, 0, Count>();
+		}
+	}
+
+	template<size_t Begin = 0, size_t Count = -1>
+	static consteval auto distinct() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::distinct: Begin out of range");
+		if constexpr (sizeof...(Types) <= 1 || Begin >= sizeof...(Types)) {
+			return typelist<Types...>;
+		} else if constexpr (Begin == 0 && Count == (size_t)-1) {
+			using FrontT = typename decltype(front())::type;
+			constexpr auto pred = []<class T>(TypeList<T> tl) -> bool {
+				return TypeList<T>() == TypeList<FrontT>();
+			};
+
+			return front() + popFront().eraseIf<pred>().distinct();
+		} else {
+			return sublist<0, Begin>() + sublist<Begin, Count>().distinct() +
+				sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
+		}
+	}
+
+	template<size_t Begin = 0, size_t Count = -1>
+	static consteval auto reverse() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::reverse: Begin out of range");
+		if constexpr (sizeof...(Types) <= 1 || Begin >= sizeof...(Types)) {
+			return typelist<Types...>;
+		} else if constexpr (Begin == 0 && Count == (size_t)-1) {
+			return popFront().reverse() + front();
+		} else {
+			return sublist<0, Begin>() + sublist<Begin, Count>().reverse() +
+				sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
+		}
+	}
+
+	template<auto Pred, size_t Begin = 0, size_t Count = -1>
+	static consteval auto filter() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::filter: Begin out of range");
+		return eraseIf<details::notPred<Pred>, Begin, Count>();
+	}
+
+	template<template<class> class TypeTrait, size_t Begin = 0, size_t Count = -1>
+	static consteval auto filter() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::filter: Begin out of range");
+		return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
+	}
+
+	template<auto Fn, size_t Begin = 0, size_t Count = -1>
+	static consteval auto transform() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::transform: Begin out of range");
+		if constexpr (sizeof...(Types) == 0 || Begin >= sizeof...(Types)) {
+			return typelist<Types...>;
+		} else if constexpr (Begin == 0 && Count == (size_t)-1) {
+			return Fn(front()) + popFront().transform<Fn>();
+		} else {
+			return sublist<0, Begin>() + sublist<Begin, Count>().transform<Fn>() +
+				sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
+		}
+	}
+
+	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = -1>
+	static consteval auto transform() {
+		static_assert(sizeof...(Types) == 0 || Begin < sizeof...(Types), "TypeList::transform: Begin out of range");
+		if constexpr (sizeof...(Types) == 0 || Begin >= sizeof...(Types)) {
+			return typelist<Types...>;
+		} else if constexpr (Begin == 0 && Count == (size_t)-1) {
+			return TypeList<typename TypeTrait<typename decltype(front())::type>::type>() +
+				popFront().transform<TypeTrait>();
+		} else {
+			return sublist<0, Begin>() + sublist<Begin, Count>().transform<TypeTrait>() +
+				sublist<Begin + std::min(Count, sizeof...(Types) - Begin)>();
+		}
+	}
+	*/
 
 	// Uncomment each to verify static_assert fires:
 
@@ -414,7 +553,7 @@ void fn() {
 
 } // namespace arch::utils
 
-/*
+/**/
 
 namespace arch::utils::tests {
 
@@ -721,6 +860,8 @@ TL_ASSERT(typelist<int, float>.rfind<1>(typelist<>) == 1);
 TL_ASSERT(typelist<int, float>.rfind<0>(typelist<>) == 0);
 TL_ASSERT(typelist<int, float>.rfind<5>(typelist<>) == 2); // clamped to N
 
+constexpr auto test = typelist<int, float>.rfind(typelist<>);
+
 // Begin clamps to N1 - N2
 TL_ASSERT(typelist<int, float, double>.rfind<10>(typelist<float>) == 1);
 
@@ -943,6 +1084,6 @@ TL_ASSERT((typelist<int> + typelist<int, float, double>.popFront().popBack()) ==
 
 } // namespace arch::utils::tests
 
-*/
+/**/
 
 #undef TL_ERROR
