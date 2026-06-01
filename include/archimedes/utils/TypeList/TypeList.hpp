@@ -9,17 +9,21 @@ namespace arch::utils::details {
 template<size_t>
 inline constexpr bool alwaysFalse = false;
 
-template<size_t I, class... Types>
-struct TLGet;
-
-template<size_t I, class Head, class... Tail>
-struct TLGet<I, Head, Tail...> {
-	using type = typename TLGet<I - 1, Tail...>::type;
+template<size_t>
+using IndexedVoidPtr = void*;
+template<class>
+struct TLGetFn;
+template<size_t... Indexes>
+struct TLGetFn<std::index_sequence<Indexes...>> {
+	template<class Head>
+	static consteval Head* fn(IndexedVoidPtr<Indexes>..., Head*, ...) { // evil type-matching level hacking
+		return nullptr;
+	}
 };
 
-template<class Head, class... Tail>
-struct TLGet<0, Head, Tail...> {
-	using type = Head;
+template<size_t I, class... Types>
+struct TLGet {
+	using type = std::remove_pointer_t<decltype(TLGetFn<std::make_index_sequence<I>>::fn(((Types*)nullptr)...))>;
 };
 
 template<bool V, class T>
@@ -32,7 +36,7 @@ struct SingleFilter<true, T> {
 	using type = TypeList<T>;
 };
 
-template<class...>
+template<class... TLs>
 struct TLCat {
 	using type = TypeList<>;
 };
