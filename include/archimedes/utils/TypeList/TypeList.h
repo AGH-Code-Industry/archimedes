@@ -177,13 +177,6 @@ public:
 		return typelist<Types..., Types2...>;
 	}
 
-	/// @brief Concatenates typelists
-	/// @param other - typelist to append
-	template<class... Types2>
-	consteval auto operator+(TypeList<Types2...> other) const {
-		return append(other);
-	}
-
 	/// @brief Prepends types
 	/// @param other - typelist to prepend
 	template<class... Types2>

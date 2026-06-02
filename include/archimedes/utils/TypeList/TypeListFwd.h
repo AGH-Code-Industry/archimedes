@@ -12,4 +12,11 @@ struct TypeList;
 template<class... Types>
 static inline constexpr const TypeList<Types...> typelist = {};
 
+/// @brief Concatenates typelists
+/// @param other - typelist to append
+template<class... Types1, class... Types2>
+consteval auto operator+(TypeList<Types1...> lhs, TypeList<Types2...> rhs) {
+	return TypeList<Types1..., Types2...>();
+}
+
 } // namespace arch::utils
