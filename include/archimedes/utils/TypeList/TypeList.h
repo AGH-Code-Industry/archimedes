@@ -215,7 +215,7 @@ public:
 	/// @tparam Begin - beginning of range to search
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
-	template<size_t Begin = 0, size_t Count = -1, class... Types2>
+	template<size_t Begin = 0, size_t Count = npos, class... Types2>
 	static consteval size_t find(TypeList<Types2...>) {
 		constexpr auto other = typelist<Types2...>;
 
@@ -224,7 +224,7 @@ public:
 		} else if constexpr (Begin >= SIZE || other.size() > SIZE) {
 			return npos;
 		} else {
-			constexpr auto searchEnd = std::min(Count >= SIZE - Begin ? SIZE : Begin + Count, SIZE - other.size() + 1);
+			constexpr auto searchEnd = std::min(Count <= SIZE - Begin ? Begin + Count : SIZE, SIZE - other.size() + 1);
 
 			if constexpr (Begin >= searchEnd) {
 				return npos;
@@ -245,7 +245,7 @@ public:
 	/// @tparam Begin - beginning of range to search
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
-	template<size_t Begin = npos, size_t Count = -1, class... Types2>
+	template<size_t Begin = npos, size_t Count = npos, class... Types2>
 	static consteval size_t rfind(TypeList<Types2...>) {
 		constexpr auto other = typelist<Types2...>;
 
@@ -314,10 +314,14 @@ public:
 		} else {
 			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
 
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
-				return typename details::TLCat<typename details::SingleFilter<
-					(Indexes < Begin || Indexes >= searchEnd || !Pred(typelist<Get<Indexes>>)),
-					Get<Indexes>>::type...>::type();
+			return []<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+				constexpr auto keepIndexes = utils::filterIntegerSequence<
+					(Indexes < Begin || Indexes >= searchEnd || !Pred(typelist<Get<Indexes>>))... // mask types to keep
+					>(seq);
+
+				return []<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+					return typelist<Get<KIndexes>...>;
+				}(keepIndexes); // return types at keepIndexes...
 			}(std::make_index_sequence<SIZE>());
 		}
 	}
@@ -335,10 +339,15 @@ public:
 		} else {
 			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
 
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
-				return typename details::TLCat<typename details::SingleFilter<
-					(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value),
-					Get<Indexes>>::type...>::type();
+			return []<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+				constexpr auto keepIndexes = utils::filterIntegerSequence<
+					(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value)... // mask types to
+																									// keep
+					>(seq);
+
+				return []<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+					return typelist<Get<KIndexes>...>;
+				}(keepIndexes); // return types at keepIndexes...
 			}(std::make_index_sequence<SIZE>());
 		}
 	}
@@ -355,11 +364,15 @@ public:
 		} else {
 			constexpr auto searchEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
 
-			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
-				return typename details::TLCat<typename details::SingleFilter<
+			return []<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+				constexpr auto keepIndexes = utils::filterIntegerSequence<
 					(Indexes < Begin || Indexes >= searchEnd ||
-					 find<Begin, searchEnd - Begin>(typelist<Get<Indexes>>) == Indexes),
-					Get<Indexes>>::type...>::type();
+					 find<Begin, searchEnd - Begin>(typelist<Get<Indexes>>) == Indexes)... // mask types to keep
+					>(seq);
+
+				return []<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+					return typelist<Get<KIndexes>...>;
+				}(keepIndexes); // return types at keepIndexes...
 			}(std::make_index_sequence<SIZE>());
 		}
 	}

@@ -54,20 +54,6 @@ struct TLGet {
 	using type = std::remove_pointer_t<decltype(TLGetFn<std::make_index_sequence<I>>::fn(((Types*)nullptr)...))>;
 };
 
-/// @brief Filters single-typed typelists
-/// @tparam V - whether to pass (true) or remove (false) the type
-/// @tparam T - type to filter
-template<bool V, class T>
-struct SingleFilter {
-	using type = TypeList<>;
-};
-
-// Specialization
-template<class T>
-struct SingleFilter<true, T> {
-	using type = TypeList<T>;
-};
-
 /// @brief Nots given boolean UnaryTypeTrait
 /// @tparam TypeTrait - type trait to not
 template<template<class> class TypeTrait>
