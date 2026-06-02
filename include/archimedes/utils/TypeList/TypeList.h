@@ -3,10 +3,18 @@
 #include "TypeList.hpp"
 
 #include "TypeListFwd.h"
+#include <archimedes/utils/FilterIntegerSequence.h>
 
 // The below implementations heavily rely on niche std::index_sequence,
 // which acts in this context as "for" loop.
 // This eliminates most of recursive templates, which are expensive
+// Example:
+// This lambda:
+// []<size_t... i>(std::index_sequence<i...>) {
+//     return typelist<Get<i>...>;
+// }(std::make_index_sequence<N>());
+// Is analogous to:
+// typelist(Get(i) for i in range(N))
 
 // Helper for static_asserts, because static_assert still fires, even if inside inactive if constexpr branch
 // UNLESS it relies on template, in this case alwaysFalse<size_t>
@@ -165,8 +173,9 @@ public:
 			constexpr auto rightSize = SIZE - rightBegin;
 
 			return []<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
-				return typelist<Get<Head>..., Get<Tail + rightBegin>...>;
-			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>());
+				return typelist<Get<Head>..., Get<Tail + rightBegin>...>; // move j by rightBegin
+			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>()); // for i in range(Begin) &
+																						 // for j in range(rightSize)
 		}
 	}
 
@@ -206,8 +215,9 @@ public:
 			constexpr auto rightSize = SIZE - rightBegin;
 
 			return []<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
-				return typelist<Get<Head>..., Types2..., Get<Tail + rightBegin>...>;
-			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>());
+				return typelist<Get<Head>..., Types2..., Get<Tail + rightBegin>...>; // move j by rightBegin
+			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>()); // for i in range(Begin) &
+																						 // for j in range(rightSize)
 		}
 	}
 
@@ -233,10 +243,10 @@ public:
 					size_t result = npos;
 					(... ||
 					 ((result == npos && sublist<Indexes + Begin, other.size()>() == other) ?
-						  (result = Indexes + Begin, true) :
-						  false));
+						  (result = Indexes + Begin, true) : // move i by Begin
+						  false)); // fold search, short circuits when found
 					return result;
-				}(std::make_index_sequence<searchEnd - Begin>());
+				}(std::make_index_sequence<searchEnd - Begin>()); // for i in range(searchEnd - Begin)
 			}
 		}
 	}
@@ -265,10 +275,11 @@ public:
 					size_t result = npos;
 					(... ||
 					 ((result == npos && sublist<searchBegin - Indexes, other.size()>() == other) ?
-						  (result = searchBegin - Indexes, true) :
+						  (result = searchBegin - Indexes, true) : // reverse iteration range
 						  false));
 					return result;
-				}(std::make_index_sequence<searchBegin - searchEnd + 1>());
+				}(std::make_index_sequence<searchBegin - searchEnd + 1>()); // for i in range(searchBegin - searchEnd +
+																			// 1)
 			}
 		}
 	}
@@ -284,7 +295,7 @@ public:
 	/// @param other - typelist with types to find
 	template<class... Types2>
 	static consteval auto containsAll(TypeList<Types2...>) {
-		return (... && contains(TypeList<Types2>()));
+		return (... && contains(TypeList<Types2>())); // fold search
 	}
 
 	/// @brief Checks if typelist starts with given type sequence
@@ -407,7 +418,7 @@ public:
 			return typelist<>;
 		} else {
 			constexpr auto reverseEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
-			constexpr auto getIndex = [](size_t i) {
+			constexpr auto getIndex = [](size_t i) { // reverse i in range [Begin, Begin + Count)
 				if (Begin <= i && i < reverseEnd) {
 					return (reverseEnd - 1) - (i - Begin);
 				}
@@ -437,13 +448,13 @@ public:
 					   std::index_sequence<Head...>,
 					   std::index_sequence<Tail...>
 				   ) {
-				return typelist<Get<Head>...>.cat(
-					Fn(typelist<Get<Indexes + Begin>>)...,
-					typelist<Get<Tail + transformEnd>...>
+				return typelist<Get<Head>...>.cat( // j
+					Fn(typelist<Get<Indexes + Begin>>)..., // move i by Begin
+					typelist<Get<Tail + transformEnd>...> // move k by transformEnd
 				);
-			}(std::make_index_sequence<transformEnd - Begin>(),
-				   std::make_index_sequence<Begin>(),
-				   std::make_index_sequence<SIZE - transformEnd>());
+			}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
+				   std::make_index_sequence<Begin>(), // for j in range(Begin) &
+				   std::make_index_sequence<SIZE - transformEnd>()); // for k in range(SIZE - transformEnd)
 		}
 	}
 
@@ -464,13 +475,13 @@ public:
 					   std::index_sequence<Head...>,
 					   std::index_sequence<Tail...>
 				   ) {
-				return typelist<Get<Head>...>.cat(
-					typelist<typename TypeTrait<Get<Indexes + Begin>>::type>...,
-					typelist<Get<Tail + transformEnd>...>
+				return typelist<Get<Head>...>.cat( // j
+					typelist<typename TypeTrait<Get<Indexes + Begin>>::type>..., // move i by Begin
+					typelist<Get<Tail + transformEnd>...> // move k by transformEnd
 				);
-			}(std::make_index_sequence<transformEnd - Begin>(),
-				   std::make_index_sequence<Begin>(),
-				   std::make_index_sequence<SIZE - transformEnd>());
+			}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
+				   std::make_index_sequence<Begin>(), // for j in range(Begin) &
+				   std::make_index_sequence<SIZE - transformEnd>()); // for k in range(SIZE - transformEnd)
 		}
 	}
 };
@@ -480,10 +491,6 @@ public:
 /// @tparam TL - typelist to unwrap
 template<TypeList TL>
 using unwrapTL = decltype(TL)::type;
-
-void fn() {
-	constexpr auto test = typelist<int, float, char>.containsAll(typelist<int>);
-}
 
 } // namespace arch::utils
 
