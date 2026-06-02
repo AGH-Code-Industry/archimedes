@@ -68,25 +68,6 @@ struct SingleFilter<true, T> {
 	using type = TypeList<T>;
 };
 
-/// @brief Concatenates typelists
-/// @tparam TLs... - typelists to concatenate
-template<class... TLs>
-struct TLCat {
-	using type = TypeList<>;
-};
-
-// Single-list specialization
-template<class... Types>
-struct TLCat<TypeList<Types...>> {
-	using type = TypeList<Types...>;
-};
-
-// Specialization for 2+ lists
-template<class... Types, class... Types2, class... Rest>
-struct TLCat<TypeList<Types...>, TypeList<Types2...>, Rest...> {
-	using type = typename TLCat<TypeList<Types..., Types2...>, Rest...>::type;
-};
-
 /// @brief Nots given boolean UnaryTypeTrait
 /// @tparam TypeTrait - type trait to not
 template<template<class> class TypeTrait>

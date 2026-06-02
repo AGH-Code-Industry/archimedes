@@ -188,7 +188,7 @@ public:
 	/// @param others... - typelist to concatenate
 	template<class... Others>
 	static consteval auto cat(Others... others) {
-		return typename details::TLCat<This, Others...>::type();
+		return (This() + ... + others); // fold add
 	}
 
 	/// @brief Replaces types in given range
