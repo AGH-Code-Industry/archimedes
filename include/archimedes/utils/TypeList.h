@@ -4,8 +4,8 @@
 
 namespace arch {
 
-// using utils::TypeList;
-// using utils::typelist;
-// using utils::typelistUnwrap;
+using utils::getType;
+using utils::TypeList;
+using utils::typelist;
 
 } // namespace arch

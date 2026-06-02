@@ -490,7 +490,7 @@ public:
 /// @details Meant to be used as the last operation in typelist manipulations
 /// @tparam TL - typelist to unwrap
 template<TypeList TL>
-using unwrapTL = decltype(TL)::type;
+using getType = decltype(TL)::type;
 
 } // namespace arch::utils
 
