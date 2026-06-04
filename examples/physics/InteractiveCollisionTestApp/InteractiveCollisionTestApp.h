@@ -41,10 +41,10 @@ struct InteractiveCollisionTestApp final: Application {
 	void createRectangleMesh() {
 
 		std::vector<Vertex> vertices{
-			{ { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
-			{  { 0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
-			{	  { 0.25f, 0.25f, 0.1f }, { 1.f, 1.f } },
-			{  { -0.25f, 0.25f, 0.1f }, { 0.f, 1.f } },
+			{ { -0.25f, -0.25f, 0.0f }, { 0.f, 0.f } },
+			{ { 0.25f, -0.25f, 0.0f }, { 1.f, 0.f } },
+			{ { 0.25f, 0.25f, 0.0f }, { 1.f, 1.f } },
+			{ { -0.25f, 0.25f, 0.0f }, { 0.f, 1.f } },
 		};
 
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
@@ -55,9 +55,9 @@ struct InteractiveCollisionTestApp final: Application {
 	void createTriangleMesh() {
 
 		std::vector<Vertex> vertices{
-			{ { -0.25f, -0.25f, 0.1f }, { 0.f, 0.f } },
-			{  { 0.25f, -0.25f, 0.1f }, { 1.f, 0.f } },
-			{	  { 0.0f, 0.25f, 0.1f }, { 0.5f, 1.f } },
+			{ { -0.25f, -0.25f, 0.0f }, { 0.f, 0.f } },
+			{ { 0.25f, -0.25f, 0.0f }, { 1.f, 0.f } },
+			{ { 0.0f, 0.25f, 0.0f }, { 0.5f, 1.f } },
 		};
 
 		std::vector<u32> indices{ 2, 1, 0 };
@@ -65,40 +65,38 @@ struct InteractiveCollisionTestApp final: Application {
 	}
 
 	void createPipelines(const Ref<gfx::Renderer> renderer) {
+		auto& camera = scene->domain().global<Camera>();
+
 		struct UniformBuffer {
 			Mat4x4 projection;
 		};
-
-		UniformBuffer ubo{ glm::mat4{ 1 } };
-		auto uniformBuffer =
-			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
 		pipelineRed = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default2.glsl",
 			.textures = {},
-			.buffers = { uniformBuffer },
+			.buffers = { camera.buffer() },
 		});
 
 		pipelineGreen = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default3.glsl",
 			.textures = {},
-			.buffers = { uniformBuffer },
+			.buffers = { camera.buffer() },
 		});
 
 		pipelineBlue = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default4.glsl",
 			.textures = {},
-			.buffers = { uniformBuffer },
+			.buffers = { camera.buffer() },
 		});
 		
 		pipelineCircle = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default_circle.glsl",
 			.textures = {},
-			.buffers = { uniformBuffer },
+			.buffers = { camera.buffer() },
 		});
 	}
 
@@ -141,7 +139,7 @@ struct InteractiveCollisionTestApp final: Application {
 
 	void addRectangle() {
 		const ecs::Entity e = scene->newEntity();
-		float3 position = { 0.6f, 0.f, 0.f };
+		float3 position = { 0.6f, 0.f, 0.0f };
 		scene->domain()
 			.addComponent<scene::components::TransformComponent>(e, { position, quaternion(0.0f), float3(1) });
 		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineBlue });
@@ -156,7 +154,7 @@ struct InteractiveCollisionTestApp final: Application {
 
 	void addTriangle() {
 		const ecs::Entity e = scene->newEntity();
-		float3 position = { -0.8f, -0.5f, 0.f };
+		float3 position = { -0.8f, -0.5f, 0.0f };
 		scene->domain()
 			.addComponent<scene::components::TransformComponent>(e, { position, quaternion(0.0f), float3(1) });
 		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshTriangle, pipelineBlue });
@@ -191,6 +189,7 @@ struct InteractiveCollisionTestApp final: Application {
 		scene = createRef<Scene>();
 		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
 		auto& camera = scene->domain().global<Camera>();
+		camera.setExtents({ 1.0f, 1.0f });
 
 		createPipelines(renderer);
 		createRectangleMesh();
