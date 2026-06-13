@@ -34,6 +34,7 @@ public:
 	bool hasMouseExited(ecs::Entity entity) const;
 
 	PhysicsSystem(ecs::Domain& domain, const Camera& camera);
+	explicit PhysicsSystem(ecs::Domain&);
 
 	/// @brief Update the system. Use it each frame.
 	f32 update();
@@ -42,7 +43,7 @@ private:
 	ecs::Domain& _domain;
 	TimePoint _prevTimePoint;
 	CollisionSystem _collisionSystem;
-	const Camera& _camera;
+	OptRef<const Camera> _camera;
 
 };
 

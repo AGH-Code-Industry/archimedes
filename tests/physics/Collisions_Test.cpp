@@ -17,7 +17,7 @@ class CollisionTest: public ::testing::Test {
 protected:
 	void SetUp() override {
 		_domain = std::make_unique<ecs::Domain>();
-		_system = std::make_unique<phy::PhysicsSystem>(*_domain, 800.f, 600.f);
+		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
 	}
 
 	ecs::Entity createOBB(

@@ -73,6 +73,9 @@ struct RepulseTestApp final: Application {
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
+		auto& camera = testScene->domain().global<Camera>();
+		camera.setExtents({ 1.0f, 1.0f });
+
 		e1 = testScene->newEntity();
 		float3 position{ -.875f, 0.f, 0.f };
 		testScene->domain().addComponent<scene::components::TransformComponent>(
@@ -130,7 +133,7 @@ struct RepulseTestApp final: Application {
 		);
 
 		scene::SceneManager::get()->changeScene(testScene);
-		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()), windowWidth, windowHeight);
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()), std::cref(camera));
 	}
 
 	void update() override {

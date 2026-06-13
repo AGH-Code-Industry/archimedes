@@ -12,7 +12,11 @@ CollisionSystem::CollisionSystem(ecs::Domain& domain): _domain(domain) {}
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getEnteredCollisions(ecs::Entity entity) const {
     std::unordered_map<ecs::Entity, Collision> result;
-    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+    auto collisionsOpt = _savedCollisions.getCollisions(entity);
+    if (!collisionsOpt) {
+		return result;
+    }
+    for(auto& [otherEntity, collision] : collisionsOpt.get()) {
         if(collision.state == CollisionState::Entered) {
 			result[otherEntity] = collision;
         }
@@ -22,7 +26,11 @@ std::unordered_map<ecs::Entity, Collision> CollisionSystem::getEnteredCollisions
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getExitedCollisions(ecs::Entity entity) const {
 	std::unordered_map<ecs::Entity, Collision> result;
-    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+	auto collisionsOpt = _savedCollisions.getCollisions(entity);
+    if (!collisionsOpt) {
+		return result;
+    }
+    for(auto& [otherEntity, collision] : collisionsOpt.get()) {
         if(collision.state == CollisionState::Exited) {
 			result[otherEntity] = collision;
         }
@@ -33,7 +41,11 @@ std::unordered_map<ecs::Entity, Collision> CollisionSystem::getExitedCollisions(
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getCollisions(ecs::Entity entity) const {
 	std::unordered_map<ecs::Entity, Collision> result;
-    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+	auto collisionsOpt = _savedCollisions.getCollisions(entity);
+    if (!collisionsOpt) {
+		return result;
+    }
+    for(auto& [otherEntity, collision] : collisionsOpt.get()) {
         if(collision.state == CollisionState::Lasting || collision.state == CollisionState::Entered) {
 			result[otherEntity] = collision;
         }
@@ -82,29 +94,47 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
 
 void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : _savedCollisions.getCollidingEntities()) {
-        for(auto& [entity2, savedCollision] : _savedCollisions.getCollisions(entity1)) {
+		auto collisionsOpt = _savedCollisions.getCollisions(entity1);
+        if (!collisionsOpt) {
+			continue;
+        }
+		auto& collisions = collisionsOpt.get();
+		std::vector<ecs::Entity> toUpdate(collisions.size());
+		std::vector<ecs::Entity> toRemove(collisions.size());
+        for(auto& [entity2, savedCollision] : collisionsOpt.get()) {
 			std::optional<Collision> newCollision = newCollisions.getCollision(entity1, entity2); 
             if (newCollision) {
 				continue;
 			}
             if(savedCollision.state == CollisionState::Entered || savedCollision.state == CollisionState::Lasting) {
-                _savedCollisions.updateCollision(entity1, entity2, Collision::exitedCollision());
+				toUpdate.push_back(entity2);
             } else if(savedCollision.state == CollisionState::Exited) {
-                _savedCollisions.removeCollision(entity1, entity2);
+				toRemove.push_back(entity2);
             }
         }
+        for (auto& entity2 : toUpdate) {
+			_savedCollisions.updateCollision(entity1, entity2, Collision::exitedCollision());
+        }
+        for (auto& entity2 : toRemove) {
+			_savedCollisions.removeCollision(entity1, entity2);
+        }
+
     }
 }
 
 void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : newCollisions.getCollidingEntities()) {
-        for(auto& [entity2, newCollision] : newCollisions.getCollisions(entity1)) {
+		auto collisionsOpt = newCollisions.getCollisions(entity1);
+        if (!collisionsOpt) {
+			continue;
+        }
+        for(auto& [entity2, newCollision] : collisionsOpt.get()) {
 			std::optional<Collision> savedCollision = _savedCollisions.getCollision(entity1, entity2);
             if (!savedCollision) {
 				_savedCollisions.addCollision(
                     entity1,
                     entity2,
-                    newCollision.changeState(CollisionState::Entered)
+                    newCollision.changedState(CollisionState::Entered)
                 );
 				continue;
             }
@@ -114,21 +144,21 @@ void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions
                     _savedCollisions.updateCollision(
                         entity1,
                         entity2,
-                        newCollision.changeState(CollisionState::Lasting)
+                        newCollision.changedState(CollisionState::Lasting)
                     );
                     break;
                 case CollisionState::Exited:
                     _savedCollisions.updateCollision(
                         entity1,
                         entity2,
-                        newCollision.changeState(CollisionState::Entered)
+                        newCollision.changedState(CollisionState::Entered)
                     );
                     break;
 				case CollisionState::Lasting:
 					_savedCollisions.updateCollision(
                         entity1,
                         entity2,
-                        newCollision.changeState(CollisionState::Lasting)
+                        newCollision.changedState(CollisionState::Lasting)
                     );
                     break;
                 case CollisionState::CurrentlyFound:

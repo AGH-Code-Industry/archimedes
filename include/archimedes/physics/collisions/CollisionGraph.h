@@ -12,7 +12,7 @@ class CollisionGraph {
     public:
 
     ///@brief Get all collisions that a given entity has
-    std::unordered_map<ecs::Entity, Collision> getCollisions(ecs::Entity entity) const; 
+    OptRef<const std::unordered_map<ecs::Entity, Collision>> getCollisions(ecs::Entity entity) const; 
     
     /// @brief Get all entities that collide with at least one entity
     std::vector<ecs::Entity> getCollidingEntities() const;

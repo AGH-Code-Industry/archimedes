@@ -12,7 +12,7 @@ namespace scene = arch::scene;
 /// @brief Tests if the physics system really moves the objects
 TEST(Physics, TestUpdate) {
 	ecs::Domain domain;
-	phy::PhysicsSystem system(domain, 800.f, 600.f);
+	phy::PhysicsSystem system(domain);
 
 	constexpr auto startV = math::float2(1.f, 0.f);
 

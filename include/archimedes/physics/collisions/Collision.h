@@ -30,7 +30,7 @@ struct Collision {
 	}
 
 	/// @brief Helper factory method
-	inline Collision changeState(CollisionState newState) { 
+	inline Collision changedState(CollisionState newState) const { 
 		return { normal, depth, newState };
 	}
 };

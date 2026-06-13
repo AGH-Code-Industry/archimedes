@@ -10,6 +10,12 @@ namespace arch::physics {
 
 using TransformComponent = scene::components::TransformComponent;
 
+PhysicsSystem::PhysicsSystem(ecs::Domain& domain):
+	_domain(domain),
+	_prevTimePoint(Clock::now()),
+	_collisionSystem(domain),
+	_camera(std::nullopt) {}
+
 PhysicsSystem::PhysicsSystem(ecs::Domain& domain, const Camera& camera):
 	_domain(domain),
 	_prevTimePoint(Clock::now()),
@@ -35,7 +41,10 @@ f32 PhysicsSystem::update() {
 		rigidBody.linearVelocity += a * t;
 	}
 
-	float2 mousePosition = _camera.screenToWorldPos(input::Mouse::pos());
+	float2 mousePosition{};
+	if (_camera) {
+		mousePosition = _camera.get().screenToWorldPos(input::Mouse::pos());
+	}
 	_collisionSystem.update(mousePosition);
 	_prevTimePoint = Clock::now();
 
