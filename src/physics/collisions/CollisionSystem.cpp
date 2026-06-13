@@ -12,49 +12,29 @@ CollisionSystem::CollisionSystem(ecs::Domain& domain): _domain(domain) {}
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getEnteredCollisions(ecs::Entity entity) const {
     std::unordered_map<ecs::Entity, Collision> result;
-	auto collisionsOpt = _savedCollisions.getCollisions(entity);
-    if (!collisionsOpt) {
-		return result;
-    }
-	const auto& collisions = collisionsOpt.get();
-	for (auto node = collisions.begin(); node != collisions.end(); node++) {
-		auto& otherEntity = node.entity();
-		auto& collision = *node;
-		if (collision.state == CollisionState::Entered) {
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Entered) {
 			result[otherEntity] = collision;
-		}
-	}
+        }
+    }
     return result;
 }
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getExitedCollisions(ecs::Entity entity) const {
 	std::unordered_map<ecs::Entity, Collision> result;
-    auto collisionsOpt = _savedCollisions.getCollisions(entity);
-    if (!collisionsOpt) {
-		return result;
-    }
-	const auto& collisions = collisionsOpt.get();
-	for (auto node = collisions.begin(); node != collisions.end(); node++) {
-		auto& otherEntity = node.entity();
-		auto& collision = *node;
-		if (collision.state == CollisionState::Exited) {
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Exited) {
 			result[otherEntity] = collision;
-		}
-	}
+        }
+    }
+
     return result;
 }
 
 std::unordered_map<ecs::Entity, Collision> CollisionSystem::getCollisions(ecs::Entity entity) const {
 	std::unordered_map<ecs::Entity, Collision> result;
-    auto collisionsOpt = _savedCollisions.getCollisions(entity);
-    if (!collisionsOpt) {
-		return result;
-    }
-	const auto& collisions = collisionsOpt.get();
-	for (auto node = collisions.begin(); node != collisions.end(); node++) {
-		auto& otherEntity = node.entity();
-		auto& collision = *node;
-		if (collision.state == CollisionState::Lasting || collision.state == CollisionState::Entered) {
+    for(auto& [otherEntity, collision] : _savedCollisions.getCollisions(entity)) {
+        if(collision.state == CollisionState::Lasting || collision.state == CollisionState::Entered) {
 			result[otherEntity] = collision;
         }
     }
@@ -102,14 +82,7 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
 
 void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : _savedCollisions.getCollidingEntities()) {
-		auto collisionsOpt = _savedCollisions.getCollisions(entity1);
-        if (!collisionsOpt) {
-            continue;
-		}
-		auto& collisions = collisionsOpt.get();
-		for (auto node = collisions.begin(); node != collisions.end(); node++) {
-			auto& savedCollision = *node;
-			auto& entity2 = node.entity();
+        for(auto& [entity2, savedCollision] : _savedCollisions.getCollisions(entity1)) {
 			std::optional<Collision> newCollision = newCollisions.getCollision(entity1, entity2); 
             if (newCollision) {
 				continue;
@@ -125,14 +98,7 @@ void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newColli
 
 void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions) {
     for(auto& entity1 : newCollisions.getCollidingEntities()) {
-		auto collisionsOpt = newCollisions.getCollisions(entity1);
-		if (!collisionsOpt) {
-			continue;
-		}
-		auto& collisions = collisionsOpt.get();
-		for (auto node = collisions.begin(); node != collisions.end(); node++) {
-			auto& newCollision = *node;
-			auto& entity2 = node.entity();
+        for(auto& [entity2, newCollision] : newCollisions.getCollisions(entity1)) {
 			std::optional<Collision> savedCollision = _savedCollisions.getCollision(entity1, entity2);
             if (!savedCollision) {
 				_savedCollisions.addCollision(
