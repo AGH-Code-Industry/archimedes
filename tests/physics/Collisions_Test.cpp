@@ -52,8 +52,7 @@ protected:
 	) {
 		auto e = _domain->newEntity();
 		_domain->addComponent<TransformComponent>(e, { pos, rot, scale });
-		_domain
-			->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = circle});
+		_domain->addComponent<phy::ColliderComponent>(e, phy::ColliderComponent{ .shape = circle });
 		return e;
 	}
 
@@ -152,7 +151,7 @@ TEST_F(CollisionTest, CircleVsCircle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
 	phy::Triangle tri{
-		{ 0.0f, 0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -169,7 +168,7 @@ TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
 	phy::Triangle tri{
-		{ 0.0f,  0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -186,7 +185,7 @@ TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
 
 TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
 	phy::Triangle tri{
-		{ 0.0f, 0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -203,7 +202,7 @@ TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
 
 TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
 	phy::Triangle tri{
-		{ 0.0f,  0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -225,9 +224,11 @@ TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
 
 TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 	phy::Triangle tri{
-		{ 0.0f,	0.5f, },
+		{
+			0.0f, 0.5f,
+		 },
 		{ -0.5f, -0.5f },
-		{  0.5f, -0.5f }
+		{ 0.5f, -0.5f }
 	};
 	phy::OBB obb{
 		{ -0.25f,  0.25f },
@@ -246,22 +247,23 @@ TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 	));
 }
 
-
 TEST_F(CollisionTest, Mask_NoMatch) {
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		1.0f
+	};
 
-    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
-    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+	auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+	auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
 
-    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
-    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+	c1.isScannedMask = std::bitset<32>(1 << 0);
+	c1.scansMask = std::bitset<32>(1 << 0);
 
-    c1.isScannedMask = std::bitset<32>(1 << 0);
-    c1.scansMask     = std::bitset<32>(1 << 0);
-
-    c2.isScannedMask = std::bitset<32>(1 << 1);
-    c2.scansMask     = std::bitset<32>(1 << 1);
+	c2.isScannedMask = std::bitset<32>(1 << 1);
+	c2.scansMask = std::bitset<32>(1 << 1);
 
 	_system->update();
 
@@ -270,19 +272,22 @@ TEST_F(CollisionTest, Mask_NoMatch) {
 }
 
 TEST_F(CollisionTest, Mask_OneWayMatch) {
-    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		1.0f
+	};
 
-    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
-    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
-    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+	auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+	auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
 
-    c1.isScannedMask = std::bitset<32>(0);
-    c1.scansMask     = std::bitset<32>(1 << 1);
-	
-    c2.isScannedMask = std::bitset<32>(1 << 1);
-    c2.scansMask     = std::bitset<32>(0);
+	c1.isScannedMask = std::bitset<32>(0);
+	c1.scansMask = std::bitset<32>(1 << 1);
+
+	c2.isScannedMask = std::bitset<32>(1 << 1);
+	c2.scansMask = std::bitset<32>(0);
 
 	_system->update();
 	ASSERT_TRUE(_system->getCollisions(e1).contains(e2));
@@ -290,19 +295,22 @@ TEST_F(CollisionTest, Mask_OneWayMatch) {
 }
 
 TEST_F(CollisionTest, Mask_MultipleLayers) {
-    phy::Circle circle{{0.0f, 0.0f}, 1.0f};
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		1.0f
+	};
 
-    auto e1 = createCircle({0,0,0}, {0,0,0,1}, {1,1,1}, circle);
-    auto e2 = createCircle({0.5f,0,0}, {0,0,0,1}, {1,1,1}, circle);
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-    auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
-    auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+	auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+	auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
 
-    c1.isScannedMask = std::bitset<32>(0);
-    c1.scansMask     = std::bitset<32>(3);
+	c1.isScannedMask = std::bitset<32>(0);
+	c1.scansMask = std::bitset<32>(3);
 
-    c2.isScannedMask = std::bitset<32>(1);
-    c2.scansMask     = std::bitset<32>(0);
+	c2.isScannedMask = std::bitset<32>(1);
+	c2.scansMask = std::bitset<32>(0);
 
 	_system->update();
 	ASSERT_TRUE(_system->getCollisions(e1).contains(e2));
@@ -314,19 +322,9 @@ TEST_F(CollisionTest, CircleVsCircle_BoundingCirclePreventsFalseNegative) {
 		0.5f
 	};
 
-	auto e1 = createCircle(
-		{ 0, 0, 0 },
-		{ 0, 0, 0, 1 },
-		{ 3.0f, 1.0f, 1.0f },
-		circle
-	);
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 3.0f, 1.0f, 1.0f }, circle);
 
-	auto e2 = createCircle(
-		{ 1.9f, 0, 0 },
-		{ 0, 0, 0, 1 },
-		{ 1, 1, 1 },
-		circle
-	);
+	auto e2 = createCircle({ 1.9f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
 	ASSERT_TRUE(phy::ColliderComponent::areColliding(
 		_domain->getComponent<phy::ColliderComponent>(e1),
@@ -344,12 +342,7 @@ TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
 
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 2.0f, 1.0f, 1.0f }, circle);
 
-	auto e2 = createCircle(
-		{ 1.6f, 0, 0 },
-		{ 0, 0, 0, 1 },
-		{ 1, 1, 1 },
-		circle
-	);
+	auto e2 = createCircle({ 1.6f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
 	ASSERT_FALSE(phy::ColliderComponent::areColliding(
 		_domain->getComponent<phy::ColliderComponent>(e1),

@@ -1,4 +1,5 @@
 #include <archimedes/physics/collisions/CollisionAlgorithms.hpp>
+
 #include <archimedes/physics/collisions/ColliderComponent.h>
 
 namespace arch::physics {
@@ -24,9 +25,7 @@ bool ColliderComponent::isCollidingWithMouse(
 	float2 mousePosition
 ) {
 	return std::visit(
-		[&](const auto& shape) -> bool {
-			return checkPoint(shape, transform, mousePosition);
-		},
+		[&](const auto& shape) -> bool { return checkPoint(shape, transform, mousePosition); },
 		collider.shape
 	);
 }

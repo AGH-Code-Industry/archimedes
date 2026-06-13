@@ -1,7 +1,6 @@
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
-#include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
-
+#include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 #include <gtest/gtest.h>
 
 namespace physics {
@@ -64,7 +63,7 @@ TEST_F(CollidersValidationTest, Triangle_Degenerate_AllPointsEqual) {
 			{ 0.f, 0.f },
 			{ 0.f, 0.f },
 			{ 0.f, 0.f }
-	  }),
+	 }),
 		phy::PhysicsException
 	);
 }
@@ -75,7 +74,7 @@ TEST_F(CollidersValidationTest, Triangle_Degenerate_Collinear) {
 			{ 0.f, 0.f },
 			{ 1.f, 1.f },
 			{ 2.f, 2.f }
-	  }),
+	 }),
 		phy::PhysicsException
 	);
 }

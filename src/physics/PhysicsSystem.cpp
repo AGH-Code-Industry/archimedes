@@ -1,10 +1,10 @@
+#include <GLFW/glfw3.h>
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/ecs/View.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
-#include <GLFW/glfw3.h>
 
 namespace arch::physics {
 

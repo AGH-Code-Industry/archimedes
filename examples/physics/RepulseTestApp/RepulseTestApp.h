@@ -17,7 +17,6 @@ struct RepulseTestApp final: Application {
 	ecs::Entity e1, e2;
 	Ref<Scene> testScene;
 
-
 	void ideallyElasticCollision(const ecs::Entity me, const ecs::Entity other) {
 		auto& domain = testScene->domain();
 		phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
@@ -33,7 +32,7 @@ struct RepulseTestApp final: Application {
 
 		myBody.linearVelocity = v1;
 		otherBody.linearVelocity = v2;
-	};
+	}
 
 	void init() override {
 		testScene = createRef<Scene>();
@@ -46,9 +45,9 @@ struct RepulseTestApp final: Application {
 
 		std::vector<Vertex> vertices{
 			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
-			{ { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
-			{ { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
-			{ { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
+			{	  { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
+			{	  { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
 		};
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 
@@ -58,18 +57,16 @@ struct RepulseTestApp final: Application {
 			Mat4x4 projection;
 		};
 
-		UniformBuffer ubo{ glm::mat4{1} };
+		UniformBuffer ubo{ glm::mat4{ 1 } };
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
-		const auto pipeline = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default2.glsl",
-				.textures = {},
-				.buffers = { uniformBuffer },
-			}
-		);
+		const auto pipeline = renderer->getPipelineManager()->create({
+			.vertexShaderPath = "shaders/vertex_default.glsl",
+			.fragmentShaderPath = "shaders/fragment_default2.glsl",
+			.textures = {},
+			.buffers = { uniformBuffer },
+		});
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
@@ -78,57 +75,41 @@ struct RepulseTestApp final: Application {
 
 		e1 = testScene->newEntity();
 		float3 position{ -.875f, 0.f, 0.f };
-		testScene->domain().addComponent<scene::components::TransformComponent>(
-			e1,
-			{
-				position,
-				quaternion(0.0f),
-				float3(1)
-		  }
-		);
+		testScene->domain()
+			.addComponent<scene::components::TransformComponent>(e1, { position, quaternion(0.0f), float3(1) });
 		testScene->domain().addComponent<scene::components::MeshComponent>(e1, { mesh, pipeline });
-		testScene->domain().addComponent(e1,
+		testScene->domain().addComponent(
+			e1,
 			phy::RigidBodyComponent{
 				1.f,
-				{ 0.f, 0.f },	{ 0.1f, 0.f },
-			}
+				{  0.f, 0.f },
+				{ 0.1f, 0.f },
+		}
 		);
-		testScene->domain().addComponent(e1,
+		testScene->domain().addComponent(
+			e1,
 			phy::ColliderComponent{
-				.shape = phy::OBB (
-						float2(0.0f),
-						float2{ .25f, -.25f },
-						0.0f
-				),
+				.shape = phy::OBB(float2(0.0f), float2{ .25f, -.25f }, 0.0f),
 			}
 		);
-
 
 		e2 = testScene->newEntity();
 		position = { .75f, 0.f, 0.f };
-		testScene->domain().addComponent<scene::components::TransformComponent>(
-			e2,
-			{
-				position,
-				quaternion(0.0f),
-				float3(1)
-		  }
-		);
+		testScene->domain()
+			.addComponent<scene::components::TransformComponent>(e2, { position, quaternion(0.0f), float3(1) });
 		testScene->domain().addComponent<scene::components::MeshComponent>(e2, { mesh, pipeline });
-		testScene->domain().addComponent(e2,
+		testScene->domain().addComponent(
+			e2,
 			phy::RigidBodyComponent{
 				.mass = 5.f,
-				.force = { 0.f, 0.f },
-				.linearVelocity = { -0.1f, 0.f } ,
-			}
+				.force = {   0.f, 0.f },
+				.linearVelocity = { -0.1f, 0.f },
+		}
 		);
-		testScene->domain().addComponent(e2,
+		testScene->domain().addComponent(
+			e2,
 			phy::ColliderComponent{
-				.shape = phy::OBB (
-						float2(0.0f),
-						float2{0.25f, -0.25f},
-						0.0f
-				),
+				.shape = phy::OBB(float2(0.0f), float2{ 0.25f, -0.25f }, 0.0f),
 			}
 		);
 
@@ -138,7 +119,7 @@ struct RepulseTestApp final: Application {
 
 	void update() override {
 		auto enteredCollisions = _physicsSystem->getEnteredCollisions(e1);
-		if(enteredCollisions.contains(e2)) {
+		if (enteredCollisions.contains(e2)) {
 			Logger::info("Collision detected!");
 			ideallyElasticCollision(e1, e2);
 		}
@@ -148,4 +129,4 @@ struct RepulseTestApp final: Application {
 private:
 	Ref<phy::PhysicsSystem> _physicsSystem;
 };
-} // namespace physics_example
+} // namespace physicsExample

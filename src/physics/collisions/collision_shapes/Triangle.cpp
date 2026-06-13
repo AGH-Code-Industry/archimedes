@@ -54,5 +54,4 @@ bool Triangle::containsPoint(const TransformComponent& transform, float2 point) 
 	return std::abs(areasSum - triangleArea) < COLLISIONS_EPSILON;
 }
 
-
 } // namespace arch::physics

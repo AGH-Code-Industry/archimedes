@@ -1,4 +1,5 @@
 #include <archimedes/physics/collisions/CollisionAlgorithms.hpp>
+
 #include <archimedes/physics/Helpers.h>
 
 namespace arch::physics {

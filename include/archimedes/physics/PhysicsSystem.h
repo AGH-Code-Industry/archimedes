@@ -2,9 +2,9 @@
 
 #include <chrono>
 
+#include <archimedes/Camera.h>
 #include <archimedes/ecs/Domain.h>
 #include <archimedes/physics/collisions/CollisionSystem.h>
-#include <archimedes/Camera.h>
 
 namespace arch::physics {
 
@@ -44,7 +44,6 @@ private:
 	TimePoint _prevTimePoint;
 	CollisionSystem _collisionSystem;
 	OptRef<const Camera> _camera;
-
 };
 
 } // namespace arch::physics

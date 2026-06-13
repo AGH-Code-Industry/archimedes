@@ -1,15 +1,15 @@
 #pragma once
 
-#include <functional>
-#include <variant>
 #include <bitset>
+#include <functional>
 #include <optional>
+#include <variant>
 
 #include <archimedes/ecs/Entity.h>
+#include <archimedes/physics/collisions/Collision.h>
 #include <archimedes/physics/collisions/collision_shapes/Circle.h>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
-#include <archimedes/physics/collisions/Collision.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
 namespace arch::physics {
@@ -25,14 +25,14 @@ struct ColliderComponent {
 
 	/// @brief A bitmask that tells on which layers the entity can be detected by other colliders
 	/// Each bit represents another layer, set it to 1 to make the object detectable on it
-	std::bitset<32> isScannedMask{1};
+	std::bitset<32> isScannedMask{ 1 };
 
 	/// @brief A bitmask that tells which layers the entity can detect.
 	/// If you set 1 for a layer, the object will detect collisions with entities on this layer
-	std::bitset<32> scansMask{1};
+	std::bitset<32> scansMask{ 1 };
 
 	/// @brief Collision checking functions
-	
+
 	static std::optional<Collision> areColliding(
 		const ColliderComponent& collider1,
 		const ColliderComponent& collider2,

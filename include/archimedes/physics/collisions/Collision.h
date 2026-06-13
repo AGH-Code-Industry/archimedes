@@ -12,7 +12,7 @@ enum CollisionState {
 struct Collision {
 	/// @brief Direction along which you have to push the objects so they don't collide
 	float2 normal;
-	
+
 	/// @brief Minimal distance an object has to be pushed to exit the collision
 	/// @warning It will still be detected probably, so you need to add a small number to it
 	f32 depth;
@@ -30,9 +30,7 @@ struct Collision {
 	}
 
 	/// @brief Helper factory method
-	inline Collision changedState(CollisionState newState) const { 
-		return { normal, depth, newState };
-	}
+	inline Collision changedState(CollisionState newState) const { return { normal, depth, newState }; }
 };
 
-}
+} // namespace arch::physics

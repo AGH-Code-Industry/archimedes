@@ -15,7 +15,7 @@ class PointContainmentTest: public ::testing::Test {};
 
 TEST_F(PointContainmentTest, OBB_PointInside) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.f
 	};
@@ -31,7 +31,7 @@ TEST_F(PointContainmentTest, OBB_PointInside) {
 
 TEST_F(PointContainmentTest, OBB_PointOutside) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.f
 	};
@@ -47,7 +47,7 @@ TEST_F(PointContainmentTest, OBB_PointOutside) {
 
 TEST_F(PointContainmentTest, OBB_PointOnEdge) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.f
 	};
@@ -63,7 +63,7 @@ TEST_F(PointContainmentTest, OBB_PointOnEdge) {
 
 TEST_F(PointContainmentTest, OBB_Translated) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.f
 	};
@@ -80,7 +80,7 @@ TEST_F(PointContainmentTest, OBB_Translated) {
 
 TEST_F(PointContainmentTest, OBB_Rotated) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.785398f
 	};
@@ -96,7 +96,7 @@ TEST_F(PointContainmentTest, OBB_Rotated) {
 
 TEST_F(PointContainmentTest, OBB_NearEdgePrecision) {
 	phy::OBB obb{
-		{ -0.5f, 0.5f },
+		{ -0.5f,	 0.5f },
 		{  0.5f, -0.5f },
 		0.f
 	};
@@ -112,7 +112,7 @@ TEST_F(PointContainmentTest, OBB_NearEdgePrecision) {
 
 TEST_F(PointContainmentTest, Triangle_PointInside) {
 	phy::Triangle tri{
-		{ 0.0f,	0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -128,7 +128,7 @@ TEST_F(PointContainmentTest, Triangle_PointInside) {
 
 TEST_F(PointContainmentTest, Triangle_PointOutside) {
 	phy::Triangle tri{
-		{ 0, 0.5f },
+		{	  0,	 0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -144,7 +144,7 @@ TEST_F(PointContainmentTest, Triangle_PointOutside) {
 
 TEST_F(PointContainmentTest, Triangle_PointOnEdge) {
 	phy::Triangle tri{
-		{ 0, 0.5f },
+		{	  0,	 0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -160,7 +160,7 @@ TEST_F(PointContainmentTest, Triangle_PointOnEdge) {
 
 TEST_F(PointContainmentTest, Triangle_PointOnVertex) {
 	phy::Triangle tri{
-		{ 0, 0.5f },
+		{	  0,	 0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};
@@ -252,7 +252,7 @@ TEST_F(PointContainmentTest, Circle_Translated) {
 
 TEST_F(PointContainmentTest, Triangle_Translated) {
 	phy::Triangle tri{
-		{ 0.0f, 0.5f },
+		{  0.0f,	0.5f },
 		{ -0.5f, -0.5f },
 		{  0.5f, -0.5f }
 	};

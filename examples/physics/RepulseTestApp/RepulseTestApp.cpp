@@ -1,9 +1,10 @@
 #include "RepulseTestApp.h"
+
 #include <archimedes/Engine.h>
 #include <archimedes/Logger.h>
 
 ///@brief Simple test for OBB collision
-///Two objects move to each other and they push each other in opposite directions
+/// Two objects move to each other and they push each other in opposite directions
 
 int main() {
 	arch::Logger::init(arch::LogLevel::trace);

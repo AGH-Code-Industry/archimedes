@@ -22,7 +22,7 @@ TEST(Physics, TestUpdate) {
 		e0,
 		{
 			1.f,
-			{ 1.f, 1.f},
+			{ 1.f, 1.f },
 			startV,
 			0.0f
 	 }

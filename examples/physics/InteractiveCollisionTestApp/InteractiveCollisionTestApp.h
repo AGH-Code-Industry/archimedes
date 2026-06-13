@@ -11,9 +11,7 @@ namespace physicsExample {
 using namespace arch;
 namespace phy = physics;
 
-
 struct InteractiveCollisionTestApp final: Application {
-
 	enum class PlayerColor {
 		Red,
 		Green,
@@ -37,27 +35,24 @@ struct InteractiveCollisionTestApp final: Application {
 
 	Ref<arch::gfx::pipeline::Pipeline> pipelineRed, pipelineGreen, pipelineBlue, pipelineCircle;
 	Ref<asset::mesh::Mesh> meshRectangle, meshTriangle;
-	
-	void createRectangleMesh() {
 
+	void createRectangleMesh() {
 		std::vector<Vertex> vertices{
 			{ { -0.25f, -0.25f, 0.0f }, { 0.f, 0.f } },
-			{ { 0.25f, -0.25f, 0.0f }, { 1.f, 0.f } },
-			{ { 0.25f, 0.25f, 0.0f }, { 1.f, 1.f } },
-			{ { -0.25f, 0.25f, 0.0f }, { 0.f, 1.f } },
+			{  { 0.25f, -0.25f, 0.0f }, { 1.f, 0.f } },
+			{	  { 0.25f, 0.25f, 0.0f }, { 1.f, 1.f } },
+			{  { -0.25f, 0.25f, 0.0f }, { 0.f, 1.f } },
 		};
 
 		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
 		meshRectangle = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 	}
 
-	
 	void createTriangleMesh() {
-
 		std::vector<Vertex> vertices{
-			{ { -0.25f, -0.25f, 0.0f }, { 0.f, 0.f } },
-			{ { 0.25f, -0.25f, 0.0f }, { 1.f, 0.f } },
-			{ { 0.0f, 0.25f, 0.0f }, { 0.5f, 1.f } },
+			{ { -0.25f, -0.25f, 0.0f },	{ 0.f, 0.f } },
+			{  { 0.25f, -0.25f, 0.0f },  { 1.f, 0.f } },
+			{	  { 0.0f, 0.25f, 0.0f }, { 0.5f, 1.f } },
 		};
 
 		std::vector<u32> indices{ 2, 1, 0 };
@@ -91,7 +86,7 @@ struct InteractiveCollisionTestApp final: Application {
 			.textures = {},
 			.buffers = { camera.buffer() },
 		});
-		
+
 		pipelineCircle = renderer->getPipelineManager()->create({
 			.vertexShaderPath = "shaders/vertex_default.glsl",
 			.fragmentShaderPath = "shaders/fragment_default_circle.glsl",
@@ -130,9 +125,9 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 		scene->domain().addComponent(
 			player,
-			phy::ColliderComponent{ .shape =
-										phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
-									.detectsMouse = true, .isScannedMask = 0 }
+			phy::ColliderComponent{ .shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
+									.detectsMouse = true,
+									.isScannedMask = 0 }
 		);
 		return player;
 	}
@@ -145,10 +140,8 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineBlue });
 		scene->domain().addComponent(
 			e,
-			phy::ColliderComponent{
-				.shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
-				.scansMask = 0
-			}
+			phy::ColliderComponent{ .shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
+									.scansMask = 0 }
 		);
 	}
 
@@ -161,13 +154,8 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent(
 			e,
 			phy::ColliderComponent{
-				.shape = phy::Triangle(
-					float2{ -0.25f, -0.25f },
-					float2{ 0.25f, -0.25f },
-					float2{ 0.0f, 0.25f }
-				),
-				.scansMask = 0
-			}
+				.shape = phy::Triangle(float2{ -0.25f, -0.25f }, float2{ 0.25f, -0.25f }, float2{ 0.0f, 0.25f }),
+				.scansMask = 0 }
 		);
 	}
 
@@ -179,9 +167,7 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineCircle });
 		scene->domain().addComponent(
 			e,
-			phy::ColliderComponent{ .shape =
-										phy::Circle(float2{ 0.0f, 0.0f },  0.25f),
-									.scansMask = 0 }
+			phy::ColliderComponent{ .shape = phy::Circle(float2{ 0.0f, 0.0f }, 0.25f), .scansMask = 0 }
 		);
 	}
 
@@ -214,16 +200,16 @@ struct InteractiveCollisionTestApp final: Application {
 		auto lock = std::lock_guard(mutex);
 		float2 velocity{};
 		if (Keyboard::W.down()) {
-			velocity += float2{0.0f, 1.0f};
+			velocity += float2{ 0.0f, 1.0f };
 		}
 		if (Keyboard::S.down()) {
-			velocity -= float2{0.0f, 1.0f};
+			velocity -= float2{ 0.0f, 1.0f };
 		}
 		if (Keyboard::A.down()) {
-			velocity -= float2{1.0f, 0.0f};
+			velocity -= float2{ 1.0f, 0.0f };
 		}
 		if (Keyboard::D.down()) {
-			velocity += float2{1.0f, 0.0f};
+			velocity += float2{ 1.0f, 0.0f };
 		}
 		return velocity;
 	}
@@ -254,7 +240,7 @@ struct InteractiveCollisionTestApp final: Application {
 				Logger::info("Found a collision! Position: {}, {}", playerPosition.x, playerPosition.y);
 			}
 		} else {
-				setPlayerColor(player, PlayerColor::Blue);
+			setPlayerColor(player, PlayerColor::Blue);
 		}
 		if (_physicsSystem->getExitedCollisions(player).size() > 0) {
 			Logger::info("A collision disappeared! Position: {}, {}", playerPosition.x, playerPosition.y);
@@ -273,4 +259,4 @@ struct InteractiveCollisionTestApp final: Application {
 private:
 	Ref<phy::PhysicsSystem> _physicsSystem;
 };
-} // namespace physics_example
+} // namespace physicsExample

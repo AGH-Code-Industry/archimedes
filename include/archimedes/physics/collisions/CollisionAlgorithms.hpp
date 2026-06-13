@@ -8,7 +8,7 @@ namespace arch::physics {
 /// (optimised by static polymorphism instead of virtual functions)
 template<typename ShapeA>
 requires std::derived_from<ShapeA, Shape>
-bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float2 mousePosition){
+bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float2 mousePosition) {
 	return shape.containsPoint(transform, mousePosition);
 }
 
@@ -126,6 +126,5 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 );
-
 
 } // namespace arch::physics
