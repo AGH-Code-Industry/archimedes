@@ -1,4 +1,3 @@
-#include <GLFW/glfw3.h>
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
@@ -12,10 +11,6 @@ namespace scene = arch::scene;
 
 /// @brief Tests if the physics system really moves the objects
 TEST(Physics, TestUpdate) {
-	if (!glfwInit()) {
-		FAIL() << "Failed to initialize GLFW";
-	}
-
 	ecs::Domain domain;
 	phy::PhysicsSystem system(domain);
 
@@ -50,8 +45,6 @@ TEST(Physics, TestUpdate) {
 
 	// Expect that velocity updated accordingly to the force
 	EXPECT_EQ(rigidBody.linearVelocity, startV + t * rigidBody.force);
-
-	glfwTerminate();
 }
 
 } // namespace physics

@@ -1,4 +1,3 @@
-#include <GLFW/glfw3.h>
 #include <archimedes/Scene.h>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/collisions/ColliderComponent.h>
@@ -19,12 +18,7 @@ protected:
 	void SetUp() override {
 		_domain = std::make_unique<ecs::Domain>();
 		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
-		if (!glfwInit()) {
-			FAIL() << "Failed to initialize GLFW";
-		}
 	}
-
-	void TearDown() override { glfwTerminate(); }
 
 	ecs::Entity createOBB(
 		const math::float3& pos,
