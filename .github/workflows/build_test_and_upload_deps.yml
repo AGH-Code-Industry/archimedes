@@ -77,7 +77,7 @@ jobs:
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Build the Engine and run tests"
         run: |
           cmake --build ${{ github.workspace }}/build
-          ${{github.workspace}}/build/archimedes_tests
+          xvfb-run -a ${{ github.workspace }}/build/archimedes_tests
           rm -rf ${{ github.workspace }}/build
       
       - name: "${{ matrix.compiler }}, ${{ matrix.build_type }}: Upload Conan dependencies to remote"
@@ -141,6 +141,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
 
       - name: Setup CMake
         uses: jwlawson/actions-setup-cmake@v2
