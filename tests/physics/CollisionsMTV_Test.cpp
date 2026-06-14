@@ -28,11 +28,11 @@ void expectNormalApprox(const math::float2& actual, const math::float2& expected
 class CollisionsMTVTest: public ::testing::Test {
 protected:
 	void SetUp() override {
+		_domain = std::make_unique<ecs::Domain>();
+		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
 		if (!glfwInit()) {
 			FAIL() << "Failed to initialize GLFW";
 		}
-		_domain = std::make_unique<ecs::Domain>();
-		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
 	}
 
 	void TearDown() override { glfwTerminate(); }

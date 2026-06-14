@@ -17,11 +17,11 @@ using TransformComponent = scene::components::TransformComponent;
 class CollisionTest: public ::testing::Test {
 protected:
 	void SetUp() override {
+		_domain = std::make_unique<ecs::Domain>();
+		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
 		if (!glfwInit()) {
 			FAIL() << "Failed to initialize GLFW";
 		}
-		_domain = std::make_unique<ecs::Domain>();
-		_system = std::make_unique<phy::PhysicsSystem>(*_domain);
 	}
 
 	void TearDown() override { glfwTerminate(); }
