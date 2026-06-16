@@ -1,28 +1,35 @@
+# Configuring archimedes library
+
 include_guard()
 
-include("${PROJECT_SOURCE_DIR}/cmake/conan.cmake")
+add_library(archimedes)
 
-add_library(${PROJECT_NAME})
+# Find sources for archimedes
+file(GLOB_RECURSE ARCHIMEDES_SOURCES CONFIGURE_DEPENDS src/**.cpp)
 
-# find source files
-file(GLOB_RECURSE ARCHIMEDES_SOURCE CONFIGURE_DEPENDS src/**.cpp src/platform/**.h)
-target_sources(${PROJECT_NAME} PRIVATE ${ARCHIMEDES_SOURCE})
-target_include_directories(${PROJECT_NAME} PUBLIC include)
-
-# link conan libraries
-target_link_libraries(${PROJECT_NAME} PUBLIC ${ARCHIMEDES_LIBRARIES})
-
-include("${PROJECT_SOURCE_DIR}/cmake/non_conan_deps.cmake")
-
-# install msdf-atlas-gen/1.3 Release
-if (NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed")
-    message(STATUS "msdf-atlas-gen not installed, installing...")
-    execute_process(
-        COMMAND conan install --requires=msdf-atlas-gen/1.3 --build=missing
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    )
-
-    file(WRITE "${PROJECT_SOURCE_DIR}/cmake/conan_files/msdf_atlas_gen_1_3_installed" "")
-else()
-    message(STATUS "msdf-atlas-gen installed")
+if(NOT MSVC)
+	# Remove pch.cpp from sources
+	# msvc needs it, clang & gcc don't use it
+	list(REMOVE_ITEM ARCHIMEDES_SOURCES "${PROJECT_SOURCE_DIR}/src/pch.cpp")
 endif()
+
+# Add sources to archimedes
+target_sources(archimedes PRIVATE ${ARCHIMEDES_SOURCES})
+
+# Add include directories for build and install
+target_include_directories(archimedes PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
+)
+
+# Add precompiled headers to archimedes
+target_precompile_headers(archimedes PUBLIC "${PROJECT_SOURCE_DIR}/include/archimedes/pch.h")
+
+# Link dependencies
+target_link_libraries(archimedes PUBLIC
+	nvrhi_vk # idk why, but nvrhi_vk needs to be before nvrhi
+	${ARCHIMEDES_LIBRARIES}
+)
+
+# Enable IPO
+set_property(TARGET archimedes PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)

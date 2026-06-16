@@ -1,0 +1,16 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+include("${CMAKE_CURRENT_LIST_DIR}/ArchimedesTargets.cmake")
+
+set(archimedes_LIBRARIES archimedes::archimedes)
+get_target_property(archimedes_INCLUDE_DIRS archimedes::archimedes INTERFACE_INCLUDE_DIRECTORIES)
+
+if(NOT TARGET archimedes)
+	add_library(archimedes ALIAS archimedes::archimedes)
+endif()
+
+set(archimedes_FOUND TRUE)
+
+check_required_components(archimedes)

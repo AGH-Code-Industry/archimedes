@@ -1,4 +1,4 @@
-#include "exceptions/ConfigException.h"
+#include <archimedes/exceptions/ConfigException.h>
 
 namespace arch {
 

@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include <net/GetMac.h>
+#include <archimedes/net/GetMac.h>
 
 #if ARCHIMEDES_WINDOWS
 

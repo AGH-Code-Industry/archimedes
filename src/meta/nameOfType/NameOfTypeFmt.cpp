@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include <meta/nameOfType/NameOfTypeFmt.h>
+#include <archimedes/meta/nameOfType/NameOfTypeFmt.h>
 
 namespace arch::meta::nameOfType {
 

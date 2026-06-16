@@ -7,8 +7,8 @@
 #include "../NvrhiMessageCallback.h"
 #include "../NvrhiUtils.h"
 #include "../exception/NvrhiException.h"
-#include "Window.h"
 #include "nvrhi/vulkan.h"
+#include <archimedes/Window.h>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -51,7 +51,7 @@ void NvrhiVulkanContext::init(const Ref<Window>& window) {
 
 	// Dynamically load the Vulkan-Hpp function pointers (used by NVRHI)
 	{
-		const vk::DynamicLoader dl;
+		const vk::detail::DynamicLoader dl;
 		const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
 			dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(desc.instance, vkGetInstanceProcAddr, desc.device);

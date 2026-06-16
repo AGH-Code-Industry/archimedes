@@ -1,6 +1,5 @@
-#include "exceptions/GLFWException.h"
-
 #include <GLFW/glfw3.h>
+#include <archimedes/exceptions/GLFWException.h>
 
 namespace arch {
 

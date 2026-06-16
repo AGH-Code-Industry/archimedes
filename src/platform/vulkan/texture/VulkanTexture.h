@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VulkanImage.h"
-#include "gfx/Texture.h"
+#include <archimedes/gfx/Texture.h>
 #include <volk.h>
 
 namespace arch::gfx::vulkan {

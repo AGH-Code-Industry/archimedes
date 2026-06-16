@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Logger.h"
 #include "nvrhi/nvrhi.h"
+#include <archimedes/Logger.h>
 
 namespace arch::gfx::nvrhi {
 

@@ -1,9 +1,8 @@
-#include "net/TCPSocket.h"
-
 #include <memory>
 
-#include "net/IPv4.h"
-#include "net/NetException.h"
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/TCPSocket.h>
 
 namespace arch::net {
 
@@ -26,11 +25,11 @@ TCPSocket::LingerData TCPSocket::linger() const {
 		throw NetException(gai_strerror(netErrno(result)));
 	}
 
-	return {(bool)optval.l_onoff, optval.l_linger};
+	return { (bool)optval.l_onoff, optval.l_linger };
 }
 
 void TCPSocket::linger(LingerData data) {
-	::linger optval{data.linger, data.seconds};
+	::linger optval{ data.linger, data.seconds };
 
 	int result = setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&optval, sizeof(optval));
 	if (result != 0) {

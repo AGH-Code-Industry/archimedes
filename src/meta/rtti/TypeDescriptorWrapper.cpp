@@ -1,4 +1,4 @@
-#include <meta/rtti/TypeDescriptorWrapper.h>
+#include <archimedes/meta/rtti/TypeDescriptorWrapper.h>
 
 namespace arch::meta::rtti {
 

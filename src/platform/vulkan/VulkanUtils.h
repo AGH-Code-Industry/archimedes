@@ -2,8 +2,8 @@
 #include <source_location>
 #include <string>
 
-#include "gfx/GraphicsFormat.h"
-#include "gfx/texture/TextureType.h"
+#include <archimedes/gfx/GraphicsFormat.h>
+#include <archimedes/gfx/texture/TextureType.h>
 #include <volk.h>
 
 namespace arch::gfx::vulkan {

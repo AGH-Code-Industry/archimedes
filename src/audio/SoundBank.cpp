@@ -1,7 +1,7 @@
 #include <ranges>
 
-#include <audio/AudioException.h>
-#include <audio/SoundBank.h>
+#include <archimedes/audio/AudioException.h>
+#include <archimedes/audio/SoundBank.h>
 
 namespace arch::audio {
 void SoundBank::loadGroup(int group) {

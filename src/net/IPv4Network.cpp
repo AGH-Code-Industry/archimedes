@@ -1,11 +1,10 @@
-#include "net/IPv4Network.h"
-
 #include <string>
 #include <vector>
 
-#include "net/IPv4.h"
-#include "net/NetException.h"
-#include "net/Utilities.h"
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/IPv4Network.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/Utilities.h>
 
 namespace arch::net {
 
@@ -37,15 +36,15 @@ IPv4Mask::Data IPv4Mask::data() const {
 }
 
 IPv4Network::IPv4Network(Address address, Mask mask):
-	_address{address.data().binary & mask.data().binary},
-	_mask{mask} {}
+	_address{ address.data().binary & mask.data().binary },
+	_mask{ mask } {}
 
 IPv4Network::IPv4Network(Address address, size_t prefix): IPv4Network(address, IPv4Mask(prefix)) {}
 
 IPv4Network::IPv4Network(const std::string& addressWithPrefix) {
 	auto divisor = addressWithPrefix.find('/');
-	std::string mask{addressWithPrefix.substr(divisor + 1)};
-	std::string address{addressWithPrefix.substr(0, divisor)};
+	std::string mask{ addressWithPrefix.substr(divisor + 1) };
+	std::string address{ addressWithPrefix.substr(0, divisor) };
 
 	*this = IPv4Network(IPv4(address), IPv4Mask(std::stoul(mask)));
 }

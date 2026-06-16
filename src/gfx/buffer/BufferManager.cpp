@@ -1,6 +1,5 @@
-#include "gfx/buffer/BufferManager.h"
-
-#include "exceptions/InvalidEnumException.h"
+#include <archimedes/exceptions/InvalidEnumException.h>
+#include <archimedes/gfx/buffer/BufferManager.h>
 
 namespace arch::gfx::buffer {
 

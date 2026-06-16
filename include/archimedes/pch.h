@@ -1,0 +1,33 @@
+#pragma once
+
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <codecvt>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <ranges>
+#include <set>
+#include <source_location>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+#include <archimedes/Ecs.h>
+#include <archimedes/Logger.h>
+#include <archimedes/Meta.h>
+#include <archimedes/TUtils.h>
+#include <archimedes/input/Key.h>
+#include <archimedes/input/Keyboard.h>
+#include <archimedes/input/Mouse.h>
+#include <stb_image.h>

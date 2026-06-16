@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Ref.h"
-#include "gfx/pipeline/Pipeline.h"
 #include "nvrhi/nvrhi.h"
+#include <archimedes/Ref.h>
+#include <archimedes/gfx/pipeline/Pipeline.h>
 
 namespace arch::gfx::nvrhi {
 class NvrhiRenderer;

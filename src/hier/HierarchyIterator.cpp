@@ -1,4 +1,4 @@
-#include <hier/HierarchyNode.h>
+#include <archimedes/hier/HierarchyNode.h>
 
 // is sentinel?
 #define SENT(x) ((x)->_entity == ::arch::ecs::nullEntity)

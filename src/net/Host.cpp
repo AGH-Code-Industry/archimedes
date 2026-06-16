@@ -1,12 +1,11 @@
-#include "net/async/Host.h"
-
 #include <algorithm>
 #include <cstring>
 
-#include "net/Host.h"
-#include "net/IPv4.h"
-#include "net/NetException.h"
-#include "net/Utilities.h"
+#include <archimedes/net/Host.h>
+#include <archimedes/net/IPv4.h>
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/Utilities.h>
+#include <archimedes/net/async/Host.h>
 
 namespace arch::net {
 

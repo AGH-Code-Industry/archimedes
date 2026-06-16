@@ -2,9 +2,9 @@
 
 #include "VulkanContext.h"
 #include "VulkanSwapchain.h"
-#include "Window.h"
-#include "gfx/Renderer.h"
 #include "texture/VulkanTexture.h"
+#include <archimedes/Window.h>
+#include <archimedes/gfx/Renderer.h>
 
 namespace arch::gfx::vulkan {
 

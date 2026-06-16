@@ -1,4 +1,4 @@
-#include "gfx/texture/TextureManager.h"
+#include <archimedes/gfx/texture/TextureManager.h>
 
 namespace arch::gfx::texture {
 

@@ -1,6 +1,5 @@
-#include "net/async/TCPSocket.h"
-
-#include "net/NetException.h"
+#include <archimedes/net/NetException.h>
+#include <archimedes/net/async/TCPSocket.h>
 
 namespace arch::net::async {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "NvrhiBuffer.h"
-#include "gfx/buffer/VertexBuffer.h"
 #include "nvrhi/nvrhi.h"
+#include <archimedes/gfx/buffer/VertexBuffer.h>
 
 namespace arch::gfx::nvrhi::buffer {
 

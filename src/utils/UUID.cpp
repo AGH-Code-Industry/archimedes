@@ -3,11 +3,11 @@
 #include <chrono>
 #include <iostream>
 
-#include <net/GetMac.h>
+#include <archimedes/net/GetMac.h>
+#include <archimedes/utils/UUID.h>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
 #include <stdio.h>
-#include <utils/UUID.h>
 
 namespace arch::utils {
 
