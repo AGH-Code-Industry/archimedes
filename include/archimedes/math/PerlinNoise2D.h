@@ -1,0 +1,43 @@
+#pragma once
+#include <archimedes/Mmath.h>
+#include <random>
+#include <vector>
+
+
+namespace arch::math {
+class PerlinNoise2D
+{
+    std::mt19937 _rng;
+    std::uniform_real_distribution<f32> _distribution;
+    std::vector<i32> _permutation;
+    std::vector<std::vector<f32>> _offsets;
+
+    constexpr std::array<float2, 4> _constantVectors = {
+        {1.0, 1.0},
+        {-1.0, 1.0},
+        {-1.0, -1.0},
+        {1.0, -1.0},
+    };
+
+    i32 _getSeed() const;
+    i32 _getHash(i32 X, i32 Y) const;
+    void _createPermutation(i32 size);
+    void _createOffsets(i32 size);
+    f32 _getOffset(i32 x, i32 y) const;
+    static f32 _fade(f32 t);
+    f32 _generateOctave(f32 x, f32 y) const;
+
+public:
+    i32 octaves;
+    f32 amplitude;
+    f32 frequency;
+    f32 amplitudeFactor;
+    f32 frequencyFactor;
+    f32 minResult;
+    f32 maxResult;
+
+    PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset);
+    PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed);
+    f32 generate(f32 x, f32 y);
+};
+}
