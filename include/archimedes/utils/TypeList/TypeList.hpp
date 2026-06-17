@@ -72,6 +72,21 @@ struct SingleTypeAlias {};
 template<class T, class... Ts>
 struct SingleTypeAlias<true, T, Ts...> {
 	using type = T;
+
+	template<class T2>
+	static consteval bool is(TypeList<T2> = {}) {
+		return std::same_as<T, T2>;
+	}
+
+	template<auto Fn>
+	static consteval auto apply() {
+		return Fn(typelist<T>);
+	}
+
+	template<template<class> class Trait>
+	static consteval auto apply() {
+		return Trait<T>::value;
+	}
 };
 
 } // namespace arch::utils::details
