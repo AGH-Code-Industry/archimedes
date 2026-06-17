@@ -40,8 +40,10 @@ TEST(ECS, View_OneComponent) {
 	ASSERT_TRUE(std::ranges::equal(domain.entities(), domain.view<NormalComponent>()));
 
 	// pairwise view of components
-	auto componentPairs = domain.view<NormalComponent>().components() |
-		std::views::transform([](auto tuple) -> auto& { return std::get<0>(tuple); }) | std::views::pairwise;
+	auto componentPairs = domain.view<NormalComponent>().comps() | std::views::transform([](auto tuple) -> auto& {
+							  return std::get<0>(tuple);
+						  }) |
+		std::views::pairwise;
 	ASSERT_TRUE(std::ranges::all_of(componentPairs, [](auto pair) {
 		auto&& [first, second] = pair;
 		// are all components on a page adjacent?
@@ -49,11 +51,13 @@ TEST(ECS, View_OneComponent) {
 	}));
 
 	// increment value of each component
-	domain.view<NormalComponent>().forEach([](auto& normal) { ++normal.value; });
+	domain.view<NormalComponent>().forEach([](auto& normal) {
+		++normal.value;
+	});
 
 	// sum values
 	int sum = 0;
-	for (auto&& [normal] : domain.view<NormalComponent>().components()) {
+	for (auto&& [normal] : domain.view<NormalComponent>().comps()) {
 		sum += normal.value;
 	}
 
