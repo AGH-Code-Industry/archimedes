@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "ViewFwd.h"
+#include "view/ViewFwd.h"
 //
 #include "EntityTraits.h"
 
