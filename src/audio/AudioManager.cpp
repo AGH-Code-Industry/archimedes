@@ -160,6 +160,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 	// synchronize Listener
 	auto listenersView = domain.view<ListenerComponent>();
 	bool activeListenerFound = false;
+	for (auto [entity, listener] : listenersView.withEntity()) {
 		if (listener._isActive) {
 			if (activeListenerFound) {
 				throw AudioException("Audio system: there are two active Listeners");
