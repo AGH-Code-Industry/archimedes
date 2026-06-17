@@ -108,7 +108,7 @@ class NvrhiRendererTestApp: public Application {
 						->domain()
 						.view<scene::components::TransformComponent, VelocityComponent>();
 
-		for (auto [entity, transform, velocity] : view.all()) {
+		for (auto [entity, transform, velocity] : view.withEntity()) {
 			if ((transform.position.y < 100.f && velocity.velocity.y < 0) ||
 				(transform.position.y > 300.f && velocity.velocity.y > 0)) {
 				velocity.velocity.y *= -1;

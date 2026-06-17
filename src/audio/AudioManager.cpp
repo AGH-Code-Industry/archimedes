@@ -224,7 +224,7 @@ void AudioManager::updateListener(
 
 void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener) {
 	auto view = domain.view<ListenerComponent>();
-	for (auto [entity, listener] : view.all()) {
+	for (auto [entity, listener] : view.withEntity()) {
 		listener._isActive = false;
 	}
 	listener._isActive = true;
@@ -238,7 +238,7 @@ void AudioManager::setListener(
 	const physics::Moveable& moveable
 ) {
 	auto view = domain.view<ListenerComponent>();
-	for (auto [entity, listener] : view.all()) {
+	for (auto [entity, listener] : view.withEntity()) {
 		listener._isActive = false;
 	}
 	listener._isActive = true;
