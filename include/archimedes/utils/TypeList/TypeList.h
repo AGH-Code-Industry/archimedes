@@ -50,13 +50,19 @@ public:
 	static inline constexpr size_t npos = (size_t)-1;
 
 	/// @brief Checks if typelist is empty
-	static consteval auto emtpy() { return SIZE == 0; }
+	static consteval auto emtpy() {
+		return SIZE == 0;
+	}
 
 	/// @brief Returns typelist size
-	static consteval auto size() { return SIZE; }
+	static consteval auto size() {
+		return SIZE;
+	}
 
 	/// @brief Returns typelist size
-	static consteval auto length() { return SIZE; }
+	static consteval auto length() {
+		return SIZE;
+	}
 
 	/// @brief Returns typelist with I-th type
 	/// @tparam I - index of type to get
@@ -369,7 +375,6 @@ public:
 	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto distinct() {
 		if constexpr (SIZE != 0 && Begin >= SIZE) {
-			TL_ERROR("TypeList::distinct: Begin out of range");
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This{};
 		} else {
@@ -394,8 +399,12 @@ public:
 	/// @tparam Count - max length of range to filter
 	template<auto Pred, size_t Begin = 0, size_t Count = npos>
 	static consteval auto filter() {
-		static_assert(SIZE == 0 || Begin <= SIZE, "TypeList::filter: Begin out of range");
-		return eraseIf<[](auto tl) { return !Pred(tl); }, Begin, Count>();
+		return eraseIf<
+			[](auto tl) {
+				return !Pred(tl);
+			},
+			Begin,
+			Count>();
 	}
 
 	/// @brief Retains types for which predicate returned true, erasing the rest
@@ -404,7 +413,6 @@ public:
 	/// @tparam Count - max length of range to filter
 	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
 	static consteval auto filter() {
-		static_assert(SIZE == 0 || Begin <= SIZE, "TypeList::filter: Begin out of range");
 		return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
 	}
 
@@ -414,7 +422,6 @@ public:
 	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto reverse() {
 		if constexpr (Begin >= SIZE) {
-			TL_ERROR("TypeList::reverse: Begin out of range");
 			return typelist<>;
 		} else {
 			constexpr auto reverseEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
@@ -438,7 +445,6 @@ public:
 	template<auto Fn, size_t Begin = 0, size_t Count = npos>
 	static consteval auto transform() {
 		if constexpr (Begin >= SIZE) {
-			TL_ERROR("TypeList::transform: Begin out of range");
 			return typelist<>;
 		} else {
 			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
@@ -465,7 +471,6 @@ public:
 	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
 	static consteval auto transform() {
 		if constexpr (Begin >= SIZE) {
-			TL_ERROR("TypeList::transform: Begin out of range");
 			return typelist<>;
 		} else {
 			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
