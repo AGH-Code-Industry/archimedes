@@ -25,13 +25,13 @@ namespace arch::utils {
 /// @brief Compares two typelists
 template<class... Types, class... Types2>
 static consteval auto operator==(TypeList<Types...>, TypeList<Types2...>) {
-	return std::same_as<TypeList<Types...>, TypeList<Types2...>>;
+	return std::is_same_v<TypeList<Types...>, TypeList<Types2...>>;
 }
 
 /// @brief Compares two typelists
 template<class... Types, class... Types2>
 static consteval auto operator!=(TypeList<Types...>, TypeList<Types2...>) {
-	return !std::same_as<TypeList<Types...>, TypeList<Types2...>>;
+	return !std::is_same_v<TypeList<Types...>, TypeList<Types2...>>;
 }
 
 template<class... Types>
@@ -301,7 +301,10 @@ public:
 	/// @param other - typelist with types to find
 	template<class... Types2>
 	static consteval auto containsAll(TypeList<Types2...>) {
-		return (... && contains(TypeList<Types2>())); // fold search
+		constexpr auto containsSingle = []<class T>(TypeList<T>) {
+			return (std::is_same_v<T, Types> || ...);
+		};
+		return (... && containsSingle(typelist<Types2>)); // fold search
 	}
 
 	/// @brief Checks if typelist starts with given type sequence

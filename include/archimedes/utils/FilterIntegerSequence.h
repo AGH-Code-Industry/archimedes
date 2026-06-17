@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ranges>
 #include <utility>
 
 namespace arch::utils {
@@ -25,9 +24,9 @@ consteval auto filterIntegerSequence(std::integer_sequence<T, Indexes...>) {
 	constexpr auto result = [&] { // makes the result array
 		std::array<T, keepCount> result;
 		size_t i = 0;
-		for (auto [m, idx] : std::views::zip(mask, indexes)) {
-			if (m) {
-				result[i++] = idx;
+		for (size_t j = 0; j != mask.size(); ++j) {
+			if (mask[j]) {
+				result[i++] = indexes[j];
 			}
 		}
 		return result;
