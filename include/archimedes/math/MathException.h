@@ -13,9 +13,7 @@ public:
 	/// @param message Message of the exception.
 	/// @param location Source location of the exception.
 	///
-	MathException(const std::string& message, const std::source_location& location = std::source_location::current())
-	: Exception("Math", message, location) {};
+	MathException(const std::string& message, const std::source_location& location = std::source_location::current());
 };
 
-using Exception = MathException;
 } // namespace arch::math

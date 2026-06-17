@@ -3,8 +3,8 @@
 #include <iostream>
 #include <random>
 
-#include <include/archimedes/math/MathException.h>
-#include <include/archimedes/math/PerlinNoise2D.h>
+#include <archimedes/math/MathException.h>
+#include <archimedes/math/PerlinNoise2D.h>
 
 namespace arch::math {
 
@@ -32,10 +32,10 @@ f32 PerlinNoise2D::_getOffset(i32 X, i32 Y) const {
 	return _offsets[X][Y];
 }
 
-i32 PerlinNoise2D::_getHash(i32 X, i32 Y) const {
-	X %= _permutation.size();
-	Y %= _permutation.size();
-	i32 index = (_permutation[X] + Y) % _permutation.size();
+i32 PerlinNoise2D::_getHash(i32 x, i32 y) const {
+	x %= _permutation.size();
+	y %= _permutation.size();
+	i32 index = (_permutation[x] + y) % _permutation.size();
 	return _permutation[index];
 }
 
@@ -105,9 +105,6 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
 }
 
 f32 PerlinNoise2D::generate(f32 x, f32 y) {
-	if (octaves <= 0) {
-		throw MathException("Perlin Noise: number of octaves should be greater than 0");
-	}
 	f32 result = 0.0f;
 	for (i32 octave = 0; octave < octaves; octave++) {
 		result += amplitude * _generateOctave(x * frequency, y * frequency);
