@@ -1,5 +1,5 @@
 #include <archimedes/ecs/Domain.h>
-#include <archimedes/ecs/View.h>
+#include <archimedes/ecs/view/View.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/System.h>
 #include <archimedes/physics/components/Colliding.h>
@@ -93,12 +93,12 @@ void System::_collisionDetection(f32 t) const {
 		}
 
 		const ecs::Entity lhs = *lhsIt;
-		auto [c1] = viewColliding.get(lhs);
+		auto [c1] = viewColliding.comps(lhs);
 
 		for (auto rhsIt = std::next(lhsIt); rhsIt != viewColliding.end(); ++rhsIt) {
 			const ecs::Entity rhs = *rhsIt;
 
-			if (auto [c2] = viewColliding.get(rhs); areColliding(c1.box, c2.box)) {
+			if (auto [c2] = viewColliding.comps(rhs); areColliding(c1.box, c2.box)) {
 				c1.action(lhs, rhs);
 			}
 		}
