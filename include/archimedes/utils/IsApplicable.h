@@ -3,6 +3,8 @@
 #include <tuple>
 #include <type_traits>
 
+#include <archimedes/utils/TypeList.h>
+
 namespace arch::utils {
 
 /// @brief Type trait, based on std::is_invocable
@@ -16,6 +18,9 @@ struct IsApplicable: public std::false_type {};
 /// @tparam Args - arguments to pass to function
 template<class Fn, class... Args>
 struct IsApplicable<Fn, std::tuple<Args...>>: public std::is_invocable<Fn, Args...> {};
+
+template<class Fn, class... Args>
+struct IsApplicable<Fn, TypeList<Args...>>: public std::is_invocable<Fn, Args...> {};
 
 /// @brief Helper value of IsApplicable
 /// @tparam Fn - function type
