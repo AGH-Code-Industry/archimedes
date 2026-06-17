@@ -2,7 +2,7 @@
 
 #include "Domain.h"
 //
-#include "View.h"
+#include "view/View.h"
 
 namespace arch::ecs {
 
@@ -132,17 +132,17 @@ size_t Domain::count() const noexcept {
 
 template<class... Includes, class... Excludes>
 auto Domain::view(ExcludeT<Excludes...>) noexcept {
-	return View<TypeList<Includes...>, TypeList<std::remove_const_t<Excludes>...>>(this);
+	return View<TypeList<Includes...>, TypeList<std::remove_const_t<Excludes>...>>(*this);
 }
 
 template<class... Includes, class... Excludes>
 auto Domain::readonlyView(ExcludeT<Excludes...>) const noexcept {
-	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(this);
+	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(*this);
 }
 
 template<class... Includes, class... Excludes>
 auto Domain::view(ExcludeT<Excludes...>) const noexcept {
-	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(this);
+	return View<TypeList<std::add_const_t<Includes>...>, TypeList<std::remove_const_t<Excludes>...>>(*this);
 }
 
 template<class T>

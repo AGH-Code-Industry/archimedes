@@ -5,10 +5,10 @@
 
 #include "ComponentPool.h"
 #include "EntityPool.h"
-#include "ExcludeT.h"
-#include "ViewFwd.h"
+#include "view/ExcludeT.h"
+#include "view/ViewFwd.h"
 #include <archimedes/meta/Rtti.h>
-#include <archimedes/tUtils/TypeList.h>
+#include <archimedes/utils/TypeList.h>
 
 namespace arch::ecs {
 
