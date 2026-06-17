@@ -1,6 +1,6 @@
 #pragma once
 
-#include <archimedes/tUtils/TypeList.h>
+#include <archimedes/utils/TypeList.h>
 
 namespace arch::ecs {
 
