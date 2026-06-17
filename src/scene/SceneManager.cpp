@@ -1,5 +1,5 @@
-#include <ranges>
 #include <algorithm>
+#include <ranges>
 
 #include <archimedes/Ecs.h>
 #include <archimedes/scene/Components.h>
@@ -36,12 +36,11 @@ void SceneManager::renderScene(const Ref<gfx::Renderer>& renderer) {
 
 		std::vector<RenderInfo> renderInfo;
 
-		for (auto [entity, transform, mesh] :
-			 domain.view<components::TransformComponent, components::MeshComponent>().all()) {
+		for (auto [transform, mesh] :
+			 domain.view<components::TransformComponent, components::MeshComponent>().comps()) {
 			renderInfo.emplace_back(mesh.mesh.get(), &mesh.pipeline, &transform);
 		}
-		for (auto [entity, transform, text] :
-			 domain.view<components::TransformComponent, text::TextComponent>().all()) {
+		for (auto [transform, text] : domain.view<components::TransformComponent, text::TextComponent>().comps()) {
 			renderInfo.emplace_back(text.mesh().get(), &text.pipeline(), &transform);
 		}
 
