@@ -7,19 +7,21 @@
 #include "CommonComponentPool.h"
 #include "Entity.h"
 #include "ViewFwd.h"
-#include <archimedes/tUtils/TypeList.h>
+#include <archimedes/utils/TypeList.h>
 
 namespace arch::ecs {
 
 /// @brief Iterator of View
+/// @tparam ...Includes - component types to include
 /// @tparam ...Excludes - component types to exclude
-template<class... Excludes>
-class ViewIterator<TypeList<>, TypeList<Excludes...>> {
+template<class... Includes, class... Excludes>
+class ViewIterator<TypeList<Includes...>, TypeList<Excludes...>> {
 public:
+
 	/// @brief Count of included components
-	static constexpr size_t includeCount = 0;
+	static constexpr auto includes = typelist<Includes...>;
 	/// @brief Count of excluded components
-	static constexpr size_t excludeCount = sizeof...(Excludes);
+	static constexpr auto excludes = typelist<Excludes...>;
 
 	/// @brief Default constructor
 	ViewIterator() noexcept = default;
@@ -27,7 +29,11 @@ public:
 	/// @param view - pointer to View (usually this)
 	/// @param i - offset of _dense
 	/// @param valid - whether View is valid
-	ViewIterator(const View<TypeList<>, TypeList<Excludes...>>* view, const size_t i) noexcept;
+	ViewIterator(
+		const View<TypeList<Includes...>, TypeList<Excludes...>>* view,
+		const size_t i,
+		const bool valid
+	) noexcept;
 
 	/// @brief Copy constructor
 	ViewIterator(const ViewIterator&) noexcept = default;
@@ -58,9 +64,15 @@ public:
 	/// @brief Comparision operator
 	auto operator<=>(const ViewIterator& other) const noexcept;
 
-private:
+	// private:
+
+	// cpool ptrs
+	using CArrIt = std::array<_details::CommonComponentPool*, includes.size()>::const_iterator;
 	// excluded cpool ptrs
-	using ExArrIt = std::array<const _details::CommonComponentPool*, excludeCount>::const_iterator;
+	using ExArrIt = std::array<const _details::CommonComponentPool*, excludes.size()>::const_iterator;
+
+	// iters to included cpools (middle - _cpools[_minIdx])
+	CArrIt _begin{}, _middle{}, _end{};
 
 	// iters to _dense
 	const Entity* _denseBegin{};
@@ -73,4 +85,21 @@ private:
 
 } // namespace arch::ecs
 
-#include "ExcludingViewIterator.hpp"
+/// @brief Iterator traits for ViewIterator
+/// @tparam I - TypeList<Includes...>
+/// @tparam E - TypeList<Excludes...>
+template<class I, class E>
+struct std::iterator_traits<arch::ecs::ViewIterator<I, E>> {
+	using iterator_category = std::bidirectional_iterator_tag;
+	using value_type = arch::ecs::Entity;
+	using difference_type = ptrdiff_t;
+	using pointer = const value_type*;
+	using reference = value_type;
+};
+
+// ViewIterator models bidirectional_iterator
+static_assert(
+	std::bidirectional_iterator<arch::ecs::ViewIterator<arch::TypeList<int, float, double>, arch::TypeList<>>>
+);
+
+#include "ViewIterator.hpp"

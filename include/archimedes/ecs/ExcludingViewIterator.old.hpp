@@ -14,7 +14,7 @@ ITER_E::ViewIterator(const View<TypeList<>, TypeList<Excludes...>>* view, const 
 	_denseEnd{ std::to_address(view->_pool->_dense.cend()) },
 	_exBegin{ view->_excludedCpools.cbegin() },
 	_exEnd{ view->_excludedCpools.cend() } {
-	if constexpr (excludeCount != 0) {
+	if constexpr (excludes.size() != 0) {
 		if (i == 0) {
 			while (_denseI != _denseEnd &&
 				   std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept {
@@ -29,7 +29,7 @@ ITER_E::ViewIterator(const View<TypeList<>, TypeList<Excludes...>>* view, const 
 TEMPLATE_E
 ITER_E& ITER_E::operator++() noexcept {
 	++_denseI;
-	if constexpr (excludeCount != 0) {
+	if constexpr (excludes.size() != 0) {
 		while (_denseI != _denseEnd && std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept {
 				   return cpool && cpool->contains(entity);
 			   })) {
@@ -49,7 +49,7 @@ ITER_E ITER_E::operator++(int) noexcept {
 TEMPLATE_E
 ITER_E& ITER_E::operator--() noexcept {
 	--_denseI;
-	if constexpr (excludeCount != 0) {
+	if constexpr (excludes.size() != 0) {
 		while (_denseI != _denseBegin && std::any_of(_exBegin, _exEnd, [entity = *_denseI](const auto cpool) noexcept {
 				   return cpool && cpool->contains(entity);
 			   })) {

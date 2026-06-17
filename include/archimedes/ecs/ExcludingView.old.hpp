@@ -4,9 +4,9 @@
 
 #include "Domain.h"
 #include "IsEntity.h"
-#include <archimedes/tUtils/Functions/CallableTraits.h>
-#include <archimedes/tUtils/Functions/IsApplicable.h>
 #include <archimedes/tUtils/LogicalTraits.h>
+#include <archimedes/utils/CallableTraits.h>
+#include <archimedes/utils/IsApplicable.h>
 
 #define TEMPLATE_E template<class... Excludes>
 #define VIEW_E View<TypeList<>, TypeList<Excludes...>>
@@ -41,9 +41,7 @@ VIEW_E::Iterator VIEW_E::cend() const noexcept {
 TEMPLATE_E
 template<class Fn>
 void VIEW_E::forEach(Fn&& fn) noexcept {
-	using Traits = tUtils::CallableTraits<Fn>;
-
-	static_assert(tUtils::isApplicableV<Fn, std::tuple<Entity>>);
+	static_assert(utils::isApplicableV<Fn, TypeList<Entity>>);
 
 	for (auto entity : *this) {
 		fn(entity);

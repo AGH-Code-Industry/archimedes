@@ -17,19 +17,13 @@ template<class... Includes, class... Excludes>
 class View<TypeList<Includes...>, TypeList<Excludes...>>:
 	public std::ranges::view_interface<View<TypeList<Includes...>, TypeList<Excludes...>>> {
 public:
-
-	/// @brief Count of included components
-	static constexpr size_t includeCount = sizeof...(Includes);
-	/// @brief Count of excluded components
-	static constexpr size_t excludeCount = sizeof...(Excludes);
-
 	/// @brief Iterator type
 	using Iterator = ViewIterator<TypeList<Includes...>, TypeList<Excludes...>>;
 
 	/// @brief TypeList of Includes
-	using IncludeTL = TypeList<Includes...>;
+	static constexpr auto includes = typelist<Includes...>;
 	/// @brief TypeList of Excludes
-	using ExcludeTL = TypeList<Excludes...>;
+	static constexpr auto excludes = typelist<Excludes...>;
 
 	/// @brief Domain constructor
 	/// @param domain - domain pointer to make View of
@@ -70,7 +64,7 @@ public:
 	/// @return (u32)-1 if view is invalid
 	u32 minCPool() const noexcept;
 
-private:
+	// private:
 
 	template<class, class>
 	friend class ViewIterator;
@@ -84,7 +78,7 @@ private:
 	};
 
 	// non flag components
-	using GetTL = IncludeTL::template eraseIf<_details::FlagComponentPred>;
+	static constexpr auto getTL = includes.eraseIf<_details::FlagComponentPred>();
 
 	// passing TypeList, allows for folding of Cs...
 	template<class... Cs>
@@ -102,9 +96,9 @@ private:
 	u32 _getMinIdx() const noexcept;
 
 	// included cpools
-	using CPools = std::array<_details::CommonComponentPool*, includeCount>;
+	using CPools = std::array<_details::CommonComponentPool*, includes.size()>;
 	// excluded cpools
-	using ExCPools = std::array<const _details::CommonComponentPool*, excludeCount>;
+	using ExCPools = std::array<const _details::CommonComponentPool*, excludes.size()>;
 
 	CPools _cpools{};
 	ExCPools _excludedCpools{};
