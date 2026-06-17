@@ -3,7 +3,7 @@
 #include <concepts>
 
 #include "Entity.h"
-#include <archimedes/tUtils/TypeList.h>
+#include <archimedes/utils/TypeList.h>
 
 namespace arch::ecs::_details {
 
