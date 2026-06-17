@@ -6,6 +6,11 @@
 
 namespace arch::utils::details {
 
+template<class T>
+struct TypeWrapper {
+	using type = T;
+};
+
 /// @brief Helper for static_asserts, disables false-positives
 template<size_t>
 inline constexpr bool alwaysFalse = false;
@@ -51,7 +56,8 @@ struct TLGetFn<std::index_sequence<Indexes...>> {
 /// @todo Use pack indexing instead of pointer-hacks once (or maybe 'if' XD) C++26 arrives
 template<size_t I, class... Types>
 struct TLGet {
-	using type = std::remove_pointer_t<decltype(TLGetFn<std::make_index_sequence<I>>::fn(((Types*)nullptr)...))>;
+	using type = typename std::remove_pointer_t<
+		decltype(TLGetFn<std::make_index_sequence<I>>::fn(((TypeWrapper<Types>*)nullptr)...))>::type;
 };
 
 /// @brief Nots given boolean UnaryTypeTrait
