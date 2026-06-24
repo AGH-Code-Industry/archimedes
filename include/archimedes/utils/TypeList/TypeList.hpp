@@ -6,6 +6,7 @@
 
 namespace arch::utils::details {
 
+/// @brief Helper class to bypass pointers to reference
 template<class T>
 struct TypeWrapper {
 	using type = T;
