@@ -48,7 +48,7 @@ public:
 
 	ViewIterator operator--(int) noexcept;
 
-	// private:
+private:
 
 	using Traits = ecs::_details::EntityTraits::Version;
 

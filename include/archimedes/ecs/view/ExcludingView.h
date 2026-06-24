@@ -33,7 +33,7 @@ public:
 
 	bool contains(const Entity entity) const noexcept;
 
-	// private:
+private:
 
 	using Traits = _details::EntityTraits::Version;
 

@@ -39,7 +39,7 @@ public:
 
 	u32 minCPool() const noexcept;
 
-	// private:
+private:
 
 	using Traits = _details::EntityTraits::Version;
 
