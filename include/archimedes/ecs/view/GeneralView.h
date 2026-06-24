@@ -54,6 +54,8 @@ private:
 	template<class... Cs>
 	auto _comps(const Entity entity, TypeList<Cs...> wanted) noexcept;
 
+	static consteval auto _nonFlags();
+
 	template<class, class>
 	friend class ViewIterator;
 
