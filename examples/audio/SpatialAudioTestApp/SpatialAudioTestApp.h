@@ -82,7 +82,7 @@ struct SpatialAudioTestApp: Application {
 		auto view =
 			domain.view<scene::components::TransformComponent, physics::Moveable, audio::AudioSourceComponent>();
 
-		for (auto [entity, transform, moveable, audioSource] : view.withEntity()) {
+		for (auto [entity, transform, moveable, audioSource] : view.entityComps()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
 			transform.position.x = listenerPosition.x + radius * std::cos(angle);
 			transform.position.y = listenerPosition.y + radius * std::sin(angle);

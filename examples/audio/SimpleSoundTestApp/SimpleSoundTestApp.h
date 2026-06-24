@@ -34,7 +34,7 @@ struct SimpleSoundTestApp: Application {
 	void removeInactive(ecs::Domain& domain) {
 		std::vector<ecs::Entity> toRemove;
 		auto view = domain.view<audio::AudioSourceComponent>();
-		for (auto [entity, source] : view.withEntity()) {
+		for (auto [entity, source] : view.entityComps()) {
 			if (soundManager.audioManager->getState(source) == audio::SourceState::unused) {
 				toRemove.push_back(entity);
 			}

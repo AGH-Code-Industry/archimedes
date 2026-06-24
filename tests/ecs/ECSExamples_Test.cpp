@@ -346,8 +346,8 @@ TEST(ECS, Example_ViewsSimple) {
 		break; // exit for
 	}
 
-	// option 2. use view.withEntity()
-	for (auto&& [entity, pos, vel] : viewPosVel.withEntity()) {
+	// option 2. use view.entityComps()
+	for (auto&& [entity, pos, vel] : viewPosVel.entityComps()) {
 		pos.x += vel.x;
 		pos.y += vel.y;
 

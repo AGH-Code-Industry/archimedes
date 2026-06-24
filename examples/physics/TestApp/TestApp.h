@@ -120,7 +120,7 @@ struct PhysicsTestApp final: Application {
 						->domain()
 						.view<scene::components::TransformComponent, phy::Colliding>();
 
-		for (auto [entity, transform, colliding] : view.withEntity()) {
+		for (auto [entity, transform, colliding] : view.entityComps()) {
 			transform.position = { colliding.body.center.position, 0 };
 		}
 

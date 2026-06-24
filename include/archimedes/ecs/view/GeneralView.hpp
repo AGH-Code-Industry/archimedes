@@ -173,10 +173,10 @@ auto VIEW_IE::_comps(TypeList<Cs...> wanted) noexcept {
 }
 
 TEMPLATE_IE
-auto VIEW_IE::withEntity() noexcept {
 	constexpr auto nonFlags = includes.eraseIf<[]<class T>(TypeList<T>) {
 		return _details::ComponentTraits<T>::flag;
 	}>();
+auto VIEW_IE::entityComps() noexcept {
 	if constexpr (includes.size() == 1) {
 		static_assert(nonFlags.size() != 0, "Cannot call comps() on flag-only views");
 		constexpr auto cpool = nonFlags.transform<[]<class T>(TypeList<T> c) {
@@ -197,13 +197,12 @@ auto VIEW_IE::withEntity() noexcept {
 			return std::views::zip(std::views::all(*this), std::views::all(dummy));
 		}
 	} else {
-		return _withEntity(nonFlags);
+		return _entityComps(nonFlags);
 	}
 }
 
 TEMPLATE_IE
 template<class... Cs>
-auto VIEW_IE::_withEntity(TypeList<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform<[]<class T>(TypeList<T> c) {
 		if constexpr (c.apply<std::is_const>()) {
 			return typelist<const ComponentPool<std::remove_const_t<T>>*>;
@@ -211,6 +210,7 @@ auto VIEW_IE::_withEntity(TypeList<Cs...> wanted) noexcept {
 			return typelist<ComponentPool<T>*>;
 		}
 	}>();
+auto VIEW_IE::_entityComps(TypeList<Cs...> wanted) noexcept {
 
 	return (*this) | std::views::all | std::views::transform([this](const Entity entity) {
 			   return std::tuple_cat(

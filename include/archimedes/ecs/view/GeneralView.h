@@ -32,7 +32,7 @@ public:
 	void forEach(auto&& fn);
 
 	auto comps() noexcept;
-	auto withEntity() noexcept;
+	auto entityComps() noexcept;
 
 	auto comps(const Entity entity) noexcept;
 	bool contains(const Entity entity) const noexcept;
@@ -50,7 +50,7 @@ public:
 	template<class... Cs>
 	auto _comps(TypeList<Cs...> wanted) noexcept;
 	template<class... Cs>
-	auto _withEntity(TypeList<Cs...> wanted) noexcept;
+	auto _entityComps(TypeList<Cs...> wanted) noexcept;
 	template<class... Cs>
 	auto _comps(const Entity entity, TypeList<Cs...> wanted) noexcept;
 

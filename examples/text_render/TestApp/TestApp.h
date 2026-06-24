@@ -117,7 +117,7 @@ class TextRenderTestApp: public Application {
 	void update() {
 		auto viewPosVel = scene::SceneManager::get()->currentScene()->domain().view<Pos, Vel>();
 
-		for (auto&& [entity, pos, vel] : viewPosVel.withEntity()) {
+		for (auto&& [entity, pos, vel] : viewPosVel.entityComps()) {
 			pos.x += vel.x;
 			pos.y += vel.y;
 		}
@@ -140,7 +140,7 @@ class TextRenderTestApp: public Application {
 											   ->currentScene()
 											   ->domain()
 											   .view<scene::components::TransformComponent, text::TextComponent>()
-											   .withEntity()) {
+											   .entityComps()) {
 			auto scale = 100.f * (cos(frame) + 1) / 2.f;
 			transform.scale = { scale, scale, 0.f };
 		}
