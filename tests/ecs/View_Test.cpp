@@ -16,13 +16,9 @@ struct NormalComponent {
 	int value = 0;
 };
 
-struct InPlaceComponent: NormalComponent {
-	static constexpr bool inPlaceComponent = true;
-};
+struct InPlaceComponent: NormalComponent, ecs::InPlaceComponent {};
 
-struct FlagComponent {
-	static constexpr bool flagComponent = true;
-};
+struct FlagComponent: ecs::FlagComponent {};
 
 } // namespace
 
