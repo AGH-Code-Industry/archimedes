@@ -229,6 +229,27 @@ auto VIEW_IE::_comps(const Entity entity, TypeList<Cs...> wanted) noexcept {
 }
 
 TEMPLATE_IE
+auto VIEW_IE::compsOpt(const Entity entity) noexcept {
+	return _comps(entity, _nonFlags());
+}
+
+TEMPLATE_IE
+template<class... Cs>
+auto VIEW_IE::_compsOpt(const Entity entity, TypeList<Cs...> wanted) noexcept
+	-> std::optional<decltype(_comps(entity, wanted))> {
+	if (!contains(entity)) {
+		return std::nullopt;
+	}
+
+	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+
+	return std::tie(
+		reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(_cpools[includes.find(typelist<Cs>)])
+			->get(entity)...
+	);
+}
+
+TEMPLATE_IE
 bool VIEW_IE::contains(const Entity entity) const noexcept {
 	auto contains = [&](const auto cpool) {
 		return cpool && cpool->contains(entity);

@@ -40,6 +40,7 @@ public:
 	auto entityComps() noexcept;
 
 	auto comps(const Entity entity) noexcept;
+	auto compsOpt(const Entity entity) noexcept;
 	bool contains(const Entity entity) const noexcept;
 
 	u32 minCPool() const noexcept;
@@ -60,6 +61,9 @@ private:
 	auto _comps(const Entity entity, TypeList<Cs...> wanted) noexcept;
 
 	static consteval auto _nonFlags();
+	template<class... Cs>
+	auto _compsOpt(const Entity entity, TypeList<Cs...> wanted) noexcept
+		-> std::optional<decltype(_comps(entity, wanted))>;
 
 	template<class, class>
 	friend class ViewIterator;
