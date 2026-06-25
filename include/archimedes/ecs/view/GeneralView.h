@@ -23,6 +23,11 @@ public:
 	static constexpr auto includes = typelist<Includes...>;
 	static constexpr auto excludes = typelist<Excludes...>;
 
+	static_assert(
+		!typelist<std::remove_const_t<Includes>...>.containsAny(typelist<std::remove_const_t<Excludes>...>),
+		"Includes and Excludes overlap"
+	);
+
 	View() noexcept = default;
 	View(Domain& domain) noexcept;
 

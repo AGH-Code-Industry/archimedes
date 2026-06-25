@@ -123,15 +123,17 @@ TEST(ECS, View_EmptyWithExclude) {
 	}
 
 	// are the below views emtpy as they should be?
-	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<NormalComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<InPlaceComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<FlagComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<NormalComponent>)));
-	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<InPlaceComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<FlagComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<NormalComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<InPlaceComponent>)));
-	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<FlagComponent>)));
+
+	// Below would not compile, as overlapping views do not make sense
+	// ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<NormalComponent>)));
+	// ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<InPlaceComponent>)));
+	// ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<FlagComponent>)));
 }
 
 TEST(ECS, View_AfterRemoval) {
