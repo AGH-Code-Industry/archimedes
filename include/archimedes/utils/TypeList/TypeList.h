@@ -307,6 +307,16 @@ public:
 		return (... && containsSingle(typelist<Types2>)); // fold search
 	}
 
+	/// @brief Checks if typelist contains all types from sequence
+	/// @param other - typelist with types to find
+	template<class... Types2>
+	static consteval auto containsAny(TypeList<Types2...>) {
+		constexpr auto containsSingle = []<class T>(TypeList<T>) {
+			return (std::is_same_v<T, Types> || ...);
+		};
+		return (... || containsSingle(typelist<Types2>)); // fold search
+	}
+
 	/// @brief Checks if typelist starts with given type sequence
 	/// @param other - typelist to find
 	template<class... Types2>
