@@ -10,8 +10,6 @@
 using namespace arch;
 
 class PerlinNoise2DTestApp: public Application {
-	Ref<math::PerlinNoise2D> noise2D;
-
 	void init() override {
 		Ref<Scene> scene = createRef<Scene>();
 
@@ -40,8 +38,7 @@ class PerlinNoise2DTestApp: public Application {
 		// Create camera
 		auto&& camera = scene->domain().global<Camera>();
 
-		noise2D = createRef<math::PerlinNoise2D>(100, 0.0f, 0.1f);
-
+		PerlinNoise2D::initialize(100, 0.0f, 0.1f);
 	}
 
 	void update() {
@@ -53,7 +50,7 @@ class PerlinNoise2DTestApp: public Application {
 		math::f32 y = 0.01f;
 
 		if (input::Keyboard::space.down()){
-			f32 z = noise2D->generate(x, y);
+			f32 z = PerlinNoise2D::generate(x, y);
 			Logger::info("generated value: {}", z);
 		}
 

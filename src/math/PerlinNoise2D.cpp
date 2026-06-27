@@ -26,14 +26,14 @@ void PerlinNoise2D::_createOffsets(i32 size) {
 	}
 }
 
-f32 PerlinNoise2D::_getOffset(i32 x, i32 y) const {
+f32 PerlinNoise2D::_getOffset(i32 x, i32 y) {
 	i32 size = _offsets.size();
 	x = (x + size) % size;
 	y = (y + size) % size;
 	return _offsets[x][y];
 }
 
-i32 PerlinNoise2D::_getHash(i32 x, i32 y) const {
+i32 PerlinNoise2D::_getHash(i32 x, i32 y) {
 	i32 size = _permutation.size();
 	x = (x + size) % size;
 	y = (y + size) % size;
@@ -46,14 +46,15 @@ f32 PerlinNoise2D::_fade(f32 t)
     return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
 
-i32 PerlinNoise2D::_getSeed() const {
+i32 PerlinNoise2D::_getSeed() {
     return (i32)std::chrono::system_clock::now().time_since_epoch().count();
 }
 
-PerlinNoise2D::PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset):
-	PerlinNoise2D(permutationSize, minOffset, maxOffset, _getSeed()) {}
+void PerlinNoise2D::initialize(i32 permutationSize, f32 minOffset, f32 maxOffset){
+	initialize(permutationSize, minOffset, maxOffset, _getSeed());
+}
 
-PerlinNoise2D::PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed) {
+void PerlinNoise2D::initialize(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed) {
 	_rng.seed(seed);
 
 	if (minOffset > maxOffset) {
@@ -66,7 +67,7 @@ PerlinNoise2D::PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset, 
 	_createOffsets(permutationSize);
 }
 
-GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) const {
+GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) {
     const f32 xFloor = floor(x);
     const f32 yFloor = floor(y);
 
@@ -87,7 +88,7 @@ f32 PerlinNoise2D::_cornerContribution(
     const GridCell& cell,
     i32 offsetX,
     i32 offsetY
-) const {
+) {
     const i32 hash = _getHash(cell.gridX + offsetX, cell.gridY + offsetY);
 
     const float2 distance = {
@@ -110,7 +111,7 @@ f32 PerlinNoise2D::_interpolateCell(
     f32 topRight,
     f32 localX,
     f32 localY
-) const {
+) {
     const f32 percentageX = _fade(localX);
     const f32 percentageY = _fade(localY);
 
@@ -120,7 +121,7 @@ f32 PerlinNoise2D::_interpolateCell(
     return glm::mix(left, right, percentageX);
 }
 
-f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
+f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
     const GridCell cell = _getGridCell(x, y);
 
     const f32 bottomLeft  = _cornerContribution(cell, 0, 0);
