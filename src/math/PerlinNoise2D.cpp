@@ -26,16 +26,18 @@ void PerlinNoise2D::_createOffsets(i32 size) {
 	}
 }
 
-f32 PerlinNoise2D::_getOffset(i32 X, i32 Y) const {
-	X %= _offsets.size();
-	Y %= _offsets.size();
-	return _offsets[X][Y];
+f32 PerlinNoise2D::_getOffset(i32 x, i32 y) const {
+	i32 size = _offsets.size();
+	x = (x + size) % size;
+	y = (y + size) % size;
+	return _offsets[x][y];
 }
 
 i32 PerlinNoise2D::_getHash(i32 x, i32 y) const {
-	x %= _permutation.size();
-	y %= _permutation.size();
-	i32 index = (_permutation[x] + y) % _permutation.size();
+	i32 size = _permutation.size();
+	x = (x + size) % size;
+	y = (y + size) % size;
+	i32 index = (_permutation[x] + y) % size;
 	return _permutation[index];
 }
 
@@ -68,8 +70,9 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
 	f32 xRounded = floor(x);
 	f32 yRounded = floor(y);
 
-	i32 gridX = (i32)(xRounded) % _permutation.size();
-	i32 gridY = (i32)(yRounded) % _permutation.size();
+	i32 permutationSize = _permutation.size();
+	i32 gridX = ((i32)xRounded + permutationSize) % permutationSize;
+	i32 gridY = ((i32)yRounded + permutationSize) % permutationSize;
 
 	f32 cellX = x - xRounded;
 	f32 cellY = y - yRounded;
@@ -106,10 +109,12 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
 
 f32 PerlinNoise2D::generate(f32 x, f32 y) {
 	f32 result = 0.0f;
+	f32 currentFrequency = baseFrequency;
+	f32 currentAmplitude = baseAmplitude;
 	for (i32 octave = 0; octave < octaves; octave++) {
-		result += amplitude * _generateOctave(x * frequency, y * frequency);
-		amplitude *= amplitudeFactor;
-		frequency *= frequencyFactor;
+		result += currentAmplitude * _generateOctave(x * currentFrequency, y * currentFrequency);
+		currentAmplitude *= amplitudeFactor;
+		currentFrequency *= frequencyFactor;
 	}
 	result = std::clamp(result, minResult, maxResult);
 	return result;

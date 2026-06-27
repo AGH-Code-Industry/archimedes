@@ -29,8 +29,8 @@ class PerlinNoise2D
 
 public:
     i32 octaves = 6;
-    f32 amplitude = 0.6f;
-    f32 frequency = 0.005f;
+    f32 baseAmplitude = 0.6f;
+    f32 baseFrequency = 0.005f;
     f32 amplitudeFactor = 0.5f;
     f32 frequencyFactor = 2.0f;
     f32 minResult = -1.0f;
