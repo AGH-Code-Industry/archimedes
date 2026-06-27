@@ -5,6 +5,14 @@
 
 
 namespace arch::math {
+
+struct GridCell {
+    i32 gridX;
+    i32 gridY;
+    f32 localX;
+    f32 localY;
+};
+
 class PerlinNoise2D
 {
     std::mt19937 _rng;
@@ -26,6 +34,10 @@ class PerlinNoise2D
     f32 _getOffset(i32 x, i32 y) const;
     static f32 _fade(f32 t);
     f32 _generateOctave(f32 x, f32 y) const;
+
+    GridCell _getGridCell(f32 x, f32 y) const;
+    f32 _cornerContribution(const GridCell& cell, i32 offsetX, i32 offsetY) const;
+    f32 _interpolateCell(f32 bottomLeft, f32 bottomRight, f32 topLeft, f32 topRight, f32 localX, f32 localY) const;
 
 public:
     i32 octaves = 6;

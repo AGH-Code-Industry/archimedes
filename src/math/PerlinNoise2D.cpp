@@ -66,44 +66,75 @@ PerlinNoise2D::PerlinNoise2D(i32 permutationSize, f32 minOffset, f32 maxOffset, 
 	_createOffsets(permutationSize);
 }
 
+GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) const {
+    const f32 xFloor = floor(x);
+    const f32 yFloor = floor(y);
+
+    const i32 permutationSize = (i32)_permutation.size();
+
+    const i32 gridX = ((i32)xFloor + permutationSize) % permutationSize;
+    const i32 gridY = ((i32)yFloor + permutationSize) % permutationSize;
+
+    return {
+        gridX,
+        gridY,
+        x - xFloor,
+        y - yFloor
+    };
+}
+
+f32 PerlinNoise2D::_cornerContribution(
+    const GridCell& cell,
+    i32 offsetX,
+    i32 offsetY
+) const {
+    const i32 hash = _getHash(cell.gridX + offsetX, cell.gridY + offsetY);
+
+    const float2 distance = {
+        cell.localX - (f32)offsetX,
+        cell.localY - (f32)offsetY
+    };
+
+    const f32 gradientDot = glm::dot(
+        distance,
+        _constantVectors[hash % 4]
+    );
+
+    return gradientDot + _getOffset(cell.gridX + offsetX, cell.gridY + offsetY);
+}
+
+f32 PerlinNoise2D::_interpolateCell(
+    f32 bottomLeft,
+    f32 bottomRight,
+    f32 topLeft,
+    f32 topRight,
+    f32 localX,
+    f32 localY
+) const {
+    const f32 percentageX = _fade(localX);
+    const f32 percentageY = _fade(localY);
+
+    const f32 left = glm::mix(bottomLeft, topLeft, percentageY);
+    const f32 right = glm::mix(bottomRight, topRight, percentageY);
+
+    return glm::mix(left, right, percentageX);
+}
+
 f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
-	f32 xRounded = floor(x);
-	f32 yRounded = floor(y);
+    const GridCell cell = _getGridCell(x, y);
 
-	i32 permutationSize = _permutation.size();
-	i32 gridX = ((i32)xRounded + permutationSize) % permutationSize;
-	i32 gridY = ((i32)yRounded + permutationSize) % permutationSize;
+    const f32 bottomLeft  = _cornerContribution(cell, 0, 0);
+    const f32 bottomRight = _cornerContribution(cell, 1, 0);
+    const f32 topLeft     = _cornerContribution(cell, 0, 1);
+    const f32 topRight    = _cornerContribution(cell, 1, 1);
 
-	f32 cellX = x - xRounded;
-	f32 cellY = y - yRounded;
-
-	float2 topRight = {cellX - 1.0f, cellY - 1.0f};
-	float2 topLeft = {cellX, cellY - 1.0f};
-	float2 bottomRight = {cellX - 1.0f, cellY};
-	float2 bottomLeft = {cellX, cellY};
-
-	i32 hashTopRight = _getHash(gridX + 1, gridY + 1);
-	i32 hashTopLeft = _getHash(gridX, gridY + 1);
-	i32 hashBottomRight = _getHash(gridX + 1, gridY);
-	i32 hashBottomLeft = _getHash(gridX, gridY);
-
-	f32 dotTopRight = glm::dot(topRight, _constantVectors[hashTopRight % 4]);
-	f32 dotTopLeft = glm::dot(topLeft, _constantVectors[hashTopLeft % 4]);
-	f32 dotBottomRight = glm::dot(bottomRight, _constantVectors[hashBottomRight % 4]);
-	f32 dotBottomLeft = glm::dot(bottomLeft, _constantVectors[hashBottomLeft % 4]);
-
-	dotTopRight += _getOffset(gridX + 1, gridY + 1);
-	dotTopLeft += _getOffset(gridX, gridY + 1);
-	dotBottomRight += _getOffset(gridX + 1, gridY);
-	dotBottomLeft += _getOffset(gridX, gridY);
-
-	f32 percentageX = _fade(cellX);
-	f32 percentageY = _fade(cellY);
-
-    return glm::mix(
-        glm::mix(dotBottomLeft, dotTopLeft, percentageY),
-        glm::mix(dotBottomRight, dotTopRight, percentageY),
-        percentageX
+    return _interpolateCell(
+        bottomLeft,
+        bottomRight,
+        topLeft,
+        topRight,
+        cell.localX,
+        cell.localY
     );
 }
 
