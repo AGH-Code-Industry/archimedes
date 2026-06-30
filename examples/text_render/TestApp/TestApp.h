@@ -12,9 +12,7 @@
 using namespace arch;
 
 class TextRenderTestApp: public Application {
-	struct LineFlag {
-		static constexpr bool flagComponent = true;
-	};
+	struct LineFlag: ecs::FlagComponent {};
 
 	struct TextInfo {
 		float3 topLeft{};

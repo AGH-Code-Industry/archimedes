@@ -111,10 +111,8 @@ private:
 	int* _value;
 };
 
-class InPlaceComponent {
+class InPlaceComponent: ecs::InPlaceComponent {
 public:
-	static constexpr bool inPlaceComponent = true;
-
 	// increments on construct
 	InPlaceComponent(int* value) noexcept: _value{ value } { ++(*_value); }
 
@@ -128,9 +126,7 @@ private:
 	int* _value;
 };
 
-struct FlagComponent {
-	static constexpr bool flagComponent = true;
-};
+struct FlagComponent: ecs::FlagComponent {};
 
 } // namespace
 

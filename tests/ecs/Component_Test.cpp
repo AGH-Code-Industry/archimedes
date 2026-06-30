@@ -63,10 +63,8 @@ private:
 };
 
 // same as TrackerComponent, but in-place
-class InPlaceTrackerComponent {
+class InPlaceTrackerComponent: ecs::InPlaceComponent {
 public:
-	static constexpr bool inPlaceComponent = true;
-
 	InPlaceTrackerComponent() noexcept { ++_constructions; }
 
 	InPlaceTrackerComponent(const InPlaceTrackerComponent& other) noexcept: _val{ other._val } {
@@ -120,10 +118,8 @@ private:
 };
 
 // flag component, all trackers should report 0
-class FlagComponent {
+class FlagComponent: ecs::FlagComponent {
 public:
-	static constexpr bool flagComponent = true;
-
 	FlagComponent() noexcept { ++_constructions; }
 
 	FlagComponent(const FlagComponent& other) noexcept {

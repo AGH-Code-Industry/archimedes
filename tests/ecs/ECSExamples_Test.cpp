@@ -120,9 +120,7 @@ struct WorseEnemyFlag {};
 
 // better way is to explicitly mark this component as a flag
 
-struct EnemyFlag {
-	static constexpr bool flagComponent = true;
-};
+struct EnemyFlag: ecs::FlagComponent {};
 
 } // namespace
 
@@ -185,9 +183,7 @@ TEST(ECS, Example_ComponentFlag) {
 
 namespace {
 
-struct Ship {
-	static constexpr bool inPlaceComponent = true;
-
+struct Ship: ecs::InPlaceComponent {
 	float health;
 	float bulletDamage;
 };

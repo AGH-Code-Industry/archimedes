@@ -1,18 +1,28 @@
 #pragma once
 
-#include "Flag.h"
-#include "InClassComponentSpecs.h"
+#include "ComponentBases.h"
 
 namespace arch::ecs {
 
-/// @brief Helper class for marking in-place components
-struct InPlaceComponent {
-	static constexpr bool inPlaceComponent = true;
+template<size_t PageSize>
+struct ComponentPageSize: ComponentPageSizeBase {
+	static_assert(std::popcount(PageSize) == 1, "Page size must be a power of two");
+
+	static constexpr size_t pageSize = PageSize;
 };
 
-/// @brief Helper class for marking flag-components
-struct FlagComponent {
-	static constexpr bool flagComponent = true;
+template<class T>
+struct GetPageSize {
+	static constexpr size_t value = 1'024;
+};
+
+template<class T>
+requires(std::is_base_of_v<ComponentPageSizeBase, T>)
+struct GetPageSize<T> {
+	template<size_t PageSize>
+	static auto extract(const ComponentPageSize<PageSize>&) -> std::integral_constant<size_t, PageSize>;
+
+	static constexpr size_t value = decltype(extract(std::declval<T>()))::value;
 };
 
 /// @brief Contains basic specification of a component type:
@@ -23,13 +33,12 @@ struct FlagComponent {
 template<class C>
 struct ComponentSpecs {
 	/// @brief Whether components should not be moved by basic operations
-	static inline constexpr bool inPlace = _details::AnyInClassInPlaceComponent<C> ||
-		std::derived_from<C, InPlaceComponent> || !(std::is_move_assignable_v<C> && std::is_move_constructible_v<C>);
+	static inline constexpr bool inPlace = std::is_base_of_v<InPlaceComponent, C> ||
+		!(std::is_move_assignable_v<C> && std::is_move_constructible_v<C>);
 	/// @brief Page size in component storage, 1024 by default
-	static inline constexpr size_t pageSize =
-		(_details::AnyInClassComponentPageSize<C> ? _details::InClassComponentPageSizeValue<C>::value : 1'024);
+	static inline constexpr size_t pageSize = GetPageSize<C>::value;
 	/// @brief Whether components are flag-components
-	static inline constexpr bool flag = _details::FlagComponent<C> || std::derived_from<C, FlagComponent>;
+	static inline constexpr bool flag = std::is_base_of_v<FlagComponent, C>;
 };
 
 } // namespace arch::ecs
