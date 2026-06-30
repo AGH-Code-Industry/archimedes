@@ -12,7 +12,6 @@ namespace arch::ecs::_details {
 
 /// @brief Sparse set data structure with find-like operations
 /// @tparam Entity - entity type
-class SparseSet {
 public:
 
 	/// @brief EntityTraits of entity

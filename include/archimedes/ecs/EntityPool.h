@@ -89,9 +89,6 @@ public:
 	/// @return Iterator to found entity, end() otherwise
 	ConstIterator find(IdT id) const noexcept;
 
-	/// @brief Returns amount of entities alive
-	size_t size() const noexcept;
-
 	/// @brief Returns iterator to the first entity
 	inline Iterator begin() noexcept;
 	/// @brief Returns readonly iterator to the first entity

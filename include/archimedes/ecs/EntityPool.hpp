@@ -15,15 +15,15 @@ EntityPool::ConstIterator EntityPool::cbegin() const noexcept {
 }
 
 EntityPool::Iterator EntityPool::end() noexcept {
-	return _dense.begin() + _size;
+	return _dense.begin() + _counter;
 }
 
 EntityPool::ConstIterator EntityPool::end() const noexcept {
-	return _dense.begin() + _size;
+	return _dense.begin() + _counter;
 }
 
 EntityPool::ConstIterator EntityPool::cend() const noexcept {
-	return _dense.cbegin() + _size;
+	return _dense.cbegin() + _counter;
 }
 
 EntityPool::ReverseIterator EntityPool::rbegin() noexcept {
@@ -53,7 +53,7 @@ EntityPool::ConstReverseIterator EntityPool::crend() const noexcept {
 void EntityPool::swap(EntityPool& other) noexcept {
 	std::swap(_sparse, other._sparse);
 	std::swap(_dense, other._dense);
-	std::swap(_size, other._size);
+	std::swap(_counter, other._counter);
 }
 
 void EntityPool::kill(std::input_iterator auto first, std::input_iterator auto last) noexcept {
