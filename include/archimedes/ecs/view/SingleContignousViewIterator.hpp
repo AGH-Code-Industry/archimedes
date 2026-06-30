@@ -102,6 +102,11 @@ std::ptrdiff_t ITER_I::operator-(const ITER_I& other) const noexcept {
 	return this->_denseI - other._denseI;
 }
 
+TEMPLATE_I
+ITER_I operator+(std::ptrdiff_t n, const ITER_I& i) noexcept {
+	return i + n;
+}
+
 } // namespace arch::ecs
 
 #undef TEMPLATE_I
