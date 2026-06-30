@@ -53,16 +53,23 @@ public:
 	/// @brief Const reverse iterator of component pool
 	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
+	/// @brief Default constructor
 	ComponentPool() noexcept = default;
+	/// @brief Copy constructor
 	ComponentPool(const ComponentPool& other) noexcept;
+	/// @brief Move constructor
 	ComponentPool(ComponentPool&&) noexcept = default;
 
+	/// @brief Copy-assignment operator
 	ComponentPool& operator=(const ComponentPool& other) noexcept;
+	/// @brief Move-assignment operator
 	ComponentPool& operator=(ComponentPool&&) noexcept = default;
 
-	/// @brief Destructor, deletes components.
+	/// @brief Destructor, deletes components
 	~ComponentPool() noexcept;
 
+	/// @brief Comparision operator
+	/// @details Equality means that entity-component sets of both pools must be the same
 	bool operator==(const ComponentPool& other) const noexcept;
 
 	/// @brief Adds component to given entity
@@ -127,7 +134,9 @@ public:
 	/// @brief Returns reverse iterator to past-the-last (const entity, const component) contained in a reverse order
 	ConstReverseIterator crend() const noexcept;
 
+	/// @brief Returns view with entities of this component pool
 	auto entities() const noexcept;
+	/// @brief Returns view with entities and components of this component pool
 	auto entitiesComps() const noexcept;
 
 private:
@@ -138,7 +147,7 @@ private:
 	// Entity& _sparseAssure(const IdT id) noexcept;
 	//  returns new entity from dense, along with it's index
 	std::tuple<Entity&, size_t> _denseNew() noexcept;
-	// returns pointer to nth component page, potentially creating new pages
+	// assures existence of given page ptr
 	void _componentPageAssure(const size_t n) noexcept;
 	// returns pointer (likely invalid) to component of given id, can be used for placement-new or Traits::constructAt()
 	C* _componentAssure(const IdT id) noexcept;
@@ -160,9 +169,13 @@ struct alignas(ComponentPool<void*>) ComponentPoolStorage {
 	// void* is an arbitrary type
 	/// @brief Type of an arbitrary ComponentPool
 	using PoolT = ComponentPool<void*>;
+
 	/// @brief std::array with size and alignment of ComponentPool
 	/// @brief char is an exception to Strict Aliasing Rule
 	alignas(PoolT) std::array<char, sizeof(PoolT)> storage{};
+
+	/// @brief Reference to storeage, casted to CommonComponentPool. Makes storeage somewhat debuggable.
+	_details::CommonComponentPool& _cpool = *(_details::CommonComponentPool*)&storage;
 };
 
 } // namespace arch::ecs

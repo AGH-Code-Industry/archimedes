@@ -38,11 +38,8 @@ public:
 	/// @brief Constructor
 	View(Domain& domain) noexcept;
 
-	/*~View() {
-		this->_cpools = {};
-		this->_cpoolsExcl = {};
-		this->_minCpoolIdx = {};
-	}*/
+	/// @brief Destructor
+	~View() noexcept;
 
 	/// @brief Begin iterator
 	Iterator begin() const noexcept;
@@ -104,8 +101,8 @@ private:
 	template<class, class>
 	friend class ViewIterator;
 
-	std::array<_details::CommonComponentPool*, includes.size()> _cpools{};
-	std::array<const _details::CommonComponentPool*, excludes.size()> _cpoolsExcl{};
+	std::array<_details::CommonComponentPool*, includes.size()> _cpools{}; // included cpools
+	std::array<const _details::CommonComponentPool*, excludes.size()> _cpoolsExcl{}; // excluded cpools
 	u32 _minCpoolIdx = (u32)-1;
 };
 

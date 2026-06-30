@@ -29,9 +29,13 @@ ITER_IE::ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& 
 		}
 
 		if (end) {
+			// assume _denseEnd as the end
+			// operator++ on the last element will advance until meets _denseEnd
+			// therefore operator-- here is not required
 			_denseI = _denseEnd;
-			//--(*this);
 		} else {
+			// go past-the-first and advance
+			// skips nulls, etc.
 			_denseI = _denseBegin - 1;
 			++(*this);
 		}
@@ -49,9 +53,13 @@ ITER_IE::ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& 
 	_denseEnd = &*view._domain._entityPool.end();
 
 	if (end) {
+		// assume _denseEnd as the end
+		// operator++ on the last element will advance until meets _denseEnd
+		// therefore operator-- here is not required
 		_denseI = _denseEnd;
-		//--(*this);
 	} else {
+		// go past-the-first and advance
+		// skips nulls, etc.
 		_denseI = _denseBegin - 1;
 		++(*this);
 	}
@@ -89,10 +97,10 @@ ITER_IE& ITER_IE::operator++() noexcept requires(includes.size() > 1 && excludes
 	};
 
 	const auto minNext = _min + 1;
-
 	while (_denseI < _denseEnd &&
 		   (Traits::hasNull(*_denseI) || std::any_of(_begin, _min, notContains) ||
 			std::any_of(minNext, _end, notContains))) {
+		// skip nulls and not contained
 		++_denseI;
 	}
 
@@ -107,6 +115,7 @@ ITER_IE& ITER_IE::operator++() noexcept requires(includes.size() == 1 && exclude
 	}
 
 	while (_denseI < _denseEnd && Traits::hasNull(*_denseI)) {
+		// skip nulls
 		++_denseI;
 	}
 
@@ -132,6 +141,7 @@ ITER_IE& ITER_IE::operator++() noexcept requires(includes.size() != 0 && exclude
 	while (_denseI < _denseEnd &&
 		   (Traits::hasNull(*_denseI) || std::any_of(_begin, _min, notContains) ||
 			std::any_of(minNext, _end, notContains) || std::any_of(_exclBegin, _exclEnd, exclContains))) {
+		// skip nulls, not contained and excluded
 		++_denseI;
 	}
 
@@ -150,6 +160,7 @@ ITER_IE& ITER_IE::operator++() noexcept requires(includes.size() == 0 && exclude
 	};
 
 	while (_denseI < _denseEnd || std::any_of(_exclBegin, _exclEnd, exclContains)) {
+		// skip excluded
 		++_denseI;
 	}
 }
@@ -176,6 +187,7 @@ ITER_IE& ITER_IE::operator--() noexcept requires(includes.size() > 1 && excludes
 	while (_denseBegin <= _denseI &&
 		   (Traits::hasNull(*_denseI) || std::any_of(_begin, _min, notContains) ||
 			std::any_of(minNext, _end, notContains))) {
+		// skip nulls and not contained
 		--_denseI;
 	}
 
@@ -190,6 +202,7 @@ ITER_IE& ITER_IE::operator--() noexcept requires(includes.size() == 1 && exclude
 	}
 
 	while (_denseBegin <= _denseI && Traits::hasNull(*_denseI)) {
+		// skip nulls
 		--_denseI;
 	}
 
@@ -215,6 +228,7 @@ ITER_IE& ITER_IE::operator--() noexcept requires(includes.size() != 0 && exclude
 	while (_denseBegin <= _denseI &&
 		   (Traits::hasNull(*_denseI) || std::any_of(_begin, _min, notContains) ||
 			std::any_of(minNext, _end, notContains) || std::any_of(_exclBegin, _exclEnd, exclContains))) {
+		// skip nulls, not conatined and excluded
 		--_denseI;
 	}
 
@@ -233,6 +247,7 @@ ITER_IE& ITER_IE::operator--() noexcept requires(includes.size() == 0 && exclude
 	};
 
 	while (_denseBegin <= _denseI || std::any_of(_exclBegin, _exclEnd, exclContains)) {
+		// skip excluded
 		--_denseI;
 	}
 }

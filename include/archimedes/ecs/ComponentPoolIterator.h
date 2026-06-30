@@ -14,7 +14,7 @@ class ComponentPool;
 namespace arch::ecs::_details {
 
 /// @brief Iterator for ComponentPool
-/// @details Models std::bidirectional_iterator
+/// @details Models std::bidirectional_iterator for in-place components, std::random_access_iterator otherwise
 /// @tparam C - component type
 template<class C>
 class ComponentPoolIterator {
@@ -73,16 +73,23 @@ public:
 	Reference operator*() const noexcept;
 	/// @brief Access operator
 	Pointer operator->() const noexcept;
-	Reference operator[](std::ptrdiff_t n) const noexcept;
+	/// @brief Array operator
+	Reference operator[](std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Addition-assignment operator
 	ComponentPoolIterator& operator+=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	/// @brief Addition operator
 	ComponentPoolIterator operator+(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Subtraction-assignment operator
 	ComponentPoolIterator& operator-=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	/// @brief Subtraction operator
 	ComponentPoolIterator operator-(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Subtraction operator
 	std::ptrdiff_t operator-(const ComponentPoolIterator& other) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Returns entity of current component
 	const Entity& entity() const noexcept;
 
 	/// @brief Equality operator
@@ -105,6 +112,7 @@ private:
 	size_t _i;
 };
 
+/// @brief Addition operator
 template<class C>
 requires(!_details::ComponentTraits<C>::inPlace)
 ComponentPoolIterator<C> operator+(std::ptrdiff_t n, const ComponentPoolIterator<C>& i) noexcept;

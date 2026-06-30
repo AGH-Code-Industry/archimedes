@@ -12,7 +12,7 @@ namespace arch::ecs {
 
 namespace _details {
 
-// helper lambda to obrain ComponentPool type
+// helper lambda to obtain ComponentPool type
 constexpr auto cpoolCast = []<class T>(TypeList<T> c) {
 	if constexpr (c.apply<std::is_const>()) {
 		// const T => const CPool<T>*
@@ -42,6 +42,13 @@ VIEW_IE::View(Domain& domain) noexcept {
 		}
 		return result;
 	}();
+}
+
+TEMPLATE_IE
+VIEW_IE::~View() noexcept {
+	this->_cpools = {};
+	this->_cpoolsExcl = {};
+	this->_minCpoolIdx = {};
 }
 
 TEMPLATE_IE
@@ -75,13 +82,14 @@ void VIEW_IE::forEach(auto&& fn) {
 		return;
 	}
 
-	using Traits = utils::CallableTraits<decltype(fn)>;
 	constexpr auto nonFlags = _nonFlags();
 
-	if constexpr (Traits::isCallable) {
+	using Traits = utils::CallableTraits<decltype(fn)>;
+	if constexpr (Traits::isCallable) { // non-template callable
 		constexpr auto args = Traits::args;
 		constexpr bool entityFirst = args.front().apply<_details::IsEntity>();
-		constexpr auto wanted = args.popFront<entityFirst>().transform<std::remove_reference>();
+		constexpr auto wanted = args.popFront<entityFirst>() // remove first if entity
+									.transform<std::remove_reference>(); // remove references
 
 		constexpr auto available = _availableComponents();
 
@@ -120,7 +128,7 @@ void VIEW_IE::_forEach(auto&& fn, TypeList<Cs...> wanted) {
 
 		bool validEntity = Traits::hasNotNull(entity) && std::all_of(cpoolsBegin, cpoolsMin, contains) &&
 			std::all_of(cpoolsMinNext, cpoolsEnd, contains);
-		if constexpr (excludes.size() != 0) {
+		if constexpr (excludes.size() != 0) { // check excludes
 			validEntity = validEntity && std::ranges::none_of(_cpoolsExcl, contains);
 		}
 
@@ -167,7 +175,7 @@ auto VIEW_IE::_comps(TypeList<Cs...> wanted) noexcept {
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
 			   return std::tie(
-				   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
+				   reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
 					   _cpools[includes.find(typelist<Cs>)]
 				   )
 					   ->get(entity)...
@@ -205,7 +213,7 @@ auto VIEW_IE::_entityComps(TypeList<Cs...> wanted) noexcept {
 			   return std::tuple_cat(
 				   std::tuple(entity),
 				   std::tie(
-					   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
+					   reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
 						   _cpools[includes.find(typelist<Cs>)]
 					   )
 						   ->get(entity)...

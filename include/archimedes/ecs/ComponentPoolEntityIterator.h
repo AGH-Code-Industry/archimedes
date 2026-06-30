@@ -5,17 +5,26 @@
 
 namespace arch::ecs::_details {
 
+/// @brief Wrapper for ComponentPoolIterator, returning entities
+/// @tparam C - component type
 template<class C>
 class ComponentPoolEntityIterator {
 	using Traits = _details::ComponentTraits<C>;
 
 public:
+	/// @brief Base type
 	using Base = ComponentPoolIterator<C>;
+	/// @brief Difference type
 	using difference_type = std::ptrdiff_t;
+	/// @brief Value type
 	using value_type = Entity;
+	/// @brief Pointer type
 	using pointer = const Entity*;
+	/// @brief Reference type
 	using reference = const Entity&;
+	/// @brief Base's iterator category
 	using iterator_category = Base::IteratorCategory;
+	/// @brief Base's iterator concept
 	using iterator_concept = Base::IteratorConcept;
 
 	/// @brief Default constructor
@@ -48,14 +57,20 @@ public:
 	const Entity& operator*() const noexcept;
 	/// @brief Access operator
 	const Entity* operator->() const noexcept;
+	/// @brief Array operator
 	const Entity& operator[](std::ptrdiff_t n) const noexcept;
 
+	/// @brief Addition-assignment operator
 	ComponentPoolEntityIterator& operator+=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	/// @brief Addition operator
 	ComponentPoolEntityIterator operator+(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Subtraction-assignment operator
 	ComponentPoolEntityIterator& operator-=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	/// @brief Subtraction operator
 	ComponentPoolEntityIterator operator-(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
 
+	/// @brief Subtraction operator
 	std::ptrdiff_t operator-(const ComponentPoolEntityIterator& other) const noexcept requires(!Traits::inPlace);
 
 	/// @brief Equality operator
@@ -68,10 +83,10 @@ private:
 
 	using ETraits = _details::EntityTraits;
 
-	// iterating through pages with offset was tested to be the fastest
 	ComponentPoolIterator<C> _base;
 };
 
+/// @brief Addition operator
 template<class C>
 requires(!_details::ComponentTraits<C>::inPlace)
 ComponentPoolEntityIterator<C> operator+(std::ptrdiff_t n, const ComponentPoolEntityIterator<C>& i) noexcept;

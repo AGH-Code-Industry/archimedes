@@ -18,15 +18,15 @@ POOL_C::ComponentPool(const ComponentPool& other) noexcept {
 
 TEMPLATE_C
 POOL_C& POOL_C::operator=(const ComponentPool& other) noexcept {
-	SparseSet::operator=(other);
+	SparseSet::operator=(other); // copy sparse set
 	_counter = other._counter;
 	_listHead = other._listHead;
 
 	if constexpr (!Traits::flag) {
-		_componentPageAssure(other._components.size());
+		_componentPageAssure(other._components.size()); // preallocate pages
 		const auto otherEnd = other.end();
 		for (auto i = other.begin(); i != otherEnd; ++i) {
-			new (_componentAssure(*i.entity())) C(*i);
+			new (_componentAssure(*i.entity())) C(*i); // copy-construct components at their designated places
 		}
 	}
 
@@ -42,6 +42,7 @@ bool POOL_C::operator==(const ComponentPool& other) const noexcept {
 	if constexpr (!Traits::flag) {
 		const auto thisEnd = end();
 		for (auto iThis = begin(); iThis != thisEnd; ++iThis) {
+			// set-wise comparision
 			auto found = other.tryGet(iThis.entity());
 			if (!found || *found != *iThis) {
 				return false;
@@ -50,6 +51,7 @@ bool POOL_C::operator==(const ComponentPool& other) const noexcept {
 
 		return true;
 	} else {
+		// sprarse-set compare for flag-components
 		return SparseSet::operator==(other);
 	}
 }

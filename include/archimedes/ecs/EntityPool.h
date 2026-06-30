@@ -12,7 +12,6 @@ namespace arch::ecs {
 
 /// @brief Pool for creating and killing entities
 /// @details Uses sparse set data structure
-/// @tparam Entity - entity type
 class EntityPool: public _details::SparseSet {
 	using Base = _details::SparseSet;
 

@@ -15,6 +15,12 @@ VIEW_E::View(Domain& domain) noexcept {
 }
 
 TEMPLATE_E
+VIEW_E::~View() noexcept {
+	this->_domain = {};
+	this->_cpoolsExcl = {};
+}
+
+TEMPLATE_E
 VIEW_E::Iterator VIEW_E::begin() const noexcept {
 	return Iterator(*this, false);
 }

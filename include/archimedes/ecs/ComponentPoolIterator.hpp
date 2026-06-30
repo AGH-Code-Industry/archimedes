@@ -127,7 +127,8 @@ TEMPLATE_C ITER_C::Pointer ITER_C::operator->() const noexcept {
 }
 
 TEMPLATE_C
-ITER_C::Reference ITER_C::operator[](std::ptrdiff_t n) const noexcept {
+ITER_C::Reference ITER_C::operator[](std::ptrdiff_t n) const noexcept requires(!Traits::inPlace)
+{
 	return *(*this + n);
 }
 

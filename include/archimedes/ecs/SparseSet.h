@@ -12,17 +12,22 @@
 namespace arch::ecs::_details {
 
 /// @brief Sparse set data structure with find-like operations
-/// @tparam Entity - entity type
 class SparseSet: public utils::ReadonlyCounter<u32> {
 public:
-
+	/// @brief Default constructor
 	SparseSet() noexcept = default;
+	/// @brief Copy constructor
 	SparseSet(const SparseSet& other) noexcept;
+	/// @brief Move constructor
 	SparseSet(SparseSet&&) noexcept = default;
 
+	/// @brief Copy-assignment operator
 	SparseSet& operator=(const SparseSet& other) noexcept;
+	/// @brief Move-assignment operator
 	SparseSet& operator=(SparseSet&&) noexcept = default;
 
+	/// @brief Comparision operator
+	/// @details Equality means that entity sets of both pools must be the same
 	bool operator==(const SparseSet& other) const noexcept;
 
 	/// @brief EntityTraits of entity

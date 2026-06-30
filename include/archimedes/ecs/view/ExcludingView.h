@@ -32,6 +32,9 @@ public:
 	/// @brief Constructor
 	View(Domain& domain) noexcept;
 
+	/// @brief Destructor
+	~View() noexcept;
+
 	/// @brief Begin iterator
 	Iterator begin() const noexcept;
 	/// @brief End iterator
@@ -51,7 +54,7 @@ private:
 	friend class ViewIterator;
 
 	Domain* _domain = nullptr;
-	std::array<const _details::CommonComponentPool*, excludes.size()> _cpoolsExcl{};
+	std::array<const _details::CommonComponentPool*, excludes.size()> _cpoolsExcl{}; // excluded cpools
 };
 
 } // namespace arch::ecs

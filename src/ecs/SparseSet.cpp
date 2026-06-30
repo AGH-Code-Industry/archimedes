@@ -13,6 +13,7 @@ SparseSet& SparseSet::operator=(const SparseSet& other) noexcept {
 	_dense = other._dense;
 
 	for (auto i = other._sparse.size() - 1; i != (size_t)-1; --i) {
+		// copy memory layout
 		if (other._sparse[i] != nullptr) {
 			std::copy(other._sparse[i].get(), other._sparse[i].get() + Traits::pageSize, _sparseAssurePage(i));
 		}
@@ -27,6 +28,7 @@ bool SparseSet::operator==(const SparseSet& other) const noexcept {
 	}
 
 	for (auto&& entity : _dense) {
+		// set-wise comparision
 		if (!other.contains(entity)) {
 			return false;
 		}

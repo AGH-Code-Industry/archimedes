@@ -4,21 +4,17 @@
 
 namespace arch::ecs {
 
-template<size_t PageSize>
-struct ComponentPageSize: ComponentPageSizeBase {
-	static_assert(std::popcount(PageSize) == 1, "Page size must be a power of two");
-
-	static constexpr size_t pageSize = PageSize;
-};
-
+/// @brief Helper class to obtain pageSize from base class
 template<class T>
 struct GetPageSize {
 	static constexpr size_t value = 1'024;
 };
 
+/// @brief Helper class to obtain page size from base class
 template<class T>
-requires(std::is_base_of_v<ComponentPageSizeBase, T>)
+requires(std::is_base_of_v<_details::ComponentPageSizeBase, T>)
 struct GetPageSize<T> {
+	/// @brief Helper function that extracts PageSize from ComponentPageSize-derived classes
 	template<size_t PageSize>
 	static auto extract(const ComponentPageSize<PageSize>&) -> std::integral_constant<size_t, PageSize>;
 
