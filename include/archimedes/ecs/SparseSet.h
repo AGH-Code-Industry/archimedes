@@ -16,6 +16,15 @@ namespace arch::ecs::_details {
 class SparseSet: public utils::ReadonlyCounter<u32> {
 public:
 
+	SparseSet() noexcept = default;
+	SparseSet(const SparseSet& other) noexcept;
+	SparseSet(SparseSet&&) noexcept = default;
+
+	SparseSet& operator=(const SparseSet& other) noexcept;
+	SparseSet& operator=(SparseSet&&) noexcept = default;
+
+	bool operator==(const SparseSet& other) const noexcept;
+
 	/// @brief EntityTraits of entity
 	using Traits = EntityTraits;
 	/// @brief Entity type

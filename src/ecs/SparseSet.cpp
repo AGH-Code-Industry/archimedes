@@ -5,6 +5,36 @@
 
 namespace arch::ecs::_details {
 
+SparseSet::SparseSet(const SparseSet& other) noexcept {
+	*this = other;
+}
+
+SparseSet& SparseSet::operator=(const SparseSet& other) noexcept {
+	_dense = other._dense;
+
+	for (auto i = other._sparse.size() - 1; i != (size_t)-1; --i) {
+		if (other._sparse[i] != nullptr) {
+			std::copy(other._sparse[i].get(), other._sparse[i].get() + Traits::pageSize, _sparseAssurePage(i));
+		}
+	}
+
+	return *this;
+}
+
+bool SparseSet::operator==(const SparseSet& other) const noexcept {
+	if (count() != other.count()) {
+		return false;
+	}
+
+	for (auto&& entity : _dense) {
+		if (!other.contains(entity)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 typename SparseSet::EntityT* SparseSet::_sparseAssurePage(const size_t n) noexcept {
 	// resize(n) only would make capacity == n (bad)
 	if (_sparse.size() < n + 1) {

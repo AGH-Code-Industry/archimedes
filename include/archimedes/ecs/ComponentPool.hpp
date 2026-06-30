@@ -12,6 +12,49 @@
 namespace arch::ecs {
 
 TEMPLATE_C
+POOL_C::ComponentPool(const ComponentPool& other) noexcept {
+	*this = other;
+}
+
+TEMPLATE_C
+POOL_C& POOL_C::operator=(const ComponentPool& other) noexcept {
+	SparseSet::operator=(other);
+	_counter = other._counter;
+	_listHead = other._listHead;
+
+	if constexpr (!Traits::flag) {
+		_componentPageAssure(other._components.size());
+		const auto otherEnd = other.end();
+		for (auto i = other.begin(); i != otherEnd; ++i) {
+			new (_componentAssure(*i.entity())) C(*i);
+		}
+	}
+
+	return *this;
+}
+
+TEMPLATE_C
+bool POOL_C::operator==(const ComponentPool& other) const noexcept {
+	if (count() != other.count()) {
+		return false;
+	}
+
+	if constexpr (!Traits::flag) {
+		const auto thisEnd = end();
+		for (auto iThis = begin(); iThis != thisEnd; ++iThis) {
+			auto found = other.tryGet(iThis.entity());
+			if (!found || *found != *iThis) {
+				return false;
+			}
+		}
+
+		return true;
+	} else {
+		return SparseSet::operator==(other);
+	}
+}
+
+TEMPLATE_C
 POOL_C::~ComponentPool() noexcept {
 	if constexpr (!Traits::flag) {
 		for (size_t i = 0; i != _components.size(); ++i) {
@@ -36,15 +79,19 @@ std::tuple<Entity&, size_t> POOL_C::_denseNew() noexcept {
 }
 
 TEMPLATE_C
+void POOL_C::_componentPageAssure(const size_t n) noexcept {
+	// resize(n) only would make capacity == n (bad)
+	if (_components.size() < n + 1) {
+		_components.reserve(std::bit_ceil(n + 1));
+		_components.resize(n + 1);
+	}
+}
+
+TEMPLATE_C
 C* POOL_C::_componentAssure(const IdT id) noexcept {
 	const size_t pageNum = id / Traits::pageSize;
 
-	// resize(n) only would make capacity == n (bad)
-	if (_components.size() < pageNum + 1) {
-		_components.reserve(std::bit_ceil(pageNum + 1));
-		_components.resize(pageNum + 1);
-	}
-
+	_componentPageAssure(pageNum);
 	auto&& pagePtr = _components[pageNum];
 	if (pagePtr == nullptr) {
 		pagePtr = Traits::newPage();
