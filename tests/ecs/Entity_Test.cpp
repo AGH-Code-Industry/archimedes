@@ -23,7 +23,9 @@ TEST(ECS, Entity_Create) {
 	ASSERT_EQ(entities.size(), entityCount);
 
 	// are all entities alive?
-	ASSERT_TRUE(std::ranges::all_of(domain.entities(), [&](auto entity) { return domain.alive(entity); }));
+	ASSERT_TRUE(std::ranges::all_of(domain.entities(), [&](auto entity) {
+		return domain.alive(entity);
+	}));
 }
 
 TEST(ECS, Entity_Valid) {
@@ -46,7 +48,9 @@ TEST(ECS, Entity_Valid) {
 	ASSERT_EQ(domain.count(), toRemove.size());
 
 	// are removed entities alive?
-	ASSERT_TRUE(std::ranges::all_of(toRemove, [&](auto entity) { return !domain.alive(entity); }));
+	ASSERT_TRUE(std::ranges::all_of(toRemove, [&](auto entity) {
+		return !domain.alive(entity);
+	}));
 
 	// are non-removed entities alive?
 	ASSERT_TRUE(std::ranges::all_of(entities | std::views::drop(toRemove.size()), [&](auto entity) {
@@ -57,7 +61,9 @@ TEST(ECS, Entity_Valid) {
 	for (int i = 0; i != toRemove.size(); ++i) {
 		domain.newEntity();
 	}
-	ASSERT_TRUE(std::ranges::all_of(toRemove, [&](auto entity) { return !domain.alive(entity); }));
+	ASSERT_TRUE(std::ranges::all_of(toRemove, [&](auto entity) {
+		return !domain.alive(entity);
+	}));
 
 	// are some random entities alive?
 	auto distrib = std::uniform_int_distribution<u64>(entityCount, entityCount * 10);
@@ -85,13 +91,19 @@ TEST(ECS, Entity_Recycle) {
 	}
 
 	// are old entities dead?
-	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return !domain.alive(entity); }));
+	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) {
+		return !domain.alive(entity);
+	}));
 
 	// were old entities recycled?
-	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return domain.contains(*entity); }));
+	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) {
+		return domain.contains(*entity);
+	}));
 
 	// were versions incremented?
-	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) { return domain.version(*entity) == 1; }));
+	ASSERT_TRUE(std::ranges::all_of(entities, [&](auto entity) {
+		return domain.version(*entity) == 1;
+	}));
 }
 
 namespace {
@@ -99,7 +111,9 @@ namespace {
 class Component {
 public:
 	// increments on construct
-	Component(int* value) noexcept: _value{ value } { ++(*_value); }
+	Component(int* value) noexcept: _value{ value } {
+		++(*_value);
+	}
 
 	// decrements on destruct
 	~Component() noexcept {
@@ -114,7 +128,9 @@ private:
 class InPlaceComponent: ecs::InPlaceComponent {
 public:
 	// increments on construct
-	InPlaceComponent(int* value) noexcept: _value{ value } { ++(*_value); }
+	InPlaceComponent(int* value) noexcept: _value{ value } {
+		++(*_value);
+	}
 
 	// decrements on destruct
 	~InPlaceComponent() noexcept {

@@ -16,6 +16,10 @@ struct NormalComponent {
 	int value = 0;
 };
 
+struct NormalComponent2 {
+	int value = 0;
+};
+
 struct InPlaceComponent: NormalComponent, ecs::InPlaceComponent {};
 
 struct FlagComponent: ecs::FlagComponent {};
@@ -29,14 +33,17 @@ TEST(ECS, View_OneComponent) {
 
 	// every entity has NormalComponent1
 	for (int i = 0; i != entityCount; ++i) {
-		domain.addComponent<NormalComponent>(domain.newEntity());
+		auto entity = domain.newEntity();
+		domain.addComponent<NormalComponent>(entity);
+		domain.addComponent<NormalComponent2>(entity);
 	}
 
 	// do all entities have component?
 	ASSERT_TRUE(std::ranges::equal(domain.entities(), domain.view<NormalComponent>()));
 
 	// pairwise view of components
-	auto componentPairs = domain.view<NormalComponent>().comps() | std::views::transform([](auto tuple) -> auto& {
+	auto v = domain.view<NormalComponent, NormalComponent2>().comps();
+	auto componentPairs = v | std::views::transform([](auto tuple) -> auto& {
 							  return std::get<0>(tuple);
 						  }) |
 		std::views::pairwise;
