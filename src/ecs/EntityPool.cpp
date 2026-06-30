@@ -47,6 +47,7 @@ EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
 EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 	if (!containsID(id)) {
 		auto& wantedSparse = _sparseGet(id);
+		auto& toSwapDense = _dense[_counter++];
 
 		std::swap(_dense[*wantedSparse], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(*toSwapDense));
