@@ -16,7 +16,6 @@ namespace arch::ecs::_details {
 /// @brief Iterator for ComponentPool
 /// @details Models std::bidirectional_iterator
 /// @tparam C - component type
-/// @tparam E - entity type
 template<class C>
 class ComponentPoolIterator {
 	using Traits = _details::ComponentTraits<C>;
@@ -35,7 +34,11 @@ public:
 	/// @brief Difference type
 	using DifferenceType = std::make_signed_t<size_t>;
 	/// @brief Iterator category
-	using IteratorCategory = std::bidirectional_iterator_tag;
+	using IteratorCategory =
+		std::conditional_t<Traits::inPlace, std::bidirectional_iterator_tag, std::random_access_iterator_tag>;
+	/// @brief Iterator concept
+	using IteratorConcept =
+		std::conditional_t<Traits::inPlace, std::bidirectional_iterator_tag, std::random_access_iterator_tag>;
 
 	/// @brief Default constructor
 	ComponentPoolIterator() noexcept = default;
@@ -54,11 +57,15 @@ public:
 	void swap(ComponentPoolIterator& other) noexcept;
 
 	/// @brief Pre-increement operator
-	ComponentPoolIterator& operator++() noexcept;
+	ComponentPoolIterator& operator++() noexcept requires(Traits::inPlace);
+	/// @brief Pre-increement operator
+	ComponentPoolIterator& operator++() noexcept requires(!Traits::inPlace);
 	/// @brief Post-increement operator
 	ComponentPoolIterator operator++(int) noexcept;
 	/// @brief Pre-decreement operator
-	ComponentPoolIterator& operator--() noexcept;
+	ComponentPoolIterator& operator--() noexcept requires(Traits::inPlace);
+	/// @brief Pre-decreement operator
+	ComponentPoolIterator& operator--() noexcept requires(!Traits::inPlace);
 	/// @brief Post-decreement operator
 	ComponentPoolIterator operator--(int) noexcept;
 
@@ -66,6 +73,15 @@ public:
 	Reference operator*() const noexcept;
 	/// @brief Access operator
 	Pointer operator->() const noexcept;
+	Reference operator[](std::ptrdiff_t n) const noexcept;
+
+	ComponentPoolIterator& operator+=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	ComponentPoolIterator operator+(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
+
+	ComponentPoolIterator& operator-=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace);
+	ComponentPoolIterator operator-(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace);
+
+	std::ptrdiff_t operator-(const ComponentPoolIterator& other) const noexcept requires(!Traits::inPlace);
 
 	const Entity& entity() const noexcept;
 
@@ -76,9 +92,6 @@ public:
 
 private:
 	friend arch::ecs::ComponentPool<C>;
-
-	// if iterator is valid
-	bool _valid() const noexcept;
 
 	using ETraits = _details::EntityTraits;
 
@@ -91,6 +104,10 @@ private:
 	std::vector<Entity>* _dense;
 	size_t _i;
 };
+
+template<class C>
+requires(!_details::ComponentTraits<C>::inPlace)
+ComponentPoolIterator<C> operator+(std::ptrdiff_t n, const ComponentPoolIterator<C>& i) noexcept;
 
 } // namespace arch::ecs::_details
 
@@ -111,7 +128,9 @@ public:
 	using pointer = Iter::Pointer;
 	using reference = Iter::Reference;
 	using iterator_category = Iter::IteratorCategory;
+	using iterator_concept = Iter::IteratorConcept;
 };
+
 } // namespace std
 
 #include "ComponentPoolIterator.hpp"
