@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "CommonComponentPool.h"
+#include "ComponentPoolEntityIterator.h"
 #include "ComponentPoolIterator.h"
 #include "ComponentTraits.h"
 #include <archimedes/utils/MoveFlag.h>
@@ -16,7 +17,6 @@ namespace arch::ecs {
 /// @brief Pool for creating and destroying components
 /// @details Uses sparse set data structure
 /// @tparam C - component type
-/// @tparam Entity - entity type
 template<class C>
 class ComponentPool: public _details::CommonComponentPool {
 	using Base = _details::CommonComponentPool;
@@ -117,6 +117,9 @@ public:
 	ConstReverseIterator rend() const noexcept;
 	/// @brief Returns reverse iterator to past-the-last (const entity, const component) contained in a reverse order
 	ConstReverseIterator crend() const noexcept;
+
+	auto entities() const noexcept;
+	auto entitiesComps() const noexcept;
 
 private:
 

@@ -314,6 +314,25 @@ POOL_C::ConstReverseIterator POOL_C::crend() const noexcept {
 	return std::reverse_iterator(cbegin());
 }
 
+TEMPLATE_C
+auto POOL_C::entities() const noexcept {
+	return std::ranges::subrange(
+		_details::ComponentPoolEntityIterator(cbegin()),
+		_details::ComponentPoolEntityIterator(cend())
+	);
+}
+
+TEMPLATE_C
+auto POOL_C::entitiesComps() const noexcept {
+	return std::views::zip(
+		std::ranges::subrange(
+			_details::ComponentPoolEntityIterator(cbegin()),
+			_details::ComponentPoolEntityIterator(cend())
+		),
+		std::ranges::ref_view(*this)
+	);
+}
+
 } // namespace arch::ecs
 
 #undef TEMPLATE_C
