@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "view/ViewFwd.h"
+#include <archimedes/utils/ReadonlyCounter.h>
 //
 #include "EntityTraits.h"
 
@@ -12,6 +13,7 @@ namespace arch::ecs::_details {
 
 /// @brief Sparse set data structure with find-like operations
 /// @tparam Entity - entity type
+class SparseSet: public utils::ReadonlyCounter<u32> {
 public:
 
 	/// @brief EntityTraits of entity
@@ -53,9 +55,6 @@ protected:
 	template<class, class>
 	friend class ::arch::ecs::ViewIterator;
 
-	using SparseContainer = std::vector<std::unique_ptr<Entity[]>>;
-	using DenseContainer = std::vector<Entity>;
-
 	// possibly inits sparse page
 	EntityT* _sparseAssurePage(const size_t n) noexcept;
 	// returns reference to sparse, inits if not found
@@ -69,8 +68,8 @@ protected:
 	inline const EntityT* _sparseTryGet(const IdT id) const noexcept;
 	inline const EntityT* _sparseTryCGet(const IdT id) const noexcept;
 
-	SparseContainer _sparse;
-	DenseContainer _dense;
+	std::vector<std::unique_ptr<Entity[]>> _sparse;
+	std::vector<Entity> _dense;
 };
 
 } // namespace arch::ecs::_details

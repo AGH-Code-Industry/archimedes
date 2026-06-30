@@ -1,6 +1,6 @@
-#include <archimedes/utils/Assert.h>
 #include <archimedes/ecs/EntityOperators.h>
 #include <archimedes/ecs/EntityPool.h>
+#include <archimedes/utils/Assert.h>
 
 // https://miro.com/app/board/uXjVK4gF1DI=/?share_link_id=296698570044
 // ^ picture explanations
@@ -8,18 +8,18 @@
 namespace arch::ecs {
 
 EntityPool::EntityT EntityPool::newEntity() noexcept {
-	if (_size == Traits::Id::max + 1) { // entity limit achieved
+	if (_counter == Traits::Id::max + 1) { // entity limit achieved
 		return null;
 	}
-	if (_size == _dense.size()) { // new entity
-		const auto entity = Traits::Ent::fromParts(_size++, 0);
+	if (_counter == _dense.size()) { // new entity
+		const auto entity = Traits::Ent::fromParts(_counter++, 0);
 
 		_dense.push_back(entity);
 		_sparseAssure(*entity) = entity;
 
 		return entity;
 	} else { // recycle
-		const auto entity = _dense[_size++];
+		const auto entity = _dense[_counter++];
 		auto&& inSparse = _sparseGet(*entity);
 
 		inSparse = Traits::Ent::fromOthers(inSparse, entity);
@@ -29,9 +29,9 @@ EntityPool::EntityT EntityPool::newEntity() noexcept {
 }
 
 EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
-	if (!containsID(*entity) /*&& _size <= Traits::Id::max*/) {
+	if (!containsID(*entity) /*&& _counter <= Traits::Id::max*/) {
 		auto& wantedSparse = _sparseGet(*entity);
-		auto& toSwapDense = _dense[_size++];
+		auto& toSwapDense = _dense[_counter++];
 
 		// std::swap(_dense[*wantedSparse], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(*toSwapDense));
@@ -47,7 +47,6 @@ EntityPool::EntityT EntityPool::recycleEntity(const EntityT entity) noexcept {
 EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 	if (!containsID(id)) {
 		auto& wantedSparse = _sparseGet(id);
-		auto& toSwapDense = _dense[_size++];
 
 		std::swap(_dense[*wantedSparse], toSwapDense);
 		Traits::Id::swap(wantedSparse, _sparseGet(*toSwapDense));
@@ -62,7 +61,7 @@ EntityPool::EntityT EntityPool::recycleId(const IdT id) noexcept {
 void EntityPool::kill(const EntityT entity) noexcept {
 	if (contains(entity)) {
 		auto& wantedSparse = _sparseGet(*entity);
-		auto& toSwapDense = _dense[--_size];
+		auto& toSwapDense = _dense[--_counter];
 
 		const auto temp = toSwapDense;
 		std::swap(_dense[*wantedSparse], toSwapDense);
@@ -76,7 +75,7 @@ void EntityPool::kill(const EntityT entity) noexcept {
 void EntityPool::kill(const IdT id) noexcept {
 	if (containsID(id)) {
 		auto& wantedSparse = _sparseGet(id);
-		auto& toSwapDense = _dense[--_size];
+		auto& toSwapDense = _dense[--_counter];
 
 		const auto temp = toSwapDense;
 		std::swap(_dense[*wantedSparse], toSwapDense);
@@ -129,14 +128,6 @@ EntityPool::ConstIterator EntityPool::find(const IdT id) const noexcept {
 			!Traits::Version::hasNull(_sparse[pageNum][_id % Traits::pageSize]) ?
 		begin() + Traits::Version::rawPart(_sparse[pageNum][_id % Traits::pageSize]) :
 		end();
-}
-
-size_t EntityPool::size() const noexcept {
-	return _size;
-}
-
-auto EntityPool::_debug() noexcept -> std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> {
-	return { &_sparse, &_dense };
 }
 
 } // namespace arch::ecs

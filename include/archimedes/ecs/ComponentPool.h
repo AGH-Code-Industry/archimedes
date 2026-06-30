@@ -139,16 +139,6 @@ private:
 
 	std::vector<C*> _components; // paged
 	size_t _listHead = 0;
-
-	// for manual checks
-	std::tuple<
-		typename Base::SparseContainer*,
-		typename Base::DenseContainer*,
-		decltype(_components)*,
-		decltype(_listHead)*>
-	_debug() noexcept {
-		return { &this->_sparse, &this->_dense, &_components, &_listHead };
-	}
 };
 
 /// @brief Struct mimicing ComponentPool of any component type
