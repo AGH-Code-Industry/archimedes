@@ -175,7 +175,7 @@ auto VIEW_IE::_comps(TypeList<Cs...> wanted) noexcept {
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
 			   return std::tie(
-				   reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
+				   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
 					   _cpools[includes.find(typelist<Cs>)]
 				   )
 					   ->get(entity)...
@@ -213,7 +213,7 @@ auto VIEW_IE::_entityComps(TypeList<Cs...> wanted) noexcept {
 			   return std::tuple_cat(
 				   std::tuple(entity),
 				   std::tie(
-					   reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
+					   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
 						   _cpools[includes.find(typelist<Cs>)]
 					   )
 						   ->get(entity)...
