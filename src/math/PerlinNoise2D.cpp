@@ -17,20 +17,21 @@ void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset){
 }
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed) {
-	_rng.seed(seed);
-
+    if (gridSize == 0) {
+        throw MathException("Perlin Noise: gridSize must be greater than 0");
+    }
 	if (minOffset > maxOffset) {
 		throw MathException("Perlin Noise: minOffset must be less than or equal to maxOffset");
 	}
-
+    _rng.seed(seed);
 	_distribution = std::uniform_real_distribution<f32>(minOffset, maxOffset);
-
     _gridSize = gridSize;
 	_createPermutation();
 	_createOffsets();
 }
 
 void PerlinNoise2D::_createPermutation() {
+    _permutation.clear();
 	_permutation.reserve(_gridSize);
 	for (i32 i = 0; i < _gridSize; i++) {
 		_permutation.push_back(i);
@@ -39,6 +40,7 @@ void PerlinNoise2D::_createPermutation() {
 }
 
 void PerlinNoise2D::_createOffsets() {
+    _offsets.clear();
 	_offsets.resize(_gridSize);
 	for (i32 i = 0; i < _gridSize; i++) {
 		_offsets[i].reserve(_gridSize);
