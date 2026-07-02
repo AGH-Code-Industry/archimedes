@@ -17,9 +17,13 @@ POOL_C::ComponentPool(const ComponentPool& other) noexcept {
 }
 
 TEMPLATE_C
+POOL_C::ComponentPool(ComponentPool&& other) noexcept {
+	*this = std::move(other);
+}
+
+TEMPLATE_C
 POOL_C& POOL_C::operator=(const ComponentPool& other) noexcept {
 	SparseSet::operator=(other); // copy sparse set
-	_counter = other._counter;
 	_listHead = other._listHead;
 
 	if constexpr (!Traits::flag) {
@@ -34,7 +38,23 @@ POOL_C& POOL_C::operator=(const ComponentPool& other) noexcept {
 }
 
 TEMPLATE_C
-bool POOL_C::operator==(const ComponentPool& other) const noexcept {
+POOL_C& POOL_C::operator=(ComponentPool&& other) noexcept {
+	if (this == std::addressof(other)) {
+		return *this;
+	}
+
+	SparseSet::operator=(std::move(other));
+
+	this->_listHead = other._listHead;
+	this->_components = std::move(other._components);
+
+	other._listHead = {};
+	other._components = decltype(other._components)();
+
+	return *this;
+}
+
+TEMPLATE_C bool POOL_C::operator==(const ComponentPool& other) const noexcept {
 	if (count() != other.count()) {
 		return false;
 	}

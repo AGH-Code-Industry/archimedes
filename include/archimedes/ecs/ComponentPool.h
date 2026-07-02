@@ -58,12 +58,12 @@ public:
 	/// @brief Copy constructor
 	ComponentPool(const ComponentPool& other) noexcept;
 	/// @brief Move constructor
-	ComponentPool(ComponentPool&&) noexcept = default;
+	ComponentPool(ComponentPool&&) noexcept;
 
 	/// @brief Copy-assignment operator
 	ComponentPool& operator=(const ComponentPool& other) noexcept;
 	/// @brief Move-assignment operator
-	ComponentPool& operator=(ComponentPool&&) noexcept = default;
+	ComponentPool& operator=(ComponentPool&&) noexcept;
 
 	/// @brief Destructor, deletes components
 	~ComponentPool() noexcept;

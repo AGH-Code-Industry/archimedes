@@ -19,12 +19,12 @@ public:
 	/// @brief Copy constructor
 	SparseSet(const SparseSet& other) noexcept;
 	/// @brief Move constructor
-	SparseSet(SparseSet&&) noexcept = default;
+	SparseSet(SparseSet&&) noexcept;
 
 	/// @brief Copy-assignment operator
 	SparseSet& operator=(const SparseSet& other) noexcept;
 	/// @brief Move-assignment operator
-	SparseSet& operator=(SparseSet&&) noexcept = default;
+	SparseSet& operator=(SparseSet&&) noexcept;
 
 	/// @brief Comparision operator
 	/// @details Equality means that entity sets of both pools must be the same
