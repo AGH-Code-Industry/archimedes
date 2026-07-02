@@ -55,4 +55,8 @@ using Color = glm::vec4;
 
 using Quat = glm::qua<f32>;
 
+inline f32 fade(f32 t){
+    return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+}
+
 } // namespace arch::math
