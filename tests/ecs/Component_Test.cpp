@@ -458,14 +458,17 @@ TEST(ECS, Component_CPoolCopy) {
 		domain.addComponent<FlagComponent>(entity);
 	}
 
+	// copy component pools
 	auto iptCPool = domain.components<InPlaceTrackerComponent>().base();
 	auto tCPool = domain.components<TrackerComponent>().base();
 	auto fCPool = domain.components<FlagComponent>().base();
 
+	// compare copied component pools with originals
 	ASSERT_EQ(iptCPool, domain.components<InPlaceTrackerComponent>().base());
 	ASSERT_EQ(tCPool, domain.components<TrackerComponent>().base());
 	ASSERT_EQ(fCPool, domain.components<FlagComponent>().base());
 
+	// check copies and moves
 	ASSERT_EQ(InPlaceTrackerComponent::constructions(), 2 * entities);
 	ASSERT_EQ(InPlaceTrackerComponent::copies(), entities);
 	ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
@@ -476,6 +479,7 @@ TEST(ECS, Component_CPoolCopy) {
 	ASSERT_EQ(FlagComponent::copies(), 0);
 	ASSERT_EQ(FlagComponent::moves(), 0);
 
+	// remove random entity
 	auto removedEntity = iptCPool.begin().entity(); // some random entity
 
 	auto ipt = iptCPool.removeComponent(removedEntity, moveFlag);
@@ -486,6 +490,7 @@ TEST(ECS, Component_CPoolCopy) {
 	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
 	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
 
+	// add new entity
 	auto newEntity = domain.newEntity();
 
 	iptCPool.addComponent(newEntity, 1);
@@ -499,6 +504,8 @@ TEST(ECS, Component_CPoolCopy) {
 	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
 	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
 
+	// restore old entity
+	// inner memory layout is different for copy and original component pool
 	iptCPool.addComponent(removedEntity, ipt);
 	tCPool.addComponent(removedEntity, t);
 	fCPool.addComponent(removedEntity);
@@ -512,6 +519,7 @@ TEST(ECS, Component_CPoolMove) {
 	reset();
 
 	ecs::Domain domain;
+
 	ecs::ComponentPool<TrackerComponent> trackerCPool;
 	ecs::ComponentPool<InPlaceTrackerComponent> inPlaceTrackerCPool;
 	ecs::ComponentPool<FlagComponent> flagCPool;
@@ -521,15 +529,18 @@ TEST(ECS, Component_CPoolMove) {
 	for (int i = 0; i != entities; ++i) {
 		auto entity = domain.newEntity();
 
+		// add components to external component pools
 		trackerCPool.addComponent(entity);
 		inPlaceTrackerCPool.addComponent(entity);
 		flagCPool.addComponent(entity);
 	}
 
+	// copy component pools
 	auto trackerCPoolCopy = trackerCPool;
 	auto inPlaceTrackerCPoolCopy = inPlaceTrackerCPool;
 	auto flagCPoolCopy = flagCPool;
 
+	// move component pools
 	auto movedTrackerCPool = std::move(trackerCPool);
 	auto movedInPlaceTrackerCPool = std::move(inPlaceTrackerCPool);
 	auto movedFlagCPool = std::move(flagCPool);
