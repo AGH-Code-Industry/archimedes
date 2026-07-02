@@ -38,7 +38,7 @@ class PerlinNoise2DTestApp: public Application {
 		// Create camera
 		auto&& camera = scene->domain().global<Camera>();
 
-		PerlinNoise2D::initialize(100, 0.0f, 0.1f);
+		PerlinNoise2D::build(100, 0.0f, 0.1f);
 	}
 
 	void update() {

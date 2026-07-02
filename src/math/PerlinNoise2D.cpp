@@ -50,11 +50,11 @@ i32 PerlinNoise2D::_getSeed() {
     return (i32)std::chrono::system_clock::now().time_since_epoch().count();
 }
 
-void PerlinNoise2D::initialize(i32 permutationSize, f32 minOffset, f32 maxOffset){
-	initialize(permutationSize, minOffset, maxOffset, _getSeed());
+void PerlinNoise2D::build(i32 permutationSize, f32 minOffset, f32 maxOffset){
+	build(permutationSize, minOffset, maxOffset, _getSeed());
 }
 
-void PerlinNoise2D::initialize(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed) {
+void PerlinNoise2D::build(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed) {
 	_rng.seed(seed);
 
 	if (minOffset > maxOffset) {

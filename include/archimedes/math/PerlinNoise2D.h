@@ -48,8 +48,8 @@ public:
     inline static f32 minResult = -1.0f;
     inline static f32 maxResult = 1.0f;
 
-    static void initialize(i32 permutationSize, f32 minOffset, f32 maxOffset);
-    static void initialize(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed);
+    static void build(i32 permutationSize, f32 minOffset, f32 maxOffset);
+    static void build(i32 permutationSize, f32 minOffset, f32 maxOffset, i32 seed);
     static f32 generate(f32 x, f32 y);
 };
 }
