@@ -4,8 +4,8 @@
 #include <unordered_set>
 
 #include <archimedes/Ecs.h>
-#include <archimedes/tUtils/Functions/CallableTraits.h>
-#include <archimedes/tUtils/Functions/IsApplicable.h>
+#include <archimedes/utils/CallableTraits.h>
+#include <archimedes/utils/IsApplicable.h>
 #include <gtest/gtest.h>
 
 using namespace arch;
