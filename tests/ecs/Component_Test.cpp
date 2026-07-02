@@ -14,6 +14,10 @@ public:
 		++_constructions;
 	}
 
+	TrackerComponent(int v) noexcept: TrackerComponent() {
+		_val = v;
+	}
+
 	TrackerComponent(const TrackerComponent& other) noexcept: _val{ other._val } {
 		++_constructions;
 		++_copies;
@@ -83,6 +87,10 @@ class InPlaceTrackerComponent: ecs::InPlaceComponent {
 public:
 	InPlaceTrackerComponent() noexcept {
 		++_constructions;
+	}
+
+	InPlaceTrackerComponent(int v) noexcept: InPlaceTrackerComponent() {
+		_val = v;
 	}
 
 	InPlaceTrackerComponent(const InPlaceTrackerComponent& other) noexcept: _val{ other._val } {
@@ -215,6 +223,7 @@ private:
 void reset() noexcept {
 	TrackerComponent::reset();
 	InPlaceTrackerComponent::reset();
+	FlagComponent::reset();
 }
 
 } // namespace
@@ -466,6 +475,37 @@ TEST(ECS, Component_CPoolCopy) {
 	ASSERT_EQ(FlagComponent::constructions(), 0);
 	ASSERT_EQ(FlagComponent::copies(), 0);
 	ASSERT_EQ(FlagComponent::moves(), 0);
+
+	auto removedEntity = iptCPool.begin().entity(); // some random entity
+
+	auto ipt = iptCPool.removeComponent(removedEntity, moveFlag);
+	auto t = tCPool.removeComponent(removedEntity, moveFlag);
+	fCPool.removeComponent(removedEntity);
+
+	ASSERT_NE(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
+
+	auto newEntity = domain.newEntity();
+
+	iptCPool.addComponent(newEntity, 1);
+	tCPool.addComponent(newEntity, 2);
+	fCPool.addComponent(newEntity);
+	domain.addComponent<InPlaceTrackerComponent>(newEntity, 1);
+	domain.addComponent<TrackerComponent>(newEntity, 2);
+	domain.addComponent<FlagComponent>(newEntity);
+
+	ASSERT_NE(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
+
+	iptCPool.addComponent(removedEntity, ipt);
+	tCPool.addComponent(removedEntity, t);
+	fCPool.addComponent(removedEntity);
+
+	ASSERT_EQ(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_EQ(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_EQ(fCPool, domain.components<FlagComponent>().base());
 }
 
 TEST(ECS, Component_CPoolMove) {
