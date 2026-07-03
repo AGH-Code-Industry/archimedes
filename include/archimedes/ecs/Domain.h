@@ -8,7 +8,7 @@
 #include "view/ExcludeT.h"
 #include "view/ViewFwd.h"
 #include <archimedes/meta/Rtti.h>
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 

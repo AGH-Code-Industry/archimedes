@@ -5,12 +5,12 @@
 #define TEMPLATE_I          \
 	template<class Include> \
 	requires(!_details::ComponentTraits<Include>::inPlace)
-#define ITER_I ViewIterator<TypeList<Include>, TypeList<>>
+#define ITER_I ViewIterator<Typelist<Include>, Typelist<>>
 
 namespace arch::ecs {
 
 TEMPLATE_I
-ITER_I::ViewIterator(const View<TypeList<Include>, TypeList<>>& view, bool end) noexcept {
+ITER_I::ViewIterator(const View<Typelist<Include>, Typelist<>>& view, bool end) noexcept {
 	if (view._minCpoolIdx != (u32)-1) {
 		if (end) {
 			_denseI = std::to_address(view._cpools[0]->_dense.end());

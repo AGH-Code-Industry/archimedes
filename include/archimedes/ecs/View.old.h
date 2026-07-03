@@ -14,15 +14,15 @@ class Domain;
 /// @tparam ...Includes - Component types to include (supports const)
 /// @tparam ...Excludes - Component types to exclude
 template<class... Includes, class... Excludes>
-class View<TypeList<Includes...>, TypeList<Excludes...>>:
-	public std::ranges::view_interface<View<TypeList<Includes...>, TypeList<Excludes...>>> {
+class View<Typelist<Includes...>, Typelist<Excludes...>>:
+	public std::ranges::view_interface<View<Typelist<Includes...>, Typelist<Excludes...>>> {
 public:
 	/// @brief Iterator type
-	using Iterator = ViewIterator<TypeList<Includes...>, TypeList<Excludes...>>;
+	using Iterator = ViewIterator<Typelist<Includes...>, Typelist<Excludes...>>;
 
-	/// @brief TypeList of Includes
+	/// @brief Typelist of Includes
 	static constexpr auto includes = typelist<Includes...>;
-	/// @brief TypeList of Excludes
+	/// @brief Typelist of Excludes
 	static constexpr auto excludes = typelist<Excludes...>;
 
 	/// @brief Domain constructor
@@ -80,17 +80,17 @@ public:
 	// non flag components
 	static constexpr auto getTL = includes.eraseIf<_details::FlagComponentPred>();
 
-	// passing TypeList, allows for folding of Cs...
+	// passing Typelist, allows for folding of Cs...
 	template<class... Cs>
-	auto _all(TypeList<Cs...>) noexcept;
+	auto _all(Typelist<Cs...>) noexcept;
 	template<class... Cs>
-	auto _components(TypeList<Cs...>) noexcept;
-	// passing TypeList, allows for folding of Cs...
+	auto _components(Typelist<Cs...>) noexcept;
+	// passing Typelist, allows for folding of Cs...
 	// also allows alternate order of args
 	template<bool PassEntity, class Fn, class... Cs>
-	void _forEach(Fn&& fn, TypeList<Cs...>) noexcept;
+	void _forEach(Fn&& fn, Typelist<Cs...>) noexcept;
 	template<class... Cs>
-	auto _get(const Entity entity, TypeList<Cs...>) noexcept;
+	auto _get(const Entity entity, Typelist<Cs...>) noexcept;
 
 	// returns idx of minimal cpool, or (u32)-1 if at least 1 cpool is invalid.
 	u32 _getMinIdx() const noexcept;
@@ -107,6 +107,6 @@ public:
 
 } // namespace arch::ecs
 
-static_assert(std::ranges::view<arch::ecs::View<arch::TypeList<int, float, double>, arch::TypeList<>>>);
+static_assert(std::ranges::view<arch::ecs::View<arch::Typelist<int, float, double>, arch::Typelist<>>>);
 
 #include "View.hpp"

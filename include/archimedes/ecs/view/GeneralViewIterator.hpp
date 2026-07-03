@@ -7,12 +7,12 @@
 	template<class... Includes, class... Excludes> \
 	requires(sizeof...(Includes) != 0 || sizeof...(Excludes) != 0)
 
-#define ITER_IE ViewIterator<TypeList<Includes...>, TypeList<Excludes...>>
+#define ITER_IE ViewIterator<Typelist<Includes...>, Typelist<Excludes...>>
 
 namespace arch::ecs {
 
 TEMPLATE_IE
-ITER_IE::ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& view, bool end) noexcept
+ITER_IE::ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& view, bool end) noexcept
 	requires(includes.size() != 0)
 {
 	if (view._minCpoolIdx != (u32)-1) {
@@ -43,7 +43,7 @@ ITER_IE::ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& 
 }
 
 TEMPLATE_IE
-ITER_IE::ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& view, bool end) noexcept
+ITER_IE::ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& view, bool end) noexcept
 	requires(includes.size() == 0)
 {
 	_exclBegin = view._cpoolsExcl.begin();

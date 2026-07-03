@@ -4,14 +4,14 @@
 //
 #include "../CommonComponentPool.h"
 #include "../Entity.h"
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 
 /// @brief General view iterator
 template<class... Includes, class... Excludes>
 requires(sizeof...(Includes) != 0 || sizeof...(Excludes) != 0)
-class ViewIterator<TypeList<Includes...>, TypeList<Excludes...>> {
+class ViewIterator<Typelist<Includes...>, Typelist<Excludes...>> {
 public:
 	/// @brief Makes iterator bidirectional
 	using iterator_concept = std::bidirectional_iterator_tag;
@@ -44,10 +44,10 @@ public:
 	ViewIterator& operator=(ViewIterator&&) noexcept = default;
 
 	/// @brief View-based constructor (general)
-	ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& view, bool end) noexcept
+	ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& view, bool end) noexcept
 		requires(includes.size() != 0);
 	/// @brief View-based constructor (exclude-only)
-	ViewIterator(const View<TypeList<Includes...>, TypeList<Excludes...>>& view, bool end) noexcept
+	ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& view, bool end) noexcept
 		requires(includes.size() == 0);
 
 	/// @brief Comparision operator

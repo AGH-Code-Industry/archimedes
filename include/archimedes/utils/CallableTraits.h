@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <archimedes/utils/TypeList/TypeList.h>
+#include <archimedes/utils/Typelist/Typelist.h>
 
 namespace arch::utils {
 

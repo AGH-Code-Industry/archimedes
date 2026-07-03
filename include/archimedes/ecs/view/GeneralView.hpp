@@ -6,14 +6,14 @@
 	template<class... Includes, class... Excludes> \
 	requires(sizeof...(Includes) != 0 || sizeof...(Excludes) != 0)
 
-#define VIEW_IE View<TypeList<Includes...>, TypeList<Excludes...>>
+#define VIEW_IE View<Typelist<Includes...>, Typelist<Excludes...>>
 
 namespace arch::ecs {
 
 namespace _details {
 
 // helper lambda to obtain ComponentPool type
-constexpr auto cpoolCast = []<class T>(TypeList<T> c) {
+constexpr auto cpoolCast = []<class T>(Typelist<T> c) {
 	if constexpr (c.apply<std::is_const>()) {
 		// const T => const CPool<T>*
 		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
@@ -63,7 +63,7 @@ VIEW_IE::Iterator VIEW_IE::end() const noexcept {
 
 TEMPLATE_IE
 consteval auto VIEW_IE::_nonFlags() {
-	return includes.eraseIf<[]<class T>(TypeList<T>) {
+	return includes.eraseIf<[]<class T>(Typelist<T>) {
 		return _details::ComponentTraits<T>::flag;
 	}>();
 }
@@ -113,7 +113,7 @@ void VIEW_IE::forEach(auto&& fn) {
 
 TEMPLATE_IE
 template<bool WithEntity, class... Cs>
-void VIEW_IE::_forEach(auto&& fn, TypeList<Cs...> wanted) {
+void VIEW_IE::_forEach(auto&& fn, Typelist<Cs...> wanted) {
 	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
 
 	const auto cpoolsBegin = _cpools.cbegin();
@@ -170,7 +170,7 @@ auto VIEW_IE::comps() noexcept {
 
 TEMPLATE_IE
 template<class... Cs>
-auto VIEW_IE::_comps(TypeList<Cs...> wanted) noexcept {
+auto VIEW_IE::_comps(Typelist<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
@@ -206,7 +206,7 @@ auto VIEW_IE::entityComps() noexcept {
 
 TEMPLATE_IE
 template<class... Cs>
-auto VIEW_IE::_entityComps(TypeList<Cs...> wanted) noexcept {
+auto VIEW_IE::_entityComps(Typelist<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
@@ -229,7 +229,7 @@ auto VIEW_IE::comps(const Entity entity) noexcept {
 
 TEMPLATE_IE
 template<class... Cs>
-auto VIEW_IE::_comps(const Entity entity, TypeList<Cs...> wanted) noexcept {
+auto VIEW_IE::_comps(const Entity entity, Typelist<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
 
 	return std::tie(
@@ -245,7 +245,7 @@ auto VIEW_IE::compsOpt(const Entity entity) noexcept {
 
 TEMPLATE_IE
 template<class... Cs>
-auto VIEW_IE::_compsOpt(const Entity entity, TypeList<Cs...> wanted) noexcept
+auto VIEW_IE::_compsOpt(const Entity entity, Typelist<Cs...> wanted) noexcept
 	-> std::optional<decltype(_comps(entity, wanted))> {
 	if (!contains(entity)) {
 		return std::nullopt;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TypeList.hpp"
+#include "Typelist.hpp"
 
 #include "TypeListFwd.h"
 #include <archimedes/utils/FilterIntegerSequence.h>
@@ -24,21 +24,21 @@ namespace arch::utils {
 
 /// @brief Compares two typelists
 template<class... Types, class... Types2>
-static consteval auto operator==(TypeList<Types...>, TypeList<Types2...>) {
-	return std::is_same_v<TypeList<Types...>, TypeList<Types2...>>;
+static consteval auto operator==(Typelist<Types...>, Typelist<Types2...>) {
+	return std::is_same_v<Typelist<Types...>, Typelist<Types2...>>;
 }
 
 /// @brief Compares two typelists
 template<class... Types, class... Types2>
-static consteval auto operator!=(TypeList<Types...>, TypeList<Types2...>) {
-	return !std::is_same_v<TypeList<Types...>, TypeList<Types2...>>;
+static consteval auto operator!=(Typelist<Types...>, Typelist<Types2...>) {
+	return !std::is_same_v<Typelist<Types...>, Typelist<Types2...>>;
 }
 
 template<class... Types>
-struct TypeList: details::SingleTypeAlias<sizeof...(Types) == 1, Types...> {
+struct Typelist: details::SingleTypeAlias<sizeof...(Types) == 1, Types...> {
 private:
 	// Helpers
-	using This = TypeList<Types...>;
+	using This = Typelist<Types...>;
 	static inline constexpr size_t SIZE = sizeof...(Types);
 
 	template<size_t I>
@@ -69,7 +69,7 @@ public:
 	template<size_t I>
 	static consteval auto get() {
 		if constexpr (SIZE == 0 || I >= SIZE) {
-			TL_ERROR("TypeList::get: index out of bounds");
+			TL_ERROR("Typelist::get: index out of bounds");
 			return typelist<>;
 		} else {
 			return typelist<Get<I>>;
@@ -79,7 +79,7 @@ public:
 	/// @brief Returns typelist with the first type
 	static consteval auto front() {
 		if constexpr (SIZE == 0) {
-			TL_ERROR("TypeList::front: empty typelist");
+			TL_ERROR("Typelist::front: empty typelist");
 			return typelist<>;
 		} else {
 			return get<0>();
@@ -89,7 +89,7 @@ public:
 	/// @brief Returns typelist with the last type
 	static consteval auto back() {
 		if constexpr (SIZE < 2) {
-			static_assert(SIZE != 0, "TypeList::back: empty typelist");
+			static_assert(SIZE != 0, "Typelist::back: empty typelist");
 			return This();
 		} else {
 			return get<SIZE - 1>();
@@ -101,10 +101,10 @@ public:
 	template<size_t N = 1>
 	static consteval auto popFront() {
 		if constexpr (SIZE == 0) {
-			TL_ERROR("TypeList::popFront: empty typelist");
+			TL_ERROR("Typelist::popFront: empty typelist");
 			return typelist<>;
 		} else if constexpr (SIZE < N) {
-			TL_ERROR("TypeList::popFront: N bigger that typelist.size()");
+			TL_ERROR("Typelist::popFront: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
 			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
@@ -118,10 +118,10 @@ public:
 	template<size_t N = 1>
 	static consteval auto popBack() {
 		if constexpr (SIZE == 0) {
-			TL_ERROR("TypeList::popBack: empty typelist");
+			TL_ERROR("Typelist::popBack: empty typelist");
 			return typelist<>;
 		} else if constexpr (SIZE < N) {
-			TL_ERROR("TypeList::popBack: N bigger that typelist.size()");
+			TL_ERROR("Typelist::popBack: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
 			return []<size_t... Indexes>(std::index_sequence<Indexes...>) {
@@ -136,7 +136,7 @@ public:
 	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto sublist() {
 		if constexpr (Begin > SIZE) {
-			TL_ERROR("TypeList::sublist: Begin bigger that typelist.size()");
+			TL_ERROR("Typelist::sublist: Begin bigger that typelist.size()");
 			return typelist<>;
 		} else {
 			constexpr auto sublistSize = std::min(Count, SIZE - Begin);
@@ -151,7 +151,7 @@ public:
 	/// @tparam Pos - position to insert types at
 	/// @param other - typelist to insert
 	template<size_t Pos, class... Types2>
-	static consteval auto insert(TypeList<Types2...> other) {
+	static consteval auto insert(Typelist<Types2...> other) {
 		if constexpr (Pos > SIZE) {
 			TL_ERROR("Typelist::insert: Pos out of range");
 			return typelist<>;
@@ -188,14 +188,14 @@ public:
 	/// @brief Appends types
 	/// @param other - typelist to append
 	template<class... Types2>
-	static consteval auto append(TypeList<Types2...> other) {
+	static consteval auto append(Typelist<Types2...> other) {
 		return typelist<Types..., Types2...>;
 	}
 
 	/// @brief Prepends types
 	/// @param other - typelist to prepend
 	template<class... Types2>
-	static consteval auto prepend(TypeList<Types2...>) {
+	static consteval auto prepend(Typelist<Types2...>) {
 		return typelist<Types2..., Types...>;
 	}
 
@@ -211,7 +211,7 @@ public:
 	/// @tparam Count - max length of range to replace
 	/// @param other - typelist to insert
 	template<size_t Begin = 0, size_t Count = npos, class... Types2>
-	static consteval auto replace(TypeList<Types2...> other) {
+	static consteval auto replace(Typelist<Types2...> other) {
 		if constexpr (Begin > SIZE) {
 			TL_ERROR("Typelist::replace: Begin out of range");
 			return typelist<>;
@@ -232,7 +232,7 @@ public:
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
 	template<size_t Begin = 0, size_t Count = npos, class... Types2>
-	static consteval size_t find(TypeList<Types2...>) {
+	static consteval size_t find(Typelist<Types2...>) {
 		constexpr auto other = typelist<Types2...>;
 
 		if constexpr (other.size() == 0) {
@@ -262,7 +262,7 @@ public:
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
 	template<size_t Begin = npos, size_t Count = npos, class... Types2>
-	static consteval size_t rfind(TypeList<Types2...>) {
+	static consteval size_t rfind(Typelist<Types2...>) {
 		constexpr auto other = typelist<Types2...>;
 
 		if constexpr (other.size() == 0) {
@@ -293,15 +293,15 @@ public:
 	/// @brief Checks if typelist contains given type sequence
 	/// @param other - typelist to find
 	template<class... Types2>
-	static consteval auto contains(TypeList<Types2...> other) {
+	static consteval auto contains(Typelist<Types2...> other) {
 		return find(other) != npos;
 	}
 
 	/// @brief Checks if typelist contains all types from sequence
 	/// @param other - typelist with types to find
 	template<class... Types2>
-	static consteval auto containsAll(TypeList<Types2...>) {
-		constexpr auto containsSingle = []<class T>(TypeList<T>) {
+	static consteval auto containsAll(Typelist<Types2...>) {
+		constexpr auto containsSingle = []<class T>(Typelist<T>) {
 			return (std::is_same_v<T, Types> || ...);
 		};
 		return (... && containsSingle(typelist<Types2>)); // fold search
@@ -310,8 +310,8 @@ public:
 	/// @brief Checks if typelist contains all types from sequence
 	/// @param other - typelist with types to find
 	template<class... Types2>
-	static consteval auto containsAny(TypeList<Types2...>) {
-		constexpr auto containsSingle = []<class T>(TypeList<T>) {
+	static consteval auto containsAny(Typelist<Types2...>) {
+		constexpr auto containsSingle = []<class T>(Typelist<T>) {
 			return (std::is_same_v<T, Types> || ...);
 		};
 		return (... || containsSingle(typelist<Types2>)); // fold search
@@ -320,25 +320,25 @@ public:
 	/// @brief Checks if typelist starts with given type sequence
 	/// @param other - typelist to find
 	template<class... Types2>
-	static consteval auto startsWith(TypeList<Types2...> other) {
+	static consteval auto startsWith(Typelist<Types2...> other) {
 		return find(other) == 0;
 	}
 
 	/// @brief Checks if typelist ends with given type sequence
 	/// @param other - typelist to find
 	template<class... Types2>
-	static consteval auto endsWith(TypeList<Types2...> other) {
+	static consteval auto endsWith(Typelist<Types2...> other) {
 		return other.size() <= size() && rfind(other) == size() - other.size();
 	}
 
 	/// @brief Erases types for which predicate returned true
-	/// @tparam Pred - predicate TypeList<T> -> bool
+	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to erase
 	/// @tparam Count - max length of range to erase
 	template<auto Pred, size_t Begin = 0, size_t Count = npos>
 	static consteval auto eraseIf() {
 		if constexpr (SIZE != 0 && Begin >= SIZE) {
-			TL_ERROR("TypeList::eraseIf: Begin out of range");
+			TL_ERROR("Typelist::eraseIf: Begin out of range");
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This();
 		} else {
@@ -363,7 +363,7 @@ public:
 	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
 	static consteval auto eraseIf() {
 		if constexpr (SIZE != 0 && Begin >= SIZE) {
-			TL_ERROR("TypeList::eraseIf: Begin out of range");
+			TL_ERROR("Typelist::eraseIf: Begin out of range");
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This();
 		} else {
@@ -407,7 +407,7 @@ public:
 	}
 
 	/// @brief Retains types for which predicate returned true, erasing the rest
-	/// @tparam Pred - predicate TypeList<T> -> bool
+	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to filter
 	/// @tparam Count - max length of range to filter
 	template<auto Pred, size_t Begin = 0, size_t Count = npos>
@@ -452,7 +452,7 @@ public:
 	}
 
 	/// @brief Transforms types using given function
-	/// @tparam Fn - function TypeList<T1> -> TypeList<T2>
+	/// @tparam Fn - function Typelist<T1> -> Typelist<T2>
 	/// @tparam Begin - beginning of range to transform
 	/// @tparam Count - max length of range to transform
 	template<auto Fn, size_t Begin = 0, size_t Count = npos>
@@ -507,7 +507,7 @@ public:
 /// @brief Unwraps single typed typelists
 /// @details Meant to be used as the last operation in typelist manipulations
 /// @tparam TL - typelist to unwrap
-template<TypeList TL>
+template<Typelist TL>
 using getType = decltype(TL)::type;
 
 } // namespace arch::utils

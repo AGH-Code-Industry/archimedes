@@ -31,6 +31,6 @@
 #include <archimedes/input/Mouse.h>
 #include <archimedes/utils/CallableTraits.h>
 #include <archimedes/utils/IsApplicable.h>
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 #include <gtest/gtest.h>
 #include <stb_image.h>

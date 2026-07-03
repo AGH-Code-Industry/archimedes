@@ -1,11 +1,11 @@
 #pragma once
 
-#include "TypeList/TypeList.h"
+#include "Typelist/Typelist.h"
 
 namespace arch {
 
 using utils::getType;
-using utils::TypeList;
+using utils::Typelist;
 using utils::typelist;
 
 } // namespace arch

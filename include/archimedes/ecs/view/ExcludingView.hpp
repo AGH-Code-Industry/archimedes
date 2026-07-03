@@ -4,7 +4,7 @@
 	template<class... Excludes> \
 	requires(sizeof...(Excludes) != 0)
 
-#define VIEW_E View<TypeList<>, TypeList<Excludes...>>
+#define VIEW_E View<Typelist<>, Typelist<Excludes...>>
 
 namespace arch::ecs {
 

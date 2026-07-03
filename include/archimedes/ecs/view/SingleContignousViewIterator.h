@@ -4,14 +4,14 @@
 //
 #include "../CommonComponentPool.h"
 #include "../Entity.h"
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 
 /// @brief Iterator of a Single-include view, where component is not in-place
 template<class Include>
 requires(!_details::ComponentTraits<Include>::inPlace)
-class ViewIterator<TypeList<Include>, TypeList<>> {
+class ViewIterator<Typelist<Include>, Typelist<>> {
 public:
 	/// @brief Makes iterator random access
 	using iterator_concept = std::random_access_iterator_tag;
@@ -44,7 +44,7 @@ public:
 	ViewIterator& operator=(ViewIterator&&) noexcept = default;
 
 	/// @brief View-based constructor
-	ViewIterator(const View<TypeList<Include>, TypeList<>>& view, bool end) noexcept;
+	ViewIterator(const View<Typelist<Include>, Typelist<>>& view, bool end) noexcept;
 
 	/// @brief Comparision operator
 	bool operator==(const ViewIterator& other) const noexcept;
@@ -89,9 +89,9 @@ private:
 /// @brief Addition operator
 template<class Include>
 requires(!_details::ComponentTraits<Include>::inPlace)
-ViewIterator<TypeList<Include>, TypeList<>> operator+(
+ViewIterator<Typelist<Include>, Typelist<>> operator+(
 	std::ptrdiff_t n,
-	const ViewIterator<TypeList<Include>, TypeList<>>& i
+	const ViewIterator<Typelist<Include>, Typelist<>>& i
 ) noexcept;
 
 } // namespace arch::ecs

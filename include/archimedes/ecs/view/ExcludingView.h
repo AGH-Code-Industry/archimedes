@@ -6,7 +6,7 @@
 #include "ExcludeT.h"
 #include "GeneralViewIterator.h"
 #include <archimedes/utils/CallableTraits.h>
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 
@@ -15,12 +15,12 @@ class Domain;
 /// @brief Exclude-only view
 template<class... Excludes>
 requires(sizeof...(Excludes) != 0)
-class View<TypeList<>, TypeList<Excludes...>>:
-	public std::ranges::view_interface<View<TypeList<>, TypeList<Excludes...>>> {
+class View<Typelist<>, Typelist<Excludes...>>:
+	public std::ranges::view_interface<View<Typelist<>, Typelist<Excludes...>>> {
 public:
 
 	/// @brief Iterator type
-	using Iterator = ViewIterator<TypeList<>, TypeList<Excludes...>>;
+	using Iterator = ViewIterator<Typelist<>, Typelist<Excludes...>>;
 
 	/// @brief Included types (emtpy)
 	static constexpr auto includes = typelist<>;

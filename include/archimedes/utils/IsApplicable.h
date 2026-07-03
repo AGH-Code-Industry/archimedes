@@ -3,7 +3,7 @@
 #include <tuple>
 #include <type_traits>
 
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::utils {
 
@@ -20,7 +20,7 @@ template<class Fn, class... Args>
 struct IsApplicable<Fn, std::tuple<Args...>>: public std::is_invocable<Fn, Args...> {};
 
 template<class Fn, class... Args>
-struct IsApplicable<Fn, TypeList<Args...>>: public std::is_invocable<Fn, Args...> {};
+struct IsApplicable<Fn, Typelist<Args...>>: public std::is_invocable<Fn, Args...> {};
 
 /// @brief Helper value of IsApplicable
 /// @tparam Fn - function type

@@ -6,7 +6,7 @@
 #include "ExcludeT.h"
 #include "GeneralViewIterator.h"
 #include <archimedes/utils/CallableTraits.h>
-#include <archimedes/utils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 
@@ -15,12 +15,12 @@ class Domain;
 /// @brief General view
 template<class... Includes, class... Excludes>
 requires(sizeof...(Includes) != 0 || sizeof...(Excludes) != 0)
-class View<TypeList<Includes...>, TypeList<Excludes...>>:
-	public std::ranges::view_interface<View<TypeList<Includes...>, TypeList<Excludes...>>> {
+class View<Typelist<Includes...>, Typelist<Excludes...>>:
+	public std::ranges::view_interface<View<Typelist<Includes...>, Typelist<Excludes...>>> {
 public:
 
 	/// @brief Iterator type
-	using Iterator = ViewIterator<TypeList<Includes...>, TypeList<Excludes...>>;
+	using Iterator = ViewIterator<Typelist<Includes...>, Typelist<Excludes...>>;
 
 	/// @brief Included types
 	static constexpr auto includes = typelist<Includes...>;
@@ -83,19 +83,19 @@ private:
 
 	// executes for-each for wanted components
 	template<bool WithEntity, class... Cs>
-	void _forEach(auto&& fn, TypeList<Cs...> wanted);
+	void _forEach(auto&& fn, Typelist<Cs...> wanted);
 	// executes comps for wanted components
 	template<class... Cs>
-	auto _comps(TypeList<Cs...> wanted) noexcept;
+	auto _comps(Typelist<Cs...> wanted) noexcept;
 	// executes entityComps for wanted components
 	template<class... Cs>
-	auto _entityComps(TypeList<Cs...> wanted) noexcept;
+	auto _entityComps(Typelist<Cs...> wanted) noexcept;
 	// executes comps(entity) for wanted components
 	template<class... Cs>
-	auto _comps(const Entity entity, TypeList<Cs...> wanted) noexcept;
+	auto _comps(const Entity entity, Typelist<Cs...> wanted) noexcept;
 	// executes compsOpt(entity) for wanted components
 	template<class... Cs>
-	auto _compsOpt(const Entity entity, TypeList<Cs...> wanted) noexcept
+	auto _compsOpt(const Entity entity, Typelist<Cs...> wanted) noexcept
 		-> std::optional<decltype(_comps(entity, wanted))>;
 
 	template<class, class>
