@@ -8,12 +8,12 @@
 
 namespace arch::math {
 
-i32 PerlinNoise2D::_getSeed() {
+i32 PerlinNoise2D::_generateSeed() {
     return std::chrono::system_clock::now().time_since_epoch().count();
 }
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset){
-	build(gridSize, minOffset, maxOffset, _getSeed());
+	build(gridSize, minOffset, maxOffset, _generateSeed());
 }
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed) {
@@ -23,14 +23,15 @@ void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed) 
 	if (minOffset > maxOffset) {
 		throw MathException("Perlin Noise: minOffset must be less than or equal to maxOffset");
 	}
+    _gridSize = gridSize;
+    _seed = seed;
     _rng.seed(seed);
 	_distribution = std::uniform_real_distribution<f32>(minOffset, maxOffset);
-    _gridSize = gridSize;
-	_createPermutation();
-	_createOffsets();
+	_generatePermutation();
+	_generateOffsets();
 }
 
-void PerlinNoise2D::_createPermutation() {
+void PerlinNoise2D::_generatePermutation() {
     _permutation.clear();
 	_permutation.reserve(_gridSize);
 	for (i32 i = 0; i < _gridSize; i++) {
@@ -39,7 +40,7 @@ void PerlinNoise2D::_createPermutation() {
 	std::ranges::shuffle(_permutation, _rng);
 }
 
-void PerlinNoise2D::_createOffsets() {
+void PerlinNoise2D::_generateOffsets() {
     _offsets.clear();
 	_offsets.resize(_gridSize);
 	for (i32 i = 0; i < _gridSize; i++) {
@@ -72,7 +73,7 @@ GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) {
     };
 }
 
-f32 PerlinNoise2D::_cornerContribution(
+f32 PerlinNoise2D::_getCornerContribution(
     const GridCell& cell,
     u32 offsetX,
     u32 offsetY
@@ -114,10 +115,10 @@ f32 PerlinNoise2D::_interpolateCell(
 f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
     GridCell cell = _getGridCell(x, y);
 
-    f32 bottomLeft  = _cornerContribution(cell, 0, 0);
-    f32 bottomRight = _cornerContribution(cell, 1, 0);
-    f32 topLeft     = _cornerContribution(cell, 0, 1);
-    f32 topRight    = _cornerContribution(cell, 1, 1);
+    f32 bottomLeft  = _getCornerContribution(cell, 0, 0);
+    f32 bottomRight = _getCornerContribution(cell, 1, 0);
+    f32 topLeft     = _getCornerContribution(cell, 0, 1);
+    f32 topRight    = _getCornerContribution(cell, 1, 1);
 
     return _interpolateCell(
         bottomLeft,
@@ -139,5 +140,9 @@ f32 PerlinNoise2D::generate(f32 x, f32 y) {
 		currentFrequency *= frequencyFactor;
 	}
 	return std::clamp(result, minResult, maxResult);
+}
+
+i32 PerlinNoise2D::getSeed() {
+    return _seed;
 }
 } // namespace arch::math

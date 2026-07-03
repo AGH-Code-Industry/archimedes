@@ -5,6 +5,8 @@ namespace math = arch::math;
 
 TEST(MathTest, PerlinNoise2DRangeTest) {
     math::PerlinNoise2D::build(100, 0.0f, 0.1f);
+    math::PerlinNoise2D::minResult = -1.0f;
+    math::PerlinNoise2D::maxResult = 1.0f;
 
     for(math::i32 i=0; i<100; i++){
         for(math::i32 j=0; j<100; j++){
