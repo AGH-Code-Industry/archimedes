@@ -28,7 +28,7 @@ As of now, **Archimedes** supports: <br>
 
 For now, the engine was used to make 3 projects:
 - **Catsino** - game about a cat that goes to a casino to win some snacks ([GitHub](https://github.com/Chris-plusplus/catsino))
-- **Sober Students** - game about students from Cracow that must fight dragons to reclaim their beloved drink, inspired on Angry Birds ([GitHub](https://chris-pp.itch.io/sober-students))
+- **Sober Students** - game about students from Cracow that must fight dragons to reclaim their beloved drink, inspired on Angry Birds ([GitHub](https://github.com/Chris-plusplus/SoberStudents))
 - **Epidemic simulator** - project for systems modeling and simulation ([GitHub](https://github.com/Chris-plusplus/Modelowanie-i-symulacja-systemow))
 
 Also, see **examples** directory for example usages of specific subsystems, like audio or rendering.
