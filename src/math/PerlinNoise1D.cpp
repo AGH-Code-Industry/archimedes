@@ -55,6 +55,9 @@ f32 PerlinNoise1D::_generateOctave(f32 x) {
 }
 
 f32 PerlinNoise1D::generate(f32 x) {
+    if(_gradients.empty() || _offsets.empty()) {
+        throw MathException("Perlin Noise 1D: build() must be called before generate()");
+    }
 	f32 result = 0.0f;
 	f32 currentFrequency = baseFrequency;
 	f32 currentAmplitude = baseAmplitude;

@@ -131,6 +131,9 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
 }
 
 f32 PerlinNoise2D::generate(f32 x, f32 y) {
+    if (_permutation.empty() || _offsets.empty()) {
+        throw MathException("Perlin Noise 2D: build() must be called before generate()");
+    }
 	f32 result = 0.0f;
 	f32 currentFrequency = baseFrequency;
 	f32 currentAmplitude = baseAmplitude;
