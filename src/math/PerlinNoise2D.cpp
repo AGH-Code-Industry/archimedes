@@ -18,10 +18,10 @@ void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset){
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed) {
     if (gridSize == 0) {
-        throw MathException("Perlin Noise: gridSize must be greater than 0");
+        throw MathException("Perlin Noise 2D: gridSize must be greater than 0");
     }
 	if (minOffset > maxOffset) {
-		throw MathException("Perlin Noise: minOffset must be less than or equal to maxOffset");
+		throw MathException("Perlin Noise 2D: minOffset must be less than or equal to maxOffset");
 	}
     _gridSize = gridSize;
     _seed = seed;
@@ -60,10 +60,10 @@ GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) {
     f32 xFloor = floor(x);
     f32 yFloor = floor(y);
 
-    f32 gridSize = _permutation.size();
+    f32 size = _gridSize;
 
-    u32 gridX = glm::mod(xFloor, gridSize);
-    u32 gridY = glm::mod(yFloor, gridSize);
+    u32 gridX = glm::mod(xFloor, size);
+    u32 gridY = glm::mod(yFloor, size);
 
     return {
         gridX,

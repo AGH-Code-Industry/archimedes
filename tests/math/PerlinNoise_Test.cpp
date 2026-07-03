@@ -19,3 +19,17 @@ TEST(MathTest, PerlinNoise2DRangeTest) {
         }
     }
 }
+
+TEST(MathTest, PerlinNoise1DRangeTest) {
+    math::PerlinNoise1D::build(100, 0.0f, 0.1f);
+    math::PerlinNoise1D::minResult = -1.0f;
+    math::PerlinNoise1D::maxResult = 1.0f;
+
+    for(math::i32 i=0; i<10000; i++){
+        math::f32 x = (math::f32) i / 100.0f;
+        math::f32 generated = math::PerlinNoise1D::generate(x);
+        ASSERT_FALSE(std::isnan(generated));
+        ASSERT_TRUE(math::PerlinNoise1D::minResult < generated);
+        ASSERT_TRUE(generated < math::PerlinNoise1D::maxResult);
+    }
+}
