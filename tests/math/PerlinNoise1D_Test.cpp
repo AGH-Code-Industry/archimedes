@@ -3,6 +3,19 @@
 
 namespace math = arch::math;
 
+static void assertValueInRange(math::f32 generated, math::f32 x) {
+    SCOPED_TRACE(
+        ::testing::Message()
+            << "x = " << x
+            << ", generated = " << generated
+            << ", seed = " << math::PerlinNoise1D::getSeed()
+    );
+
+    ASSERT_FALSE(std::isnan(generated));
+    ASSERT_GT(generated, math::PerlinNoise1D::minResult);
+    ASSERT_LT(generated, math::PerlinNoise1D::maxResult);
+}
+
 TEST(MathTest, PerlinNoise1DGenerateBeforeBuildTest) {
     ASSERT_THROW(math::PerlinNoise1D::generate(0.5f), math::MathException);
 }
@@ -15,9 +28,7 @@ TEST(MathTest, PerlinNoise1DRangeTest) {
     for(math::i32 i=0; i<10000; i++){
         math::f32 x = (math::f32) i / 100.0f;
         math::f32 generated = math::PerlinNoise1D::generate(x);
-        ASSERT_FALSE(std::isnan(generated));
-        ASSERT_TRUE(math::PerlinNoise1D::minResult < generated);
-        ASSERT_TRUE(generated < math::PerlinNoise1D::maxResult);
+        assertValueInRange(generated, x);
     }
 }
 
@@ -42,9 +53,7 @@ TEST(MathTest, PerlinNoise1DNegativeCoordinatesTest) {
     for(math::i32 i=-500; i<500; i++){
         math::f32 x = (math::f32) i / 10.0f;
         math::f32 generated = math::PerlinNoise1D::generate(x);
-        ASSERT_FALSE(std::isnan(generated));
-        ASSERT_TRUE(math::PerlinNoise1D::minResult < generated);
-        ASSERT_TRUE(generated < math::PerlinNoise1D::maxResult);
+        assertValueInRange(generated, x);
     }
 }
 
@@ -56,8 +65,6 @@ TEST(MathTest, PerlinNoise1DNoOffsetsTest) {
     for(math::i32 i=-500; i<500; i++){
         math::f32 x = (math::f32) i / 10.0f;
         math::f32 generated = math::PerlinNoise1D::generate(x);
-        ASSERT_FALSE(std::isnan(generated));
-        ASSERT_TRUE(math::PerlinNoise1D::minResult < generated);
-        ASSERT_TRUE(generated < math::PerlinNoise1D::maxResult);
+        assertValueInRange(generated, x);
     }
 }

@@ -3,6 +3,20 @@
 
 namespace math = arch::math;
 
+void assertValueInRange(math::f32 generated, math::f32 x, math::f32 y) {
+    SCOPED_TRACE(
+        ::testing::Message()
+            << "x = " << x
+            << ", y = " << y
+            << ", generated = " << generated
+            << ", seed = " << math::PerlinNoise2D::getSeed()
+    );
+
+    ASSERT_FALSE(std::isnan(generated));
+    ASSERT_GT(generated, math::PerlinNoise2D::minResult);
+    ASSERT_LT(generated, math::PerlinNoise2D::maxResult);
+}
+
 TEST(MathTest, PerlinNoise2DGenerateBeforeBuildTest) {
     ASSERT_THROW(math::PerlinNoise2D::generate(0.5f, 0.5f), math::MathException);
 }
@@ -17,9 +31,7 @@ TEST(MathTest, PerlinNoise2DRangeTest) {
             math::f32 x = (math::f32) i / 100.0f;
             math::f32 y = (math::f32) j / 100.0f;
             math::f32 generated = math::PerlinNoise2D::generate(x, y);
-            ASSERT_FALSE(std::isnan(generated));
-            ASSERT_TRUE(math::PerlinNoise2D::minResult < generated);
-            ASSERT_TRUE(generated < math::PerlinNoise2D::maxResult);
+            assertValueInRange(generated, x, y);
         }
     }
 }
@@ -48,9 +60,7 @@ TEST(MathTest, PerlinNoise2DNegativeCoordinatesTest) {
             math::f32 x = (math::f32) i / 10.0f;
             math::f32 y = (math::f32) j / 10.0f;
             math::f32 generated = math::PerlinNoise2D::generate(x, y);
-            ASSERT_FALSE(std::isnan(generated));
-            ASSERT_TRUE(math::PerlinNoise2D::minResult < generated);
-            ASSERT_TRUE(generated < math::PerlinNoise2D::maxResult);
+            assertValueInRange(generated, x, y);
         }
     }
 }
@@ -65,9 +75,7 @@ TEST(MathTest, PerlinNoise2DNoOffsetsTest) {
             math::f32 x = (math::f32) i / 10.0f;
             math::f32 y = (math::f32) j / 10.0f;
             math::f32 generated = math::PerlinNoise2D::generate(x, y);
-            ASSERT_FALSE(std::isnan(generated));
-            ASSERT_TRUE(math::PerlinNoise2D::minResult < generated);
-            ASSERT_TRUE(generated < math::PerlinNoise2D::maxResult);
+            assertValueInRange(generated, x, y);
         }
     }
 }
