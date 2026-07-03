@@ -17,7 +17,6 @@ struct GridCell {
 class PerlinNoise2D
 {
     inline static std::mt19937 _rng;
-    inline static std::uniform_real_distribution<f32> _distribution;
     inline static std::vector<u32> _permutation;
     inline static std::vector<std::vector<f32>> _offsets;
     inline static u32 _gridSize;
@@ -33,7 +32,7 @@ class PerlinNoise2D
     static i32 _generateSeed();
     static u32 _getHash(u32 x, u32 y);
     static void _generatePermutation();
-    static void _generateOffsets();
+    static void _generateOffsets(f32 minOffset, f32 maxOffset);
     static f32 _generateOctave(f32 x, f32 y);
 
     static GridCell _getGridCell(f32 x, f32 y);
@@ -51,6 +50,10 @@ public:
 
     static void build(u32 gridSize, f32 minOffset, f32 maxOffset);
     static void build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed);
+
+    static void build(u32 gridSize);
+    static void build(u32 gridSize, i32 seed);
+
     static f32 generate(f32 x, f32 y);
     static i32 getSeed();
 };

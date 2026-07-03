@@ -17,18 +17,22 @@ void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset){
 }
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset, i32 seed) {
+    build(gridSize, seed);
+	_generateOffsets(minOffset, maxOffset);
+}
+
+void PerlinNoise2D::build(u32 gridSize){
+    build(gridSize, _generateSeed());
+}
+
+void PerlinNoise2D::build(u32 gridSize, i32 seed){
     if (gridSize == 0) {
         throw MathException("Perlin Noise 2D: gridSize must be greater than 0");
     }
-	if (minOffset > maxOffset) {
-		throw MathException("Perlin Noise 2D: minOffset must be less than or equal to maxOffset");
-	}
     _gridSize = gridSize;
     _seed = seed;
     _rng.seed(seed);
-	_distribution = std::uniform_real_distribution<f32>(minOffset, maxOffset);
-	_generatePermutation();
-	_generateOffsets();
+    _generatePermutation();
 }
 
 void PerlinNoise2D::_generatePermutation() {
@@ -40,13 +44,17 @@ void PerlinNoise2D::_generatePermutation() {
 	std::ranges::shuffle(_permutation, _rng);
 }
 
-void PerlinNoise2D::_generateOffsets() {
+void PerlinNoise2D::_generateOffsets(f32 minOffset, f32 maxOffset) {
+    if (minOffset > maxOffset) {
+		throw MathException("Perlin Noise 2D: minOffset must be less than or equal to maxOffset");
+	}
+    auto distribution = std::uniform_real_distribution<f32>(minOffset, maxOffset);
     _offsets.clear();
 	_offsets.resize(_gridSize);
 	for (i32 i = 0; i < _gridSize; i++) {
 		_offsets[i].reserve(_gridSize);
 		for (i32 j = 0; j < _gridSize; j++) {
-			_offsets[i].push_back(_distribution(_rng));
+			_offsets[i].push_back(distribution(_rng));
 		}
 	}
 }
@@ -92,7 +100,8 @@ f32 PerlinNoise2D::_getCornerContribution(
         _constantVectors[hash % 4]
     );
 
-    return gradientDot + _offsets[cornerX][cornerY];
+    f32 offset = _offsets.empty() ? 0.0f : _offsets[cornerX][cornerY];
+    return gradientDot + offset;
 }
 
 f32 PerlinNoise2D::_interpolateCell(
@@ -131,7 +140,7 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
 }
 
 f32 PerlinNoise2D::generate(f32 x, f32 y) {
-    if (_permutation.empty() || _offsets.empty()) {
+    if (_permutation.empty()) {
         throw MathException("Perlin Noise 2D: build() must be called before generate()");
     }
 	f32 result = 0.0f;

@@ -10,7 +10,6 @@ namespace arch::math {
 class PerlinNoise1D
 {
     inline static std::mt19937 _rng;
-    inline static std::uniform_real_distribution<f32> _offsetsDistribution;
     inline static auto _gradientsDistribution = std::uniform_real_distribution<f32>(-1.0f, 1.0f);
     inline static std::vector<f32> _gradients;
     inline static std::vector<f32> _offsets;
@@ -18,7 +17,8 @@ class PerlinNoise1D
     inline static i32 _seed;
 
     static i32 _generateSeed();
-    static void _generateGradientsAndOffsets();
+    static void _generateGradients();
+    static void _generateOffsets(f32 minOffset, f32 maxOffset);
     static f32 _generateOctave(f32 x);
 
 public:
@@ -32,6 +32,10 @@ public:
 
     static void build(u32 nodesSize, f32 minOffset, f32 maxOffset);
     static void build(u32 nodesSize, f32 minOffset, f32 maxOffset, i32 seed);
+
+    static void build(u32 nodesSize);
+    static void build(u32 nodesSize, i32 seed);
+
     static f32 generate(f32 x);
     static i32 getSeed();
 };
