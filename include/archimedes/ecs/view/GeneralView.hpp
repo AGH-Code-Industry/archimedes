@@ -12,9 +12,27 @@ namespace arch::ecs {
 
 namespace _details {
 
+template<class T>
+concept TraitHasValue = requires {
+	{ T::value };
+};
+
+template<template<class> class Trait>
+constexpr auto traitFn() {
+	return [](auto tl) {
+		using TraitT = Trait<getType<tl>>;
+
+		if constexpr (TraitHasValue<TraitT>) {
+			return Trait<getType<tl>>::value;
+		} else {
+			return typelist<typename Trait<getType<tl>>::type>;
+		}
+	};
+}
+
 // helper lambda to obtain ComponentPool type
 constexpr auto cpoolCast = []<class T>(Typelist<T> c) {
-	if constexpr (typelist<T>.apply<std::is_const>()) {
+	if constexpr (c.apply(traitFn<std::is_const>())) {
 		// const T => const CPool<T>*
 		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
 	} else {
