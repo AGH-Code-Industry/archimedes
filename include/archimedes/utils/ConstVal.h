@@ -9,13 +9,12 @@ class ConstVal: public std::integral_constant<T, v> {
 public:
 	using InnerType = T;
 
-	template<class T>
-	requires(std::is_arithmetic_v<T>)
-	consteval operator T() const {
-		return T(v);
+	template<class T2>
+	requires(std::is_arithmetic_v<T2>)
+	consteval operator T2() const {
+		return T2(v);
 	}
 
-	template<class T>
 	consteval operator bool() const {
 		return bool(v);
 	}
