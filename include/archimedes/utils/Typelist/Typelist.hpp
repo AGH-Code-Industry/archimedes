@@ -88,6 +88,14 @@ struct SingleTypeAlias<true, T, Ts...> {
 	template<template<class> class Trait>
 	static consteval auto apply() {
 		return Trait<T>::value;
+template<template<class> class Trait>
+constexpr auto traitFn = [](auto tl) {
+	if constexpr (requires {
+					  { Trait<typename decltype(tl)::type>::value };
+				  }) {
+		return Trait<typename decltype(tl)::type>::value;
+	} else {
+		return typelist<typename Trait<typename decltype(tl)::type>::type>;
 	}
 };
 
