@@ -12,27 +12,9 @@ namespace arch::ecs {
 
 namespace _details {
 
-template<class T>
-concept TraitHasValue = requires {
-	{ T::value };
-};
-
-template<template<class> class Trait>
-constexpr auto traitFn() {
-	return [](auto tl) {
-		using TraitT = Trait<getType<tl>>;
-
-		if constexpr (TraitHasValue<TraitT>) {
-			return Trait<getType<tl>>::value;
-		} else {
-			return typelist<typename Trait<getType<tl>>::type>;
-		}
-	};
-}
-
 // helper lambda to obtain ComponentPool type
 constexpr auto cpoolCast = []<class T>(Typelist<T> c) {
-	if constexpr (c.apply(traitFn<std::is_const>())) {
+	if constexpr (c.template apply<std::is_const>()) {
 		// const T => const CPool<T>*
 		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
 	} else {
@@ -81,7 +63,7 @@ VIEW_IE::Iterator VIEW_IE::end() const noexcept {
 
 TEMPLATE_IE
 consteval auto VIEW_IE::_nonFlags() {
-	return includes.eraseIf<[]<class T>(Typelist<T>) {
+	return includes.template eraseIf<[]<class T>(Typelist<T>) {
 		return _details::ComponentTraits<T>::flag;
 	}>();
 }
@@ -89,7 +71,7 @@ consteval auto VIEW_IE::_nonFlags() {
 TEMPLATE_IE
 consteval auto VIEW_IE::_availableComponents() {
 	constexpr auto nonFlags = _nonFlags();
-	constexpr auto nonConstAsConst = nonFlags.eraseIf<std::is_const>().transform<std::add_const>();
+	constexpr auto nonConstAsConst = nonFlags.template eraseIf<std::is_const>().template transform<std::add_const>();
 
 	return nonFlags + nonConstAsConst;
 }
@@ -105,22 +87,23 @@ void VIEW_IE::forEach(auto&& fn) {
 	using Traits = utils::CallableTraits<decltype(fn)>;
 	if constexpr (Traits::isCallable) { // non-template callable
 		constexpr auto args = Traits::args;
-		constexpr bool entityFirst = args.front().apply<_details::IsEntity>();
-		constexpr auto wanted = args.popFront<entityFirst>() // remove first if entity
-									.transform<std::remove_reference>(); // remove references
+		constexpr bool entityFirst = args.front().template apply<_details::IsEntity>();
+		constexpr auto wanted = args.template popFront<entityFirst>() // remove first if entity
+									.template transform<std::remove_reference>(); // remove references
 
 		constexpr auto available = _availableComponents();
 
 		static_assert(available.containsAll(wanted), "wanted components exceed available");
 
 		_forEach<entityFirst>(std::forward<decltype(fn)>(fn), wanted);
-	} else if constexpr (utils::
-							 isApplicableV<decltype(fn), decltype(nonFlags.transform<std::add_lvalue_reference>())>) {
+	} else if constexpr (utils::isApplicableV<
+							 decltype(fn),
+							 decltype(nonFlags.template transform<std::add_lvalue_reference>())>) {
 		// template matching of available
 		_forEach<false>(std::forward<decltype(fn)>(fn), nonFlags);
 	} else if constexpr (utils::isApplicableV<
 							 decltype(fn),
-							 decltype(typelist<Entity> + nonFlags.transform<std::add_lvalue_reference>())>) {
+							 decltype(typelist<Entity> + nonFlags.template transform<std::add_lvalue_reference>())>) {
 		// template matching of entity + available
 		_forEach<true>(std::forward<decltype(fn)>(fn), nonFlags);
 	} else {
@@ -132,7 +115,7 @@ void VIEW_IE::forEach(auto&& fn) {
 TEMPLATE_IE
 template<bool WithEntity, class... Cs>
 void VIEW_IE::_forEach(auto&& fn, Typelist<Cs...> wanted) {
-	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+	constexpr auto cpoolsCast = wanted.template transform<_details::cpoolCast>();
 
 	const auto cpoolsBegin = _cpools.cbegin();
 	const auto cpoolsMin = cpoolsBegin + _minCpoolIdx;
@@ -154,12 +137,12 @@ void VIEW_IE::_forEach(auto&& fn, Typelist<Cs...> wanted) {
 			// find and pass all components
 			if constexpr (WithEntity) {
 				fn(entity,
-				   reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
+				   reinterpret_cast<getType<cpoolsCast.template get<wanted.find(typelist<Cs>)>()>>(
 					   _cpools[includes.find(typelist<Cs>)]
 				   )
 					   ->get(entity)...);
 			} else {
-				fn(reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(
+				fn(reinterpret_cast<getType<cpoolsCast.template get<wanted.find(typelist<Cs>)>()>>(
 					   _cpools[includes.find(typelist<Cs>)]
 				)
 					   ->get(entity)...);
@@ -173,7 +156,7 @@ auto VIEW_IE::comps() noexcept {
 	constexpr auto nonFlags = _nonFlags();
 	static_assert(nonFlags.size() != 0, "Cannot call comps() on flag-only views");
 	if constexpr (includes.size() == 1) { // single include, return cpool
-		constexpr auto cpool = nonFlags.transform<_details::cpoolCast>();
+		constexpr auto cpool = nonFlags.template transform<_details::cpoolCast>();
 
 		if (_cpools.front()) {
 			return std::views::zip(std::views::all(*reinterpret_cast<getType<cpool>>(_cpools.front())));
@@ -189,11 +172,11 @@ auto VIEW_IE::comps() noexcept {
 TEMPLATE_IE
 template<class... Cs>
 auto VIEW_IE::_comps(Typelist<Cs...> wanted) noexcept {
-	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+	constexpr auto cpoolsCast = wanted.template transform<_details::cpoolCast>();
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
 			   return std::tie(
-				   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
+				   reinterpret_cast<getType<cpoolsCast.template get<typelist<Cs...>.find(typelist<Cs>)>()>>(
 					   _cpools[includes.find(typelist<Cs>)]
 				   )
 					   ->get(entity)...
@@ -206,7 +189,7 @@ auto VIEW_IE::entityComps() noexcept {
 	constexpr auto nonFlags = _nonFlags();
 	static_assert(nonFlags.size() != 0, "Cannot call entityComps() on flag-only views");
 	if constexpr (includes.size() == 1) {
-		constexpr auto cpool = nonFlags.transform<_details::cpoolCast>();
+		constexpr auto cpool = nonFlags.template transform<_details::cpoolCast>();
 
 		if (_cpools.front()) {
 			return std::views::zip(
@@ -225,13 +208,13 @@ auto VIEW_IE::entityComps() noexcept {
 TEMPLATE_IE
 template<class... Cs>
 auto VIEW_IE::_entityComps(Typelist<Cs...> wanted) noexcept {
-	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+	constexpr auto cpoolsCast = wanted.template transform<_details::cpoolCast>();
 
 	return std::views::all(*this) | std::views::transform([_cpools = _cpools](const Entity entity) {
 			   return std::tuple_cat(
 				   std::tuple(entity),
 				   std::tie(
-					   reinterpret_cast<getType<cpoolsCast.get<typelist<Cs...>.find(typelist<Cs>)>()>>(
+					   reinterpret_cast<getType<cpoolsCast.template get<typelist<Cs...>.find(typelist<Cs>)>()>>(
 						   _cpools[includes.find(typelist<Cs>)]
 					   )
 						   ->get(entity)...
@@ -248,10 +231,12 @@ auto VIEW_IE::comps(const Entity entity) noexcept {
 TEMPLATE_IE
 template<class... Cs>
 auto VIEW_IE::_comps(const Entity entity, Typelist<Cs...> wanted) noexcept {
-	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+	constexpr auto cpoolsCast = wanted.template transform<_details::cpoolCast>();
 
 	return std::tie(
-		reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(_cpools[includes.find(typelist<Cs>)])
+		reinterpret_cast<getType<cpoolsCast.template get<wanted.find(typelist<Cs>)>()>>(
+			_cpools[includes.find(typelist<Cs>)]
+		)
 			->get(entity)...
 	);
 }
@@ -269,10 +254,12 @@ auto VIEW_IE::_compsOpt(const Entity entity, Typelist<Cs...> wanted) noexcept
 		return std::nullopt;
 	}
 
-	constexpr auto cpoolsCast = wanted.transform<_details::cpoolCast>();
+	constexpr auto cpoolsCast = wanted.template transform<_details::cpoolCast>();
 
 	return std::tie(
-		reinterpret_cast<getType<cpoolsCast.get<wanted.find(typelist<Cs>)>()>>(_cpools[includes.find(typelist<Cs>)])
+		reinterpret_cast<getType<cpoolsCast.template get<wanted.find(typelist<Cs>)>()>>(
+			_cpools[includes.find(typelist<Cs>)]
+		)
 			->get(entity)...
 	);
 }

@@ -80,8 +80,9 @@ template<class T, class... Ts>
 struct SingleTypeAlias<true, T, Ts...> {
 	using type = T;
 
-	static consteval auto apply(auto fn) {
-		return fn(typelist<T>);
+	template<auto Fn>
+	static consteval auto apply() {
+		return Fn(typelist<T>);
 	}
 
 	template<template<class> class Trait>
