@@ -48,7 +48,7 @@ private:
 public:
 
 	/// @brief Value representing "end of list" or "not found"
-	static inline constexpr ConstSize<-1> npos = {};
+	static inline constexpr ConstSize<(size_t)-1> npos = {};
 
 	/// @brief Checks if typelist is empty
 	static consteval auto emtpy() {
