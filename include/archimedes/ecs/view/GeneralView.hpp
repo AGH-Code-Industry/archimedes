@@ -14,7 +14,7 @@ namespace _details {
 
 // helper lambda to obtain ComponentPool type
 constexpr auto cpoolCast = []<class T>(Typelist<T> c) {
-	if constexpr (c.apply<std::is_const>()) {
+	if constexpr (typelist<T>.apply<std::is_const>()) {
 		// const T => const CPool<T>*
 		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
 	} else {
