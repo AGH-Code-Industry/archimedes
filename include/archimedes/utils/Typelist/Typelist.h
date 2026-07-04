@@ -43,7 +43,7 @@ private:
 	static inline constexpr ConstSize<sizeof...(Types)> SIZE = {};
 
 	template<size_t I>
-	using Get = std::conditional_t<SIZE != 0, typename details::TLGet<I, Types...>::type, void>;
+	using Get = std::conditional_t<SIZE.value != 0, typename details::TLGet<I, Types...>::type, void>;
 
 public:
 
@@ -90,7 +90,7 @@ public:
 	/// @brief Returns typelist with the last type
 	static consteval auto back() {
 		if constexpr (SIZE < 2) {
-			static_assert(SIZE != 0, "Typelist::back: empty typelist");
+			static_assert(SIZE.value != 0, "Typelist::back: empty typelist");
 			return This();
 		} else {
 			return get(SIZE - constsize<1>);
@@ -348,7 +348,7 @@ public:
 	/// @tparam Count - max length of range to erase
 	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto eraseIf(auto pred, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
-		if constexpr (SIZE != 0 && Begin >= SIZE) {
+		if constexpr (SIZE.value != 0 && Begin >= SIZE) {
 			TL_ERROR("Typelist::eraseIf: Begin out of range");
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This();
@@ -373,7 +373,7 @@ public:
 	/// @tparam Count - max length of range to erase
 	// template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
 	// static consteval auto eraseIf() {
-	//	if constexpr (SIZE != 0 && Begin >= SIZE) {
+	//	if constexpr (SIZE.value != 0 && Begin >= SIZE) {
 	//		TL_ERROR("Typelist::eraseIf: Begin out of range");
 	//	} else if constexpr (SIZE == 0 || Count == 0) {
 	//		return This();
@@ -398,7 +398,7 @@ public:
 	/// @tparam Count - max length of range to distinct
 	template<size_t Begin = 0, size_t Count = npos>
 	static consteval auto distinct(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
-		if constexpr (SIZE != 0 && Begin >= SIZE) {
+		if constexpr (SIZE.value != 0 && Begin >= SIZE) {
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This{};
 		} else {
