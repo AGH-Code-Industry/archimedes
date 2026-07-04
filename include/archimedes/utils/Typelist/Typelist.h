@@ -3,6 +3,7 @@
 #include "Typelist.hpp"
 
 #include "TypelistFwd.h"
+#include <archimedes/utils/ConstVal.h>
 #include <archimedes/utils/FilterIntegerSequence.h>
 
 // The below implementations heavily rely on niche std::index_sequence,
@@ -10,7 +11,7 @@
 // This eliminates most of recursive templates, which are expensive
 // Example:
 // This lambda:
-// [&]<size_t... i>(std::index_sequence<i...>) {
+// [&]<size_t... i>(std::index_sequence<i...>) consteval {
 //     return typelist<Get<i>...>;
 // }(std::make_index_sequence<N>());
 // Is analogous to:
@@ -39,7 +40,7 @@ struct Typelist: details::SingleTypeAlias<sizeof...(Types) == 1, Types...> {
 private:
 	// Helpers
 	using This = Typelist<Types...>;
-	static inline constexpr size_t SIZE = sizeof...(Types);
+	static inline constexpr ConstSize<sizeof...(Types)> SIZE = {};
 
 	template<size_t I>
 	using Get = std::conditional_t<SIZE != 0, typename details::TLGet<I, Types...>::type, void>;
@@ -47,11 +48,11 @@ private:
 public:
 
 	/// @brief Value representing "end of list" or "not found"
-	static inline constexpr size_t npos = (size_t)-1;
+	static inline constexpr ConstSize<-1> npos = {};
 
 	/// @brief Checks if typelist is empty
 	static consteval auto emtpy() {
-		return SIZE == 0;
+		return SIZE == constsize<0>;
 	}
 
 	/// @brief Returns typelist size
@@ -67,7 +68,7 @@ public:
 	/// @brief Returns typelist with I-th type
 	/// @tparam I - index of type to get
 	template<size_t I>
-	static consteval auto get() {
+	static consteval auto get(ConstSize<I>) {
 		if constexpr (SIZE == 0 || I >= SIZE) {
 			TL_ERROR("Typelist::get: index out of bounds");
 			return typelist<>;
@@ -82,7 +83,7 @@ public:
 			TL_ERROR("Typelist::front: empty typelist");
 			return typelist<>;
 		} else {
-			return get<0>();
+			return get(constsize<0>);
 		}
 	}
 
@@ -92,14 +93,14 @@ public:
 			static_assert(SIZE != 0, "Typelist::back: empty typelist");
 			return This();
 		} else {
-			return get<SIZE - 1>();
+			return get(SIZE - constsize<1>);
 		}
 	}
 
 	/// @brief Removes N first types
 	/// @tparam N - how many types to remove
 	template<size_t N = 1>
-	static consteval auto popFront() {
+	static consteval auto popFront(ConstSize<N> = {}) {
 		if constexpr (SIZE == 0) {
 			TL_ERROR("Typelist::popFront: empty typelist");
 			return typelist<>;
@@ -107,7 +108,7 @@ public:
 			TL_ERROR("Typelist::popFront: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 				return typelist<Get<Indexes + N>...>; // move i by N
 			}(std::make_index_sequence<SIZE - N>()); // for i in range(SIZE - N)
 		}
@@ -116,7 +117,7 @@ public:
 	/// @brief Removes N last types
 	/// @tparam N - how many types to remove
 	template<size_t N = 1>
-	static consteval auto popBack() {
+	static consteval auto popBack(ConstSize<N> = {}) {
 		if constexpr (SIZE == 0) {
 			TL_ERROR("Typelist::popBack: empty typelist");
 			return typelist<>;
@@ -124,7 +125,7 @@ public:
 			TL_ERROR("Typelist::popBack: N bigger that typelist.size()");
 			return typelist<>;
 		} else {
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 				return typelist<Get<Indexes>...>; // get elems in range [0, SIZE - N)
 			}(std::make_index_sequence<SIZE - N>()); // for i in range(SIZE - N)
 		}
@@ -134,14 +135,14 @@ public:
 	/// @tparam Begin - beginning of new list
 	/// @tparam Count - max length of new list
 	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto sublist() {
+	static consteval auto sublist(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (Begin > SIZE) {
 			TL_ERROR("Typelist::sublist: Begin bigger that typelist.size()");
 			return typelist<>;
 		} else {
 			constexpr auto sublistSize = std::min(Count, SIZE - Begin);
 
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 				return typelist<Get<Indexes + Begin>...>; // move i by Begin
 			}(std::make_index_sequence<sublistSize>()); // for i in range(sublistSize)
 		}
@@ -151,14 +152,17 @@ public:
 	/// @tparam Pos - position to insert types at
 	/// @param other - typelist to insert
 	template<size_t Pos, class... Types2>
-	static consteval auto insert(Typelist<Types2...> other) {
+	static consteval auto insert(ConstSize<Pos>, Typelist<Types2...> other) {
 		if constexpr (Pos > SIZE) {
 			TL_ERROR("Typelist::insert: Pos out of range");
 			return typelist<>;
 		} else {
 			constexpr auto rightSize = SIZE - Pos;
 
-			return [&]<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+			return [&]<size_t... Head, size_t... Tail>(
+					   std::index_sequence<Head...>,
+					   std::index_sequence<Tail...>
+				   ) consteval {
 				return typelist<Get<Head>..., Types2..., Get<Tail + Pos>...>; // move j by Pos
 			}(std::make_index_sequence<Pos>(), std::make_index_sequence<rightSize>()); // for i in range(Pos) &
 																					   // for j in range(rightSize)
@@ -169,7 +173,7 @@ public:
 	/// @tparam Begin - beginning of range to remove
 	/// @tparam Count - max length of range to remove
 	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto erase() {
+	static consteval auto erase(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (Begin > SIZE) {
 			TL_ERROR("Typelist::erase: Begin out of range");
 			return typelist<>;
@@ -178,7 +182,10 @@ public:
 			constexpr auto rightBegin = Begin + toErase;
 			constexpr auto rightSize = SIZE - rightBegin;
 
-			return [&]<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+			return [&]<size_t... Head, size_t... Tail>(
+					   std::index_sequence<Head...>,
+					   std::index_sequence<Tail...>
+				   ) consteval {
 				return typelist<Get<Head>..., Get<Tail + rightBegin>...>; // move j by rightBegin
 			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>()); // for i in range(Begin) &
 																						 // for j in range(rightSize)
@@ -210,8 +217,8 @@ public:
 	/// @tparam Begin - beginning of range to replace
 	/// @tparam Count - max length of range to replace
 	/// @param other - typelist to insert
-	template<size_t Begin = 0, size_t Count = npos, class... Types2>
-	static consteval auto replace(Typelist<Types2...> other) {
+	template<size_t Begin, size_t Count, class... Types2>
+	static consteval auto replace(ConstSize<Begin>, ConstSize<Count>, Typelist<Types2...> other) {
 		if constexpr (Begin > SIZE) {
 			TL_ERROR("Typelist::replace: Begin out of range");
 			return typelist<>;
@@ -220,7 +227,10 @@ public:
 			constexpr auto rightBegin = Begin + toErase;
 			constexpr auto rightSize = SIZE - rightBegin;
 
-			return [&]<size_t... Head, size_t... Tail>(std::index_sequence<Head...>, std::index_sequence<Tail...>) {
+			return [&]<size_t... Head, size_t... Tail>(
+					   std::index_sequence<Head...>,
+					   std::index_sequence<Tail...>
+				   ) consteval {
 				return typelist<Get<Head>..., Types2..., Get<Tail + rightBegin>...>; // move j by rightBegin
 			}(std::make_index_sequence<Begin>(), std::make_index_sequence<rightSize>()); // for i in range(Begin) &
 																						 // for j in range(rightSize)
@@ -232,27 +242,28 @@ public:
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
 	template<size_t Begin = 0, size_t Count = npos, class... Types2>
-	static consteval size_t find(Typelist<Types2...>) {
+	static consteval auto find(Typelist<Types2...>, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		constexpr auto other = typelist<Types2...>;
 
 		if constexpr (other.size() == 0) {
-			return (Begin <= SIZE) ? Begin : 0;
+			return constsize<((Begin <= SIZE) ? Begin : 0)>;
 		} else if constexpr (Begin >= SIZE || other.size() > SIZE) {
 			return npos;
 		} else {
-			constexpr auto searchEnd = std::min(Count <= SIZE - Begin ? Begin + Count : SIZE, SIZE - other.size() + 1);
+			constexpr auto searchEnd =
+				std::min(Count <= SIZE - Begin ? Begin + Count : SIZE.value, SIZE - other.size() + 1);
 
 			if constexpr (Begin >= searchEnd) {
 				return npos;
 			} else {
-				return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return constsize<[&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 					size_t result = npos;
 					(... ||
 					 ((result == npos && sublist<Indexes + Begin, other.size()>() == other) ?
 						  (result = Indexes + Begin, true) : // move i by Begin
 						  false)); // fold search, short circuits when found
 					return result;
-				}(std::make_index_sequence<searchEnd - Begin>()); // for i in range(searchEnd - Begin)
+				}(std::make_index_sequence<searchEnd - Begin>())>; // for i in range(searchEnd - Begin)
 			}
 		}
 	}
@@ -262,11 +273,11 @@ public:
 	/// @tparam Count - max length of range to search
 	/// @param other - typelist to find
 	template<size_t Begin = npos, size_t Count = npos, class... Types2>
-	static consteval size_t rfind(Typelist<Types2...>) {
+	static consteval auto rfind(Typelist<Types2...>, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		constexpr auto other = typelist<Types2...>;
 
 		if constexpr (other.size() == 0) {
-			return (Begin <= SIZE) ? Begin : SIZE;
+			return constsize<((Begin <= SIZE) ? Begin : SIZE.value)>;
 		} else if constexpr (SIZE == 0 || other.size() > SIZE) {
 			return npos;
 		} else {
@@ -277,15 +288,15 @@ public:
 			if constexpr (searchBegin < searchEnd) {
 				return npos;
 			} else {
-				return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+				return constsize<[&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 					size_t result = npos;
 					(... ||
 					 ((result == npos && sublist<searchBegin - Indexes, other.size()>() == other) ?
 						  (result = searchBegin - Indexes, true) : // reverse iteration range
 						  false));
 					return result;
-				}(std::make_index_sequence<searchBegin - searchEnd + 1>()); // for i in range(searchBegin - searchEnd +
-																			// 1)
+				}(std::make_index_sequence<searchBegin - searchEnd + 1>())>; // for i in range(searchBegin - searchEnd +
+																			 // 1)
 			}
 		}
 	}
@@ -301,7 +312,7 @@ public:
 	/// @param other - typelist with types to find
 	template<class... Types2>
 	static consteval auto containsAll(Typelist<Types2...>) {
-		constexpr auto containsSingle = [&]<class T>(Typelist<T>) {
+		constexpr auto containsSingle = [&]<class T>(Typelist<T>) consteval {
 			return (std::is_same_v<T, Types> || ...);
 		};
 		return (... && containsSingle(typelist<Types2>)); // fold search
@@ -311,7 +322,7 @@ public:
 	/// @param other - typelist with types to find
 	template<class... Types2>
 	static consteval auto containsAny(Typelist<Types2...>) {
-		constexpr auto containsSingle = [&]<class T>(Typelist<T>) {
+		constexpr auto containsSingle = [&]<class T>(Typelist<T>) consteval {
 			return (std::is_same_v<T, Types> || ...);
 		};
 		return (... || containsSingle(typelist<Types2>)); // fold search
@@ -335,21 +346,21 @@ public:
 	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to erase
 	/// @tparam Count - max length of range to erase
-	template<auto Pred, size_t Begin = 0, size_t Count = npos>
-	static consteval auto eraseIf() {
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto eraseIf(auto pred, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (SIZE != 0 && Begin >= SIZE) {
 			TL_ERROR("Typelist::eraseIf: Begin out of range");
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This();
 		} else {
-			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
+			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE.value);
 
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) consteval {
 				constexpr auto keepIndexes = utils::filterIntegerSequence<
-					(Indexes < Begin || Indexes >= searchEnd || !Pred(typelist<Get<Indexes>>))... // mask types to keep
+					(Indexes < Begin || Indexes >= searchEnd || !pred(typelist<Get<Indexes>>))... // mask types to keep
 					>(seq);
 
-				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) consteval {
 					return typelist<Get<KIndexes>...>;
 				}(keepIndexes); // return types at keepIndexes...
 			}(std::make_index_sequence<SIZE>());
@@ -360,46 +371,46 @@ public:
 	/// @tparam Pred - type trait T -> bool
 	/// @tparam Begin - beginning of range to erase
 	/// @tparam Count - max length of range to erase
-	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
-	static consteval auto eraseIf() {
-		if constexpr (SIZE != 0 && Begin >= SIZE) {
-			TL_ERROR("Typelist::eraseIf: Begin out of range");
-		} else if constexpr (SIZE == 0 || Count == 0) {
-			return This();
-		} else {
-			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
+	// template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	// static consteval auto eraseIf() {
+	//	if constexpr (SIZE != 0 && Begin >= SIZE) {
+	//		TL_ERROR("Typelist::eraseIf: Begin out of range");
+	//	} else if constexpr (SIZE == 0 || Count == 0) {
+	//		return This();
+	//	} else {
+	//		constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
 
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
-				constexpr auto keepIndexes = utils::filterIntegerSequence<
-					(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value)... // mask types to
-																									// keep
-					>(seq);
+	//		return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+	//			constexpr auto keepIndexes = utils::filterIntegerSequence<
+	//				(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value)... // mask types to
+	//																								// keep
+	//				>(seq);
 
-				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
-					return typelist<Get<KIndexes>...>;
-				}(keepIndexes); // return types at keepIndexes...
-			}(std::make_index_sequence<SIZE>());
-		}
-	}
+	//			return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+	//				return typelist<Get<KIndexes>...>;
+	//			}(keepIndexes); // return types at keepIndexes...
+	//		}(std::make_index_sequence<SIZE>());
+	//	}
+	//}
 
 	/// @brief Erases duplicate types in given range
 	/// @tparam Begin - beginning of range to make distinct
 	/// @tparam Count - max length of range to distinct
 	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto distinct() {
+	static consteval auto distinct(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (SIZE != 0 && Begin >= SIZE) {
 		} else if constexpr (SIZE == 0 || Count == 0) {
 			return This{};
 		} else {
-			constexpr auto searchEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+			constexpr auto searchEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE.value);
 
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) consteval {
 				constexpr auto keepIndexes = utils::filterIntegerSequence<
 					(Indexes < Begin || Indexes >= searchEnd ||
 					 find<Begin, searchEnd - Begin>(typelist<Get<Indexes>>) == Indexes)... // mask types to keep
 					>(seq);
 
-				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
+				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) consteval {
 					return typelist<Get<KIndexes>...>;
 				}(keepIndexes); // return types at keepIndexes...
 			}(std::make_index_sequence<SIZE>());
@@ -410,10 +421,10 @@ public:
 	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to filter
 	/// @tparam Count - max length of range to filter
-	template<auto Pred, size_t Begin = 0, size_t Count = npos>
-	static consteval auto filter() {
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto filter(auto pred, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		return eraseIf<
-			[&](auto tl) {
+			[&](auto tl) consteval {
 				return !Pred(tl);
 			},
 			Begin,
@@ -424,28 +435,28 @@ public:
 	/// @tparam Pred - type trait T -> bool
 	/// @tparam Begin - beginning of range to filter
 	/// @tparam Count - max length of range to filter
-	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	/*template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
 	static consteval auto filter() {
 		return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
-	}
+	}*/
 
 	/// @brief Reverses typelist in given range
 	/// @tparam Begin - beginning of range to reverse
 	/// @tparam Count - max length of range to reverse
 	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto reverse() {
+	static consteval auto reverse(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (Begin >= SIZE) {
 			return typelist<>;
 		} else {
-			constexpr auto reverseEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
-			constexpr auto getIndex = [&](size_t i) { // reverse i in range [Begin, Begin + Count)
+			constexpr auto reverseEnd = (Count >= SIZE - Begin) ? SIZE.value : std::min(Begin + Count, SIZE.value);
+			constexpr auto getIndex = [&](size_t i) consteval { // reverse i in range [Begin, Begin + Count)
 				if (Begin <= i && i < reverseEnd) {
 					return (reverseEnd - 1) - (i - Begin);
 				}
 				return i;
 			};
 
-			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) {
+			return [&]<size_t... Indexes>(std::index_sequence<Indexes...>) consteval {
 				return typelist<Get<getIndex(Indexes)>...>;
 			}(std::make_index_sequence<SIZE>());
 		}
@@ -455,20 +466,20 @@ public:
 	/// @tparam Fn - function Typelist<T1> -> Typelist<T2>
 	/// @tparam Begin - beginning of range to transform
 	/// @tparam Count - max length of range to transform
-	template<auto Fn, size_t Begin = 0, size_t Count = npos>
-	static consteval auto transform() {
+	template<size_t Begin = 0, size_t Count = npos>
+	static consteval auto transform(auto fn, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (Begin >= SIZE) {
 			return typelist<>;
 		} else {
-			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE.value : std::min(Begin + Count, SIZE.value);
 
 			return [&]<size_t... Indexes, size_t... Head, size_t... Tail>(
 					   std::index_sequence<Indexes...>,
 					   std::index_sequence<Head...>,
 					   std::index_sequence<Tail...>
-				   ) {
+				   ) consteval {
 				return typelist<Get<Head>...>.cat( // j
-					Fn(typelist<Get<Indexes + Begin>>)..., // move i by Begin
+					fn(typelist<Get<Indexes + Begin>>)..., // move i by Begin
 					typelist<Get<Tail + transformEnd>...> // move k by transformEnd
 				);
 			}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
@@ -481,27 +492,27 @@ public:
 	/// @tparam Pred - type trait T1 -> T2
 	/// @tparam Begin - beginning of range to transform
 	/// @tparam Count - max length of range to transform
-	template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
-	static consteval auto transform() {
-		if constexpr (Begin >= SIZE) {
-			return typelist<>;
-		} else {
-			constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
+	// template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
+	// static consteval auto transform() {
+	//	if constexpr (Begin >= SIZE) {
+	//		return typelist<>;
+	//	} else {
+	//		constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
 
-			return [&]<size_t... Indexes, size_t... Head, size_t... Tail>(
-					   std::index_sequence<Indexes...>,
-					   std::index_sequence<Head...>,
-					   std::index_sequence<Tail...>
-				   ) {
-				return typelist<Get<Head>...>.cat( // j
-					typelist<typename TypeTrait<Get<Indexes + Begin>>::type>..., // move i by Begin
-					typelist<Get<Tail + transformEnd>...> // move k by transformEnd
-				);
-			}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
-				   std::make_index_sequence<Begin>(), // for j in range(Begin) &
-				   std::make_index_sequence<SIZE - transformEnd>()); // for k in range(SIZE - transformEnd)
-		}
-	}
+	//		return [&]<size_t... Indexes, size_t... Head, size_t... Tail>(
+	//				   std::index_sequence<Indexes...>,
+	//				   std::index_sequence<Head...>,
+	//				   std::index_sequence<Tail...>
+	//			   ) {
+	//			return typelist<Get<Head>...>.cat( // j
+	//				typelist<typename TypeTrait<Get<Indexes + Begin>>::type>..., // move i by Begin
+	//				typelist<Get<Tail + transformEnd>...> // move k by transformEnd
+	//			);
+	//		}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
+	//			   std::make_index_sequence<Begin>(), // for j in range(Begin) &
+	//			   std::make_index_sequence<SIZE - transformEnd>()); // for k in range(SIZE - transformEnd)
+	//	}
+	//}
 };
 
 /// @brief Unwraps single typed typelists
