@@ -2,10 +2,6 @@
 
 cmake_minimum_required(VERSION 3.19)
 
-if(${CMAKE_MAJOR_VERSION} GREATER 3)
-	message(FATAL_ERROR "CMake >=4.X.X is not supported")
-endif()
-
 project(
         archimedes
         LANGUAGES CXX C
