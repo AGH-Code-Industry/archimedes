@@ -230,7 +230,7 @@ struct arch::ecs::ComponentSpecs<Ship> {
 TEST(ECS, Example_ComponentInPlaceCustomPageSize) {
 	ecs::Domain domain;
 
-	std::array<ecs::Entity, 32 * 3> entities;
+	std::array<ecs::Entity, 32 * 3> entities{};
 	for (size_t i = 0; i != 32 * 3; ++i) {
 		entities[i] = domain.newEntity();
 

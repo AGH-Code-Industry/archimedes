@@ -15,21 +15,21 @@ consteval auto filterIntegerSequence(std::integer_sequence<T, Indexes...>) {
 	static_assert(sizeof...(Indexes) == N, "filterIntegerSequence(): sizeof...(Mask) != sizeof...(Indexes)");
 
 	// sum trues
-	constexpr auto keepCount = ((size_t)0 + ... + Mask);
+	constexpr auto keepCount = ((size_t)0 + ... + (size_t)Mask);
 
 	// helper arrays for indexing
-	constexpr auto mask = std::array{ Mask... };
-	constexpr auto indexes = std::array{ Indexes... };
+	constexpr auto mask = std::array<bool, sizeof...(Mask)>{ Mask... };
+	constexpr auto indexes = std::array<size_t, sizeof...(Indexes)>{ Indexes... };
 
-	constexpr auto result = [&] { // makes the result array
-		std::array<T, keepCount> result;
+	constexpr auto result = [&] consteval { // makes the result array
+		std::array<T, keepCount> _result{};
 		size_t i = 0;
 		for (size_t j = 0; j != mask.size(); ++j) {
 			if (mask[j]) {
-				result[i++] = indexes[j];
+				_result[i++] = indexes[j];
 			}
 		}
-		return result;
+		return _result;
 	}();
 
 	// makes integer_sequence from result

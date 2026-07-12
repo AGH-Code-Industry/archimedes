@@ -75,16 +75,6 @@ struct NotTrait {
 template<bool V, class... T>
 struct SingleTypeAlias {};
 
-// Specialization
-template<class T, class... Ts>
-struct SingleTypeAlias<true, T, Ts...> {
-	using type = T;
-
-	static consteval auto apply(auto fn) {
-		return fn(typelist<T>);
-	}
-};
-
 template<template<class> class Trait>
 constexpr auto traitFn = [](auto tl) {
 	if constexpr (requires {
@@ -93,6 +83,22 @@ constexpr auto traitFn = [](auto tl) {
 		return Trait<typename decltype(tl)::type>::value;
 	} else {
 		return typelist<typename Trait<typename decltype(tl)::type>::type>;
+	}
+};
+
+// Specialization
+template<class T, class... Ts>
+struct SingleTypeAlias<true, T, Ts...> {
+	using type = T;
+
+	template<auto fn>
+	static consteval auto apply() {
+		return fn(typelist<T>);
+	}
+
+	template<template<class> class Trait>
+	static consteval auto apply() {
+		return apply<traitFn<Trait>>();
 	}
 };
 

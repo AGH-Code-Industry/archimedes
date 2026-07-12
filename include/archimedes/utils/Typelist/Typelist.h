@@ -346,14 +346,15 @@ public:
 	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to erase
 	/// @tparam Count - max length of range to erase
-	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto eraseIf(auto pred, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
-		if constexpr (SIZE.value != 0 && Begin >= SIZE) {
+	template<auto pred, size_t Begin = 0, size_t Count = npos>
+	static consteval auto eraseIf(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+		if constexpr (SIZE.value != 0 && Begin >= SIZE.value) {
 			TL_ERROR("Typelist::eraseIf: Begin out of range");
-		} else if constexpr (SIZE == 0 || Count == 0) {
+			return This();
+		} else if constexpr (SIZE.value == 0 || Count == 0) {
 			return This();
 		} else {
-			constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE.value);
+			constexpr auto searchEnd = Count >= SIZE.value - Begin ? SIZE.value : std::min(Begin + Count, SIZE.value);
 
 			return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) consteval {
 				constexpr auto keepIndexes = utils::filterIntegerSequence<
@@ -363,35 +364,14 @@ public:
 				return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) consteval {
 					return typelist<Get<KIndexes>...>;
 				}(keepIndexes); // return types at keepIndexes...
-			}(std::make_index_sequence<SIZE>());
+			}(std::make_index_sequence<SIZE.value>());
 		}
 	}
 
-	/// @brief Erases types for which predicate returned true
-	/// @tparam Pred - type trait T -> bool
-	/// @tparam Begin - beginning of range to erase
-	/// @tparam Count - max length of range to erase
-	// template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
-	// static consteval auto eraseIf() {
-	//	if constexpr (SIZE.value != 0 && Begin >= SIZE) {
-	//		TL_ERROR("Typelist::eraseIf: Begin out of range");
-	//	} else if constexpr (SIZE == 0 || Count == 0) {
-	//		return This();
-	//	} else {
-	//		constexpr auto searchEnd = Count >= SIZE - Begin ? SIZE : std::min(Begin + Count, SIZE);
-
-	//		return [&]<size_t... Indexes>(std::index_sequence<Indexes...> seq) {
-	//			constexpr auto keepIndexes = utils::filterIntegerSequence<
-	//				(Indexes < Begin || Indexes >= searchEnd || !TypeTrait<Get<Indexes>>::value)... // mask types to
-	//																								// keep
-	//				>(seq);
-
-	//			return [&]<size_t... KIndexes>(std::index_sequence<KIndexes...>) {
-	//				return typelist<Get<KIndexes>...>;
-	//			}(keepIndexes); // return types at keepIndexes...
-	//		}(std::make_index_sequence<SIZE>());
-	//	}
-	//}
+	template<template<class> class Trait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto eraseIf(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+		return eraseIf<details::traitFn<Trait>, Begin, Count>();
+	}
 
 	/// @brief Erases duplicate types in given range
 	/// @tparam Begin - beginning of range to make distinct
@@ -421,24 +401,20 @@ public:
 	/// @tparam Pred - predicate Typelist<T> -> bool
 	/// @tparam Begin - beginning of range to filter
 	/// @tparam Count - max length of range to filter
-	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto filter(auto pred, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+	template<auto pred, size_t Begin = 0, size_t Count = npos>
+	static consteval auto filter(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		return eraseIf<
 			[&](auto tl) consteval {
-				return !Pred(tl);
+				return !pred(tl);
 			},
 			Begin,
 			Count>();
 	}
 
-	/// @brief Retains types for which predicate returned true, erasing the rest
-	/// @tparam Pred - type trait T -> bool
-	/// @tparam Begin - beginning of range to filter
-	/// @tparam Count - max length of range to filter
-	/*template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
-	static consteval auto filter() {
-		return eraseIf<details::NotTrait<TypeTrait>::template type, Begin, Count>();
-	}*/
+	template<template<class> class Trait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto filter(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+		return filter<details::traitFn<Trait>, Begin, Count>();
+	}
 
 	/// @brief Reverses typelist in given range
 	/// @tparam Begin - beginning of range to reverse
@@ -466,8 +442,8 @@ public:
 	/// @tparam Fn - function Typelist<T1> -> Typelist<T2>
 	/// @tparam Begin - beginning of range to transform
 	/// @tparam Count - max length of range to transform
-	template<size_t Begin = 0, size_t Count = npos>
-	static consteval auto transform(auto fn, ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+	template<auto fn, size_t Begin = 0, size_t Count = npos>
+	static consteval auto transform(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
 		if constexpr (Begin >= SIZE) {
 			return typelist<>;
 		} else {
@@ -488,31 +464,10 @@ public:
 		}
 	}
 
-	/// @brief Transforms types using given type trait
-	/// @tparam Pred - type trait T1 -> T2
-	/// @tparam Begin - beginning of range to transform
-	/// @tparam Count - max length of range to transform
-	// template<template<class T> class TypeTrait, size_t Begin = 0, size_t Count = npos>
-	// static consteval auto transform() {
-	//	if constexpr (Begin >= SIZE) {
-	//		return typelist<>;
-	//	} else {
-	//		constexpr auto transformEnd = (Count >= SIZE - Begin) ? SIZE : std::min(Begin + Count, SIZE);
-
-	//		return [&]<size_t... Indexes, size_t... Head, size_t... Tail>(
-	//				   std::index_sequence<Indexes...>,
-	//				   std::index_sequence<Head...>,
-	//				   std::index_sequence<Tail...>
-	//			   ) {
-	//			return typelist<Get<Head>...>.cat( // j
-	//				typelist<typename TypeTrait<Get<Indexes + Begin>>::type>..., // move i by Begin
-	//				typelist<Get<Tail + transformEnd>...> // move k by transformEnd
-	//			);
-	//		}(std::make_index_sequence<transformEnd - Begin>(), // for i in range(transformEnd - Begin) &
-	//			   std::make_index_sequence<Begin>(), // for j in range(Begin) &
-	//			   std::make_index_sequence<SIZE - transformEnd>()); // for k in range(SIZE - transformEnd)
-	//	}
-	//}
+	template<template<class> class Trait, size_t Begin = 0, size_t Count = npos>
+	static consteval auto transform(ConstSize<Begin> = {}, ConstSize<Count> = {}) {
+		return transform<details::traitFn<Trait>, Begin, Count>();
+	}
 };
 
 /// @brief Unwraps single typed typelists
