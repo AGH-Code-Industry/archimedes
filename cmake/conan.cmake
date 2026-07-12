@@ -111,3 +111,7 @@ endforeach()
 
 # Add conan libraries to archimedes
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
+
+if(MSVC)
+	list(APPEND ARCHIMEDES_LIBRARIES Avrt)
+endif()
