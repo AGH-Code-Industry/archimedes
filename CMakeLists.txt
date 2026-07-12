@@ -1,6 +1,7 @@
 # Main CMake file
 
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 4.2)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 project(
         archimedes
