@@ -2,8 +2,7 @@
 
 namespace arch::physics {
 OptRef<const std::unordered_map<ecs::Entity, Collision>> CollisionGraph::getCollisions(ecs::Entity entity) const {
-	auto collisionsIterator = _graph.find(entity);
-	if (collisionsIterator != _graph.end()) {
+	if (auto collisionsIterator = _graph.find(entity); collisionsIterator != _graph.end()) {
 		return collisionsIterator->second;
 	}
 	return std::nullopt;
@@ -11,6 +10,7 @@ OptRef<const std::unordered_map<ecs::Entity, Collision>> CollisionGraph::getColl
 
 std::vector<ecs::Entity> CollisionGraph::getCollidingEntities() const {
 	std::vector<ecs::Entity> result;
+	result.reserve(_graph.size());
 	for (auto& [entity, _] : _graph) {
 		result.push_back(entity);
 	}
@@ -18,22 +18,30 @@ std::vector<ecs::Entity> CollisionGraph::getCollidingEntities() const {
 }
 
 void CollisionGraph::addCollision(ecs::Entity entity1, ecs::Entity entity2, const Collision& collision) {
-	if (!_graph.contains(entity1)) {
-		_graph[entity1][entity2] = collision;
-	}
+	_graph.try_emplace(entity1);
+	_graph[entity1].try_emplace(entity2, collision);
 }
 
 void CollisionGraph::updateCollision(ecs::Entity entity1, ecs::Entity entity2, const Collision& collision) {
-	if (_graph.contains(entity1) && _graph[entity1].contains(entity2)) {
-		_graph[entity1][entity2] = collision;
+	auto collisionsIterator = _graph.find(entity1);
+	if (collisionsIterator == _graph.end()) {
+		return;
 	}
+	std::unordered_map<ecs::Entity, Collision>& collisions = collisionsIterator->second;
+	auto singleCollisionIterator = collisions.find(entity2);
+	if (singleCollisionIterator == collisions.end()) {
+		return;
+	}
+	singleCollisionIterator->second = collision;
 }
 
 void CollisionGraph::removeCollision(ecs::Entity entity1, ecs::Entity entity2) {
-	if (_graph.contains(entity1) && _graph[entity1].contains(entity2)) {
-		_graph[entity1].erase(entity2);
+	auto collisionsIterator = _graph.find(entity1);
+	if (collisionsIterator == _graph.end()) {
+		return;
 	}
-	if (_graph[entity1].size() == 0) {
+	collisionsIterator->second.erase(entity2);
+	if(collisionsIterator->second.empty()){
 		_graph.erase(entity1);
 	}
 }
