@@ -84,7 +84,7 @@ if(ARCHIMEDES_CONAN_INSTALL)
 
 	# run the install command
 	execute_process(
-		COMMAND conan install ./conanfile_dev.py -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=${CMAKE_CXX_STANDARD} -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=${CMAKE_CXX_STANDARD} ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_MODE} -of=conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default
+		COMMAND conan install ./conanfile_dev.py -s:b build_type=${ARCHIMEDES_BUILD_TYPE} -s:b compiler.cppstd=${CMAKE_CXX_STANDARD} -s:h build_type=${ARCHIMEDES_BUILD_TYPE} -s:h compiler.cppstd=${CMAKE_CXX_STANDARD} ${ARCHIMEDES_CONAN_INSTALL_RUNTIME_TYPE} ${ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_SUDO} ${ARCHIMEDES_CONAN_TOOLS_SYSTEM_PACKAGE_MANAGER_MODE} -of=conan_files/${ARCHIMEDES_BUILD_TYPE} --build=missing -pr default -c:a=tools.cmake.cmaketoolchain:generator=Ninja
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		OUTPUT_VARIABLE ARCHIEMDES_CONAN_INSTALL_OUTPUT
 		RESULT_VARIABLE ARCHIEMDES_CONAN_INSTALL_RESULT
@@ -111,3 +111,7 @@ endforeach()
 
 # Add conan libraries to archimedes
 list(APPEND ARCHIMEDES_LIBRARIES ${CONANDEPS_LEGACY})
+
+if(MSVC)
+	list(APPEND ARCHIMEDES_LIBRARIES Avrt)
+endif()
