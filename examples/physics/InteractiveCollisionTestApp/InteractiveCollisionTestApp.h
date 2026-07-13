@@ -26,7 +26,6 @@ struct InteractiveCollisionTestApp final: Application {
 	f32 windowWidth = 1'200.f;
 	f32 windowHeight = 600.f;
 
-	std::mutex mutex;
 	ecs::Entity player;
 	Ref<Scene> scene;
 
@@ -197,7 +196,6 @@ struct InteractiveCollisionTestApp final: Application {
 	}
 
 	float2 getLinearVelocity() {
-		auto lock = std::lock_guard(mutex);
 		float2 velocity{};
 		if (Keyboard::W.down()) {
 			velocity += float2{ 0.0f, 1.0f };
