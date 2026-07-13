@@ -87,9 +87,7 @@ class ArchimedesConan(ConanFile):
 	def build(self):
 		cmake = CMake(self)
 		cmake.configure(variables={
-			'CMAKE_BUILD_TYPE': self.settings.build_type,
-			#'CMAKE_C_COMPILER': os.environ.get("CC"),
-			#'CMAKE_CXX_COMPILER': os.environ.get("CXX")
+			'CMAKE_BUILD_TYPE': self.settings.build_type
 		})
 		cmake.build()
 
