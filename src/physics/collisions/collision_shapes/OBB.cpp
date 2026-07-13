@@ -3,16 +3,12 @@
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 
 namespace arch::physics {
-OBB::OBB(float2 topLeft, float2 bottomRight, f32 rotation):
-	topLeft(topLeft),
-	bottomRight(bottomRight),
+OBB::OBB(float2 center, float2 extents, f32 rotation):
+	center(center),
+	extents(extents),
 	rotation(rotation) {
-	if (topLeft.x > bottomRight.x || topLeft.y < bottomRight.y) {
-		throw PhysicsException("OBB's corners' coordinates don't match, consider swapping them");
-	}
-	float2 bottomLeft = { topLeft.x, bottomRight.y };
-	if (getTriangleArea(topLeft, bottomLeft, bottomRight) < COLLISIONS_EPSILON) {
-		throw PhysicsException("OBB's area must be greater than 0");
+	if (extents.x < COLLISIONS_EPSILON || extents.y < COLLISIONS_EPSILON) {
+		throw PhysicsException("OBB's extents' values should be positive");
 	}
 }
 
@@ -32,10 +28,10 @@ std::vector<float2> OBB::getSeparatingAxes(const TransformComponent& transform) 
 
 std::vector<float2> OBB::getRealVertices(const TransformComponent& transform) const {
 	std::vector<float2> vertices = {
-		topLeft,
-		{ bottomRight.x,	 topLeft.y },
-		bottomRight,
-		{	  topLeft.x, bottomRight.y }
+		{ center.x - extents.x, center.y + extents.y },  // top left
+		{ center.x + extents.x,	center.y + extents.y },  // top right
+		{ center.x + extents.x, center.y - extents.y },  // bottom right
+		{ center.x - extents.x, center.y - extents.y },  // bottom left
 	};
 	Mat4x4 model = transform.getTransformMatrix();
 	Quat quaternion = arch::quaternion(rotation);

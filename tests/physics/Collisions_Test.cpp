@@ -62,8 +62,8 @@ protected:
 
 TEST_F(CollisionTest, OBBvsOBB_Collision) {
 	phy::OBB obb{
-		{ -0.25f,  0.25f },
-		{  0.25f, -0.25f },
+		{ 0.f, 0.f },
+		{ 0.25f, 0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
@@ -79,8 +79,8 @@ TEST_F(CollisionTest, OBBvsOBB_Collision) {
 
 TEST_F(CollisionTest, OBBvsOBB_TouchingEdges) {
 	phy::OBB obb{
-		{ -0.25f,  0.25f },
-		{  0.25f, -0.25f },
+		{ 0.f, 0.f },
+		{ 0.25f, 0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
@@ -96,13 +96,13 @@ TEST_F(CollisionTest, OBBvsOBB_TouchingEdges) {
 
 TEST_F(CollisionTest, OBBvsOBB_RotatedCollision) {
 	phy::OBB obb1{
-		{ -0.25f,  0.25f },
-		{  0.25f, -0.25f },
+		{ 0.f, 0.f },
+		{ 0.25f, 0.25f },
 		0.f
 	};
 	phy::OBB obb2{
-		{ -0.25f,  0.25f },
-		{  0.25f, -0.25f },
+		{ 0.f, 0.f },
+		{ 0.25f, 0.25f },
 		0.785398f
 	}; // ~45 deg
 
@@ -231,8 +231,8 @@ TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 		{ 0.5f, -0.5f }
 	};
 	phy::OBB obb{
-		{ -0.25f,  0.25f },
-		{  0.25f, -0.25f },
+		{ 0.f, 0.f },
+		{ 0.25f, 0.25f },
 		0.f
 	};
 
@@ -410,8 +410,8 @@ TEST_F(CollisionTest, CircleVsCircle_DifferentZ_ShouldStillCollide) {
 
 TEST_F(CollisionTest, OBBvsOBB_DifferentZ_ShouldStillCollide) {
 	phy::OBB obb{
-		{ -0.5f,	 0.5f },
-		{  0.5f, -0.5f },
+		{ 0.f, 0.f },
+		{ 0.5f, 0.5f },
 		0.f
 	};
 

@@ -89,7 +89,7 @@ struct RepulseTestApp final: Application {
 		testScene->domain().addComponent(
 			e1,
 			phy::ColliderComponent{
-				.shape = phy::OBB(float2(0.0f), float2{ .25f, -.25f }, 0.0f),
+				.shape = phy::OBB(float2{ .125f, -.125f }, float2{ .125f, .125f }, 0.0f),
 			}
 		);
 
@@ -109,7 +109,7 @@ struct RepulseTestApp final: Application {
 		testScene->domain().addComponent(
 			e2,
 			phy::ColliderComponent{
-				.shape = phy::OBB(float2(0.0f), float2{ 0.25f, -0.25f }, 0.0f),
+				.shape = phy::OBB(float2{ .125f, -.125f }, float2{ .125f, .125f }, 0.0f),
 			}
 		);
 

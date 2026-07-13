@@ -96,8 +96,8 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_DepthNormal) {
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_DepthNormal) {
 	phy::OBB obb{
-		{ -0.5f,	 0.5f },
-		{  0.5f, -0.5f },
+		{ 0.f, 0.f },
+		{ 0.5f, 0.5f },
 		0.f
 	};
 
@@ -152,8 +152,8 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_ResolveCollision_Split) {
 	phy::OBB obb{
-		{ -0.5f,	 0.5f },
-		{  0.5f, -0.5f },
+		{ 0.f, 0.f },
+		{ 0.5f, 0.5f },
 		0.f
 	};
 

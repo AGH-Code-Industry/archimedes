@@ -124,7 +124,7 @@ struct InteractiveCollisionTestApp final: Application {
 		);
 		scene->domain().addComponent(
 			player,
-			phy::ColliderComponent{ .shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
+			phy::ColliderComponent{ .shape = phy::OBB(float2{ 0.0f, 0.0f }, float2{ 0.25f, 0.25f }, 0.0f),
 									.detectsMouse = true,
 									.isScannedMask = 0 }
 		);
@@ -139,7 +139,7 @@ struct InteractiveCollisionTestApp final: Application {
 		scene->domain().addComponent<scene::components::MeshComponent>(e, { meshRectangle, pipelineBlue });
 		scene->domain().addComponent(
 			e,
-			phy::ColliderComponent{ .shape = phy::OBB(float2{ -0.25f, 0.25f }, float2{ 0.25f, -0.25f }, 0.0f),
+			phy::ColliderComponent{ .shape = phy::OBB(float2{ 0.0f, 0.0f }, float2{ 0.25f, 0.25f }, 0.0f),
 									.scansMask = 0 }
 		);
 	}

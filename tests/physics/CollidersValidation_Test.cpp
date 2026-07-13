@@ -29,7 +29,7 @@ TEST_F(CollidersValidationTest, OBB_Degenerate_ZeroSize) {
 TEST_F(CollidersValidationTest, OBB_Degenerate_InvalidExtents) {
 	ASSERT_THROW(
 		phy::OBB({
-			{  1.f,  1.f },
+			{  0.f,  0.f },
 			{ -1.f, -1.f },
 			0.f
 	}),

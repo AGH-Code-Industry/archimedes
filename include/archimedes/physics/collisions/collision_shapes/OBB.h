@@ -6,12 +6,17 @@ namespace arch::physics {
 
 ///@brief Rotated rectangle
 struct OBB: public Shape {
-	float2 topLeft;
-	float2 bottomRight;
+	/// @brief Center of the rectangle
+	float2 center;
+
+	/// @brief Half-width and half-height of the rectangle
+	float2 extents;
+
+	/// @brief Rotation of the rectangle
 	f32 rotation;
 
-	///@warning Coordinates should match, also area should be greater than 0
-	OBB(float2 topLeft, float2 bottomRight, f32 rotation);
+	/// @warning Both extent values must be greater than 0
+	OBB(float2 center, float2 extents, f32 rotation);
 
 	///@brief Used for SAT collision algorithm
 	std::vector<float2> getSeparatingAxes(const TransformComponent& transform) const;
