@@ -66,7 +66,7 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
 			auto& collider2 = _domain.getComponent<ColliderComponent>(entities[j]);
 			bool isSecondScanned = (collider1.scansMask & collider2.isScannedMask).any();
 			bool isFirstScanned = (collider2.scansMask & collider1.isScannedMask).any();
-			if (not isSecondScanned and not isFirstScanned) {
+			if (!isSecondScanned && !isFirstScanned) {
 				continue;
 			}
 			ecs::Entity entity1 = entities[i];
@@ -97,8 +97,9 @@ void CollisionSystem::_checkDisappearedCollisions(const CollisionGraph& newColli
 			continue;
 		}
 		auto& collisions = collisionsOpt.get();
-		std::vector<ecs::Entity> toUpdate(collisions.size());
-		std::vector<ecs::Entity> toRemove(collisions.size());
+		std::vector<ecs::Entity> toUpdate, toRemove;
+		toUpdate.reserve(collisions.size());
+		toRemove.reserve(collisions.size());
 		for (auto& [entity2, savedCollision] : collisionsOpt.get()) {
 			std::optional<Collision> newCollision = newCollisions.getCollision(entity1, entity2);
 			if (newCollision) {
@@ -154,13 +155,7 @@ void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions
 
 MouseSet CollisionSystem::_getMouseEntities(float2 mousePosition) const {
 	MouseSet mouseSet;
-	auto view = _domain.view<ColliderComponent>();
-	for (auto entity : view) {
-		if (!_domain.hasComponent<TransformComponent>(entity)) {
-			continue;
-		}
-		auto& collider = _domain.getComponent<ColliderComponent>(entity);
-		auto& transform = _domain.getComponent<TransformComponent>(entity);
+	for (auto [entity, collider, transform] : _domain.view<ColliderComponent, TransformComponent>().all()) {
 		if (!collider.detectsMouse) {
 			continue;
 		}

@@ -28,7 +28,7 @@ f32 PhysicsSystem::update() {
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	for (auto [entity, rigidBody, transform] : viewRigidBodies.all()) {
+	for (auto [rigidBody, transform] : viewRigidBodies.components()) {
 		// update position
 		transform.position += float3(rigidBody.linearVelocity, 0.0f) * t;
 
