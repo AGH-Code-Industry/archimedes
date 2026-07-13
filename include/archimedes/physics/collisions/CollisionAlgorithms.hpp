@@ -1,4 +1,5 @@
 #pragma once
+#include <concepts>
 #include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/scene/components/TransformComponent.h>
 
@@ -6,8 +7,7 @@ namespace arch::physics {
 
 /// @brief Check mouse to shape collision
 /// (optimised by static polymorphism instead of virtual functions)
-template<typename ShapeA>
-requires std::derived_from<ShapeA, Shape>
+template<std::derived_from<Shape> ShapeA>
 bool checkPoint(const ShapeA& shape, const TransformComponent& transform, float2 mousePosition) {
 	return shape.containsPoint(transform, mousePosition);
 }
@@ -20,8 +20,7 @@ f32 getOverlap(float2 projection1, float2 projection2);
 
 /// @brief SAT (Separate Axis Test) algorithm for checking collision between convex shapes
 /// (optimised by static polymorphism instead of virtual functions)
-template<typename ShapeA, typename ShapeB>
-requires std::derived_from<ShapeA, Shape> && std::derived_from<ShapeB, Shape>
+template<std::derived_from<Shape> ShapeA, std::derived_from<Shape> ShapeB>
 std::optional<Collision> checkSAT(
 	const std::vector<float2>& axes1,
 	const std::vector<float2>& axes2,
