@@ -1,4 +1,4 @@
-#include <archimedes/physics/collisions/collision_shapes/Circle.h>
+#include <archimedes/physics/collisions/collision_shapes/Circle.hpp>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 #include <gtest/gtest.h>

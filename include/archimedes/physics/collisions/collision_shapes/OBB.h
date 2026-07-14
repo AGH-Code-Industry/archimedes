@@ -19,11 +19,11 @@ struct OBB: public Shape {
 	OBB(float2 center, float2 extents, f32 rotation);
 
 	///@brief Used for SAT collision algorithm
-	std::vector<float2> getSeparatingAxes(const TransformComponent& transform) const;
+	std::array<float2, 2> getSeparatingAxes(const TransformComponent& transform) const;
 	float2 getProjection(const TransformComponent& transform, float2 axis) const;
 
 	///@brief Used to cast the shape to map coordinates
-	std::vector<float2> getRealVertices(const TransformComponent& transform) const;
+	std::array<float2, 4> getRealVertices(const TransformComponent& transform) const;
 
 	///@brief Used for mouse to shape collision checking
 	bool containsPoint(const TransformComponent& transform, float2 point) const;

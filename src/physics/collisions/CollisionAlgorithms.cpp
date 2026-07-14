@@ -1,6 +1,6 @@
 #include <archimedes/physics/collisions/CollisionAlgorithms.hpp>
 
-#include <archimedes/physics/Helpers.h>
+#include <archimedes/physics/Helpers.hpp>
 
 namespace arch::physics {
 
@@ -20,8 +20,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	std::array<float2, 2> axes1 = shape1.getSeparatingAxes(transform1);
+	std::array<float2, 2> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -31,8 +31,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	std::array<float2, 3> axes1 = shape1.getSeparatingAxes(transform1);
+	std::array<float2, 3> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -42,8 +42,8 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform1,
 	const TransformComponent& transform2
 ) {
-	std::vector<float2> axes1 = shape1.getSeparatingAxes(transform1);
-	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	std::array<float2, 3> axes1 = shape1.getSeparatingAxes(transform1);
+	std::array<float2, 2> axes2 = shape2.getSeparatingAxes(transform2);
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -74,9 +74,9 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform2
 ) {
 	// a circle has just one, special axis
-	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	std::array<float2, 3> axes2 = shape2.getSeparatingAxes(transform2);
 	float2 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
-	std::vector<float2> axes1 = { axis1 };
+	std::array<float2, 1> axes1 = {axis1};
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 
@@ -87,9 +87,9 @@ std::optional<Collision> checkCollision(
 	const TransformComponent& transform2
 ) {
 	// a circle has just one, special axis
-	std::vector<float2> axes2 = shape2.getSeparatingAxes(transform2);
+	std::array<float2, 2> axes2 = shape2.getSeparatingAxes(transform2);
 	float2 axis1 = shape1.getSeparatingAxis(transform1, shape2.getRealVertices(transform2));
-	std::vector<float2> axes1 = { axis1 };
+	std::array<float2, 1> axes1 = {axis1};
 	return checkSAT(axes1, axes2, transform1, transform2, shape1, shape2);
 }
 

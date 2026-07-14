@@ -20,10 +20,10 @@ f32 getOverlap(float2 projection1, float2 projection2);
 
 /// @brief SAT (Separate Axis Test) algorithm for checking collision between convex shapes
 /// (optimised by static polymorphism instead of virtual functions)
-template<std::derived_from<Shape> ShapeA, std::derived_from<Shape> ShapeB>
+template<std::derived_from<Shape> ShapeA, std::derived_from<Shape> ShapeB, std::size_t ArraySize1, std::size_t ArraySize2>
 std::optional<Collision> checkSAT(
-	const std::vector<float2>& axes1,
-	const std::vector<float2>& axes2,
+	const std::array<float2, ArraySize1>& axes1,
+	const std::array<float2, ArraySize2>& axes2,
 	const TransformComponent& transform1,
 	const TransformComponent& transform2,
 	const ShapeA& shape1,

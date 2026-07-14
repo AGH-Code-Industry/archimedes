@@ -1,4 +1,4 @@
-#include <archimedes/physics/Helpers.h>
+#include <archimedes/physics/Helpers.hpp>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>

@@ -14,8 +14,23 @@ struct Circle: public Shape {
 	Circle(float2 center, f32 radius);
 
 	/// @brief Used for SAT collision algorithm
-	float2 getSeparatingAxis(const TransformComponent& transform, const std::vector<float2>& realPolygonVertices) const;
 	float2 getProjection(const TransformComponent& transform, float2 axis) const;
+
+	template<std::size_t ArraySize>
+	inline float2 getSeparatingAxis(const TransformComponent& transform, const std::array<float2, ArraySize>& realPolygonVertices) const {
+		f32 minDistance = std::numeric_limits<f32>::max();
+		float2 closestVertex;
+		float2 realCenter = getRealCenter(transform);
+		for (const auto& vertex : realPolygonVertices) {
+			f32 distance = glm::distance2(vertex, realCenter);
+			if (distance < minDistance) {
+				minDistance = distance;
+				closestVertex = vertex;
+			}
+		}
+		float2 axis = closestVertex - realCenter;
+		return glm::normalize(axis);
+	}
 
 	///@brief Used to cast the shape to map coordinates
 	float2 getRealCenter(const TransformComponent& transform) const;

@@ -1,28 +1,12 @@
 #include <archimedes/Mmath.h>
-#include <archimedes/physics/Helpers.h>
-#include <archimedes/physics/collisions/collision_shapes/Circle.h>
+#include <archimedes/physics/Helpers.hpp>
+#include <archimedes/physics/collisions/collision_shapes/Circle.hpp>
 
 namespace arch::physics {
 Circle::Circle(float2 center, f32 radius): center(center), radius(radius) {
 	if (radius < COLLISIONS_EPSILON) {
 		throw PhysicsException("Circle's radius must be greater than 0");
 	}
-}
-
-float2 Circle::getSeparatingAxis(const TransformComponent& transform, const std::vector<float2>& realPolygonVertices)
-	const {
-	f32 minDistance = std::numeric_limits<f32>::max();
-	float2 closestVertex;
-	float2 realCenter = getRealCenter(transform);
-	for (const auto& vertex : realPolygonVertices) {
-		f32 distance = glm::distance2(vertex, realCenter);
-		if (distance < minDistance) {
-			minDistance = distance;
-			closestVertex = vertex;
-		}
-	}
-	float2 axis = closestVertex - realCenter;
-	return glm::normalize(axis);
 }
 
 float2 Circle::getRealCenter(const TransformComponent& transform) const {
