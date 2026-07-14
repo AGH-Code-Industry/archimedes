@@ -19,7 +19,6 @@ struct Circle: public Shape {
 
 	///@brief Used to cast the shape to map coordinates
 	float2 getRealCenter(const TransformComponent& transform) const;
-	f32 getRealRadiusSquared(const TransformComponent& transform) const;
 	f32 getRealRadius(const TransformComponent& transform) const;
 
 	///@brief Used for mouse to shape collision checking

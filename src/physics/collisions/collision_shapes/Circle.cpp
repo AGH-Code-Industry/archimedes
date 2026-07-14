@@ -37,17 +37,13 @@ float2 Circle::getProjection(const TransformComponent& transform, float2 axis) c
 	return float2{ centerProj - radius, centerProj + radius };
 }
 
-f32 Circle::getRealRadiusSquared(const TransformComponent& transform) const {
-	f32 maxScalePart = glm::compMax(float2(transform.scale));
-	return pow(maxScalePart * radius, 2);
-}
-
 f32 Circle::getRealRadius(const TransformComponent& transform) const {
-	return std::sqrt(getRealRadiusSquared(transform));
+	f32 maxScalePart = glm::compMax(float2(transform.scale));
+	return maxScalePart * radius;
 }
 
 bool Circle::containsPoint(const TransformComponent& transform, float2 point) const {
 	float2 center = getRealCenter(transform);
-	return glm::distance2(center, point) < getRealRadiusSquared(transform) + COLLISIONS_EPSILON;
+	return glm::distance(center, point) < getRealRadius(transform) + COLLISIONS_EPSILON;
 }
 } // namespace arch::physics
