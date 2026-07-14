@@ -1,5 +1,6 @@
-#include <archimedes/Mmath.h>
 #include <archimedes/physics/Helpers.hpp>
+
+#include <archimedes/Mmath.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 
 namespace arch::physics {

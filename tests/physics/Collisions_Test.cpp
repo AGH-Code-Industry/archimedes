@@ -62,46 +62,50 @@ protected:
 
 TEST_F(CollisionTest, OBBvsOBB_Collision) {
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{	  0.f,   0.f },
 		{ 0.25f, 0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 	auto e2 = createOBB({ 0.2f, 0.2f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, OBBvsOBB_TouchingEdges) {
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{	  0.f,   0.f },
 		{ 0.25f, 0.25f },
 		0.f
 	};
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 	auto e2 = createOBB({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, OBBvsOBB_RotatedCollision) {
 	phy::OBB obb1{
-		{ 0.f, 0.f },
+		{	  0.f,   0.f },
 		{ 0.25f, 0.25f },
 		0.f
 	};
 	phy::OBB obb2{
-		{ 0.f, 0.f },
+		{	  0.f,   0.f },
 		{ 0.25f, 0.25f },
 		0.785398f
 	}; // ~45 deg
@@ -109,12 +113,14 @@ TEST_F(CollisionTest, OBBvsOBB_RotatedCollision) {
 	auto e1 = createOBB({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb1);
 	auto e2 = createOBB({ 0.3f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb2);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, CircleVsCircle_Collision) {
@@ -125,12 +131,14 @@ TEST_F(CollisionTest, CircleVsCircle_Collision) {
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 	auto e2 = createCircle({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, CircleVsCircle_NoCollision) {
@@ -141,12 +149,14 @@ TEST_F(CollisionTest, CircleVsCircle_NoCollision) {
 	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 	auto e2 = createCircle({ 1.0f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_FALSE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_FALSE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
@@ -158,12 +168,14 @@ TEST_F(CollisionTest, TriangleVsTriangle_NoCollision) {
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 2, 2, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 
-	ASSERT_FALSE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_FALSE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
@@ -175,12 +187,14 @@ TEST_F(CollisionTest, TriangleVsTriangle_Collision) {
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 0.2f, 0.1f, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
@@ -192,12 +206,14 @@ TEST_F(CollisionTest, TriangleVsTriangle_Touching) {
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createTriangle({ 1, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
@@ -214,12 +230,14 @@ TEST_F(CollisionTest, TriangleVsCircle_NoCollision) {
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createCircle({ 2, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_FALSE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_FALSE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, TriangleVsOBB_Collision) {
@@ -231,7 +249,7 @@ TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 		{ 0.5f, -0.5f }
 	};
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{	  0.f,   0.f },
 		{ 0.25f, 0.25f },
 		0.f
 	};
@@ -239,12 +257,14 @@ TEST_F(CollisionTest, TriangleVsOBB_Collision) {
 	auto e1 = createTriangle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, tri);
 	auto e2 = createOBB({ 0.2f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, Mask_NoMatch) {
@@ -326,12 +346,14 @@ TEST_F(CollisionTest, CircleVsCircle_BoundingCirclePreventsFalseNegative) {
 
 	auto e2 = createCircle({ 1.9f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
@@ -344,12 +366,14 @@ TEST_F(CollisionTest, CircleVsCircle_NonUniformScale_ShouldNotCollide) {
 
 	auto e2 = createCircle({ 1.6f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_FALSE(phy::ColliderComponent::areColliding(
-		_domain->getComponent<phy::ColliderComponent>(e1),
-		_domain->getComponent<phy::ColliderComponent>(e2),
-		_domain->getComponent<TransformComponent>(e1),
-		_domain->getComponent<TransformComponent>(e2)
-	));
+	ASSERT_FALSE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+	);
 }
 
 TEST_F(CollisionTest, StatesCheck) {
@@ -399,18 +423,20 @@ TEST_F(CollisionTest, CircleVsCircle_DifferentZ_ShouldStillCollide) {
 
 	auto e2 = createCircle({ 0.4f, 0, 250.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-					_domain->getComponent<phy::ColliderComponent>(e1),
-					_domain->getComponent<phy::ColliderComponent>(e2),
-					_domain->getComponent<TransformComponent>(e1),
-					_domain->getComponent<TransformComponent>(e2)
-	)
-					.has_value());
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+			.has_value()
+	);
 }
 
 TEST_F(CollisionTest, OBBvsOBB_DifferentZ_ShouldStillCollide) {
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{  0.f,  0.f },
 		{ 0.5f, 0.5f },
 		0.f
 	};
@@ -419,13 +445,15 @@ TEST_F(CollisionTest, OBBvsOBB_DifferentZ_ShouldStillCollide) {
 
 	auto e2 = createOBB({ 0.25f, 0.25f, 999.0f }, { 0, 0, 0, 1 }, { 1, 1, 1 }, obb);
 
-	ASSERT_TRUE(phy::ColliderComponent::areColliding(
-					_domain->getComponent<phy::ColliderComponent>(e1),
-					_domain->getComponent<phy::ColliderComponent>(e2),
-					_domain->getComponent<TransformComponent>(e1),
-					_domain->getComponent<TransformComponent>(e2)
-	)
-					.has_value());
+	ASSERT_TRUE(
+		phy::ColliderComponent::areColliding(
+			_domain->getComponent<phy::ColliderComponent>(e1),
+			_domain->getComponent<phy::ColliderComponent>(e2),
+			_domain->getComponent<TransformComponent>(e1),
+			_domain->getComponent<TransformComponent>(e2)
+		)
+			.has_value()
+	);
 }
 
 TEST_F(CollisionTest, CollisionDependsOnlyOnXY) {

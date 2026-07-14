@@ -1,4 +1,5 @@
 #include <archimedes/physics/Helpers.hpp>
+
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/collisions/ColliderComponent.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
@@ -96,7 +97,7 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_DepthNormal) {
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_DepthNormal) {
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{  0.f,  0.f },
 		{ 0.5f, 0.5f },
 		0.f
 	};
@@ -152,7 +153,7 @@ TEST_F(CollisionsMTVTest, CircleVsCircle_ResolveCollision) {
 
 TEST_F(CollisionsMTVTest, OBBvsOBB_ResolveCollision_Split) {
 	phy::OBB obb{
-		{ 0.f, 0.f },
+		{  0.f,  0.f },
 		{ 0.5f, 0.5f },
 		0.f
 	};

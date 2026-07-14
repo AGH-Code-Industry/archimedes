@@ -35,7 +35,7 @@ inline bool areVectorsSameDirection(float2 vector1, float2 vector2) {
 template<std::size_t ArraySize>
 inline f32 getSumOfTriangleAreas(std::array<float2, ArraySize> polygonVertices, float2 point) {
 	f32 sizesSum = 0.0f;
-	for(i32 i=0; i<ArraySize; i++){
+	for (i32 i = 0; i < ArraySize; i++) {
 		float2 vertex1 = polygonVertices[i];
 		float2 vertex2 = polygonVertices[(i + 1) % ArraySize];
 		sizesSum += getTriangleArea(vertex1, vertex2, point);

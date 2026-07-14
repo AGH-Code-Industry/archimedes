@@ -26,9 +26,9 @@ std::vector<ecs::Entity> MouseSet::getMouseEntities() const {
 }
 
 std::optional<CollisionState> MouseSet::getCollision(ecs::Entity entity) const {
-    if (auto it = _set.find(entity); it != _set.end()) {
-        return it->second;
-    }
+	if (auto it = _set.find(entity); it != _set.end()) {
+		return it->second;
+	}
 	return std::nullopt;
 }
 

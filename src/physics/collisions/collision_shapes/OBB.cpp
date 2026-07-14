@@ -1,12 +1,10 @@
-#include <archimedes/Mmath.h>
 #include <archimedes/physics/Helpers.hpp>
+
+#include <archimedes/Mmath.h>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 
 namespace arch::physics {
-OBB::OBB(float2 center, float2 extents, f32 rotation):
-	center(center),
-	extents(extents),
-	rotation(rotation) {
+OBB::OBB(float2 center, float2 extents, f32 rotation): center(center), extents(extents), rotation(rotation) {
 	if (extents.x < COLLISIONS_EPSILON || extents.y < COLLISIONS_EPSILON) {
 		throw PhysicsException("OBB's extents' values should be positive");
 	}
@@ -16,10 +14,8 @@ std::array<float2, 2> OBB::getSeparatingAxes(const TransformComponent& transform
 	std::array<float2, 4> vertices = getRealVertices(transform);
 	Quat quaternion = arch::quaternion(rotation);
 	// you don't need to check parallel axes with SAT
-	std::array<float2, 2> axes = {
-		getConvexPolygonNorm(vertices[0], vertices[1], vertices[2]),
-		getConvexPolygonNorm(vertices[1], vertices[2], vertices[3])
-	};
+	std::array<float2, 2> axes = { getConvexPolygonNorm(vertices[0], vertices[1], vertices[2]),
+								   getConvexPolygonNorm(vertices[1], vertices[2], vertices[3]) };
 	for (auto& axis : axes) {
 		axis = quaternion * float3(axis, 0.0f);
 		axis = glm::normalize(axis);
@@ -29,10 +25,10 @@ std::array<float2, 2> OBB::getSeparatingAxes(const TransformComponent& transform
 
 std::array<float2, 4> OBB::getRealVertices(const TransformComponent& transform) const {
 	std::array<float2, 4> vertices = {
-		float2{ center.x - extents.x, center.y + extents.y },  // top left
-		float2{ center.x + extents.x, center.y + extents.y },  // top right
-		float2{ center.x + extents.x, center.y - extents.y },  // bottom right
-		float2{ center.x - extents.x, center.y - extents.y },  // bottom left
+		float2{ center.x - extents.x, center.y + extents.y }, // top left
+		float2{ center.x + extents.x, center.y + extents.y }, // top right
+		float2{ center.x + extents.x, center.y - extents.y }, // bottom right
+		float2{ center.x - extents.x, center.y - extents.y }, // bottom left
 	};
 	Mat4x4 model = transform.getTransformMatrix();
 	Quat quaternion = arch::quaternion(rotation);

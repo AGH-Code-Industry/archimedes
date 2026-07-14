@@ -17,7 +17,10 @@ struct Circle: public Shape {
 	float2 getProjection(const TransformComponent& transform, float2 axis) const;
 
 	template<std::size_t ArraySize>
-	inline float2 getSeparatingAxis(const TransformComponent& transform, const std::array<float2, ArraySize>& realPolygonVertices) const {
+	inline float2 getSeparatingAxis(
+		const TransformComponent& transform,
+		const std::array<float2, ArraySize>& realPolygonVertices
+	) const {
 		f32 minDistance = std::numeric_limits<f32>::max();
 		float2 closestVertex;
 		float2 realCenter = getRealCenter(transform);

@@ -41,7 +41,7 @@ void CollisionGraph::removeCollision(ecs::Entity entity1, ecs::Entity entity2) {
 		return;
 	}
 	collisionsIterator->second.erase(entity2);
-	if(collisionsIterator->second.empty()){
+	if (collisionsIterator->second.empty()) {
 		_graph.erase(entity1);
 	}
 }

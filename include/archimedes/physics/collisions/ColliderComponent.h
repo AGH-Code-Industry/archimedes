@@ -1,5 +1,6 @@
 #pragma once
 
+#include <archimedes/physics/collisions/collision_shapes/Circle.hpp>
 #include <bitset>
 #include <functional>
 #include <optional>
@@ -7,7 +8,6 @@
 
 #include <archimedes/ecs/Entity.h>
 #include <archimedes/physics/collisions/Collision.h>
-#include <archimedes/physics/collisions/collision_shapes/Circle.hpp>
 #include <archimedes/physics/collisions/collision_shapes/OBB.h>
 #include <archimedes/physics/collisions/collision_shapes/Triangle.h>
 #include <archimedes/scene/components/TransformComponent.h>

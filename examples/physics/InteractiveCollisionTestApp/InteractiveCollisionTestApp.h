@@ -65,33 +65,41 @@ struct InteractiveCollisionTestApp final: Application {
 			Mat4x4 projection;
 		};
 
-		pipelineRed = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
-			.textures = {},
-			.buffers = { camera.buffer() },
-		});
+		pipelineRed = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { camera.buffer() },
+			}
+		);
 
-		pipelineGreen = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default3.glsl",
-			.textures = {},
-			.buffers = { camera.buffer() },
-		});
+		pipelineGreen = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default3.glsl",
+				.textures = {},
+				.buffers = { camera.buffer() },
+			}
+		);
 
-		pipelineBlue = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default4.glsl",
-			.textures = {},
-			.buffers = { camera.buffer() },
-		});
+		pipelineBlue = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default4.glsl",
+				.textures = {},
+				.buffers = { camera.buffer() },
+			}
+		);
 
-		pipelineCircle = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default_circle.glsl",
-			.textures = {},
-			.buffers = { camera.buffer() },
-		});
+		pipelineCircle = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default_circle.glsl",
+				.textures = {},
+				.buffers = { camera.buffer() },
+			}
+		);
 	}
 
 	void setPlayerColor(ecs::Entity player, PlayerColor color) {

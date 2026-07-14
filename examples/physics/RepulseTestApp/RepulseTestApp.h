@@ -61,12 +61,14 @@ struct RepulseTestApp final: Application {
 		auto uniformBuffer =
 			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
 
-		const auto pipeline = renderer->getPipelineManager()->create({
-			.vertexShaderPath = "shaders/vertex_default.glsl",
-			.fragmentShaderPath = "shaders/fragment_default2.glsl",
-			.textures = {},
-			.buffers = { uniformBuffer },
-		});
+		const auto pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
 
 		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
