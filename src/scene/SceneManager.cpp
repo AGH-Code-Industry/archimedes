@@ -1,5 +1,5 @@
-#include <ranges>
 #include <algorithm>
+#include <ranges>
 
 #include <archimedes/Ecs.h>
 #include <archimedes/scene/Components.h>
