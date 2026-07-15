@@ -18,7 +18,6 @@ std::vector<ecs::Entity> CollisionGraph::getCollidingEntities() const {
 }
 
 void CollisionGraph::addCollision(ecs::Entity entity1, ecs::Entity entity2, const Collision& collision) {
-	_graph.try_emplace(entity1);
 	_graph[entity1].try_emplace(entity2, collision);
 }
 
