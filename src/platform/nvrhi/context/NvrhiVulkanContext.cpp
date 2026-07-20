@@ -1,6 +1,8 @@
 #define NOMINMAX
+#include <archimedes/Defines.h>
+//
 #include "NvrhiVulkanContext.h"
-
+//
 #include <vulkan/vulkan.hpp>
 
 #include "../../vulkan/VulkanUtils.h"

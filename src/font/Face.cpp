@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
+#include <archimedes/Defines.h>
 #include <archimedes/font/Face.h>
 #include <archimedes/font/MSDFAtlasGen.h>
 #include <freetype2/ft2build.h>

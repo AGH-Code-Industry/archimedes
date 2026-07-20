@@ -1,5 +1,6 @@
 #pragma once
 
+#include <archimedes/Defines.h>
 #include <archimedes/net/TCPSocket.h>
 #include <archimedes/net/async/Host.h>
 

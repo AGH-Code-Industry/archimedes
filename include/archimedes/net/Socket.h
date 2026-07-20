@@ -2,6 +2,7 @@
 
 #include <type_traits>
 
+#include <archimedes/Defines.h>
 #include <archimedes/net/IPv4.h>
 #include <archimedes/net/Utilities.h>
 

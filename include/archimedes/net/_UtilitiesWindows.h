@@ -1,4 +1,7 @@
 #pragma once
+
+#include <archimedes/Defines.h>
+
 #if ARCHIMEDES_WINDOWS // no errors in IDE
 
 #define NOMINMAX

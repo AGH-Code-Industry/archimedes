@@ -1,5 +1,7 @@
 #pragma once
 
+#include <archimedes/Defines.h>
+
 #if ARCHIMEDES_WINDOWS
 #include <archimedes/net/_UtilitiesWindows.h>
 #elif ARCHIMEDES_UNIX

@@ -1,3 +1,5 @@
+#include <archimedes/Defines.h>
+//
 #include <archimedes/net/Init.h>
 #include <archimedes/net/NetException.h>
 #include <archimedes/net/Utilities.h>

@@ -6,6 +6,7 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <archimedes/Defines.h>
 #include <archimedes/utils/OptRef.h>
 #include <archimedes/utils/StringViewComparator.h>
 #include <archimedes/utils/StringViewHasher.h>
