@@ -1,16 +1,17 @@
 # Main CMake file
 
 cmake_minimum_required(VERSION 4.2)
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+
+# C++23
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 project(
         archimedes
         LANGUAGES CXX C
 )
-
-# C++23
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # Add MSVC-specific behavior
 include("cmake/msvc.cmake")
@@ -37,7 +38,11 @@ include("cmake/ninja_fix.cmake")
 include("cmake/library.cmake")
 
 # Add macro defines
-include("cmake/defines.cmake")
+#include("cmake/defines.cmake")
+
+
+
+#include("cmake/module.cmake")
 
 # Add installation behavior
 include("cmake/install.cmake")
