@@ -33,10 +33,10 @@ if(ARCHIMEDES_BUILD_EXAMPLES)
 					add_executable(${ARCHIMEDES_EXAMPLE_TARGET} ${ARCHIMEDES_EXAMPLE_SOURCES})
 
 					# link archimedes
-					target_link_libraries(${ARCHIMEDES_EXAMPLE_TARGET} PRIVATE archimedes)
+					target_link_libraries(${ARCHIMEDES_EXAMPLE_TARGET} PRIVATE archimedes_lib archimedes)
 
 					# reuse precompiled header
-					target_precompile_headers(${ARCHIMEDES_EXAMPLE_TARGET} REUSE_FROM archimedes)
+					target_precompile_headers(${ARCHIMEDES_EXAMPLE_TARGET} REUSE_FROM archimedes_lib)
 
 					# enable IPO
 					set_property(TARGET ${ARCHIMEDES_EXAMPLE_TARGET} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)

@@ -10,10 +10,10 @@ if(ARCHIMEDES_BUILD_TESTS)
 	target_sources(archimedes_tests PRIVATE ${ARCHIMEDES_TEST_SOURCE})
 
 	# link archimedes
-	target_link_libraries(archimedes_tests PRIVATE ${PROJECT_NAME})
+	target_link_libraries(archimedes_tests PRIVATE archimedes_lib archimedes)
 
 	# reuse precompiled header
-	target_precompile_headers(archimedes_tests REUSE_FROM ${PROJECT_NAME})
+	target_precompile_headers(archimedes_tests REUSE_FROM archimedes_lib)
 
 	#enable IPO
 	set_property(TARGET archimedes_tests PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)

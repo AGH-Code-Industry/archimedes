@@ -42,7 +42,7 @@ class ArchimedesConan(ConanFile):
 		'conanfile.py',
 		'version.txt',
 	)
-	generators = 'CMakeDeps'
+	#generators = 'CMakeDeps'
 	
 	def layout(self):
 		cmake_layout(self)
@@ -105,7 +105,11 @@ class ArchimedesConan(ConanFile):
 		cmake.install()
 
 	def package_info(self):
-		self.cpp_info.libs = ['archimedes']
+		self.cpp_info.set_property("cmake_file_name", "archimedes_lib")
+        
+		self.cpp_info.set_property("cmake_target_name", "archimedes_lib::archimedes_lib")
+        
+		self.cpp_info.libs = ["archimedes_lib"]
 
 		self.cpp_info.defines = []
 		
