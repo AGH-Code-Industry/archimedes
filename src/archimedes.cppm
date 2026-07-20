@@ -133,6 +133,12 @@ export namespace arch::audio {
 
 }
 
+export namespace arch::physics {
+
+// @Nitka TODO
+
+}
+
 export namespace arch::utils {
 
 using arch::utils::UUID;
