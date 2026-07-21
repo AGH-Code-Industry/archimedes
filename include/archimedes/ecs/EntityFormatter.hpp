@@ -35,7 +35,7 @@ constexpr std::format_parse_context::iterator std::formatter<arch::ecs::Entity>:
 
 	auto alignIt = i + 1;
 	if (alignIt == end) {
-		alignIt == i;
+		alignIt = i;
 	}
 
 	for (;;) {
