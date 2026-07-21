@@ -134,9 +134,9 @@ struct EntityTraits {
 
 namespace arch::ecs {
 
-static inline constexpr Entity nullEntity = _details::EntityTraits::Ent::null;
-static inline constexpr _details::EntityTraits::IdT nullID = _details::EntityTraits::Id::null;
-static inline constexpr _details::EntityTraits::VersionT nullVersion = _details::EntityTraits::Version::null;
+inline constexpr Entity nullEntity = _details::EntityTraits::Ent::null;
+inline constexpr _details::EntityTraits::IdT nullID = _details::EntityTraits::Id::null;
+inline constexpr _details::EntityTraits::VersionT nullVersion = _details::EntityTraits::Version::null;
 
 } // namespace arch::ecs
 

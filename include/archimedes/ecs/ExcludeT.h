@@ -12,7 +12,7 @@ struct ExcludeT: public TypeList<Ts...> {};
 /// @brief Instance of ExcludeT
 /// @tparam Ts - components to exclude
 template<class... Ts>
-static inline constexpr ExcludeT<Ts...> exclude{};
+inline constexpr ExcludeT<Ts...> exclude{};
 
 } // namespace arch::ecs
 
