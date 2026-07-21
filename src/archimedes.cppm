@@ -121,12 +121,6 @@ module;
 
 export module archimedes;
 
-export namespace arch::asset::mesh {
-
-using arch::asset::mesh::Mesh;
-
-}
-
 export namespace arch::audio {
 
 // @Nitka TODO
@@ -138,6 +132,39 @@ export namespace arch::physics {
 // @Nitka TODO
 
 }
+
+export namespace arch::asset::mesh {
+
+using arch::asset::mesh::Mesh;
+
+}
+
+export namespace arch::ecs {
+
+using arch::ecs::ComponentPool;
+using arch::ecs::ComponentSpecs;
+using arch::ecs::Domain;
+using arch::ecs::Entity;
+using arch::ecs::EntityPool;
+using arch::ecs::EntitySpecs;
+using arch::ecs::exclude;
+using arch::ecs::ExcludeT;
+using arch::ecs::nullEntity;
+using arch::ecs::nullID;
+using arch::ecs::nullVersion;
+using arch::ecs::operator*;
+using arch::ecs::operator~;
+using arch::ecs::View;
+using arch::ecs::ViewIterator;
+
+using arch::ecs::_details::ComponentPoolIterator;
+using arch::ecs::_details::ComponentTraits;
+using arch::ecs::_details::EntityTraits;
+using arch::ecs::_details::FlagComponent;
+using arch::ecs::_details::FlagComponentPred;
+using arch::ecs::_details::IsEntity;
+
+} // namespace arch::ecs
 
 export namespace arch::utils {
 
