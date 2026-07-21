@@ -21,6 +21,6 @@ struct IsApplicable<Fn, std::tuple<Args...>>: public std::is_invocable<Fn, Args.
 /// @tparam Fn - function type
 /// @tparam Tuple - tuple of arguments to pass to function
 template<class Fn, class Tuple>
-static inline constexpr bool isApplicableV = IsApplicable<Fn, Tuple>::value;
+inline constexpr bool isApplicableV = IsApplicable<Fn, Tuple>::value;
 
 } // namespace arch::tUtils

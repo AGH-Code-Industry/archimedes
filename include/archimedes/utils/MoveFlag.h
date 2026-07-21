@@ -6,6 +6,6 @@ struct MoveFlag {
 	explicit MoveFlag() = default;
 };
 
-static inline constexpr MoveFlag moveFlag;
+inline constexpr MoveFlag moveFlag;
 
 } // namespace arch

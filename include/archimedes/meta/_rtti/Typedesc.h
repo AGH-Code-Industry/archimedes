@@ -33,7 +33,7 @@ struct Helper {
 };
 
 /// @brief Instance of Helper object
-static inline constexpr Helper helper{};
+inline constexpr Helper helper{};
 
 /// @brief Helper multiplication operator
 /// @brief If T is polymorphic and RTTIEnabled, obtains TypeDescriptor from lhs
