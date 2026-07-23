@@ -67,7 +67,7 @@ VulkanImage::VulkanImage(
 
 VulkanImage::~VulkanImage() {
 	if (_image || _imageView || _memory) {
-		Logger::warn("Image was not destroyed properly. Make sure to call cleanup() before destroying the object.");
+		log::warn("Image was not destroyed properly. Make sure to call cleanup() before destroying the object.");
 	}
 }
 

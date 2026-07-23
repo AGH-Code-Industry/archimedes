@@ -40,7 +40,7 @@ void Engine::start() {
 }
 
 void Engine::_mainLoop() {
-	Logger::info("Starting engine main loop");
+	log::info("Starting engine main loop");
 
 	while (!_mainWindow->shouldClose()) {
 		glfwPollEvents();
@@ -63,6 +63,9 @@ void Engine::_mainLoop() {
 }
 
 void Engine::_initialize() {
+	log::_details::LoggerSingleton::init(_engineConfig.loggerConfig.name, _engineConfig.loggerConfig.file);
+	log::setLevel(_engineConfig.loggerConfig.level);
+
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
 	input::System::_init(_mainWindow);
@@ -77,7 +80,7 @@ void Engine::_initialize() {
 
 	_application->init();
 
-	Logger::info("Engine initialization successful");
+	log::info("Engine initialization successful");
 }
 
 void Engine::_shutdown() {
@@ -85,18 +88,18 @@ void Engine::_shutdown() {
 	font::FontDB::_singleton.reset();
 	scene::SceneManager::get()->shutdown();
 
-	Logger::info("Engine shutingdown");
+	log::info("Engine shutingdown");
 	glfwTerminate();
 
 	if (_renderer) {
-		Logger::info("Shutingdown renderer");
+		log::info("Shutingdown renderer");
 		_renderer->shutdown();
 		_renderer = nullptr;
 	} else {
-		Logger::info("Renderer is already shutdown");
+		log::info("Renderer is already shutdown");
 	}
 
-	Logger::info("Engine shutdown");
+	log::info("Engine shutdown");
 }
 
 } // namespace arch

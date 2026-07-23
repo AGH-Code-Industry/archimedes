@@ -7,16 +7,16 @@ namespace arch::gfx::nvrhi {
 
 struct MessageCallback: ::nvrhi::IMessageCallback {
 	void message(::nvrhi::MessageSeverity severity, const char* message) override {
-		LogLevel level = LogLevel::debug;
+		auto level = log::Level::debug;
 
 		switch (severity) {
-			case ::nvrhi::MessageSeverity::Fatal:	level = LogLevel::critical; break;
-			case ::nvrhi::MessageSeverity::Error:	level = LogLevel::error; break;
-			case ::nvrhi::MessageSeverity::Warning: level = LogLevel::warn; break;
-			case ::nvrhi::MessageSeverity::Info:	level = LogLevel::info; break;
+			case ::nvrhi::MessageSeverity::Fatal:	level = log::Level::crit; break;
+			case ::nvrhi::MessageSeverity::Error:	level = log::Level::error; break;
+			case ::nvrhi::MessageSeverity::Warning: level = log::Level::warn; break;
+			case ::nvrhi::MessageSeverity::Info:	level = log::Level::info; break;
 		}
 
-		Logger::log(level, "[Nvrhi]: {}", message);
+		log::logger(level, "[Nvrhi]: {}", message);
 	}
 
 	static MessageCallback* GetInstance() {

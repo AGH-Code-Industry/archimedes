@@ -272,7 +272,7 @@ const GlyphData* Face::_findPlaceholder() const noexcept {
 			return &*glyphDataOpt;
 		}
 	}
-	Logger::error("Style '{}' of '{}' does not contain '?' or ' '!", styleName(), _familyName);
+	log::error("Style '{}' of '{}' does not contain '?' or ' '!", styleName(), _familyName);
 	return nullptr; // impossible for font to not have
 					// '?' or ' '
 }

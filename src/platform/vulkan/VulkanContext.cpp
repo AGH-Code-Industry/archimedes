@@ -53,19 +53,19 @@ static u32 debugCallback(
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData
 ) {
-	LogLevel level = LogLevel::debug;
+	auto level = log::Level::debug;
 
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-		level = LogLevel::error;
+		level = log::Level::error;
 	} else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		level = LogLevel::warn;
+		level = log::Level::warn;
 	} else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-		level = LogLevel::info;
+		level = log::Level::info;
 	} else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-		level = LogLevel::trace;
+		level = log::Level::trace;
 	}
 
-	Logger::log(level, "[Vulkan] {}", pCallbackData->pMessage);
+	log::logger(level, "[Vulkan] {}", pCallbackData->pMessage);
 	return VK_FALSE;
 }
 
@@ -121,7 +121,7 @@ void VulkanContext::_createInstance() {
 
 void VulkanContext::_setupDebugMessage() {
 	if (vkCreateDebugUtilsMessengerEXT == nullptr) {
-		Logger::warn("vkCreateDebugUtilsMessengerEXT is not available, debug messages will not be displayed.");
+		log::warn("vkCreateDebugUtilsMessengerEXT is not available, debug messages will not be displayed.");
 		return;
 	}
 
@@ -135,7 +135,7 @@ void VulkanContext::_setupDebugMessage() {
 		.pUserData = nullptr,
 	};
 
-	Logger::info("[Vulkan] Setting up debug messenger");
+	log::info("[Vulkan] Setting up debug messenger");
 	VulkanUtils::vkAssert(
 		vkCreateDebugUtilsMessengerEXT(_instance, &createInfo, _allocator, &_debugMessenger),
 		"Failed to setup debug messenger."
@@ -179,10 +179,12 @@ void VulkanContext::_createLogicalDevice() {
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
 	for (auto&& queueFamily : queueFamilies) {
-		queueCreateInfos.push_back({ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-									 .queueFamilyIndex = queueFamily,
-									 .queueCount = 1,
-									 .pQueuePriorities = &queuePriority });
+		queueCreateInfos.push_back(
+			{ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			  .queueFamilyIndex = queueFamily,
+			  .queueCount = 1,
+			  .pQueuePriorities = &queuePriority }
+		);
 	}
 
 	VkPhysicalDeviceVulkan12Features vulkan12features = {
@@ -274,9 +276,9 @@ std::vector<const char*> VulkanContext::_getValidationLayers() {
 		return true;
 	});
 
-	Logger::trace("Available layers {}:", availableLayers.size());
+	log::trace("Available layers {}:", availableLayers.size());
 	for (auto&& layer : availableLayers) {
-		Logger::trace("  - {}", layer.layerName);
+		log::trace("  - {}", layer.layerName);
 	}
 
 	return layers;
@@ -302,12 +304,12 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
 	std::string deviceName = deviceProperties.deviceName;
-	Logger::info("Evaluating Vulkan device: {}", deviceName);
+	log::info("Evaluating Vulkan device: {}", deviceName);
 
 	// Device features requirements
 	{
 		if (!deviceFeatures.geometryShader) {
-			Logger::warn("Vulkan device is missing geometry shader support");
+			log::warn("Vulkan device is missing geometry shader support");
 			return -1;
 		}
 
@@ -331,9 +333,9 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 		}
 
 		if (!requiredExtensions.empty()) {
-			Logger::warn("Vulkan device is missing GPU extensions:");
+			log::warn("Vulkan device is missing GPU extensions:");
 			for (auto& extension : requiredExtensions) {
-				Logger::warn("{}", extension);
+				log::warn("{}", extension);
 			}
 			return -1;
 		}
@@ -342,7 +344,7 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 	// Device Queue Families requirements
 	Queues queues = _getDeviceQueues(device, surface);
 	if (!queues.isComplete()) {
-		Logger::warn("Vulkan device is missing queue families (graphics + present)");
+		log::warn("Vulkan device is missing queue families (graphics + present)");
 		return -1;
 	}
 
@@ -351,12 +353,12 @@ int VulkanContext::_getDeviceScore(VkPhysicalDevice device, VkSurfaceKHR surface
 		VulkanSwapchain::SupportDetails::getSupportDetails(device, surface);
 
 	if (swapchainSupport.formats.empty()) {
-		Logger::warn("Vulkan device is missing swapchain surface formats");
+		log::warn("Vulkan device is missing swapchain surface formats");
 		return -1;
 	}
 
 	if (swapchainSupport.presentModes.empty()) {
-		Logger::warn("Vulkan device is missing swapchain present modes");
+		log::warn("Vulkan device is missing swapchain present modes");
 		return -1;
 	}
 

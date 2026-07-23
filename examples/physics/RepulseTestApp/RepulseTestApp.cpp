@@ -7,7 +7,7 @@
 /// Two objects move to each other and they push each other in opposite directions
 
 int main() {
-	arch::Logger::init(arch::LogLevel::trace);
+	
 
 	arch::Unique<arch::Application> myApp = arch::createUnique<physicsExample::RepulseTestApp>();
 
@@ -15,7 +15,7 @@ int main() {
 							   .windowHeight = 600,
 							   .windowTitle = "Archimedes Test",
 							   .backgroundColor = arch::Color(.0f, .0f, .0f, 1.f),
-							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK };
+							   .renderingApi = arch::gfx::RenderingAPI::Nvrhi_VK,.loggerConfig = { .name = "Archimedes", .level = arch::log::trace } };
 
 	arch::Engine engine{ config, myApp };
 	engine.start();

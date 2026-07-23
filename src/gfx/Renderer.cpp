@@ -11,20 +11,20 @@ Ref<Renderer> Renderer::create(RenderingAPI api) {
 	switch (api) {
 		// case RenderingAPI::vulkan: return createRef<vulkan::VulkanRenderer>();
 		case RenderingAPI::vulkan:
-			Logger::critical("Standalone Vulkan is not supported currently. (Use: RenderingAPI::Nvrhi_VK)");
+			log::crit("Standalone Vulkan is not supported currently. (Use: RenderingAPI::Nvrhi_VK)");
 			return nullptr;
 
 		// case RenderingAPI::Nvrhi_DX11:
 		// case RenderingAPI::Nvrhi_DX12:
 		case RenderingAPI::Nvrhi_VK: return createRef<nvrhi::NvrhiRenderer>(api, true);
 
-		default: Logger::critical("Unknown RenderingAPI {}", (u32)api); return nullptr;
+		default: log::crit("Unknown RenderingAPI {}", (u32)api); return nullptr;
 	}
 }
 
 Ref<Renderer> Renderer::getCurrent() {
 	if (!s_current) {
-		Logger::critical("[Renderer] Current context is null");
+		log::crit("[Renderer] Current context is null");
 	}
 
 	return s_current;

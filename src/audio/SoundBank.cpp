@@ -21,7 +21,7 @@ void SoundBank::loadGroup(int group) {
 		clipFound->second.load();
 	}
 	_isLoaded[entryFound->first] = true;
-	Logger::info("Audio system: loaded sound bank group with id {}", group);
+	log::info("Audio system: loaded sound bank group with id {}", group);
 }
 
 void SoundBank::unloadGroup(int group) {
@@ -42,21 +42,21 @@ void SoundBank::unloadGroup(int group) {
 		clipFound->second.unload();
 	}
 	_isLoaded[entryFound->first] = false;
-	Logger::info("Audio system: unloaded sound bank group with id {}", group);
+	log::info("Audio system: unloaded sound bank group with id {}", group);
 }
 
 void SoundBank::loadInitialGroups() {
 	for (auto& group : _initialGroups) {
 		loadGroup(group);
 	}
-	Logger::info("Audio system: loaded initial sound bank groups");
+	log::info("Audio system: loaded initial sound bank groups");
 }
 
 void SoundBank::unloadInitialGroups() {
 	for (auto& group : _initialGroups) {
 		unloadGroup(group);
 	}
-	Logger::info("Audio system: unloaded initial sound bank groups");
+	log::info("Audio system: unloaded initial sound bank groups");
 }
 
 void SoundBank::loadAllUnloadedGroups() {
@@ -65,7 +65,7 @@ void SoundBank::loadAllUnloadedGroups() {
 			loadGroup(group);
 		}
 	}
-	Logger::info("Audio system: loaded all unloaded sound bank groups");
+	log::info("Audio system: loaded all unloaded sound bank groups");
 }
 
 void SoundBank::unloadAllLoadedGroups() {
@@ -74,7 +74,7 @@ void SoundBank::unloadAllLoadedGroups() {
 			unloadGroup(group);
 		}
 	}
-	Logger::info("Audio system: unloaded all loaded sound bank groups");
+	log::info("Audio system: unloaded all loaded sound bank groups");
 }
 
 Clip& SoundBank::getClip(const std::string& sound) {
@@ -96,7 +96,7 @@ void SoundBank::addClip(const std::string& sound, int group) {
 	fs::path clipPath = soundsDirectory / sound;
 	_clips.try_emplace(sound, clipPath.string());
 	_addToGroup(sound, group);
-	Logger::info("Audio system: added clip {} to sound bank group {}", sound, group);
+	log::info("Audio system: added clip {} to sound bank group {}", sound, group);
 }
 
 void SoundBank::removeClip(const std::string& sound) {
@@ -108,17 +108,17 @@ void SoundBank::removeClip(const std::string& sound) {
 		throw AudioException("Can't remove clip: " + sound + " it's not in the bank");
 	}
 	_removeFromGroup(sound, group);
-	Logger::info("Audio system: removed clip {} from the sound bank", sound);
+	log::info("Audio system: removed clip {} from the sound bank", sound);
 }
 
 void SoundBank::setInitial(int group, bool isInitial) {
 	if (isInitial) {
 		_initialGroups.emplace(group);
-		Logger::info("Audio system: sound bank group {} set as initial", group);
+		log::info("Audio system: sound bank group {} set as initial", group);
 		return;
 	}
 	_initialGroups.erase(group);
-	Logger::info("Audio system: sound bank group {} unset as initial", group);
+	log::info("Audio system: sound bank group {} unset as initial", group);
 }
 
 void SoundBank::addGroup(int group, bool isInitial) {
@@ -130,9 +130,9 @@ void SoundBank::addGroup(int group, bool isInitial) {
 	_isLoaded[group] = false;
 	if (isInitial) {
 		_initialGroups.emplace(group);
-		Logger::info("Audio system: added sound bank group {} as initial", group);
+		log::info("Audio system: added sound bank group {} as initial", group);
 	} else {
-		Logger::info("Audio system: added sound bank group {} as not initial", group);
+		log::info("Audio system: added sound bank group {} as not initial", group);
 	}
 }
 
@@ -153,7 +153,7 @@ void SoundBank::removeGroup(int group) {
 	}
 	_isLoaded.erase(group);
 	_groups.erase(group);
-	Logger::info("Audio system: removed sound bank group {}", group);
+	log::info("Audio system: removed sound bank group {}", group);
 }
 
 void SoundBank::moveClipToGroup(const std::string& sound, int destinationGroup) {
@@ -166,7 +166,7 @@ void SoundBank::moveClipToGroup(const std::string& sound, int destinationGroup) 
 	}
 	_removeFromGroup(sound, sourceGroup);
 	_addToGroup(sound, destinationGroup);
-	Logger::info("Audio system: moved clip {} to sound bank group {}", sound, destinationGroup);
+	log::info("Audio system: moved clip {} to sound bank group {}", sound, destinationGroup);
 }
 
 void SoundBank::_addToGroup(const std::string& sound, int group) {
@@ -212,12 +212,12 @@ int SoundBank::findClipGroup(const std::string& sound) {
 SoundBank::SoundBank() {
 	addGroup(0, true);
 	soundsDirectory = fs::current_path() / "sounds";
-	Logger::info("Audio system: sound bank initialised");
+	log::info("Audio system: sound bank initialised");
 }
 
 SoundBank::~SoundBank() {
 	unloadAllLoadedGroups();
-	Logger::info("Audio system: sound bank closed");
+	log::info("Audio system: sound bank closed");
 }
 
 } // namespace arch::audio

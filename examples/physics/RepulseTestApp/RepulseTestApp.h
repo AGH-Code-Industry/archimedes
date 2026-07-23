@@ -122,7 +122,7 @@ struct RepulseTestApp final: Application {
 	void update() override {
 		auto enteredCollisions = _physicsSystem->getEnteredCollisions(e1);
 		if (enteredCollisions.contains(e2)) {
-			Logger::info("Collision detected!");
+			log::info("Collision detected!");
 			ideallyElasticCollision(e1, e2);
 		}
 		_physicsSystem->update();

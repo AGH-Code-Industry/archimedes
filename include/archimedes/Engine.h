@@ -6,6 +6,7 @@
 #include "Ref.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
+#include <archimedes/Logger.h>
 #include <gtest/gtest_prod.h>
 
 namespace arch {
@@ -13,12 +14,20 @@ namespace scene {
 class SceneManager;
 }
 
+struct LoggerConfig {
+	std::string name;
+	log::Level level;
+	bool file;
+};
+
 struct EngineConfig {
 	int windowWidth;
 	int windowHeight;
 	std::string windowTitle;
 	Color backgroundColor;
 	gfx::RenderingAPI renderingApi;
+	LoggerConfig loggerConfig = { .name = "Archimedes", .level = log::info, .file = true };
+	bool noCatch = false;
 };
 
 /**
