@@ -15,10 +15,7 @@ public:
 	/// @param message Message of the exception.
 	/// @param location Source location of the exception.
 	///
-	InvalidEnumException(
-		const std::string& message,
-		const std::source_location& location = std::source_location::current()
-	);
+	InvalidEnumException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
 };
 
 } // namespace arch

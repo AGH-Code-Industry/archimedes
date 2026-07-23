@@ -2,33 +2,25 @@
 
 namespace arch {
 
-Exception::Exception(const std::string& title, const std::source_location& location):
-	_title(title),
-	_location(location) {}
-
-Exception::Exception(const std::string& title, const std::string& message, const std::source_location& location):
+Exception::Exception(std::string_view title, std::string_view message, const std::stacktrace& stacktrace):
 	_title(title),
 	_message(message),
-	_location(location) {}
-
-void Exception::print(LogLevel level) const {
-	Logger::log<const std::string&, const std::string&>(level, "[{}]: {}", _title, _message, _location);
-}
+	_stacktrace(stacktrace) {}
 
 const char* Exception::what() const noexcept {
 	return _message.c_str();
 }
 
-std::string_view Exception::title() const {
+std::string_view Exception::title() const noexcept {
 	return _title;
 }
 
-std::string_view Exception::message() const {
+std::string_view Exception::message() const noexcept {
 	return _message;
 }
 
-const std::source_location& Exception::location() const {
-	return _location;
+const std::stacktrace& Exception::stacktrace() const noexcept {
+	return _stacktrace;
 }
 
 } // namespace arch

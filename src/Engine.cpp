@@ -19,16 +19,23 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	try {
+	auto run = [&] {
 		_initialize();
-
 		_mainLoop();
-	} catch (Exception& e) {
-		e.print();
-	} catch (std::exception& e) {
-		Logger::error("Crashed with exception: {}", e.what());
-	} catch (...) {
-		Logger::error("Unhandled exception occurred");
+	};
+
+	if (_engineConfig.noCatch) {
+		run();
+	} else {
+		try {
+			run();
+		} catch (Exception& e) {
+			log::error("{:0}", e);
+		} catch (std::exception& e) {
+			log::error("Crashed with exception: {}", e.what());
+		} catch (...) {
+			log::error("Unhandled exception occurred");
+		}
 	}
 }
 

@@ -12,7 +12,7 @@ public:
 	/// @param location - current std::source_location
 	FontException(
 		const std::string& msg,
-		const std::source_location& location = std::source_location::current()
+		const std::stacktrace& stacktrace = std::stacktrace::current()
 	) noexcept;
 };
 
