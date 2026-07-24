@@ -151,8 +151,10 @@ constexpr Key& Key::get(const u32 code) {
 		ARCH_MOUSE_BUTTON(eighth)
 	}
 
-	Logger::warn("Keycode {} does not match any key or button", code);
-	constexpr Key dummy;
+	Logger::warn("Keycode {} does not match any key or button, returned dummy key", code);
+	static Key dummy;
+	dummy._state = *KeyState::up;
+	dummy._time = {};
 	return dummy;
 }
 
