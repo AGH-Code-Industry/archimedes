@@ -4,6 +4,7 @@
 //
 #include "Keyboard.h"
 #include "Mouse.h"
+#include <archimedes/Logger.h>
 
 #define ARCH_STATE(x)                 \
 	bool Key::x() const noexcept {    \
@@ -135,6 +136,11 @@ constexpr Key& Key::get(const u32 code) {
 		ARCH_KEYBOARD_KEY(comma)
 		ARCH_KEYBOARD_KEY(dot)
 		ARCH_KEYBOARD_KEY(slash)
+		ARCH_KEYBOARD_KEY(world1)
+		ARCH_KEYBOARD_KEY(world2)
+		ARCH_KEYBOARD_KEY(scrollLock)
+		ARCH_KEYBOARD_KEY(pause)
+		ARCH_KEYBOARD_KEY(numEqual)
 		ARCH_MOUSE_BUTTON(first)
 		ARCH_MOUSE_BUTTON(second)
 		ARCH_MOUSE_BUTTON(third)
@@ -145,7 +151,11 @@ constexpr Key& Key::get(const u32 code) {
 		ARCH_MOUSE_BUTTON(eighth)
 	}
 
-	throw std::invalid_argument(std::format("Code {} does not match any key or button", code));
+	Logger::warn("Keycode {} does not match any key or button, returned dummy key", code);
+	static Key dummy;
+	dummy._state = *KeyState::up;
+	dummy._time = {};
+	return dummy;
 }
 
 Key::Time Key::upTime() const noexcept {
