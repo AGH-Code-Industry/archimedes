@@ -13,7 +13,7 @@ class InvalidEnumException final: public Exception {
 public:
 	/// Constructor.
 	/// @param message Message of the exception.
-	/// @param location Source location of the exception.
+	/// @param stacktrace Stacktrace of the exception.
 	///
 	InvalidEnumException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
 };

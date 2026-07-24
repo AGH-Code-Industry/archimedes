@@ -30,7 +30,7 @@ void Engine::start() {
 		try {
 			run();
 		} catch (Exception& e) {
-			log::error("{:0}", e);
+			log::error("{:0}", e); // print full stacktrace
 		} catch (std::exception& e) {
 			log::error("Crashed with exception: {}", e.what());
 		} catch (...) {

@@ -15,7 +15,7 @@ std::string std::formatter<arch::Exception>::setStacktraceFormat(const std::stri
 }
 
 std::string std::formatter<arch::Exception>::parseStacktraceEntry(const std::stacktrace_entry& entry) {
-	auto function = ::arch::utils::parseStacktraceEntry(entry);
+	auto function = ::arch::utils::parseStacktraceFunction(entry);
 
 	auto line = entry.source_line();
 	auto file = entry.source_file();

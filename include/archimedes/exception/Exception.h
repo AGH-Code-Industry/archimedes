@@ -25,7 +25,12 @@ public:
 	const std::stacktrace& stacktrace() const noexcept;
 
 protected:
+	/// @brief Base class constructor
+	/// @param title - exception title
+	/// @param message - exception message
+	/// @param stacktrace - exception stacktrace (use std::stacktrace::current() for default value)
 	Exception(std::string_view title, std::string_view message, const std::stacktrace& stacktrace);
+
 	std::string _title;
 	std::string _message;
 

@@ -21,7 +21,7 @@
 
 namespace arch::audio {
 /// @brief Check for errors after "al" function call.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @throws AudioException if an error is found.
 void inline checkAlErrors(const std::stacktrace& stacktrace) {
 	const ALenum error = alGetError();
@@ -49,7 +49,7 @@ void inline checkAlErrors(const std::stacktrace& stacktrace) {
 
 /// @brief Check for errors after "alc" function call.
 /// @param device ALCDevice returned by alcOpenDevice call.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @throws AudioException if an error is found.
 void inline checkAlcErrors(ALCdevice* device, const std::stacktrace& stacktrace) {
 	const ALCenum error = alcGetError(device);
@@ -92,7 +92,7 @@ concept NormalReturn = not VoidReturn<Function, Params...>;
 /// @brief Wrapper for OpenAL "al" functions with void return type.
 /// @tparam AlFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @param function wrapped function.
 /// @param params wrapped function's parameters.
 template<typename AlFunction, typename... Params>
@@ -105,7 +105,7 @@ auto alCallImplementation(const std::stacktrace& stacktrace, AlFunction function
 /// @brief Wrapper for OpenAL "al" functions with return type other than void.
 /// @tparam AlFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @param function wrapped function.
 /// @param params wrapped function's parameters.
 /// @return return value of wrapped function.
@@ -120,7 +120,7 @@ auto alCallImplementation(const std::stacktrace& stacktrace, AlFunction function
 /// @brief Wrapper for OpenAL "alc" functions with void return type.
 /// @tparam AlcFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @param function wrapped function.
 /// @param device ALCDevice returned by alcOpenDevice call.
 /// @param params wrapped function's parameters.
@@ -139,7 +139,7 @@ auto alcCallImplementation(
 /// @brief Wrapper for OpenAL "alc" functions with return type other than void.
 /// @tparam AlcFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param location location in the code where the original function was called.
+/// @param stacktrace stacktrace where the original function was called.
 /// @param function wrapped function.
 /// @param device ALCDevice returned by alcOpenDevice call.
 /// @param params wrapped function's parameters.

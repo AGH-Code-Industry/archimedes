@@ -9,14 +9,14 @@
 namespace arch::log::_details {
 
 template<class... Args>
-void logImpl(Level level, std::format_string<Args...> fmt, Args&&... args) {
+void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> fmt, Args&&... args) {
 	namespace fs = std::filesystem;
 
 	// 0: this
 	// 1: logger
 	// 2: actual location
 	// ...
-	auto stacktraceEntry = *std::stacktrace::current(2).begin();
+	auto stacktraceEntry = *std::stacktrace::current(stacktraceSkip).begin();
 
 	fs::path filepath = fs::relative(stacktraceEntry.source_file(), fs::current_path().parent_path());
 
@@ -24,7 +24,7 @@ void logImpl(Level level, std::format_string<Args...> fmt, Args&&... args) {
 		spdlog::source_loc::source_loc(
 			filepath.string().c_str(),
 			stacktraceEntry.source_line(),
-			utils::parseStacktraceEntry(stacktraceEntry).c_str()
+			utils::parseStacktraceFunction(stacktraceEntry).c_str()
 		),
 		(spdlog::level::level_enum)level,
 		fmt,
@@ -34,13 +34,13 @@ void logImpl(Level level, std::format_string<Args...> fmt, Args&&... args) {
 
 template<class... Args>
 void UniversalLogger::operator()(Level level, std::format_string<Args...> fmt, Args&&... args) {
-	logImpl(level, fmt, std::forward<Args>(args)...);
+	logImpl(level, 2, fmt, std::forward<Args>(args)...);
 }
 
 template<Level L>
 template<class... Args>
 void LeveledLogger<L>::operator()(std::format_string<Args...> fmt, Args&&... args) {
-	logImpl(L, fmt, std::forward<Args>(args)...);
+	logImpl(L, 2, fmt, std::forward<Args>(args)...);
 }
 
 template<Level L>

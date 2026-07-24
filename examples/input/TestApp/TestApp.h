@@ -33,11 +33,15 @@ class InputTestApp: public Application {
 
 		scene::SceneManager::get()->changeScene(testScene);
 
+		arch::dupa();
+
 		// 2D square
 		struct Vertex {
 			float3 position;
 			float2 tex_coords;
 		};
+
+		arch::dupa();
 
 		std::vector<u32> indices{ 0, 1, 2, 2, 1, 3 };
 

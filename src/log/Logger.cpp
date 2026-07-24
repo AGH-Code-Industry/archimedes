@@ -16,11 +16,12 @@ void LoggerSingleton::init(const std::string& name, bool file) {
 
 	std::vector<spdlog::sink_ptr> sinks;
 
+	// init console sink
 	auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 	consoleSink->set_pattern("%^[%T] [%l] [%@]: %v%$");
 	sinks.push_back(std::move(consoleSink));
 
-	if (file) {
+	if (file) { // init file sink
 		auto logpath = std::format("Logs/{}-{}.log", name, (long long)std::time(nullptr));
 		auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logpath, true);
 		fileSink->set_pattern("[%T] [%l] [%@]: %v");

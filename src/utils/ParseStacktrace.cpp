@@ -2,8 +2,8 @@
 
 namespace arch::utils {
 
-std::string parseStacktraceEntry(const std::stacktrace_entry& entry) {
-	std::string function;
+std::string parseStacktraceFunction(const std::stacktrace_entry& entry) {
+	std::string result;
 
 	constexpr bool msvc =
 #if defined(_MSC_VER)
@@ -12,11 +12,12 @@ std::string parseStacktraceEntry(const std::stacktrace_entry& entry) {
 		false;
 #else
 		false;
-	static_assert("UNSUPPORTED COMPILER");
+	static_assert(false, "UNSUPPORTED COMPILER");
 #endif
 
+	// function name surrounded with []
 	auto desc = entry.description();
-	if constexpr (msvc) { // ...!qualified::function<name>+0x...
+	if constexpr (msvc) { // ...![qualified::function<name>]+0x...
 		auto begin = desc.find('!');
 		if (begin == desc.npos) {
 			begin = 0;
@@ -30,24 +31,24 @@ std::string parseStacktraceEntry(const std::stacktrace_entry& entry) {
 		}
 
 		if (end == begin) {
-			function = "<unknown>";
+			result = "<unknown>";
 		} else {
-			function.assign(desc.begin() + begin, desc.begin() + end);
+			result.assign(desc.begin() + begin, desc.begin() + end);
 		}
-	} else { // qualified::function<name>(...)
+	} else /* if(gcc) */ { // [qualified::function<name>](...)
 		auto end = desc.find('(');
 		if (end == desc.npos) {
 			end = desc.length();
 		}
 
 		if (end == 0) {
-			function = "<unknown>";
+			result = "<unknown>";
 		} else {
-			function.assign(desc.begin(), desc.begin() + end);
+			result.assign(desc.begin(), desc.begin() + end);
 		}
 	}
 
-	return function;
+	return result;
 }
 
 } // namespace arch::utils
