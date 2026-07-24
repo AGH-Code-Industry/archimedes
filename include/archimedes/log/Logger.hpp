@@ -21,7 +21,7 @@ void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> 
 	fs::path filepath = fs::relative(stacktraceEntry.source_file(), fs::current_path().parent_path());
 
 	LoggerSingleton::_logger->log(
-		spdlog::source_loc::source_loc(
+		spdlog::source_loc(
 			filepath.string().c_str(),
 			stacktraceEntry.source_line(),
 			utils::parseStacktraceFunction(stacktraceEntry).c_str()
