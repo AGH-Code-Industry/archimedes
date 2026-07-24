@@ -73,7 +73,7 @@ public:
 
 private:
 	template<class... Args>
-	friend void logImpl(Level, spdlog::format_string_t<Args...>, Args&&...);
+	friend void logImpl(Level, const u32, spdlog::format_string_t<Args...>, Args&&...);
 	friend class ::arch::Engine;
 	friend void ::arch::log::setLevel(Level);
 
