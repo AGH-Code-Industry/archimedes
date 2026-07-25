@@ -10,7 +10,7 @@ struct MessageCallback: ::nvrhi::IMessageCallback {
 		auto level = log::Level::debug;
 
 		switch (severity) {
-			case ::nvrhi::MessageSeverity::Fatal:	level = log::Level::crit; break;
+			case ::nvrhi::MessageSeverity::Fatal:	level = log::Level::critical; break;
 			case ::nvrhi::MessageSeverity::Error:	level = log::Level::error; break;
 			case ::nvrhi::MessageSeverity::Warning: level = log::Level::warn; break;
 			case ::nvrhi::MessageSeverity::Info:	level = log::Level::info; break;
