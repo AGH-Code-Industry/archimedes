@@ -24,7 +24,7 @@ enum class Level {
 	/// @brief Information representing a serious problem that has occurred
 	error = spdlog::level::err,
 	/// @brief Information representing a critical problem that has occurred
-	crit = spdlog::level::critical,
+	critical = spdlog::level::critical,
 };
 
 /// @brief Sets global logger level
@@ -96,7 +96,7 @@ extern _details::LeveledLogger<Level::warn> warn;
 /// @brief Logger for information representing a serious problem that has occurred
 extern _details::LeveledLogger<Level::error> error;
 /// @brief Logger for information representing a critical problem that has occurred
-extern _details::LeveledLogger<Level::crit> crit;
+extern _details::LeveledLogger<Level::critical> critical;
 
 } // namespace arch::log
 

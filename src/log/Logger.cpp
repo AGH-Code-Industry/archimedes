@@ -48,6 +48,6 @@ _details::LeveledLogger<Level::debug> debug{};
 _details::LeveledLogger<Level::info> info{};
 _details::LeveledLogger<Level::warn> warn{};
 _details::LeveledLogger<Level::error> error{};
-_details::LeveledLogger<Level::crit> crit{};
+_details::LeveledLogger<Level::critical> critical{};
 
 } // namespace arch::log

@@ -171,7 +171,7 @@ class InputTestApp: public Application {
 
 		if (msgKey.downTime() >= std::chrono::seconds(3) && msgKey.has(msgMod) && showMsg) {
 			showMsg = false;
-			log::crit("Congratulations! You found an easter egg!");
+			log::critical("Congratulations! You found an easter egg!");
 		} else if (msgKey.released()) {
 			showMsg = true;
 		}
