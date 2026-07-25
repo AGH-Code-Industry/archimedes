@@ -39,7 +39,8 @@ constexpr std::format_parse_context::iterator std::formatter<arch::Exception>::p
 
 		if (nestedEnd - i == 1) {
 			_stacktraceDepth = ctx.next_arg_id();
-		} else if (std::from_chars(&*(i + 1), &*nestedEnd, _stacktraceDepth).ec != std::errc()) {
+		} else if (std::from_chars(std::to_address(i + 1), std::to_address(nestedEnd), _stacktraceDepth).ec !=
+				   std::errc()) {
 			throw std::format_error("Error parsing stacktrace depth nested replacement field");
 		}
 
