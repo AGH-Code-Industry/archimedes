@@ -179,7 +179,7 @@ class CameraTestApp: public Application {
 		// Printing out mouse position in world space
 		// The top-left corner of the red block is at (0, 0), each block is 100 in size
 		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());
-		// log::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
+		log::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
 
 		// Camera works with fullscreen
 		if (input::Keyboard::F11.pressed()) {
