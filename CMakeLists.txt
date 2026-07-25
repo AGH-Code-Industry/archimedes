@@ -1,10 +1,7 @@
 # Main CMake file
 
-cmake_minimum_required(VERSION 3.19)
-
-if(${CMAKE_MAJOR_VERSION} GREATER 3)
-	message(FATAL_ERROR "CMake >=4.X.X is not supported")
-endif()
+cmake_minimum_required(VERSION 4.2)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 project(
         archimedes

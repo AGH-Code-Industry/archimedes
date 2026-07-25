@@ -136,6 +136,11 @@ struct Keyboard {
 	ARCH_KEY(comma)
 	ARCH_KEY(dot)
 	ARCH_KEY(slash)
+	ARCH_KEY(world1)
+	ARCH_KEY(world2)
+	ARCH_KEY(scrollLock)
+	ARCH_KEY(pause)
+	ARCH_KEY(numEqual)
 };
 
 } // namespace arch::input

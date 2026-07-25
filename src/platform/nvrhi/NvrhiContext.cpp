@@ -22,17 +22,15 @@ void NvrhiContext::_preResizeFramebuffers() {
 
 void NvrhiContext::_postResizeFramebuffers() {
 	auto backBuffer = _getBackBuffer(0);
-	_depthStencilBuffer = getDevice()->createTexture(
-		::nvrhi::TextureDesc()
-			.setFormat(::nvrhi::Format::D32)
-			.setWidth(backBuffer->getDesc().width)
-			.setHeight(backBuffer->getDesc().height)
-			.setDepth(1)
-			.setArraySize(1)
-			.setMipLevels(1)
-			.setIsRenderTarget(true)
-			.setDebugName("DepthStencilBuffer")
-	);
+	_depthStencilBuffer = getDevice()->createTexture(::nvrhi::TextureDesc()
+														 .setFormat(::nvrhi::Format::D32)
+														 .setWidth(backBuffer->getDesc().width)
+														 .setHeight(backBuffer->getDesc().height)
+														 .setDepth(1)
+														 .setArraySize(1)
+														 .setMipLevels(1)
+														 .setIsRenderTarget(true)
+														 .setDebugName("DepthStencilBuffer"));
 
 	u32 backBufferCount = _getBackBufferCount();
 	_framebuffers.resize(backBufferCount);

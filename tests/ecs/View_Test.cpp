@@ -107,12 +107,10 @@ TEST(ECS, View_Empty) {
 	ASSERT_EQ((domain.view<NormalComponent, InPlaceComponent, FlagComponent>().minCPool()), (u32)-1);
 
 	// is view with FlagComponent empty?
-	ASSERT_TRUE(
-		std::ranges::equal(
-			std::views::empty<ecs::Entity>,
-			domain.view<NormalComponent, InPlaceComponent, FlagComponent>()
-		)
-	);
+	ASSERT_TRUE(std::ranges::equal(
+		std::views::empty<ecs::Entity>,
+		domain.view<NormalComponent, InPlaceComponent, FlagComponent>()
+	));
 	ASSERT_TRUE(std::ranges::equal(std::views::empty<ecs::Entity>, domain.view<FlagComponent>()));
 }
 
