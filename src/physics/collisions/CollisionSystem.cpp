@@ -155,7 +155,7 @@ void CollisionSystem::_readCurrentCollisions(const CollisionGraph& newCollisions
 
 MouseSet CollisionSystem::_getMouseEntities(float2 mousePosition) const {
 	MouseSet mouseSet;
-	for (auto [entity, collider, transform] : _domain.view<ColliderComponent, TransformComponent>().all()) {
+	for (auto [entity, collider, transform] : _domain.view<ColliderComponent, TransformComponent>().entityComps()) {
 		if (!collider.detectsMouse) {
 			continue;
 		}

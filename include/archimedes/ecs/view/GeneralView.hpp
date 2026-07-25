@@ -15,7 +15,7 @@ namespace _details {
 
 // helper lambda to obtain ComponentPool type
 constexpr auto cpoolCast = []<class T>(Typelist<T> c) consteval {
-	if constexpr (c.apply<std::is_const>()) {
+	if constexpr (c.apply<traitFn<std::is_const>>()) {
 		// const T => const CPool<T>*
 		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
 	} else {
@@ -64,13 +64,13 @@ VIEW_IE::Iterator VIEW_IE::end() const noexcept {
 
 TEMPLATE_IE
 consteval auto VIEW_IE::_nonFlags() {
-	return includes.eraseIf<_details::IsFlag>();
+	return includes.eraseIf<traitFn<_details::IsFlag>>();
 }
 
 TEMPLATE_IE
 consteval auto VIEW_IE::_availableComponents() {
 	constexpr auto nonFlags = _nonFlags();
-	constexpr auto nonConstAsConst = nonFlags.eraseIf<std::is_const>().transform<std::add_const>();
+	constexpr auto nonConstAsConst = nonFlags.eraseIf<traitFn<std::is_const>>().transform<traitFn<std::add_const>>();
 
 	return nonFlags + nonConstAsConst;
 }
@@ -86,7 +86,7 @@ void VIEW_IE::forEach(auto&& fn) {
 	using Traits = utils::CallableTraits<decltype(fn)>;
 	if constexpr (Traits::isCallable) { // non-template callable
 		constexpr auto args = Traits::args;
-		constexpr bool entityFirst = args.front().apply<_details::IsEntity>();
+		constexpr bool entityFirst = args.front().apply<traitFn<_details::IsEntity>>();
 		constexpr auto wanted = args.popFront(utils::constsize<entityFirst>) // remove first if entity
 									.transform<std::remove_reference>(); // remove references
 
@@ -95,13 +95,14 @@ void VIEW_IE::forEach(auto&& fn) {
 		static_assert(available.containsAll(wanted), "wanted components exceed available");
 
 		_forEach<entityFirst>(std::forward<decltype(fn)>(fn), wanted);
-	} else if constexpr (utils::
-							 isApplicableV<decltype(fn), decltype(nonFlags.transform<std::add_lvalue_reference>())>) {
+	} else if constexpr (utils::isApplicableV<
+							 decltype(fn),
+							 decltype(nonFlags.transform<traitFn<std::add_lvalue_reference>>())>) {
 		// template matching of available
 		_forEach<false>(std::forward<decltype(fn)>(fn), nonFlags);
 	} else if constexpr (utils::isApplicableV<
 							 decltype(fn),
-							 decltype(typelist<Entity> + nonFlags.transform<std::add_lvalue_reference>())>) {
+							 decltype(typelist<Entity> + nonFlags.transform<traitFn<std::add_lvalue_reference>>())>) {
 		// template matching of entity + available
 		_forEach<true>(std::forward<decltype(fn)>(fn), nonFlags);
 	} else {

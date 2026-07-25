@@ -1,7 +1,7 @@
+#include <archimedes/Ecs.h>
 #include <archimedes/Logger.h>
 #include <archimedes/audio/AudioException.h>
 #include <archimedes/audio/AudioManager.h>
-#include <archimedes/ecs/view/View.h>
 
 namespace arch::audio {
 
