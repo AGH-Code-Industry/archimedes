@@ -34,3 +34,7 @@ target_link_libraries(archimedes PUBLIC
 
 # Enable IPO
 set_property(TARGET archimedes PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(archimedes PUBLIC -Wno-template-body)
+endif()
