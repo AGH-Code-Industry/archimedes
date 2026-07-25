@@ -46,6 +46,7 @@ constexpr std::format_parse_context::iterator std::formatter<arch::Exception>::p
 
 		i = nestedEnd + 1;
 		_hasStacktrace = true;
+		_hasIdx = true;
 	}
 	END_CHECK;
 
