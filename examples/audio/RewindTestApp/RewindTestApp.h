@@ -18,6 +18,7 @@ struct RewindTestApp: Application {
 
 	void init() override {
 		Ref<Scene> testScene = arch::createRef<Scene>();
+		scene::SceneManager::get()->changeScene(testScene);
 
 		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
 		soundManager.init({ soundFile });
@@ -28,8 +29,6 @@ struct RewindTestApp: Application {
 		source.isLooped = false;
 		source.dontRemoveFinished = true;
 		soundManager.audioManager->assignSource(source);
-
-		scene::SceneManager::get()->changeScene(testScene);
 	}
 
 	void update() override {

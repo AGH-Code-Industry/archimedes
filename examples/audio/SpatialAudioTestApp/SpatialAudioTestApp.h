@@ -65,6 +65,7 @@ struct SpatialAudioTestApp: Application {
 
 		// initialize test scene
 		Ref<Scene> testScene = arch::createRef<Scene>();
+		scene::SceneManager::get()->changeScene(testScene);
 		auto&& soundManager = testScene->domain().global<SoundManager>();
 		soundManager.init({ soundFile });
 
@@ -77,8 +78,6 @@ struct SpatialAudioTestApp: Application {
 		createSource(testScene);
 
 		graphicsManager->clean();
-
-		scene::SceneManager::get()->changeScene(testScene);
 	}
 
 	void update() override {

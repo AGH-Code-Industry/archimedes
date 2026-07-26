@@ -14,10 +14,9 @@ struct SimpleSoundTestApp: Application {
 
 	void init() override {
 		Ref<Scene> testScene = arch::createRef<Scene>();
+		scene::SceneManager::get()->changeScene(testScene);
 		auto&& soundManager = testScene->domain().global<SoundManager>();
 		soundManager.init({ soundFile });
-
-		scene::SceneManager::get()->changeScene(testScene);
 	}
 
 	void addSound(ecs::Domain& domain) {
