@@ -23,6 +23,8 @@
 #include <utility>
 #include <vector>
 
+#include <archimedes/Math.h>
+//
 #include <archimedes/Ecs.h>
 #include <archimedes/Logger.h>
 #include <archimedes/Meta.h>
