@@ -30,7 +30,7 @@ void NvrhiRenderer::init(const Ref<Window>& window) {
 			}
 		// case RenderingAPI::Nvrhi_DX11: break;
 		// case RenderingAPI::Nvrhi_DX12: break;
-		default: Logger::error("Invalid rendering API"); break;
+		default: log::error("Invalid rendering API"); break;
 	}
 	_context->init(window);
 
@@ -55,7 +55,7 @@ void NvrhiRenderer::shutdown() {
 	_validationLayer = nullptr;
 
 	if (_context.use_count() > 1) {
-		Logger::warn("NVRHI context is still in use.");
+		log::warn("NVRHI context is still in use.");
 	}
 	_context->shutdown();
 	_context.reset();

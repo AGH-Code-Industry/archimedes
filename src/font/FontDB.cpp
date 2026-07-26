@@ -76,7 +76,7 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 
 		HKEY hKey;
 		if (RegOpenKeyEx(hRootKey, subKey, 0, KEY_READ, &hKey) != ERROR_SUCCESS) {
-			arch::Logger::error("Cannot open registry key: {}", subKey);
+			arch::log::error("Cannot open registry key: {}", subKey);
 			continue;
 		}
 

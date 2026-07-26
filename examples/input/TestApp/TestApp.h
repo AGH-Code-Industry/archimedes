@@ -33,11 +33,15 @@ class InputTestApp: public Application {
 
 		scene::SceneManager::get()->changeScene(testScene);
 
+		arch::dupa();
+
 		// 2D square
 		struct Vertex {
 			float3 position;
 			float2 tex_coords;
 		};
+
+		arch::dupa();
 
 		std::vector<u32> indices{ 0, 1, 2, 2, 1, 3 };
 
@@ -144,30 +148,30 @@ class InputTestApp: public Application {
 		// scroll down -> decrease animation speed
 		speed += Mouse::scroll.y() * 0.001;
 		if (Mouse::scroll.y()) {
-			Logger::debug("speed = {}", speed);
+			log::debug("speed = {}", speed);
 		}
 
 		// scroll pressed -> pause/play text animation
 		if (Mouse::scroll.pressed()) {
 			speedMul = !speedMul;
-			Logger::debug("speedMul = {}", speedMul);
+			log::debug("speedMul = {}", speedMul);
 		}
 
 		// arrow up pressed or held -> increase max size
 		if (Keyboard::arrowUp.pressed() || Keyboard::arrowUp.repeat()) {
 			++amplitude;
-			Logger::debug("amplitude = {}", amplitude);
+			log::debug("amplitude = {}", amplitude);
 		}
 
 		// arrow down pressed or held -> decrease max size
 		if (Keyboard::arrowDown.pressed() || Keyboard::arrowDown.repeat()) {
 			--amplitude;
-			Logger::debug("amplitude = {}", amplitude);
+			log::debug("amplitude = {}", amplitude);
 		}
 
 		if (msgKey.downTime() >= std::chrono::seconds(3) && msgKey.has(msgMod) && showMsg) {
 			showMsg = false;
-			Logger::critical("Congratulations! You found an easter egg!");
+			log::critical("Congratulations! You found an easter egg!");
 		} else if (msgKey.released()) {
 			showMsg = true;
 		}

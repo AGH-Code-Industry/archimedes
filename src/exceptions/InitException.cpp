@@ -2,7 +2,7 @@
 
 namespace arch {
 
-InitException::InitException(const std::string& message, const std::source_location& location):
-	Exception("Init", message, location) {}
+InitException::InitException(const std::string& message, const std::stacktrace& stacktrace):
+	Exception("Init", message, stacktrace) {}
 
 } // namespace arch

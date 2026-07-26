@@ -11,12 +11,9 @@ class NetException: public Exception {
 public:
 	/// Constructor.
 	/// @param message Title of the exception.
-	/// @param location Source location of the exception.
+	/// @param stacktrace Stacktrace of the exception.
 	///
-	NetException(const std::string& message, const std::source_location& location = std::source_location::current());
+	NetException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
 };
-
-// Alias for ease of use.
-using Exception = NetException;
 
 } // namespace arch::net

@@ -7,7 +7,6 @@ using namespace arch;
 
 struct RewindTestApp: Application {
 	const std::string soundFile = "Chiptone A4.wav";
-	SoundManager soundManager;
 
 	std::mutex mutex;
 
@@ -18,9 +17,11 @@ struct RewindTestApp: Application {
 	bool played = false;
 
 	void init() override {
-		soundManager.init({ soundFile });
-
 		Ref<Scene> testScene = arch::createRef<Scene>();
+		scene::SceneManager::get()->changeScene(testScene);
+
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
+		soundManager.init({ soundFile });
 
 		entity = testScene->newEntity();
 		auto& source = entity.addComponent<audio::AudioSourceComponent>();
@@ -28,11 +29,10 @@ struct RewindTestApp: Application {
 		source.isLooped = false;
 		source.dontRemoveFinished = true;
 		soundManager.audioManager->assignSource(source);
-
-		scene::SceneManager::get()->changeScene(testScene);
 	}
 
 	void update() override {
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
 		auto& domain = scene::SceneManager::get()->currentScene()->domain();
 		{
 			auto lock = std::lock_guard(mutex);

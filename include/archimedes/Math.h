@@ -1,6 +1,7 @@
 #pragma once
 
-#include "math/Math.h"
+#include <archimedes/math/Math.h>
+#include <archimedes/math/MathFormatter.h>
 #include <math.h>
 
 namespace arch {

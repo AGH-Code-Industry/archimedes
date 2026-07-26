@@ -387,12 +387,12 @@ void VulkanRenderer::init(const Ref<Window>& window) {
 		}
 	}
 
-	Logger::info("Created Vulkan instance.");
+	log::info("Created Vulkan instance.");
 }
 
 void VulkanRenderer::shutdown() {
 	if (_swapchain.use_count() > 1) {
-		Logger::warn("Swapchain is still in use.");
+		log::warn("Swapchain is still in use.");
 	}
 	_swapchain.reset();
 
@@ -402,7 +402,7 @@ void VulkanRenderer::shutdown() {
 	_textureManager.reset();
 
 	if (_context.use_count() > 1) {
-		Logger::warn("Context is still in use.");
+		log::warn("Context is still in use.");
 	}
 	_context.reset();
 }

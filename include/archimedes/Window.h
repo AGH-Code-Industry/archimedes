@@ -3,7 +3,7 @@
 #include <string>
 
 #include <GLFW/glfw3.h>
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/Monitor.h>
 #include <archimedes/gfx/Buffer.h>
 

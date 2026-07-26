@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 
 namespace arch::font {
 

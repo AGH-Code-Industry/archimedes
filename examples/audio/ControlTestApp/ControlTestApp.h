@@ -17,16 +17,17 @@ enum ControlAction {
 struct ControlTestApp: Application {
 	// const std::string soundFile = "rickroll.wav";
 	const std::string soundFile = "Chiptone A4.wav";
-	SoundManager soundManager;
 	std::mutex mutex;
 	ControlAction controlAction = none;
 	bool isPlaying = false;
 	Entity entity;
 
 	void init() override {
-		soundManager.init({ soundFile });
-
 		Ref<Scene> testScene = arch::createRef<Scene>();
+
+		auto&& soundManager = testScene->domain().global<SoundManager>();
+
+		soundManager.init({ soundFile });
 
 		entity = testScene->newEntity();
 		auto& source = entity.addComponent<audio::AudioSourceComponent>();
@@ -38,6 +39,8 @@ struct ControlTestApp: Application {
 	}
 
 	void update() override {
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
+
 		if (Keyboard::P.pressed()) {
 			auto lock = std::lock_guard(mutex);
 			if (controlAction == none) {

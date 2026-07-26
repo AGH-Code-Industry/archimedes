@@ -1,10 +1,12 @@
 #pragma once
 
 #include <codecvt>
+#include <glm/gtx/string_cast.hpp>
 #include <locale>
 #include <numbers>
 #include <random>
 
+#include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
 #include <archimedes/Engine.h>
@@ -176,10 +178,11 @@ class CameraTestApp: public Application {
 			camera.rotate(glm::radians(-1.f));
 		}
 
-		// Printing out mouse position in world space
-		// The top-left corner of the red block is at (0, 0), each block is 100 in size
-		auto mouseWorldPos = camera.screenToWorldPos(input::Mouse::pos());
-		Logger::debug("{} {}", mouseWorldPos.x, mouseWorldPos.y);
+		if (input::Mouse::dpos() != double2()) {
+			// Printing out mouse position in world space
+			// The top-left corner of the red block is at (0, 0), each block is 100 in size
+			log::debug("{::.2f}", camera.screenToWorldPos(input::Mouse::pos()));
+		}
 
 		// Camera works with fullscreen
 		if (input::Keyboard::F11.pressed()) {

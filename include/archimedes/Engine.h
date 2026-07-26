@@ -6,6 +6,7 @@
 #include "Ref.h"
 #include "Window.h"
 #include "gfx/Renderer.h"
+#include <archimedes/Logger.h>
 #include <gtest/gtest_prod.h>
 
 namespace arch {
@@ -13,12 +14,32 @@ namespace scene {
 class SceneManager;
 }
 
+/// @brief Logger config
+struct LoggerConfig {
+	/// @brief Logger name
+	std::string name;
+	/// @brief Logger level
+	log::Level level;
+	/// @brief Whether to log to a file
+	bool file;
+};
+
+/// @brief Engine configuration
 struct EngineConfig {
+	/// @brief Initial window width
 	int windowWidth;
+	/// @brief Initial window height
 	int windowHeight;
+	/// @brief Initial window title
 	std::string windowTitle;
+	/// @brief Background color
 	Color backgroundColor;
+	/// @brief Rendering API to use (currently only Nvrhi_VK is supported)
 	gfx::RenderingAPI renderingApi;
+	/// @brief Logger config
+	LoggerConfig loggerConfig = { .name = "Archimedes", .level = log::info, .file = true };
+	/// @brief Whether engine passes or captures exceptions
+	bool noCatch = false;
 };
 
 /**

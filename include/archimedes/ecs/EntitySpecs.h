@@ -3,7 +3,7 @@
 #include <type_traits>
 
 #include "Entity.h"
-#include <archimedes/ArchMath.h>
+#include <archimedes/Math.h>
 
 namespace arch::ecs {
 

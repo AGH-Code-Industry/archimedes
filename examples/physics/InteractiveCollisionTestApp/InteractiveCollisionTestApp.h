@@ -238,21 +238,21 @@ struct InteractiveCollisionTestApp final: Application {
 		if (_physicsSystem->hasMouse(player)) {
 			setPlayerColor(player, PlayerColor::Red);
 			if (_physicsSystem->hasMouseEntered(player)) {
-				Logger::info("The mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
+				log::info("The mouse entered! Position: {}, {}", mousePosition.x, mousePosition.y);
 			}
 		} else if (_physicsSystem->getCollisions(player).size() > 0) {
 			setPlayerColor(player, PlayerColor::Green);
 			if (_physicsSystem->getEnteredCollisions(player).size() > 0) {
-				Logger::info("Found a collision! Position: {}, {}", playerPosition.x, playerPosition.y);
+				log::info("Found a collision! Position: {}, {}", playerPosition.x, playerPosition.y);
 			}
 		} else {
 			setPlayerColor(player, PlayerColor::Blue);
 		}
 		if (_physicsSystem->getExitedCollisions(player).size() > 0) {
-			Logger::info("A collision disappeared! Position: {}, {}", playerPosition.x, playerPosition.y);
+			log::info("A collision disappeared! Position: {}, {}", playerPosition.x, playerPosition.y);
 		}
 		if (_physicsSystem->hasMouseExited(player)) {
-			Logger::info("The mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
+			log::info("The mouse exited! Position: {}, {}", mousePosition.x, mousePosition.y);
 		}
 		const float2 linearVelocity = linearVelocityBase * getLinearVelocity();
 		const f32 angularVelocity = angularVelocityBase * getAngularVelocity();

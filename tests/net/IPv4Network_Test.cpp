@@ -15,10 +15,10 @@ TEST(IPv4Mask, Get) {
 }
 
 TEST(IPv4Mask, Invalid) {
-	EXPECT_THROW(arch::net::IPv4Mask mask1("255.255.255.2"), arch::net::Exception);
-	EXPECT_THROW(arch::net::IPv4Mask mask2("255.255.2.255"), arch::net::Exception);
-	EXPECT_THROW(arch::net::IPv4Mask mask3("255.2.255.255"), arch::net::Exception);
-	EXPECT_THROW(arch::net::IPv4Mask mask4("2.255.255.255"), arch::net::Exception);
+	EXPECT_THROW(arch::net::IPv4Mask mask1("255.255.255.2"), arch::net::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask2("255.255.2.255"), arch::net::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask3("255.2.255.255"), arch::net::NetException);
+	EXPECT_THROW(arch::net::IPv4Mask mask4("2.255.255.255"), arch::net::NetException);
 }
 
 TEST(IPv4Network, Constructors) {
