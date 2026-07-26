@@ -1,9 +1,11 @@
 #pragma once
 
 #include <filesystem>
+#include <print>
 #include <stacktrace>
 
 #include "Logger.h"
+#include <archimedes/BuildInfo.h>
 #include <archimedes/utils/ParseStacktrace.h>
 
 namespace arch::log::_details {
@@ -19,6 +21,13 @@ void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> 
 	auto stacktraceEntry = *std::stacktrace::current(stacktraceSkip).begin();
 
 	fs::path filepath = fs::relative(stacktraceEntry.source_file(), fs::current_path().parent_path());
+
+	if constexpr (buildinfo::Type::current == buildinfo::Type::Debug) {
+		if (!LoggerSingleton::_logger) {
+			std::println("Logger not initialized!");
+			return;
+		}
+	}
 
 	LoggerSingleton::_logger->log(
 		spdlog::source_loc(

@@ -6,6 +6,7 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
 #include <archimedes/Engine.h>

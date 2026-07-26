@@ -7,16 +7,15 @@ using namespace arch;
 
 struct SimpleSoundTestApp: Application {
 	const std::string soundFile = "Chiptone A4.wav";
-	SoundManager soundManager;
 
 	std::mutex mutex;
 
 	bool playSound = false;
 
 	void init() override {
-		soundManager.init({ soundFile });
-
 		Ref<Scene> testScene = arch::createRef<Scene>();
+		auto&& soundManager = testScene->domain().global<SoundManager>();
+		soundManager.init({ soundFile });
 
 		scene::SceneManager::get()->changeScene(testScene);
 	}
@@ -27,11 +26,13 @@ struct SimpleSoundTestApp: Application {
 
 		source.path = soundFile;
 		source.isLooped = false;
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
 		soundManager.audioManager->assignSource(source);
 		soundManager.audioManager->playSource(source);
 	}
 
 	void removeInactive(ecs::Domain& domain) {
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
 		std::vector<ecs::Entity> toRemove;
 		auto view = domain.view<audio::AudioSourceComponent>();
 		for (auto [entity, source] : view.all()) {
@@ -53,6 +54,7 @@ struct SimpleSoundTestApp: Application {
 			}
 			playSound = false;
 		}
+		auto&& soundManager = scene::SceneManager::get()->currentScene()->domain().global<SoundManager>();
 		soundManager.audioManager->synchronize(domain);
 		removeInactive(domain);
 
