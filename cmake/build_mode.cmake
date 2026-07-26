@@ -37,9 +37,3 @@ if(MSVC)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(ARCHIMEDES_COMPILER "gcc")
 endif()
-
-configure_file(
-	"${CMAKE_SOURCE_DIR}/cmake/BuildInfo.h.in"
-	"${CMAKE_SOURCE_DIR}/include/archimedes/BuildInfo.h"
-	@ONLY
-)
