@@ -2,15 +2,15 @@
 
 #include "MathFormatter.h"
 
-// template<class Char, size_t N, class T, glm::qualifier Q>
-// template<class FormatContext>
-// constexpr typename FormatContext::iterator std::formatter<glm::vec<N, T, Q>, Char>::format(
-//	const glm::vec<N, T, Q>& vec,
-//	FormatContext& ctx
-//) const {
-//	// format vec as range of values
-//	return std::range_formatter<T, Char>::format(std::span<const T, N>(glm::value_ptr(vec), N), ctx);
-// }
+template<class Char, glm::length_t N, std::formattable<Char> T, glm::qualifier Q>
+template<class FormatContext>
+constexpr typename FormatContext::iterator std::formatter<glm::vec<N, T, Q>, Char>::format(
+	const glm::vec<N, T, Q>& vec,
+	FormatContext& ctx
+) const {
+	// format vec as range of values
+	return std::range_formatter<T, Char>::format(std::span<const T, N>(glm::value_ptr(vec), N), ctx);
+}
 
 template<class Char, glm::length_t C, glm::length_t R, std::formattable<Char> T, glm::qualifier Q>
 template<class FormatContext>
