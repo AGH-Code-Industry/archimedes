@@ -2,7 +2,7 @@
 
 #include <span>
 
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/Ref.h>
 #include <archimedes/gfx/Buffer.h>
 

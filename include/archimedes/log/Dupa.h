@@ -1,6 +1,6 @@
 #pragma once
 
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/log/Logger.h>
 
 namespace arch {
