@@ -31,3 +31,15 @@ endif()
 message(STATUS "Build mode: ${ARCHIMEDES_BUILD_TYPE}")
 
 set(CMAKE_BUILD_TYPE ${ARCHIMEDES_BUILD_TYPE})
+
+if(MSVC)
+	set(ARCHIMEDES_COMPILER "msvc")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(ARCHIMEDES_COMPILER "gcc")
+endif()
+
+configure_file(
+	"${CMAKE_SOURCE_DIR}/cmake/BuildInfo.h.in"
+	"${CMAKE_SOURCE_DIR}/include/archimedes/BuildInfo.h"
+	@ONLY
+)
