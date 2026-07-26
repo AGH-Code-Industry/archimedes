@@ -1,3 +1,4 @@
+#include <archimedes/BuildInfo.h>
 #include <archimedes/exception/ExceptionFormatter.h>
 #include <archimedes/utils/ParseStacktrace.h>
 
@@ -36,20 +37,24 @@ std::format_context::iterator std::formatter<arch::Exception>::format(
 	}
 
 	if (_hasStacktrace) {
-		auto stacktraceDepth = _hasIdx ? std::visit_format_arg(*this, ctx.arg(_stacktraceDepth)) : _stacktraceDepth;
-		if (stacktraceDepth == 0) {
-			stacktraceDepth = (uint32_t)-1;
-		}
-
-		for (auto&& entry : exception.stacktrace() | std::views::take(stacktraceDepth)) {
-			if constexpr (ARCHIMEDES_WINDOWS) {
-				ctx.out() = '\r';
+		if constexpr (arch::buildinfo::Type::current == arch::buildinfo::Type::Release) {
+			arch::log::warn("Release build - skipping stacktrace");
+		} else {
+			auto stacktraceDepth = _hasIdx ? std::visit_format_arg(*this, ctx.arg(_stacktraceDepth)) : _stacktraceDepth;
+			if (stacktraceDepth == 0) {
+				stacktraceDepth = (uint32_t)-1;
 			}
-			ctx.out() = '\n';
 
-			auto entryStr = parseStacktraceEntry(entry);
-			for (auto&& c : entryStr) {
-				ctx.out() = c;
+			for (auto&& entry : exception.stacktrace() | std::views::take(stacktraceDepth)) {
+				if constexpr (ARCHIMEDES_WINDOWS) {
+					ctx.out() = '\r';
+				}
+				ctx.out() = '\n';
+
+				auto entryStr = parseStacktraceEntry(entry);
+				for (auto&& c : entryStr) {
+					ctx.out() = c;
+				}
 			}
 		}
 	}
