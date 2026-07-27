@@ -78,7 +78,7 @@ private:
 
 	// Non-flag components (including consts)
 	static consteval auto _availableComponents();
-	// includes.eraseIf<IsFlag>()
+	// includes.eraseIf(traitFn<IsFlag>)
 	static consteval auto _nonFlags();
 
 	// executes for-each for wanted components
