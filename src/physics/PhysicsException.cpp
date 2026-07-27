@@ -1,6 +1,6 @@
 #include <archimedes/physics/PhysicsException.h>
 
 namespace arch::physics {
-PhysicsException::PhysicsException(const std::string& message, const std::source_location& location):
-	Exception("Physics", message, location) {}
+PhysicsException::PhysicsException(const std::string& message, const std::stacktrace& stacktrace):
+	Exception("Physics", message, stacktrace) {}
 } // namespace arch::physics

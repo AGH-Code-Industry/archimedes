@@ -141,6 +141,7 @@ constexpr Key& Key::get(const u32 code) {
 		ARCH_KEYBOARD_KEY(scrollLock)
 		ARCH_KEYBOARD_KEY(pause)
 		ARCH_KEYBOARD_KEY(numEqual)
+
 		ARCH_MOUSE_BUTTON(first)
 		ARCH_MOUSE_BUTTON(second)
 		ARCH_MOUSE_BUTTON(third)
@@ -151,7 +152,7 @@ constexpr Key& Key::get(const u32 code) {
 		ARCH_MOUSE_BUTTON(eighth)
 	}
 
-	Logger::warn("Keycode {} does not match any key or button, returned dummy key", code);
+	log::warn("Keycode {} does not match any key or button, returned dummy key", code);
 	static Key dummy;
 	dummy._state = *KeyState::up;
 	dummy._time = {};

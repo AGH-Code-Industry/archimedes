@@ -1,7 +1,7 @@
 #pragma once
 
 #include "nvrhi/nvrhi.h"
-#include <archimedes/ArchMath.h>
+#include <archimedes/Math.h>
 #include <archimedes/Ref.h>
 
 namespace arch {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "KeyCode.h"
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 
 #define ARCH_KEY(key) static Key key;
 

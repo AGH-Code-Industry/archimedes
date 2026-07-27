@@ -93,14 +93,14 @@ class TextRenderTestApp: public Application {
 			auto topLeft = float4{ tc.topLeft(), 1 };
 			auto bottomRight = float4{ tc.bottomRight(), 1 };
 
-			Logger::debug("min = ({}, {})\n", topLeft.x, topLeft.y);
-			Logger::debug("max = ({}, {})\n", bottomRight.x, bottomRight.y);
+			log::debug("min = ({}, {})\n", topLeft.x, topLeft.y);
+			log::debug("max = ({}, {})\n", bottomRight.x, bottomRight.y);
 
 			topLeft = t.getTransformMatrix() * topLeft;
 			bottomRight = t.getTransformMatrix() * bottomRight;
 
-			Logger::debug("TL = ({}, {})\n", topLeft.x, topLeft.y);
-			Logger::debug("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
+			log::debug("TL = ({}, {})\n", topLeft.x, topLeft.y);
+			log::debug("BR = ({}, {})\n", bottomRight.x, bottomRight.y);
 		}
 	}
 

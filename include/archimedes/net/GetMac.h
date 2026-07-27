@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include <archimedes/ArchMath.h>
+#include <archimedes/Math.h>
 #include <archimedes/net/_UtilitiesUnix.h>
 #include <archimedes/net/_UtilitiesWindows.h>
 

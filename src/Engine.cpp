@@ -19,21 +19,28 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-	try {
+	auto run = [&] {
 		_initialize();
-
 		_mainLoop();
-	} catch (Exception& e) {
-		e.print();
-	} catch (std::exception& e) {
-		Logger::error("Crashed with exception: {}", e.what());
-	} catch (...) {
-		Logger::error("Unhandled exception occurred");
+	};
+
+	if (_engineConfig.noCatch) {
+		run();
+	} else {
+		try {
+			run();
+		} catch (Exception& e) {
+			log::error("{:0}", e); // print full stacktrace
+		} catch (std::exception& e) {
+			log::error("Crashed with exception: {}", e.what());
+		} catch (...) {
+			log::error("Unhandled exception occurred");
+		}
 	}
 }
 
 void Engine::_mainLoop() {
-	Logger::info("Starting engine main loop");
+	log::info("Starting engine main loop");
 
 	while (!_mainWindow->shouldClose()) {
 		glfwPollEvents();
@@ -56,6 +63,9 @@ void Engine::_mainLoop() {
 }
 
 void Engine::_initialize() {
+	log::_details::LoggerSingleton::init(_engineConfig.loggerConfig.name, _engineConfig.loggerConfig.file);
+	log::setLevel(_engineConfig.loggerConfig.level);
+
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 
 	input::System::_init(_mainWindow);
@@ -70,7 +80,7 @@ void Engine::_initialize() {
 
 	_application->init();
 
-	Logger::info("Engine initialization successful");
+	log::info("Engine initialization successful");
 }
 
 void Engine::_shutdown() {
@@ -78,18 +88,18 @@ void Engine::_shutdown() {
 	font::FontDB::_singleton.reset();
 	scene::SceneManager::get()->shutdown();
 
-	Logger::info("Engine shutingdown");
+	log::info("Engine shutingdown");
 	glfwTerminate();
 
 	if (_renderer) {
-		Logger::info("Shutingdown renderer");
+		log::info("Shutingdown renderer");
 		_renderer->shutdown();
 		_renderer = nullptr;
 	} else {
-		Logger::info("Renderer is already shutdown");
+		log::info("Renderer is already shutdown");
 	}
 
-	Logger::info("Engine shutdown");
+	log::info("Engine shutdown");
 }
 
 } // namespace arch

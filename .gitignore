@@ -27,3 +27,4 @@ cmake/conanfile.hash
 *cache*
 .run/
 out/
+*.pdb
