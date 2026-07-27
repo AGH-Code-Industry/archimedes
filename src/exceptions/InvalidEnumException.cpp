@@ -2,7 +2,7 @@
 
 namespace arch {
 
-InvalidEnumException::InvalidEnumException(const std::string& message, const std::source_location& location):
-	Exception("InvalidEnumException", message, location) {}
+InvalidEnumException::InvalidEnumException(const std::string& message, const std::stacktrace& stacktrace):
+	Exception("InvalidEnumException", message, stacktrace) {}
 
 } // namespace arch

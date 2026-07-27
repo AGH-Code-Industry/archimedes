@@ -1,5 +1,5 @@
 #pragma once
-#include <archimedes/ArchMath.h>
+#include <archimedes/Math.h>
 
 namespace arch::scene::components {
 

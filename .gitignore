@@ -27,4 +27,4 @@ cmake/conanfile.hash
 *cache*
 .run/
 out/
-vc140.pdb
+*.pdb

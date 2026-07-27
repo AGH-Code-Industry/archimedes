@@ -23,6 +23,11 @@ if(ARCHIMEDES_INSTALL)
             PATTERN "*.hpp"
     )
 
+	install(
+		DIRECTORY "${ARCHIMEDES_BUILDINFO_DIR}/"
+		DESTINATION include
+	)
+
     # Install module interface units (.cppm)
     install(
         DIRECTORY src/

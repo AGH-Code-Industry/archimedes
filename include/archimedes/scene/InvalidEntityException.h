@@ -8,7 +8,7 @@ class InvalidEntityException: public arch::Exception {
 public:
 	InvalidEntityException(
 		std::string_view msg,
-		const std::source_location& location = std::source_location::current()
+		const std::stacktrace& stacktrace = std::stacktrace::current()
 	) noexcept;
 };
 

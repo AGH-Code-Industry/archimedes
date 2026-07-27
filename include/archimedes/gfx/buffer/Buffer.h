@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BufferType.h"
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/Ref.h>
 
 namespace arch::gfx::buffer {

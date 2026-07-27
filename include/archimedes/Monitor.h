@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/utils/OptRef.h>
 
 namespace arch {

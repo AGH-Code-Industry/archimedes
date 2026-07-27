@@ -2,7 +2,7 @@
 
 namespace arch {
 
-ConfigException::ConfigException(const std::string& message, const std::source_location& location):
-	Exception("Config", message, location) {}
+ConfigException::ConfigException(const std::string& message, const std::stacktrace& stacktrace):
+	Exception("Config", message, stacktrace) {}
 
 } // namespace arch

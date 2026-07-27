@@ -5,9 +5,9 @@
 
 namespace arch::gfx::vulkan {
 
-void VulkanUtils::vkAssert(VkResult result, const std::string& message, const std::source_location& location) {
+void VulkanUtils::vkAssert(VkResult result, const std::string& message, const std::stacktrace& stacktrace) {
 	if (result != VK_SUCCESS) {
-		throw exceptions::VulkanException(message, location);
+		throw exceptions::VulkanException(message, stacktrace);
 	}
 }
 

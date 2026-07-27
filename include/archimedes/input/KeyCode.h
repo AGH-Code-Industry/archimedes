@@ -1,6 +1,6 @@
 #pragma once
 
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 
 namespace arch::input {
 
@@ -127,6 +127,12 @@ enum class KeyCode : u32 {
 	comma = ',',
 	dot = '.',
 	slash = '/',
+
+	world1 = 161,
+	world2 = 162,
+	scrollLock = 281,
+	pause = 284,
+	numEqual = 336
 };
 
 } // namespace arch::input

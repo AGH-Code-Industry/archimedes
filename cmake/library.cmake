@@ -43,3 +43,16 @@ target_sources(archimedes
 )
 target_link_libraries(archimedes INTERFACE archimedes_lib)
 target_include_directories(archimedes PUBLIC ${CMAKE_INCLUDE_PATH})
+
+# BuildInfo.h
+set(ARCHIMEDES_BUILDINFO_DIR "${PROJECT_SOURCE_DIR}/build/${ARCHIMEDES_BUILD_TYPE}/include")
+file(MAKE_DIRECTORY ${ARCHIMEDES_BUILDINFO_DIR})
+configure_file(
+	"${CMAKE_SOURCE_DIR}/cmake/BuildInfo.h.in"
+	"${ARCHIMEDES_BUILDINFO_DIR}/archimedes/BuildInfo.h"
+	@ONLY
+)
+
+target_include_directories(archimedes_lib PUBLIC
+	$<BUILD_INTERFACE:${ARCHIMEDES_BUILDINFO_DIR}>
+)
