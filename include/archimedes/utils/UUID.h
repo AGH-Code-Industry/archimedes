@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-#include <archimedes/ArchMath.h>
+#include <archimedes/Math.h>
 #include <archimedes/net/GetMac.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>

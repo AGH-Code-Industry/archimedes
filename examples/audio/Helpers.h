@@ -7,7 +7,6 @@
 #include <archimedes/Scene.h>
 #include <archimedes/audio/AudioManager.h>
 #include <archimedes/audio/SoundDevice.h>
-#include <archimedes/physics/components/Velocity.h>
 
 using namespace arch;
 

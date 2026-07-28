@@ -10,11 +10,11 @@ AudioManager::AudioManager(SoundBank* soundBank): _soundBank(soundBank) {
 		_sources[i].initialize(soundBank);
 		_sourceStates[i] = unused;
 	}
-	Logger::info("Audio system: opened audio manager");
+	log::info("Audio system: opened audio manager");
 }
 
 AudioManager::~AudioManager() {
-	Logger::info("Audio system: closed audio manager");
+	log::info("Audio system: closed audio manager");
 }
 
 int AudioManager::_findEmptyPlayer() const {
@@ -27,7 +27,7 @@ int AudioManager::_findEmptyPlayer() const {
 }
 
 void AudioManager::play() {
-	Logger::info("Audio system: audio manager started playing");
+	log::info("Audio system: audio manager started playing");
 	while (_isListening) {
 		for (int source = 0; source < 16; source++) {
 			switch (_sourceStates[source]) {
@@ -48,7 +48,7 @@ void AudioManager::play() {
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
-	Logger::info("Audio system: audio manager stopped playing");
+	log::info("Audio system: audio manager stopped playing");
 }
 
 void AudioManager::stop() {
@@ -108,13 +108,13 @@ void AudioManager::assignSource(AudioSourceComponent& source) {
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source);
 	_sourceStates[index] = assigned;
-	Logger::info("Audio system: audio manager assigned Source with index {}", index);
+	log::info("Audio system: audio manager assigned Source with index {}", index);
 }
 
 void AudioManager::assignSource(
 	AudioSourceComponent& source,
 	const scene::components::TransformComponent& transform,
-	const physics::Moveable& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	int index = _findEmptyPlayer();
 	if (index == -1) {
@@ -124,7 +124,7 @@ void AudioManager::assignSource(
 	_sources[index].setClipPath(source.path);
 	_sources[index].update(source, transform, moveable);
 	_sourceStates[index] = assigned;
-	Logger::info("Audio system: audio manager assigned Source with index {}", index);
+	log::info("Audio system: audio manager assigned Source with index {}", index);
 }
 
 void AudioManager::synchronize(ecs::Domain& domain) {
@@ -136,12 +136,12 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		}
 
 		auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
-		auto moveable = domain.tryGetComponent<physics::Moveable>(entity);
+		auto moveable = domain.tryGetComponent<physics::RigidBodyComponent>(entity);
 
 		if (_sourceStates[audioSource._id] == removed) {
 			_sourceStates[audioSource._id] = unused;
 			_dontRemoveFinished[audioSource._id] = false;
-			Logger::info("Audio system: audio manager removed Source with index {}", audioSource._id);
+			log::info("Audio system: audio manager removed Source with index {}", audioSource._id);
 			audioSource._id = -1;
 		} else if (transform.hasValue() && moveable.hasValue()) {
 			updateSource(audioSource, transform.get(), moveable.get());
@@ -153,7 +153,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 		if (_sourceStates[source] == removed) {
 			_sourceStates[source] = unused;
 			_dontRemoveFinished[source] = false;
-			Logger::info("Audio system: audio manager removed Source with index {}", source);
+			log::info("Audio system: audio manager removed Source with index {}", source);
 		}
 	}
 
@@ -167,7 +167,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			}
 			activeListenerFound = true;
 			auto transform = domain.tryGetComponent<scene::components::TransformComponent>(entity);
-			auto moveable = domain.tryGetComponent<physics::Moveable>(entity);
+			auto moveable = domain.tryGetComponent<physics::RigidBodyComponent>(entity);
 			if (transform.hasValue() && moveable.hasValue()) {
 				updateListener(listener, transform.get(), moveable.get());
 			} else {
@@ -175,13 +175,13 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 			}
 			if (!_listenerSet) {
 				_listenerSet = true;
-				Logger::info("Audio system: audio manager set the listener");
+				log::info("Audio system: audio manager set the listener");
 			}
 		}
 	}
 	if (!activeListenerFound && _listenerSet) {
 		_listenerSet = false;
-		Logger::info("Audio system: audio manager unset the listener");
+		log::info("Audio system: audio manager unset the listener");
 	}
 }
 
@@ -199,7 +199,7 @@ void AudioManager::updateSource(const AudioSourceComponent& source) {
 void AudioManager::updateSource(
 	const AudioSourceComponent& source,
 	const scene::components::TransformComponent& transform,
-	const physics::Moveable& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	if (source._id == -1) {
 		throw AudioException("Audio manager can't update not registered source");
@@ -218,7 +218,7 @@ void AudioManager::updateListener(const ListenerComponent& listener) {
 void AudioManager::updateListener(
 	const ListenerComponent& listener,
 	const scene::components::TransformComponent& transform,
-	const physics::Moveable& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	_listener.update(listener, transform, moveable);
 }
@@ -236,7 +236,7 @@ void AudioManager::setListener(
 	ecs::Domain& domain,
 	ListenerComponent& listener,
 	const scene::components::TransformComponent& transform,
-	const physics::Moveable& moveable
+	const physics::RigidBodyComponent& moveable
 ) {
 	auto view = domain.view<ListenerComponent>();
 	for (auto [entity, listener] : view.all()) {

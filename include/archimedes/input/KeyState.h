@@ -1,6 +1,6 @@
 #pragma once
 
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 
 namespace arch::input {
 

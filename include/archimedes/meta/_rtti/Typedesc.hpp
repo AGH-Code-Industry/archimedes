@@ -31,11 +31,11 @@ const TypeDescriptor& operator*(const T& lhs, const Helper& rhs) noexcept {
 	if constexpr (std::is_polymorphic_v<T> && RTTIEnabled<T>) {
 		const TypeDescriptor& td = lhs._getTypeDescriptor();
 		if (td != typeid(lhs)) {
-			arch::Logger::error(
+			arch::log::error(
 				"typedesc(): '{}' reference points to object of not RTTIEnabled type",
 				staticTypedesc(T).name
 			);
-			arch::Logger::info(
+			arch::log::info(
 				"hint: check types derived from '{}' for missing EnableRTTI attribute",
 				staticTypedesc(T).name
 			);
@@ -44,7 +44,7 @@ const TypeDescriptor& operator*(const T& lhs, const Helper& rhs) noexcept {
 		return td;
 	} else {
 		if constexpr (!RTTIEnabled<T>) {
-			arch::Logger::warn("typedesc(): type '{}' is polymorphic, but not RTTIEnabled", staticTypedesc(T).name);
+			arch::log::warn("typedesc(): type '{}' is polymorphic, but not RTTIEnabled", staticTypedesc(T).name);
 		}
 		return staticTypedesc(T);
 	}

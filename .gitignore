@@ -30,3 +30,4 @@ conanrun*
 deactivate*
 .run/
 out/
+*.pdb

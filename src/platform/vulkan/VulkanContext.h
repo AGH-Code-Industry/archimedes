@@ -5,7 +5,7 @@
 
 #include "VulkanSwapchain.h"
 #include "exceptions/VulkanException.h"
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <volk.h>
 
 namespace arch::gfx::vulkan {

@@ -1,0 +1,134 @@
+#pragma once
+
+#include <archimedes/Engine.h>
+#include <archimedes/Scene.h>
+#include <archimedes/physics/PhysicsSystem.h>
+#include <archimedes/physics/collisions/ColliderComponent.h>
+#include <archimedes/physics/components/RigidBodyComponent.h>
+
+namespace physicsExample {
+using namespace arch;
+namespace phy = physics;
+
+struct RepulseTestApp final: Application {
+	f32 windowWidth = 1'200.f;
+	f32 windowHeight = 600.f;
+
+	ecs::Entity e1, e2;
+	Ref<Scene> testScene;
+
+	void ideallyElasticCollision(const ecs::Entity me, const ecs::Entity other) {
+		auto& domain = testScene->domain();
+		phy::RigidBodyComponent& myBody = domain.getComponent<phy::RigidBodyComponent>(me);
+		phy::RigidBodyComponent& otherBody = domain.getComponent<phy::RigidBodyComponent>(other);
+
+		float2 v1 = myBody.linearVelocity * (myBody.mass - otherBody.mass);
+		v1 += 2 * otherBody.mass * otherBody.linearVelocity;
+		v1 /= myBody.mass + otherBody.mass;
+
+		float2 v2 = otherBody.linearVelocity * (otherBody.mass - myBody.mass);
+		v2 += 2 * myBody.mass * myBody.linearVelocity;
+		v2 /= myBody.mass + otherBody.mass;
+
+		myBody.linearVelocity = v1;
+		otherBody.linearVelocity = v2;
+	}
+
+	void init() override {
+		testScene = createRef<Scene>();
+
+		// 2D square
+		struct Vertex {
+			float3 position;
+			float2 tex_coords;
+		};
+
+		std::vector<Vertex> vertices{
+			{ { -.25f, -.25f, 0.1f }, { 0.f, 0.f } },
+			{	  { 0.f, -.25f, 0.1f }, { 1.f, 0.f } },
+			{	  { 0.f, 0.f, 0.1f }, { 1.f, 1.f } },
+			{	  { -.25f, 0.f, 0.1f }, { 0.f, 1.f } },
+		};
+		std::vector<u32> indices{ 0, 3, 2, 2, 1, 0 };
+
+		const Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
+
+		struct UniformBuffer {
+			Mat4x4 projection;
+		};
+
+		UniformBuffer ubo{ glm::mat4{ 1 } };
+		auto uniformBuffer =
+			renderer->getBufferManager()->createBuffer(gfx::BufferType::uniform, &ubo, sizeof(UniformBuffer));
+
+		const auto pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default2.glsl",
+				.textures = {},
+				.buffers = { uniformBuffer },
+			}
+		);
+
+		const Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+
+		auto& camera = testScene->domain().global<Camera>();
+		camera.setExtents({ 1.0f, 1.0f });
+
+		e1 = testScene->newEntity();
+		float3 position{ -.875f, 0.f, 0.f };
+		testScene->domain()
+			.addComponent<scene::components::TransformComponent>(e1, { position, quaternion(0.0f), float3(1) });
+		testScene->domain().addComponent<scene::components::MeshComponent>(e1, { mesh, pipeline });
+		testScene->domain().addComponent(
+			e1,
+			phy::RigidBodyComponent{
+				1.f,
+				{  0.f, 0.f },
+				{ 0.1f, 0.f },
+		}
+		);
+		testScene->domain().addComponent(
+			e1,
+			phy::ColliderComponent{
+				.shape = phy::OBB(float2{ .125f, -.125f }, float2{ .125f, .125f }, 0.0f),
+			}
+		);
+
+		e2 = testScene->newEntity();
+		position = { .75f, 0.f, 0.f };
+		testScene->domain()
+			.addComponent<scene::components::TransformComponent>(e2, { position, quaternion(0.0f), float3(1) });
+		testScene->domain().addComponent<scene::components::MeshComponent>(e2, { mesh, pipeline });
+		testScene->domain().addComponent(
+			e2,
+			phy::RigidBodyComponent{
+				.mass = 5.f,
+				.force = {   0.f, 0.f },
+				.linearVelocity = { -0.1f, 0.f },
+		}
+		);
+		testScene->domain().addComponent(
+			e2,
+			phy::ColliderComponent{
+				.shape = phy::OBB(float2{ .125f, -.125f }, float2{ .125f, .125f }, 0.0f),
+			}
+		);
+
+		scene::SceneManager::get()->changeScene(testScene);
+		_physicsSystem = createRef<phy::PhysicsSystem>(std::ref(testScene->domain()), std::cref(camera));
+	}
+
+	void update() override {
+		auto enteredCollisions = _physicsSystem->getEnteredCollisions(e1);
+		if (enteredCollisions.contains(e2)) {
+			log::info("Collision detected!");
+			ideallyElasticCollision(e1, e2);
+		}
+		_physicsSystem->update();
+	}
+
+private:
+	Ref<phy::PhysicsSystem> _physicsSystem;
+};
+} // namespace physicsExample

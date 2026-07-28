@@ -20,7 +20,7 @@ class ArchimedesConan(ConanFile):
 		self.requires('glfw/3.4')
 		self.requires('glm/0.9.9.8')
 		self.requires('spdlog/1.12.0')
-		self.requires('gtest/1.13.0')
+		self.requires('gtest/1.16.0')
 		self.requires('stb/cci.20230920')
 		self.requires('draco/1.5.6', override=True)
 		self.requires('ctre/3.9.0')
@@ -28,7 +28,7 @@ class ArchimedesConan(ConanFile):
 		self.requires('jsoncpp/1.9.6')
 
 		# Audio system
-		self.requires('openal-soft/1.23.1')
+		self.requires('openal-soft/1.24.3')
 		self.requires('libsndfile/1.2.2')
 
 		self.requires('freetype/2.13.2')
@@ -40,7 +40,7 @@ class ArchimedesConan(ConanFile):
 		self.requires('nvrhi/2025.08.19')
 
 		# SPIRV (Shader compiler)
-		self.requires('shaderc/2023.6')
+		self.requires('shaderc/2025.3')
 
 		# msdf-atlas-gen
 		subprocess.run(['conan', 'install', '--requires=msdf-atlas-gen/1.3', '--build=missing'])

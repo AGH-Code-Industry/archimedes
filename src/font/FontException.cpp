@@ -1,4 +1,4 @@
 #include <archimedes/font/FontException.h>
 
-arch::font::FontException::FontException(const std::string& msg, const std::source_location& location) noexcept:
-	Exception("FontException", msg, location) {}
+arch::font::FontException::FontException(const std::string& msg, const std::stacktrace& stacktrace) noexcept:
+	Exception("FontException", msg, stacktrace) {}

@@ -22,6 +22,11 @@ if(ARCHIMEDES_INSTALL)
 			PATTERN "*.hpp"
 	)
 
+	install(
+		DIRECTORY "${ARCHIMEDES_BUILDINFO_DIR}/"
+		DESTINATION include
+	)
+
 	# Add targets
 	install(
 		EXPORT archimedesTargets

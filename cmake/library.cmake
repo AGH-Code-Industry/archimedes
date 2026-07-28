@@ -29,7 +29,21 @@ target_precompile_headers(archimedes PUBLIC "${PROJECT_SOURCE_DIR}/include/archi
 target_link_libraries(archimedes PUBLIC
 	nvrhi_vk # idk why, but nvrhi_vk needs to be before nvrhi
 	${ARCHIMEDES_LIBRARIES}
+	GTest::gmock
 )
 
 # Enable IPO
 set_property(TARGET archimedes PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+
+# BuildInfo.h
+set(ARCHIMEDES_BUILDINFO_DIR "${PROJECT_SOURCE_DIR}/build/${ARCHIMEDES_BUILD_TYPE}/include")
+file(MAKE_DIRECTORY ${ARCHIMEDES_BUILDINFO_DIR})
+configure_file(
+	"${CMAKE_SOURCE_DIR}/cmake/BuildInfo.h.in"
+	"${ARCHIMEDES_BUILDINFO_DIR}/archimedes/BuildInfo.h"
+	@ONLY
+)
+
+target_include_directories(archimedes PUBLIC
+	$<BUILD_INTERFACE:${ARCHIMEDES_BUILDINFO_DIR}>
+)

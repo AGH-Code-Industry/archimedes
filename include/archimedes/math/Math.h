@@ -59,4 +59,10 @@ inline f32 fade(f32 t){
     return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
 
+/// @brief Returns a quaternion from a rotation angle.
+/// @param angle The angle in radians.
+inline Quat quaternion(f32 angle) {
+	return glm::angleAxis(angle, float3(0.0f, 0.0f, 1.0f));
+}
+
 } // namespace arch::math

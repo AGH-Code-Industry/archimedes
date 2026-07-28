@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "GlyphData.h"
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/gfx/Renderer.h>
 #include <archimedes/utils/OptRef.h>
 #include <archimedes/utils/PairHasher.h>

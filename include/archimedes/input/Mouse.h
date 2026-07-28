@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MouseButtonCode.h"
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <archimedes/Ref.h>
 
 #define ARCH_BUTTON(button) static Key button;

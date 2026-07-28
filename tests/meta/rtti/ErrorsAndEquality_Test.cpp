@@ -39,7 +39,7 @@ public:
 };
 
 TEST(RTTITest, Typedesc) {
-	arch::Logger::init(arch::LogLevel::debug);
+	arch::log::_details::LoggerSingleton::init("Logger", false);
 
 	FooRTTIEnabled fooRTTIEnabled;
 	FooRTTIDisabled fooRTTIDisabled;
@@ -72,7 +72,7 @@ TEST(RTTITest, Typedesc) {
 }
 
 TEST(RTTITest, Typedesc2) {
-	arch::Logger::init(arch::LogLevel::debug);
+	arch::log::_details::LoggerSingleton::init("Logger", false);
 
 	FooRTTIEnabled fooRTTIEnabled;
 	FooRTTIDisabled fooRTTIDisabled;

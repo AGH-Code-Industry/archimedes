@@ -193,12 +193,10 @@ auto VIEW_IE::_all(TypeList<Cs...>) noexcept {
 	return (*this) | std::views::transform([this](const Entity entity) noexcept {
 			   return std::tuple_cat(
 				   std::tuple(entity),
-				   std::tie(
-					   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-						   _cpools[IncludeTL::template find<Cs>]
-					   )
-						   ->get(entity)...
+				   std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+								_cpools[IncludeTL::template find<Cs>]
 				   )
+								->get(entity)...)
 			   );
 		   });
 }
@@ -229,12 +227,10 @@ auto VIEW_IE::_components(TypeList<Cs...>) noexcept {
 	using CPoolsCast = ComponentList::template transform<SelectCPool>;
 
 	return (*this) | std::views::transform([this](const Entity entity) noexcept {
-			   return std::tie(
-				   reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-					   _cpools[IncludeTL::template find<Cs>]
-				   )
-					   ->get(entity)...
-			   );
+			   return std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+								   _cpools[IncludeTL::template find<Cs>]
+			   )
+								   ->get(entity)...);
 		   });
 }
 
@@ -265,12 +261,10 @@ auto VIEW_IE::_get(const Entity entity, TypeList<Cs...>) noexcept {
 	using ComponentList = TypeList<Cs...>;
 	using ActualComponents = ComponentList::template transform<std::remove_const>;
 	using CPoolsCast = ComponentList::template transform<SelectCPool>;
-	return std::tie(
-		reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
-			_cpools[IncludeTL::template find<Cs>]
-		)
-			->get(entity)...
-	);
+	return std::tie(reinterpret_cast<CPoolsCast::template get<ComponentList::template find<Cs>>>(
+						_cpools[IncludeTL::template find<Cs>]
+	)
+						->get(entity)...);
 }
 
 TEMPLATE_IE

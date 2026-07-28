@@ -3,7 +3,7 @@
 
 namespace arch {
 
-GLFWException::GLFWException(const std::source_location& location): Exception("GLFW", location) {
+GLFWException::GLFWException(const std::stacktrace& stacktrace): Exception("GLFW", "", stacktrace) {
 	const char* description;
 	int code = glfwGetError(&description);
 	_message = "(Code: " + std::to_string(code) + "): " + description;

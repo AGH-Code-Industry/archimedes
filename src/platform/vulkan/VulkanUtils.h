@@ -13,7 +13,7 @@ public:
 	static void vkAssert(
 		VkResult result,
 		const std::string& message,
-		const std::source_location& location = std::source_location::current()
+		const std::stacktrace& stacktrace = std::stacktrace::current()
 	);
 
 	static VkFormat getFormat(GraphicsFormat format);
