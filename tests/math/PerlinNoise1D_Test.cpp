@@ -1,4 +1,4 @@
-#include <archimedes/Mmath.h>
+#include <archimedes/Math.h>
 #include <gtest/gtest.h>
 
 namespace math = arch::math;

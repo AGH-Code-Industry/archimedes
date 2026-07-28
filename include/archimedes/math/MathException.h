@@ -11,9 +11,9 @@ class MathException final: public Exception {
 public:
 	/// @brief Constructor.
 	/// @param message Message of the exception.
-	/// @param location Source location of the exception.
+	/// @param stacktrace Stacktrace of the exception.
 	///
-	MathException(const std::string& message, const std::source_location& location = std::source_location::current());
+	MathException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
 };
 
 } // namespace arch::math

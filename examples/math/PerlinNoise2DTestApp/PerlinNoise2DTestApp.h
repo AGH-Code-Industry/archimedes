@@ -51,7 +51,7 @@ class PerlinNoise2DTestApp: public Application {
 
 		if (input::Keyboard::space.down()){
 			f32 z = PerlinNoise2D::generate(x, y);
-			Logger::info("generated value: {}", z);
+			log::info("generated value: {}", z);
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
