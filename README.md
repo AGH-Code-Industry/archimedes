@@ -20,9 +20,9 @@ As of now, **Archimedes** supports: <br>
 
 - x64:
   - Windows:
-	- MSVC (19.44)
+	- MSVC (19.5X)
   - GNU/Linux:
-	- GCC (14)
+	- GCC (15)
 
 ## Examples
 
