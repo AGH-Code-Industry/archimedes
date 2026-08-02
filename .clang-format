@@ -43,6 +43,7 @@ IntegerLiteralSeparator:
   Hex: 4
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
+IndentExportBlock: false
 
 # Set the alignment of the code
 AlignConsecutiveAssignments: false
