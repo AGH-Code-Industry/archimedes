@@ -10,7 +10,7 @@ if(ARCHIMEDES_BUILD_TESTS)
 	target_sources(archimedes_tests PRIVATE ${ARCHIMEDES_TEST_SOURCE})
 
 	# link archimedes
-	target_link_libraries(archimedes_tests PRIVATE archimedes_lib archimedes)
+	target_link_libraries(archimedes_tests PRIVATE archimedes_lib)
 
 	# reuse precompiled header
 	target_precompile_headers(archimedes_tests REUSE_FROM archimedes_lib)

@@ -35,16 +35,21 @@ target_link_libraries(archimedes_lib PUBLIC
 # Enable IPO
 set_property(TARGET archimedes_lib PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-add_library(archimedes)
+#add_library(archimedes)
 
-target_sources(archimedes
-	PUBLIC FILE_SET CXX_MODULES
-	FILES "src/archimedes.cppm"
-)
-target_link_libraries(archimedes INTERFACE archimedes_lib)
-target_include_directories(archimedes PUBLIC ${CMAKE_INCLUDE_PATH})
+#target_sources(archimedes
+#	PUBLIC FILE_SET CXX_MODULES
+#	FILES "src/archimedes.cppm"
+#)
+#target_link_libraries(archimedes INTERFACE archimedes_lib)
+#target_include_directories(archimedes PUBLIC ${CMAKE_INCLUDE_PATH})
 
 # BuildInfo.h
+if(MSVC AND ${ARCHIMEDES_BUILD_TYPE} STREQUAL "Debug")
+	set(ARCHIMEDES_NO_INLINING "true")
+else()
+	set(ARCHIMEDES_NO_INLINING "false")
+endif()
 set(ARCHIMEDES_BUILDINFO_DIR "${PROJECT_SOURCE_DIR}/build/${ARCHIMEDES_BUILD_TYPE}/include")
 file(MAKE_DIRECTORY ${ARCHIMEDES_BUILDINFO_DIR})
 configure_file(

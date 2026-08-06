@@ -24,4 +24,6 @@ enum class Compiler {
 	current = @ARCHIMEDES_COMPILER@
 };
 
+inline constexpr bool noInlining = @ARCHIMEDES_NO_INLINING@;
+
 } // namespace arch

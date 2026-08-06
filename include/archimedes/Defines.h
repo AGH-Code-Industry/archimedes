@@ -6,6 +6,12 @@
 
 #endif
 
+#ifndef SPDLOG_COMPILED_LIB
+
+#define SPDLOG_COMPILED_LIB 1
+
+#endif
+
 #if defined(_MSC_VER) && defined(_WIN32)
 
 #define ARCHIMEDES_WINDOWS 1
