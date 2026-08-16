@@ -10,8 +10,8 @@ namespace arch {
 class GLFWException final: public Exception {
 public:
 	/// Constructor.
-	/// @param stacktrace Stacktrace of the exception.
-	GLFWException(const std::stacktrace& stacktrace = std::stacktrace::current());
+	/// @param loc location of the exception.
+	GLFWException(const utils::SimpleSourceLocation& stacktrace = utils::SimpleSourceLocation::current());
 };
 
 } // namespace arch

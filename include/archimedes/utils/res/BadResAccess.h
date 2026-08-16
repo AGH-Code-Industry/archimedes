@@ -6,7 +6,10 @@ namespace arch::utils {
 
 class BadResAccess: public arch::Exception {
 public:
-	BadResAccess(std::string_view msg, const std::stacktrace& stacktrace = std::stacktrace::current()) noexcept;
+	BadResAccess(
+		std::string_view msg,
+		const utils::SimpleSourceLocation& loc = utils::SimpleSourceLocation::current()
+	) noexcept;
 };
 
 } // namespace arch::utils

@@ -27,6 +27,14 @@ std::string std::formatter<arch::Exception>::parseStacktraceEntry(const std::sta
 	return std::vformat(_stacktraceFmt, std::make_format_args(function, file, line));
 }
 
+std::string std::formatter<arch::Exception>::parseSourceLocation(const arch::utils::SimpleSourceLocation& location) {
+	auto function = location.functionName();
+	auto file = location.fileName();
+	auto line = location.line();
+
+	return std::vformat(_stacktraceFmt, std::make_format_args(function, file, line));
+}
+
 std::format_context::iterator std::formatter<arch::Exception>::format(
 	const arch::Exception& exception,
 	std::format_context& ctx
@@ -37,16 +45,25 @@ std::format_context::iterator std::formatter<arch::Exception>::format(
 	}
 
 	if (_hasStacktrace) {
-		if constexpr (arch::buildinfo::Type::current == arch::buildinfo::Type::Release) {
-			arch::log::warn("Release build - skipping stacktrace");
-		} else {
-			auto stacktraceDepth = _hasIdx ? std::visit_format_arg(*this, ctx.arg(_stacktraceDepth)) : _stacktraceDepth;
-			if (stacktraceDepth == 0) {
-				stacktraceDepth = (uint32_t)-1;
-			}
+		auto stacktraceDepth = _hasIdx ? std::visit_format_arg(*this, ctx.arg(_stacktraceDepth)) : _stacktraceDepth;
+		if (stacktraceDepth == 0) {
+			stacktraceDepth = (uint32_t)-1;
+		}
 
-			for (auto&& entry : exception.stacktrace() | std::views::take(stacktraceDepth)) {
-				if constexpr (ARCHIMEDES_WINDOWS) {
+		if (!exception.hasStacktrace()) {
+			if constexpr (arch::buildinfo::Compiler::current == arch::buildinfo::Compiler::msvc) {
+				ctx.out() = '\r';
+			}
+			ctx.out() = '\n';
+
+			auto oneLoneEntry = parseSourceLocation(exception.location().get());
+			for (auto&& c : oneLoneEntry) {
+				ctx.out() = c;
+			}
+		} else if constexpr (arch::buildinfo::Type::current != arch::buildinfo::Type::Release) {
+			auto&& stacktrace = exception.stacktrace().get();
+			for (auto&& entry : stacktrace | std::views::take(stacktraceDepth)) {
+				if constexpr (arch::buildinfo::Compiler::current == arch::buildinfo::Compiler::msvc) {
 					ctx.out() = '\r';
 				}
 				ctx.out() = '\n';

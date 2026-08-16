@@ -6,7 +6,10 @@ namespace arch::gfx::nvrhi::exception {
 
 class NvrhiException final: public Exception {
 public:
-	NvrhiException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
+	NvrhiException(
+		const std::string& message,
+		const utils::SimpleSourceLocation& loc = utils::SimpleSourceLocation::current()
+	);
 };
 
 } // namespace arch::gfx::nvrhi::exception
