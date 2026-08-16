@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <print>
-#include <stacktrace>
 
 #include "Logger.h"
 #include <archimedes/BuildInfo.h>
@@ -11,16 +10,10 @@
 namespace arch::log::_details {
 
 template<class... Args>
-void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> fmt, Args&&... args) {
+void logImpl(Level level, const utils::SimpleSourceLocation loc, std::format_string<Args...> fmt, Args&&... args) {
 	namespace fs = std::filesystem;
 
-	// 0: this
-	// 1: logger
-	// 2: actual location
-	// ...
-	auto stacktraceEntry = *std::stacktrace::current(stacktraceSkip).begin();
-
-	fs::path filepath = fs::relative(stacktraceEntry.source_file(), fs::current_path().parent_path());
+	fs::path filepath = fs::relative(loc.fileName(), fs::current_path().parent_path());
 
 	if constexpr (buildinfo::Type::current == buildinfo::Type::Debug) {
 		if (!LoggerSingleton::_logger) {
@@ -32,8 +25,8 @@ void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> 
 	LoggerSingleton::_logger->log(
 		spdlog::source_loc(
 			filepath.string().c_str(),
-			stacktraceEntry.source_line(),
-			utils::parseStacktraceFunction(stacktraceEntry).c_str()
+			loc.line(),
+			"" // function name empty, spdlog doesn't log it
 		),
 		(spdlog::level::level_enum)level,
 		fmt,
@@ -42,14 +35,14 @@ void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> 
 }
 
 template<class... Args>
-void UniversalLogger::operator()(Level level, std::format_string<Args...> fmt, Args&&... args) {
-	logImpl(level, 2, fmt, std::forward<Args>(args)...);
+void UniversalLogger::operator()(Level level, utils::SourceAwareFormatString<Args...> fmt, Args&&... args) {
+	logImpl(level, fmt.loc, fmt.fmt, std::forward<Args>(args)...);
 }
 
 template<Level L>
 template<class... Args>
-void LeveledLogger<L>::operator()(std::format_string<Args...> fmt, Args&&... args) {
-	logImpl(L, 2, fmt, std::forward<Args>(args)...);
+void LeveledLogger<L>::operator()(utils::SourceAwareFormatString<Args...> fmt, Args&&... args) {
+	logImpl(L, fmt.loc, fmt.fmt, std::forward<Args>(args)...);
 }
 
 template<Level L>

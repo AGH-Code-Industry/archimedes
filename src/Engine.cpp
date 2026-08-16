@@ -63,8 +63,7 @@ void Engine::_mainLoop() {
 }
 
 void Engine::_initialize() {
-	log::_details::LoggerSingleton::init(_engineConfig.loggerConfig.name, _engineConfig.loggerConfig.file);
-	log::setLevel(_engineConfig.loggerConfig.level);
+	log::_details::LoggerSingleton::init(_engineConfig.loggerConfig);
 
 	_mainWindow = createRef<Window>(_engineConfig.windowWidth, _engineConfig.windowHeight, _engineConfig.windowTitle);
 

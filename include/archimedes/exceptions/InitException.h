@@ -13,9 +13,12 @@ class InitException final: public Exception {
 public:
 	/// Constructor.
 	/// @param message Message of the exception.
-	/// @param stacktrace Stacktrace of the exception.
+	/// @param loc location of the exception.
 	///
-	InitException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
+	InitException(
+		const std::string& message,
+		const utils::SimpleSourceLocation& loc = utils::SimpleSourceLocation::current()
+	);
 };
 
 } // namespace arch

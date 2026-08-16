@@ -11,19 +11,21 @@
 ///@brief Calls an AL function and checks if it threw an error.
 ///@param function function to be called.
 ///@param ... parameters of the function.
-#define alCall(function, ...) arch::audio::alCallImplementation(std::stacktrace::current(), function, __VA_ARGS__)
+#define alCall(function, ...) \
+	arch::audio::alCallImplementation(utils::SimpleSourceLocation::current(), function, __VA_ARGS__)
 
 ///@brief Calls an ALC function and checks if it threw an error.
 ///@param function function to be called.
 ///@param device ALCDevice returned by alcOpenDevice call.
 ///@param ... parameters of the function.
-#define alcCall(function, device, ...) alcCallImplementation(std::stacktrace::current(), function, device, __VA_ARGS__)
+#define alcCall(function, device, ...) \
+	alcCallImplementation(utils::SimpleSourceLocation::current(), function, device, __VA_ARGS__)
 
 namespace arch::audio {
 /// @brief Check for errors after "al" function call.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @throws AudioException if an error is found.
-void inline checkAlErrors(const std::stacktrace& stacktrace) {
+void inline checkAlErrors(const utils::SimpleSourceLocation& loc) {
 	const ALenum error = alGetError();
 	if (error == AL_NO_ERROR) {
 		return;
@@ -44,14 +46,14 @@ void inline checkAlErrors(const std::stacktrace& stacktrace) {
 		default: errorStream << "UNKNOWN AL ERROR: " << error;
 	}
 	const std::string errorText = errorStream.str();
-	throw AudioException(errorText, stacktrace);
+	throw AudioException(errorText, loc);
 }
 
 /// @brief Check for errors after "alc" function call.
 /// @param device ALCDevice returned by alcOpenDevice call.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @throws AudioException if an error is found.
-void inline checkAlcErrors(ALCdevice* device, const std::stacktrace& stacktrace) {
+void inline checkAlcErrors(ALCdevice* device, const utils::SimpleSourceLocation& loc) {
 	const ALCenum error = alcGetError(device);
 	if (error == ALC_NO_ERROR) {
 		return;
@@ -76,7 +78,7 @@ void inline checkAlcErrors(ALCdevice* device, const std::stacktrace& stacktrace)
 		default: errorStream << "UNKNOWN ALC ERROR: " << error;
 	}
 	const std::string errorText = errorStream.str();
-	throw AudioException(errorText, stacktrace);
+	throw AudioException(errorText, loc);
 }
 
 template<typename Function, typename... Params>
@@ -92,54 +94,54 @@ concept NormalReturn = not VoidReturn<Function, Params...>;
 /// @brief Wrapper for OpenAL "al" functions with void return type.
 /// @tparam AlFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @param function wrapped function.
 /// @param params wrapped function's parameters.
 template<typename AlFunction, typename... Params>
 requires VoidReturn<AlFunction, Params...>
-auto alCallImplementation(const std::stacktrace& stacktrace, AlFunction function, Params&&... params) {
+auto alCallImplementation(const utils::SimpleSourceLocation& loc, AlFunction function, Params&&... params) {
 	function(std::forward<Params>(params)...);
-	checkAlErrors(stacktrace);
+	checkAlErrors(loc);
 }
 
 /// @brief Wrapper for OpenAL "al" functions with return type other than void.
 /// @tparam AlFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @param function wrapped function.
 /// @param params wrapped function's parameters.
 /// @return return value of wrapped function.
 template<typename AlFunction, typename... Params>
 requires NormalReturn<AlFunction, Params...>
-auto alCallImplementation(const std::stacktrace& stacktrace, AlFunction function, Params&&... params) {
+auto alCallImplementation(const utils::SimpleSourceLocation& loc, AlFunction function, Params&&... params) {
 	auto returnValue = function(std::forward<Params>(params)...);
-	checkAlErrors(stacktrace);
+	checkAlErrors(loc);
 	return returnValue;
 }
 
 /// @brief Wrapper for OpenAL "alc" functions with void return type.
 /// @tparam AlcFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @param function wrapped function.
 /// @param device ALCDevice returned by alcOpenDevice call.
 /// @param params wrapped function's parameters.
 template<typename AlcFunction, typename... Params>
 requires VoidReturn<AlcFunction, Params...>
 auto alcCallImplementation(
-	const std::stacktrace& stacktrace,
+	const utils::SimpleSourceLocation& loc,
 	AlcFunction function,
 	ALCdevice* device,
 	Params&&... params
 ) {
 	function(std::forward<Params>(params)...);
-	checkAlcErrors(device, stacktrace);
+	checkAlcErrors(device, loc);
 }
 
 /// @brief Wrapper for OpenAL "alc" functions with return type other than void.
 /// @tparam AlcFunction function to be wrapped.
 /// @tparam Params parameters of wrapped function.
-/// @param stacktrace stacktrace where the original function was called.
+/// @param loc location where the original function was called.
 /// @param function wrapped function.
 /// @param device ALCDevice returned by alcOpenDevice call.
 /// @param params wrapped function's parameters.
@@ -147,13 +149,13 @@ auto alcCallImplementation(
 template<typename AlcFunction, typename... Params>
 requires NormalReturn<AlcFunction, Params...>
 auto alcCallImplementation(
-	const std::stacktrace& stacktrace,
+	const utils::SimpleSourceLocation& loc,
 	AlcFunction function,
 	ALCdevice* device,
 	Params&&... params
 ) {
 	auto returnValue = function(std::forward<Params>(params)...);
-	checkAlcErrors(device, stacktrace);
+	checkAlcErrors(device, loc);
 	return returnValue;
 }
 } // namespace arch::audio
