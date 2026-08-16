@@ -23,9 +23,13 @@ public:
 		const utils::SimpleSourceLocation& location = utils::SimpleSourceLocation::current()
 	);
 
+	/// @brief Copy constructor
 	Exception(const Exception& other);
+	/// @brief Move constructor
 	Exception(Exception&& other) noexcept;
+	/// @brief Copy-assignment operator
 	Exception& operator=(const Exception& other);
+	/// @brief Move-assignment operator
 	Exception& operator=(Exception&& other) noexcept;
 
 	/// @brief Destrutor
