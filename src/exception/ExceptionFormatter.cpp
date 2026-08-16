@@ -50,18 +50,18 @@ std::format_context::iterator std::formatter<arch::Exception>::format(
 			stacktraceDepth = (uint32_t)-1;
 		}
 
-		auto&& stacktrace = exception.stacktrace();
-		if (stacktrace.empty()) {
+		if (!exception.hasStacktrace()) {
 			if constexpr (arch::buildinfo::Compiler::current == arch::buildinfo::Compiler::msvc) {
 				ctx.out() = '\r';
 			}
 			ctx.out() = '\n';
 
-			auto oneLoneEntry = parseSourceLocation(exception.location());
+			auto oneLoneEntry = parseSourceLocation(exception.location().get());
 			for (auto&& c : oneLoneEntry) {
 				ctx.out() = c;
 			}
 		} else if constexpr (arch::buildinfo::Type::current != arch::buildinfo::Type::Release) {
+			auto&& stacktrace = exception.stacktrace().get();
 			for (auto&& entry : stacktrace | std::views::take(stacktraceDepth)) {
 				if constexpr (arch::buildinfo::Compiler::current == arch::buildinfo::Compiler::msvc) {
 					ctx.out() = '\r';
