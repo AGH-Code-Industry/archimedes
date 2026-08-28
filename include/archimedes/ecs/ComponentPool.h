@@ -174,7 +174,7 @@ struct alignas(ComponentPool<void*>) ComponentPoolStorage {
 	/// @brief char is an exception to Strict Aliasing Rule
 	alignas(PoolT) std::array<char, sizeof(PoolT)> storage{};
 
-	/// @brief Reference to storeage, casted to CommonComponentPool. Makes storeage somewhat debuggable.
+	/// @brief Reference to storage, casted to CommonComponentPool. Makes storage somewhat debuggable.
 	_details::CommonComponentPool& _cpool = *(_details::CommonComponentPool*)&storage;
 };
 
