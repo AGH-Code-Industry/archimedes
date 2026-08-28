@@ -37,3 +37,4 @@
 #include <archimedes/utils/Typelist.h>
 #include <gtest/gtest.h>
 #include <stb_image.h>
+#include <unicodelib.h>
