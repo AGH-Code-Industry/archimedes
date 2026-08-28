@@ -14,13 +14,13 @@ namespace arch::ecs {
 namespace _details {
 
 // helper lambda to obtain ComponentPool type
-constexpr auto cpoolCast = []<class T>(Typelist<T> c) consteval {
+constexpr auto cpoolCast = []<class C>(Typelist<C> c) consteval {
 	if constexpr (c.apply(traitFn<std::is_const>)) {
-		// const T => const CPool<T>*
-		return typelist<const ComponentPool<std::remove_const_t<T>>*>;
+		// const C => const CPool<C>*
+		return typelist<const ComponentPool<std::remove_const_t<C>>*>;
 	} else {
-		// T => CPool<T>*
-		return typelist<ComponentPool<T>*>;
+		// C => CPool<C>*
+		return typelist<ComponentPool<C>*>;
 	}
 };
 
