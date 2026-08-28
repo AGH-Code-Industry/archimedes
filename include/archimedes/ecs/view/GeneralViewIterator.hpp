@@ -49,8 +49,8 @@ ITER_IE::ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& 
 	_exclBegin = view._cpoolsExcl.begin();
 	_exclEnd = view._cpoolsExcl.end();
 
-	_denseBegin = &*view._domain._entityPool.begin();
-	_denseEnd = &*view._domain._entityPool.end();
+	_denseBegin = std::to_address(view._domain._entityPool.begin());
+	_denseEnd = std::to_address(view._domain._entityPool.end());
 
 	if (end) {
 		// assume _denseEnd as the end
@@ -82,7 +82,7 @@ const Entity& ITER_IE::operator*() const noexcept {
 
 TEMPLATE_IE
 const Entity* ITER_IE::operator->() const noexcept {
-	return &*_denseI;
+	return _denseI;
 }
 
 TEMPLATE_IE
