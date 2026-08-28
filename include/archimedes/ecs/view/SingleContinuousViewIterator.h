@@ -96,4 +96,4 @@ ViewIterator<Typelist<Include>, Typelist<>> operator+(
 
 } // namespace arch::ecs
 
-#include "SingleContignousViewIterator.hpp"
+#include "SingleContinuousViewIterator.hpp"

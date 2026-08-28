@@ -1,4 +1,4 @@
-#include "SingleContignousViewIterator.h"
+#include "SingleContinuousViewIterator.h"
 //
 #include "GeneralView.h"
 
