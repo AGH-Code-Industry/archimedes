@@ -188,7 +188,7 @@ auto VIEW_IE::_comps(Typelist<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform(_details::cpoolCast);
 
 	// clang-format off
-	return std::views::all(*this) | std::views::transform([_cpools = _cpools, &cpoolsCast](const Entity entity) {
+	auto getWanted = [_cpools = _cpools, &cpoolsCast](const Entity entity) {
 		return std::tie(
 			reinterpret_cast<
 				getType<
@@ -196,8 +196,10 @@ auto VIEW_IE::_comps(Typelist<Cs...> wanted) noexcept {
 				>
 			>(_cpools[includes.find(typelist<Cs>))->get(entity)...
 		);
-	});
+	};
 	// clang-format on
+
+	return std::views::all(*this) | std::views::transform(std::move(getWanted));
 }
 
 TEMPLATE_IE
@@ -227,7 +229,7 @@ auto VIEW_IE::_entityComps(Typelist<Cs...> wanted) noexcept {
 	constexpr auto cpoolsCast = wanted.transform(_details::cpoolCast);
 
 	// clang-format off
-	return std::views::all(*this) | std::views::transform([_cpools = _cpools, &cpoolsCast](const Entity entity) {
+	auto getWanted = [_cpools = _cpools, &cpoolsCast](const Entity entity) {
 		return std::tuple_cat(
 			std::tuple(entity),
 			std::tie(
@@ -238,8 +240,10 @@ auto VIEW_IE::_entityComps(Typelist<Cs...> wanted) noexcept {
 				>(_cpools[includes.find(typelist<Cs>)])->get(entity)...
 			)
 		);
-	});
+	};
 	// clang-format on
+
+	return std::views::all(*this) | std::views::transform(std::move(getWanted));
 }
 
 TEMPLATE_IE
