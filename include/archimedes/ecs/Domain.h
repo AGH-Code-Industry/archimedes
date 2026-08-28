@@ -16,7 +16,7 @@ namespace arch::ecs {
 class Domain {
 public:
 
-	/// @brief Entityraits of entity
+	/// @brief Traits of entity
 	using Traits = _details::EntityTraits;
 	/// @brief Id type
 	using IdT = typename Traits::IdT;
