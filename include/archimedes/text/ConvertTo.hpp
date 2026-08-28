@@ -1,7 +1,9 @@
 #include "ConvertTo.h"
 
+namespace arch::text {
+
 template<class CharOut, class CharIn>
-std::basic_string<CharOut> arch::text::convertTo(std::basic_string_view<CharIn> string) noexcept {
+std::basic_string<CharOut> convertTo(std::basic_string_view<CharIn> string) noexcept {
 	if constexpr (std::same_as<CharIn, CharOut>) {
 		return std::basic_string<CharOut>(string);
 	} else if constexpr (std::same_as<CharIn, char>) {
@@ -17,3 +19,10 @@ std::basic_string<CharOut> arch::text::convertTo(std::basic_string_view<CharIn> 
 		return outConverter.from_bytes(inConverter.to_bytes(string.data(), string.data() + string.length()));
 	}
 }
+
+template<class CharOut, class CharIn>
+std::basic_string<CharOut> convertTo(const std::basic_string<CharIn>& string) noexcept {
+	return convertTo<CharOut, CharIn>(std::basic_string_view(string));
+}
+
+} // namespace arch::text
