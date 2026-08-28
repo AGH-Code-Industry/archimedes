@@ -168,7 +168,11 @@ auto VIEW_IE::comps() noexcept {
 		constexpr auto cpool = nonFlags.transform(_details::cpoolCast);
 
 		if (_cpools.front()) {
-			return std::views::zip(std::views::all(*reinterpret_cast<getType<cpool>>(_cpools.front())));
+			return std::views::zip( //
+				std::views::all( //
+					*reinterpret_cast<getType<cpool>>(_cpools.front())
+				)
+			);
 		} else {
 			static std::remove_pointer_t<getType<cpool>> dummy;
 			return std::views::zip(std::views::all(dummy));
