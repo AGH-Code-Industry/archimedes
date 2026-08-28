@@ -57,8 +57,13 @@ struct TLGetFn<std::index_sequence<Indexes...>> {
 /// @todo Use pack indexing instead of pointer-hacks once (or maybe 'if' XD) C++26 arrives
 template<size_t I, class... Types>
 struct TLGet {
-	using type = typename std::remove_pointer_t<
-		decltype(TLGetFn<std::make_index_sequence<I>>::fn(((TypeWrapper<Types>*)nullptr)...))>::type;
+	// clang-format off
+	using type = typename std::remove_pointer_t<decltype(
+		TLGetFn<
+			std::make_index_sequence<I>
+		>::fn(((TypeWrapper<Types>*)nullptr)...)
+	)>::type;
+	// clang-format on
 };
 
 /// @brief Nots given boolean UnaryTypeTrait
