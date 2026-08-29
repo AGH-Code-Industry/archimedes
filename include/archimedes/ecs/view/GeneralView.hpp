@@ -194,7 +194,7 @@ auto VIEW_IE::_comps(Typelist<Cs...> wanted) noexcept {
 				getType<
 					cpoolsCast.get(typelist<Cs...>.find(typelist<Cs>))
 				>
-			>(_cpools[includes.find(typelist<Cs>))->get(entity)...
+			>(_cpools[includes.find(typelist<Cs>)])->get(entity)...
 		);
 	};
 	// clang-format on
