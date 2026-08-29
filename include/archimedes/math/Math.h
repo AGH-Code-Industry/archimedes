@@ -55,6 +55,10 @@ using Color = glm::vec4;
 
 using Quat = glm::qua<f32>;
 
+inline f32 fade(f32 t){
+    return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+}
+
 /// @brief Returns a quaternion from a rotation angle.
 /// @param angle The angle in radians.
 inline Quat quaternion(f32 angle) {
