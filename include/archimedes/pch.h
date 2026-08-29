@@ -29,8 +29,11 @@
 #include <archimedes/Logger.h>
 #include <archimedes/Math.h>
 #include <archimedes/Meta.h>
-#include <archimedes/TUtils.h>
 #include <archimedes/input/Key.h>
 #include <archimedes/input/Keyboard.h>
 #include <archimedes/input/Mouse.h>
+#include <archimedes/utils/CallableTraits.h>
+#include <archimedes/utils/IsApplicable.h>
+#include <archimedes/utils/Typelist.h>
+#include <gtest/gtest.h>
 #include <stb_image.h>

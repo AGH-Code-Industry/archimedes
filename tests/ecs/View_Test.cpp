@@ -4,8 +4,8 @@
 #include <unordered_set>
 
 #include <archimedes/Ecs.h>
-#include <archimedes/tUtils/Functions/CallableTraits.h>
-#include <archimedes/tUtils/Functions/IsApplicable.h>
+#include <archimedes/utils/CallableTraits.h>
+#include <archimedes/utils/IsApplicable.h>
 #include <gtest/gtest.h>
 
 using namespace arch;
@@ -16,13 +16,13 @@ struct NormalComponent {
 	int value = 0;
 };
 
-struct InPlaceComponent: NormalComponent {
-	static constexpr bool inPlaceComponent = true;
+struct NormalComponent2 {
+	int value = 0;
 };
 
-struct FlagComponent {
-	static constexpr bool flagComponent = true;
-};
+struct InPlaceComponent: NormalComponent, ecs::InPlaceComponent {};
+
+struct FlagComponent: ecs::FlagComponent {};
 
 } // namespace
 
@@ -33,15 +33,20 @@ TEST(ECS, View_OneComponent) {
 
 	// every entity has NormalComponent1
 	for (int i = 0; i != entityCount; ++i) {
-		domain.addComponent<NormalComponent>(domain.newEntity());
+		auto entity = domain.newEntity();
+		domain.addComponent<NormalComponent>(entity);
+		domain.addComponent<NormalComponent2>(entity);
 	}
 
 	// do all entities have component?
 	ASSERT_TRUE(std::ranges::equal(domain.entities(), domain.view<NormalComponent>()));
 
 	// pairwise view of components
-	auto componentPairs = domain.view<NormalComponent>().components() |
-		std::views::transform([](auto tuple) -> auto& { return std::get<0>(tuple); }) | std::views::pairwise;
+	auto v = domain.view<NormalComponent, NormalComponent2>().comps();
+	auto componentPairs = v | std::views::transform([](auto tuple) -> auto& {
+							  return std::get<0>(tuple);
+						  }) |
+		std::views::pairwise;
 	ASSERT_TRUE(std::ranges::all_of(componentPairs, [](auto pair) {
 		auto&& [first, second] = pair;
 		// are all components on a page adjacent?
@@ -49,11 +54,13 @@ TEST(ECS, View_OneComponent) {
 	}));
 
 	// increment value of each component
-	domain.view<NormalComponent>().forEach([](auto& normal) { ++normal.value; });
+	domain.view<NormalComponent>().forEach([](auto& normal) {
+		++normal.value;
+	});
 
 	// sum values
 	int sum = 0;
-	for (auto&& [normal] : domain.view<NormalComponent>().components()) {
+	for (auto&& [normal] : domain.view<NormalComponent>().comps()) {
 		sum += normal.value;
 	}
 
@@ -121,15 +128,17 @@ TEST(ECS, View_EmptyWithExclude) {
 	}
 
 	// are the below views emtpy as they should be?
-	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<NormalComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<InPlaceComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<FlagComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<NormalComponent>)));
-	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<InPlaceComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<FlagComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<NormalComponent>)));
 	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<InPlaceComponent>)));
-	ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<FlagComponent>)));
+
+	// Below would not compile, as overlapping views do not make sense
+	// ASSERT_TRUE(std::ranges::empty(domain.view<NormalComponent>(exclude<NormalComponent>)));
+	// ASSERT_TRUE(std::ranges::empty(domain.view<InPlaceComponent>(exclude<InPlaceComponent>)));
+	// ASSERT_TRUE(std::ranges::empty(domain.view<FlagComponent>(exclude<FlagComponent>)));
 }
 
 TEST(ECS, View_AfterRemoval) {

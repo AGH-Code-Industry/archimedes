@@ -10,7 +10,13 @@ namespace {
 // Component type that tracks constructions, copies, moves and destructions
 class TrackerComponent {
 public:
-	TrackerComponent() noexcept { ++_constructions; }
+	TrackerComponent() noexcept {
+		++_constructions;
+	}
+
+	TrackerComponent(int v) noexcept: TrackerComponent() {
+		_val = v;
+	}
 
 	TrackerComponent(const TrackerComponent& other) noexcept: _val{ other._val } {
 		++_constructions;
@@ -36,15 +42,25 @@ public:
 		return *this;
 	}
 
-	~TrackerComponent() noexcept { ++_destructions; }
+	~TrackerComponent() noexcept {
+		++_destructions;
+	}
 
-	static int constructions() noexcept { return _constructions; }
+	static int constructions() noexcept {
+		return _constructions;
+	}
 
-	static int destructions() noexcept { return _destructions; }
+	static int destructions() noexcept {
+		return _destructions;
+	}
 
-	static int copies() noexcept { return _copies; }
+	static int copies() noexcept {
+		return _copies;
+	}
 
-	static int moves() noexcept { return _moves; }
+	static int moves() noexcept {
+		return _moves;
+	}
 
 	static void reset() noexcept {
 		_constructions = 0;
@@ -53,21 +69,29 @@ public:
 		_moves = 0;
 	}
 
+	bool operator==(const TrackerComponent& other) const noexcept {
+		return _val == other._val;
+	}
+
 private:
 	inline static int _constructions = 0;
 	inline static int _destructions = 0;
 	inline static int _copies = 0;
 	inline static int _moves = 0;
 
-	int _val = 123;
+	int _val = rand();
 };
 
 // same as TrackerComponent, but in-place
-class InPlaceTrackerComponent {
+class InPlaceTrackerComponent: ecs::InPlaceComponent {
 public:
-	static constexpr bool inPlaceComponent = true;
+	InPlaceTrackerComponent() noexcept {
+		++_constructions;
+	}
 
-	InPlaceTrackerComponent() noexcept { ++_constructions; }
+	InPlaceTrackerComponent(int v) noexcept: InPlaceTrackerComponent() {
+		_val = v;
+	}
 
 	InPlaceTrackerComponent(const InPlaceTrackerComponent& other) noexcept: _val{ other._val } {
 		++_constructions;
@@ -93,15 +117,25 @@ public:
 		return *this;
 	}
 
-	~InPlaceTrackerComponent() noexcept { ++_destructions; }
+	~InPlaceTrackerComponent() noexcept {
+		++_destructions;
+	}
 
-	static int constructions() noexcept { return _constructions; }
+	static int constructions() noexcept {
+		return _constructions;
+	}
 
-	static int destructions() noexcept { return _destructions; }
+	static int destructions() noexcept {
+		return _destructions;
+	}
 
-	static int copies() noexcept { return _copies; }
+	static int copies() noexcept {
+		return _copies;
+	}
 
-	static int moves() noexcept { return _moves; }
+	static int moves() noexcept {
+		return _moves;
+	}
 
 	static void reset() noexcept {
 		_constructions = 0;
@@ -110,21 +144,25 @@ public:
 		_moves = 0;
 	}
 
+	bool operator==(const InPlaceTrackerComponent& other) const noexcept {
+		return _val == other._val;
+	}
+
 private:
 	inline static int _constructions = 0;
 	inline static int _destructions = 0;
 	inline static int _copies = 0;
 	inline static int _moves = 0;
 
-	int _val = 123;
+	int _val = rand();
 };
 
 // flag component, all trackers should report 0
-class FlagComponent {
+class FlagComponent: ecs::FlagComponent {
 public:
-	static constexpr bool flagComponent = true;
-
-	FlagComponent() noexcept { ++_constructions; }
+	FlagComponent() noexcept {
+		++_constructions;
+	}
 
 	FlagComponent(const FlagComponent& other) noexcept {
 		++_constructions;
@@ -148,15 +186,25 @@ public:
 		return *this;
 	}
 
-	~FlagComponent() noexcept { ++_destructions; }
+	~FlagComponent() noexcept {
+		++_destructions;
+	}
 
-	static int constructions() noexcept { return _constructions; }
+	static int constructions() noexcept {
+		return _constructions;
+	}
 
-	static int destructions() noexcept { return _destructions; }
+	static int destructions() noexcept {
+		return _destructions;
+	}
 
-	static int copies() noexcept { return _copies; }
+	static int copies() noexcept {
+		return _copies;
+	}
 
-	static int moves() noexcept { return _moves; }
+	static int moves() noexcept {
+		return _moves;
+	}
 
 	static void reset() noexcept {
 		_constructions = 0;
@@ -175,6 +223,7 @@ private:
 void reset() noexcept {
 	TrackerComponent::reset();
 	InPlaceTrackerComponent::reset();
+	FlagComponent::reset();
 }
 
 } // namespace
@@ -392,4 +441,138 @@ TEST(ECS, Component_EmptyCPool) {
 		std::as_const(domain).components<TrackerComponent>().end()
 	);
 	ASSERT_EQ(domain.components<TrackerComponent>().begin(), domain.components<TrackerComponent>().end());
+}
+
+TEST(ECS, Component_CPoolCopy) {
+	reset();
+
+	ecs::Domain domain;
+
+	constexpr int entities = 1'000;
+
+	for (int i = 0; i != entities; ++i) {
+		auto entity = domain.newEntity();
+
+		domain.addComponent<InPlaceTrackerComponent>(entity);
+		domain.addComponent<TrackerComponent>(entity);
+		domain.addComponent<FlagComponent>(entity);
+	}
+
+	// copy component pools
+	auto iptCPool = domain.components<InPlaceTrackerComponent>().base();
+	auto tCPool = domain.components<TrackerComponent>().base();
+	auto fCPool = domain.components<FlagComponent>().base();
+
+	// compare copied component pools with originals
+	ASSERT_EQ(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_EQ(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_EQ(fCPool, domain.components<FlagComponent>().base());
+
+	// check copies and moves
+	ASSERT_EQ(InPlaceTrackerComponent::constructions(), 2 * entities);
+	ASSERT_EQ(InPlaceTrackerComponent::copies(), entities);
+	ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
+	ASSERT_EQ(TrackerComponent::constructions(), 2 * entities);
+	ASSERT_EQ(TrackerComponent::copies(), entities);
+	ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
+	ASSERT_EQ(FlagComponent::constructions(), 0);
+	ASSERT_EQ(FlagComponent::copies(), 0);
+	ASSERT_EQ(FlagComponent::moves(), 0);
+
+	// remove random entity
+	auto removedEntity = iptCPool.begin().entity(); // some random entity
+
+	auto ipt = iptCPool.removeComponent(removedEntity, moveFlag);
+	auto t = tCPool.removeComponent(removedEntity, moveFlag);
+	fCPool.removeComponent(removedEntity);
+
+	ASSERT_NE(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
+
+	// add new entity
+	auto newEntity = domain.newEntity();
+
+	iptCPool.addComponent(newEntity, 1);
+	tCPool.addComponent(newEntity, 2);
+	fCPool.addComponent(newEntity);
+	domain.addComponent<InPlaceTrackerComponent>(newEntity, 1);
+	domain.addComponent<TrackerComponent>(newEntity, 2);
+	domain.addComponent<FlagComponent>(newEntity);
+
+	ASSERT_NE(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_NE(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_NE(fCPool, domain.components<FlagComponent>().base());
+
+	// restore old entity
+	// inner memory layout is different for copy and original component pool
+	iptCPool.addComponent(removedEntity, ipt);
+	tCPool.addComponent(removedEntity, t);
+	fCPool.addComponent(removedEntity);
+
+	ASSERT_EQ(iptCPool, domain.components<InPlaceTrackerComponent>().base());
+	ASSERT_EQ(tCPool, domain.components<TrackerComponent>().base());
+	ASSERT_EQ(fCPool, domain.components<FlagComponent>().base());
+}
+
+TEST(ECS, Component_CPoolMove) {
+	reset();
+
+	ecs::Domain domain;
+
+	ecs::ComponentPool<TrackerComponent> trackerCPool;
+	ecs::ComponentPool<InPlaceTrackerComponent> inPlaceTrackerCPool;
+	ecs::ComponentPool<FlagComponent> flagCPool;
+
+	constexpr int entities = 1'000;
+
+	for (int i = 0; i != entities; ++i) {
+		auto entity = domain.newEntity();
+
+		// add components to external component pools
+		trackerCPool.addComponent(entity);
+		inPlaceTrackerCPool.addComponent(entity);
+		flagCPool.addComponent(entity);
+	}
+
+	// copy component pools
+	auto trackerCPoolCopy = trackerCPool;
+	auto inPlaceTrackerCPoolCopy = inPlaceTrackerCPool;
+	auto flagCPoolCopy = flagCPool;
+
+	// move component pools
+	auto movedTrackerCPool = std::move(trackerCPool);
+	auto movedInPlaceTrackerCPool = std::move(inPlaceTrackerCPool);
+	auto movedFlagCPool = std::move(flagCPool);
+
+	ASSERT_EQ(movedTrackerCPool, trackerCPoolCopy);
+	ASSERT_EQ(movedInPlaceTrackerCPool, inPlaceTrackerCPoolCopy);
+	ASSERT_EQ(movedFlagCPool, flagCPoolCopy);
+
+	ASSERT_EQ(InPlaceTrackerComponent::constructions(), 2 * entities);
+	ASSERT_EQ(InPlaceTrackerComponent::copies(), entities);
+	ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
+	ASSERT_EQ(TrackerComponent::constructions(), 2 * entities);
+	ASSERT_EQ(TrackerComponent::copies(), entities);
+	ASSERT_EQ(InPlaceTrackerComponent::moves(), 0);
+	ASSERT_EQ(FlagComponent::constructions(), 0);
+	ASSERT_EQ(FlagComponent::copies(), 0);
+	ASSERT_EQ(FlagComponent::moves(), 0);
+}
+
+TEST(ECS, Component_CPoolInCPool) {
+	reset();
+
+	ecs::Domain domain;
+
+	auto parent = domain.newEntity();
+	auto&& cpool = domain.addComponent<ecs::ComponentPool<int>>(parent);
+
+	constexpr int entities = 1'000;
+	for (int i = 0; i != entities; ++i) {
+		auto child = domain.newEntity();
+		cpool.addComponent(child, i);
+	}
+
+	ASSERT_TRUE(std::ranges::equal(cpool, std::views::iota(0, entities)));
 }

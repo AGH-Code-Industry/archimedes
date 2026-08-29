@@ -1,6 +1,5 @@
 #include <GLFW/glfw3.h>
-#include <archimedes/ecs/Domain.h>
-#include <archimedes/ecs/View.h>
+#include <archimedes/Ecs.h>
 #include <archimedes/math/Math.h>
 #include <archimedes/physics/PhysicsSystem.h>
 #include <archimedes/physics/components/RigidBodyComponent.h>
@@ -28,7 +27,7 @@ f32 PhysicsSystem::update() {
 	const Duration deltaTime = Clock::now() - _prevTimePoint;
 	const f32 t = deltaTime.count();
 
-	for (auto [rigidBody, transform] : viewRigidBodies.components()) {
+	for (auto [rigidBody, transform] : viewRigidBodies.comps()) {
 		// update position
 		transform.position += float3(rigidBody.linearVelocity, 0.0f) * t;
 

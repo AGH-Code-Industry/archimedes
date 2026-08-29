@@ -11,8 +11,7 @@
 #include "ecs/EntityPool.h"
 #include "ecs/EntitySpecs.h"
 #include "ecs/EntityTraits.h"
-#include "ecs/InClassComponentSpecs.h"
 #include "ecs/SparseSet.h"
-#include "ecs/View.h"
+#include "ecs/view/ViewFwd.h"
 //
-#include "ecs/ExcludingView.h"
+#include "ecs/view/View.h"

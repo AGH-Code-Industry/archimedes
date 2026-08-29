@@ -1,15 +1,13 @@
 #pragma once
 
-namespace arch::ecs::_details { // NOLINT
+#include "ComponentBases.h"
 
-/// @brief Checks if component was marked as flag-component
-template<class T>
-concept FlagComponent = T::flag_component || T::flagComponent || T::FlagComponent;
+namespace arch::ecs::_details { // NOLINT
 
 /// @brief Traits checking if T is a flag component
 template<class T>
-struct FlagComponentPred {
-	static constexpr bool value = FlagComponent<T>;
+struct IsFlag {
+	static constexpr bool value = std::is_base_of_v<ecs::FlagComponent, T>;
 };
 
 } // namespace arch::ecs::_details
