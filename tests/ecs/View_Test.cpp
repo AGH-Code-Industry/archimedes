@@ -1,7 +1,10 @@
+#include <algorithm>
+#include <array>
 #include <print>
 #include <random>
 #include <ranges>
 #include <unordered_set>
+#include <vector>
 
 #include <archimedes/Ecs.h>
 #include <archimedes/utils/CallableTraits.h>
@@ -66,6 +69,132 @@ TEST(ECS, View_OneComponent) {
 
 	// is sum == entityCount?
 	ASSERT_EQ(sum, entityCount);
+}
+
+TEST(ECS, View_OneContinuousComponentIsRandomAccess) {
+	ecs::Domain domain;
+
+	std::array entities{
+		domain.newEntity(),
+		domain.newEntity(),
+		domain.newEntity(),
+		domain.newEntity(),
+	};
+	for (int i = 0; i != static_cast<int>(entities.size()); ++i) {
+		domain.addComponent<NormalComponent>(entities[i]).value = i;
+	}
+
+	auto view = domain.view<NormalComponent>();
+	static_assert(std::ranges::random_access_range<decltype(view)>);
+
+	ASSERT_EQ(std::ranges::distance(view), entities.size());
+	ASSERT_EQ(view.begin()[2], entities[2]);
+	ASSERT_EQ(*(2 + view.begin()), entities[2]);
+
+	// Removing a non-in-place component fills the gap with the last component.
+	domain.removeComponent<NormalComponent>(entities[1]);
+	auto viewAfterRemoval = domain.view<NormalComponent>();
+	const std::array expectedEntities{ entities[0], entities[3], entities[2] };
+	const std::array expectedValues{ 0, 3, 2 };
+
+	EXPECT_EQ(std::ranges::distance(viewAfterRemoval), expectedEntities.size());
+	EXPECT_TRUE(std::ranges::equal(viewAfterRemoval, expectedEntities));
+	auto values = viewAfterRemoval.comps() | std::views::transform([](auto componentTuple) {
+		return std::get<0>(componentTuple).value;
+	});
+	EXPECT_TRUE(std::ranges::equal(values, expectedValues));
+}
+
+TEST(ECS, View_OneInPlaceComponentSkipsHoles) {
+	ecs::Domain domain;
+
+	std::array entities{
+		domain.newEntity(),
+		domain.newEntity(),
+		domain.newEntity(),
+		domain.newEntity(),
+	};
+	for (int i = 0; i != static_cast<int>(entities.size()); ++i) {
+		domain.addComponent<InPlaceComponent>(entities[i]).value = i;
+	}
+
+	domain.removeComponent<InPlaceComponent>(entities[1]);
+	auto view = domain.view<InPlaceComponent>();
+	static_assert(std::ranges::bidirectional_range<decltype(view)>);
+	static_assert(!std::ranges::random_access_range<decltype(view)>);
+
+	const std::array expectedEntities{ entities[0], entities[2], entities[3] };
+	const std::array expectedReversed{ entities[3], entities[2], entities[0] };
+	EXPECT_TRUE(std::ranges::equal(view, expectedEntities));
+	EXPECT_TRUE(std::ranges::equal(view | std::views::reverse, expectedReversed));
+}
+
+TEST(ECS, View_OneIncludeAndOneExcludeFiltersEveryAccessPath) {
+	ecs::Domain domain;
+
+	std::array<ecs::Entity, 7> entities;
+	for (int i = 0; i != static_cast<int>(entities.size()); ++i) {
+		entities[i] = domain.newEntity();
+		domain.addComponent<NormalComponent>(entities[i]).value = i;
+	}
+	for (const auto index : { 0, 3, 4, 6 }) {
+		domain.addComponent<InPlaceComponent>(entities[index]);
+	}
+
+	auto view = domain.view<NormalComponent>(exclude<InPlaceComponent>);
+	static_assert(std::ranges::bidirectional_range<decltype(view)>);
+	static_assert(!std::ranges::random_access_range<decltype(view)>);
+
+	const std::array expectedEntities{ entities[1], entities[2], entities[5] };
+	const std::array expectedReversed{ entities[5], entities[2], entities[1] };
+	const std::array expectedValues{ 1, 2, 5 };
+
+	ASSERT_TRUE(std::ranges::equal(view, expectedEntities));
+	ASSERT_TRUE(std::ranges::equal(view | std::views::reverse, expectedReversed));
+
+	std::vector<ecs::Entity> forEachEntities;
+	std::vector<int> forEachValues;
+	view.forEach([&](const ecs::Entity entity, NormalComponent& component) {
+		forEachEntities.push_back(entity);
+		forEachValues.push_back(component.value);
+	});
+	EXPECT_TRUE(std::ranges::equal(forEachEntities, expectedEntities));
+	EXPECT_TRUE(std::ranges::equal(forEachValues, expectedValues));
+
+	auto componentValues = view.comps() | std::views::transform([](auto componentTuple) {
+		return std::get<0>(componentTuple).value;
+	});
+	EXPECT_TRUE(std::ranges::equal(componentValues, expectedValues));
+
+	auto entityComponents = view.entityComps();
+	auto expectedEntity = expectedEntities.begin();
+	auto expectedValue = expectedValues.begin();
+	for (auto&& [entity, component] : entityComponents) {
+		ASSERT_NE(expectedEntity, expectedEntities.end());
+		EXPECT_EQ(entity, *expectedEntity++);
+		EXPECT_EQ(component.value, *expectedValue++);
+	}
+	ASSERT_EQ(expectedEntity, expectedEntities.end());
+	ASSERT_EQ(expectedValue, expectedValues.end());
+
+	for (const auto entity : expectedEntities) {
+		ASSERT_TRUE(view.contains(entity));
+	}
+	for (const auto index : { 0, 3, 4, 6 }) {
+		ASSERT_FALSE(view.contains(entities[index]));
+	}
+}
+
+TEST(ECS, View_OneIncludeIgnoresMissingExcludePool) {
+	ecs::Domain domain;
+
+	std::array<ecs::Entity, 3> entities;
+	for (auto& entity : entities) {
+		entity = domain.newEntity();
+		domain.addComponent<NormalComponent>(entity);
+	}
+
+	ASSERT_TRUE(std::ranges::equal(domain.view<NormalComponent>(exclude<int>), entities));
 }
 
 TEST(ECS, View_TwoComponents) {
@@ -217,4 +346,32 @@ TEST(ECS, View_WithExcludes) {
 
 	// are entities from view the extected ones?
 	ASSERT_EQ(actualEntities, expectedEntities);
+}
+
+TEST(ECS, View_OnlyExcludes) {
+	ecs::Domain domain;
+
+	constexpr int excludedCount = 1'000;
+	constexpr int notExcludedCount = 1'000;
+
+	std::vector<ecs::Entity> notExcludedEntities;
+	notExcludedEntities.resize(notExcludedCount);
+
+	for (int i = 0; i != excludedCount; ++i) {
+		auto entity = domain.newEntity();
+		domain.addComponent<NormalComponent>(entity);
+		domain.addComponent<NormalComponent2>(entity);
+		domain.addComponent<FlagComponent>(entity);
+		domain.addComponent<InPlaceComponent>(entity);
+	}
+
+	for (int i = 0 ; i != notExcludedCount; ++i) {
+		auto entity = domain.newEntity();
+		domain.addComponent<NormalComponent2>(entity);
+		notExcludedEntities[i] = entity;
+	}
+
+	ASSERT_TRUE(std::ranges::equal(domain.view<>(exclude<NormalComponent>), notExcludedEntities));
+	ASSERT_TRUE(std::ranges::equal(domain.view<>(exclude<FlagComponent>), notExcludedEntities));
+	ASSERT_TRUE(std::ranges::equal(domain.view<>(exclude<InPlaceComponent>), notExcludedEntities));
 }
