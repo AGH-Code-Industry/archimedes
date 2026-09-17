@@ -23,14 +23,10 @@ class ChildrenIterator;
 
 /// @brief Main node class, implementing hierarchies
 /// @details An in-place component
-class HierarchyNode: public ChildNode {
+class HierarchyNode: public ChildNode, public ecs::InPlaceComponent {
 	using Self = HierarchyNode;
 
 public:
-
-	/// @brief Makes HierarchyNode immovable in ecs storage, to preserve internal pointers
-	static constexpr bool inPlaceComponent = true;
-
 	/// @brief Entity constructor
 	HierarchyNode(const ecs::Entity entity) noexcept;
 

@@ -5,10 +5,10 @@
 
 #include "ComponentPool.h"
 #include "EntityPool.h"
-#include "ExcludeT.h"
-#include "ViewFwd.h"
+#include "view/ExcludeT.h"
+#include "view/ViewFwd.h"
 #include <archimedes/meta/Rtti.h>
-#include <archimedes/tUtils/TypeList.h>
+#include <archimedes/utils/Typelist.h>
 
 namespace arch::ecs {
 
@@ -16,7 +16,7 @@ namespace arch::ecs {
 class Domain {
 public:
 
-	/// @brief Entityraits of entity
+	/// @brief Traits of entity
 	using Traits = _details::EntityTraits;
 	/// @brief Id type
 	using IdT = typename Traits::IdT;

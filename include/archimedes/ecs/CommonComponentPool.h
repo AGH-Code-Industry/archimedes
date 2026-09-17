@@ -8,7 +8,7 @@
 namespace arch::ecs::_details { // NOLINT
 
 /// @brief Abstract class with behavior shared between all ComponentPools
-class CommonComponentPool: public _details::SparseSet, public utils::ReadonlyCounter<u32> {
+class CommonComponentPool: public _details::SparseSet {
 public:
 	/// @brief Removes component from given entity
 	/// @param entity - entity to remove component from

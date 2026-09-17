@@ -5,6 +5,59 @@
 
 namespace arch::ecs::_details {
 
+SparseSet::SparseSet(const SparseSet& other) noexcept {
+	*this = other;
+}
+
+SparseSet::SparseSet(SparseSet&& other) noexcept {
+	*this = std::move(other);
+}
+
+SparseSet& SparseSet::operator=(const SparseSet& other) noexcept {
+	_counter = other._counter;
+	_dense = other._dense;
+
+	for (auto i = other._sparse.size() - 1; i != (size_t)-1; --i) {
+		// copy memory layout
+		if (other._sparse[i] != nullptr) {
+			std::copy(other._sparse[i].get(), other._sparse[i].get() + Traits::pageSize, _sparseAssurePage(i));
+		}
+	}
+
+	return *this;
+}
+
+SparseSet& SparseSet::operator=(SparseSet&& other) noexcept {
+	if (this == std::addressof(other)) {
+		return *this;
+	}
+
+	this->_counter = other._counter;
+	this->_dense = std::move(other._dense);
+	this->_sparse = std::move(other._sparse);
+
+	other._counter = 0;
+	other._dense = decltype(other._dense)();
+	other._sparse = decltype(other._sparse)();
+
+	return *this;
+}
+
+bool SparseSet::operator==(const SparseSet& other) const noexcept {
+	if (count() != other.count()) {
+		return false;
+	}
+
+	for (auto&& entity : _dense) {
+		// set-wise comparision
+		if (!other.contains(entity)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 typename SparseSet::EntityT* SparseSet::_sparseAssurePage(const size_t n) noexcept {
 	// resize(n) only would make capacity == n (bad)
 	if (_sparse.size() < n + 1) {

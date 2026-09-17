@@ -33,7 +33,7 @@ Domain::VersionT Domain::version(const IdT id) const noexcept {
 }
 
 size_t Domain::count() const noexcept {
-	return _entityPool.size();
+	return _entityPool.count();
 }
 
 Entity Domain::newEntity() noexcept {

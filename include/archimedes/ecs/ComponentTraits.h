@@ -25,11 +25,11 @@ struct ComponentTraits {
 	static inline constexpr bool flag = Specs::flag;
 	static_assert(!(flag && !std::is_empty_v<ComponentT>), "Non-empty type cannot be marked as flag-component");
 
-	/// @brief Whether component is marked as in-place
-	static inline constexpr bool inPlace = Specs::inPlace && !flag;
 	/// @brief Whether component is movable
 	static inline constexpr bool movable = std::movable<ComponentT>;
-	static_assert(!(!movable && !inPlace), "Non-movable components cannot be marked as not-in-place");
+	/// @brief Whether component is marked as in-place
+	static inline constexpr bool inPlace = Specs::inPlace && !flag;
+	static_assert(!(!movable && !inPlace), "Non-movable component must be marked as in-place");
 	/// @brief Component page size
 	static inline constexpr size_t pageSize = Specs::pageSize;
 	static_assert(std::popcount(pageSize) == 1, "pageSize must be a power of 2");

@@ -1,7 +1,7 @@
+#include <archimedes/Ecs.h>
 #include <archimedes/Logger.h>
 #include <archimedes/audio/AudioException.h>
 #include <archimedes/audio/AudioManager.h>
-#include <archimedes/ecs/View.h>
 
 namespace arch::audio {
 
@@ -130,7 +130,7 @@ void AudioManager::assignSource(
 void AudioManager::synchronize(ecs::Domain& domain) {
 	// synchronize Sources
 	auto sourcesView = domain.view<AudioSourceComponent>();
-	for (auto [entity, audioSource] : sourcesView.all()) {
+	for (auto [entity, audioSource] : sourcesView.entityComps()) {
 		if (audioSource._id == -1) {
 			continue;
 		}
@@ -160,7 +160,7 @@ void AudioManager::synchronize(ecs::Domain& domain) {
 	// synchronize Listener
 	auto listenersView = domain.view<ListenerComponent>();
 	bool activeListenerFound = false;
-	for (auto [entity, listener] : listenersView.all()) {
+	for (auto [entity, listener] : listenersView.entityComps()) {
 		if (listener._isActive) {
 			if (activeListenerFound) {
 				throw AudioException("Audio system: there are two active Listeners");
@@ -225,7 +225,7 @@ void AudioManager::updateListener(
 
 void AudioManager::setListener(ecs::Domain& domain, ListenerComponent& listener) {
 	auto view = domain.view<ListenerComponent>();
-	for (auto [entity, listener] : view.all()) {
+	for (auto [entity, listener] : view.entityComps()) {
 		listener._isActive = false;
 	}
 	listener._isActive = true;
@@ -239,7 +239,7 @@ void AudioManager::setListener(
 	const physics::RigidBodyComponent& moveable
 ) {
 	auto view = domain.view<ListenerComponent>();
-	for (auto [entity, listener] : view.all()) {
+	for (auto [entity, listener] : view.entityComps()) {
 		listener._isActive = false;
 	}
 	listener._isActive = true;

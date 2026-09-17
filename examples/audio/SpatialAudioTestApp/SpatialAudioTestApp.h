@@ -88,7 +88,7 @@ struct SpatialAudioTestApp: Application {
 			physics::RigidBodyComponent,
 			audio::AudioSourceComponent>();
 
-		for (auto [entity, transform, moveable, audioSource] : view.all()) {
+		for (auto [entity, transform, moveable, audioSource] : view.entityComps()) {
 			float angle = circleStep * 2 * std::numbers::pi / stepsPerCircle;
 			transform.position.x = listenerPosition.x + radius * std::cos(angle);
 			transform.position.y = listenerPosition.y + radius * std::sin(angle);
