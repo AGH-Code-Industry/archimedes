@@ -3,8 +3,6 @@
 #include <exception>
 #include <stacktrace>
 
-#include <archimedes/Logger.h>
-
 namespace arch {
 
 /// @brief Exception class
