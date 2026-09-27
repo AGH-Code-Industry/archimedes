@@ -1,4 +1,4 @@
-#include "GeneralViewIterator.h"
+﻿#include "GeneralViewIterator.h"
 //
 #include "ExcludingView.h"
 #include "GeneralView.h"
@@ -49,8 +49,8 @@ ITER_IE::ViewIterator(const View<Typelist<Includes...>, Typelist<Excludes...>>& 
 	_exclBegin = view._cpoolsExcl.begin();
 	_exclEnd = view._cpoolsExcl.end();
 
-	_denseBegin = std::to_address(view._domain._entityPool.begin());
-	_denseEnd = std::to_address(view._domain._entityPool.end());
+	_denseBegin = std::to_address(view._domain->_entityPool.begin());
+	_denseEnd = std::to_address(view._domain->_entityPool.end());
 
 	if (end) {
 		// assume _denseEnd as the end
