@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <array>
 #include <print>
 #include <random>
@@ -46,9 +46,7 @@ TEST(ECS, View_OneComponent) {
 
 	// pairwise view of components
 	auto v = domain.view<NormalComponent, NormalComponent2>().comps();
-	auto componentPairs = v | std::views::transform([](auto tuple) -> auto& {
-							  return std::get<0>(tuple);
-						  }) |
+	auto componentPairs = v | std::views::transform([](auto tuple) -> auto& { return std::get<0>(tuple); }) |
 		std::views::pairwise;
 	ASSERT_TRUE(std::ranges::all_of(componentPairs, [](auto pair) {
 		auto&& [first, second] = pair;
@@ -57,9 +55,7 @@ TEST(ECS, View_OneComponent) {
 	}));
 
 	// increment value of each component
-	domain.view<NormalComponent>().forEach([](auto& normal) {
-		++normal.value;
-	});
+	domain.view<NormalComponent>().forEach([](auto& normal) { ++normal.value; });
 
 	// sum values
 	int sum = 0;
@@ -80,8 +76,8 @@ TEST(ECS, View_OneContinuousComponentIsRandomAccess) {
 		domain.newEntity(),
 		domain.newEntity(),
 	};
-	for (int i = 0; i != static_cast<int>(entities.size()); ++i) {
-		domain.addComponent<NormalComponent>(entities[i]).value = i;
+	for (auto&& [i, entity] : entities | std::views::enumerate) {
+		domain.addComponent<NormalComponent>(entity).value = i;
 	}
 
 	auto view = domain.view<NormalComponent>();
@@ -99,9 +95,8 @@ TEST(ECS, View_OneContinuousComponentIsRandomAccess) {
 
 	EXPECT_EQ(std::ranges::distance(viewAfterRemoval), expectedEntities.size());
 	EXPECT_TRUE(std::ranges::equal(viewAfterRemoval, expectedEntities));
-	auto values = viewAfterRemoval.comps() | std::views::transform([](auto componentTuple) {
-		return std::get<0>(componentTuple).value;
-	});
+	auto values = viewAfterRemoval.comps() |
+		std::views::transform([](auto componentTuple) { return std::get<0>(componentTuple).value; });
 	EXPECT_TRUE(std::ranges::equal(values, expectedValues));
 }
 
@@ -161,10 +156,10 @@ TEST(ECS, View_OneIncludeAndOneExcludeFiltersEveryAccessPath) {
 	EXPECT_TRUE(std::ranges::equal(forEachEntities, expectedEntities));
 	EXPECT_TRUE(std::ranges::equal(forEachValues, expectedValues));
 
-	auto componentValues = view.comps() | std::views::transform([](auto componentTuple) {
-		return std::get<0>(componentTuple).value;
-	});
+	auto componentValues = view.comps() |
+		std::views::transform([](auto componentTuple) { return std::get<0>(componentTuple).value; });
 	EXPECT_TRUE(std::ranges::equal(componentValues, expectedValues));
+	std::println("{}\n{}", std::ranges::distance(componentValues), std::ranges::distance(expectedValues));
 
 	auto entityComponents = view.entityComps();
 	auto expectedEntity = expectedEntities.begin();
@@ -236,10 +231,12 @@ TEST(ECS, View_Empty) {
 	ASSERT_EQ((domain.view<NormalComponent, InPlaceComponent, FlagComponent>().minCPool()), (u32)-1);
 
 	// is view with FlagComponent empty?
-	ASSERT_TRUE(std::ranges::equal(
-		std::views::empty<ecs::Entity>,
-		domain.view<NormalComponent, InPlaceComponent, FlagComponent>()
-	));
+	ASSERT_TRUE(
+		std::ranges::equal(
+			std::views::empty<ecs::Entity>,
+			domain.view<NormalComponent, InPlaceComponent, FlagComponent>()
+		)
+	);
 	ASSERT_TRUE(std::ranges::equal(std::views::empty<ecs::Entity>, domain.view<FlagComponent>()));
 }
 
@@ -355,7 +352,7 @@ TEST(ECS, View_OnlyExcludes) {
 	constexpr int notExcludedCount = 1'000;
 
 	std::vector<ecs::Entity> notExcludedEntities;
-	notExcludedEntities.resize(notExcludedCount);
+	notExcludedEntities.reserve(notExcludedCount);
 
 	for (int i = 0; i != excludedCount; ++i) {
 		auto entity = domain.newEntity();
@@ -365,10 +362,10 @@ TEST(ECS, View_OnlyExcludes) {
 		domain.addComponent<InPlaceComponent>(entity);
 	}
 
-	for (int i = 0 ; i != notExcludedCount; ++i) {
+	for (int i = 0; i != notExcludedCount; ++i) {
 		auto entity = domain.newEntity();
 		domain.addComponent<NormalComponent2>(entity);
-		notExcludedEntities[i] = entity;
+		notExcludedEntities.push_back(entity);
 	}
 
 	ASSERT_TRUE(std::ranges::equal(domain.view<>(exclude<NormalComponent>), notExcludedEntities));

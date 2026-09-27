@@ -1,4 +1,4 @@
-#include "../IsEntity.h"
+﻿#include "../IsEntity.h"
 #include "GeneralView.h"
 #include <archimedes/utils/ConstVal.h>
 #include <archimedes/utils/IsApplicable.h>
@@ -164,7 +164,7 @@ TEMPLATE_IE
 auto VIEW_IE::comps() noexcept {
 	constexpr auto nonFlags = _nonFlags();
 	static_assert(nonFlags.size() != 0, "Cannot call comps() on flag-only views");
-	if constexpr (includes.size() == 1) { // single include, return cpool
+	if constexpr (includes.size() == 1 && excludes.size() == 0) { // single include, return cpool
 		constexpr auto cpool = nonFlags.transform(_details::cpoolCast);
 
 		if (_cpools.front()) {
@@ -206,7 +206,7 @@ TEMPLATE_IE
 auto VIEW_IE::entityComps() noexcept {
 	constexpr auto nonFlags = _nonFlags();
 	static_assert(nonFlags.size() != 0, "Cannot call entityComps() on flag-only views");
-	if constexpr (includes.size() == 1) {
+	if constexpr (includes.size() == 1 && excludes.size() == 0) {
 		constexpr auto cpool = nonFlags.transform(_details::cpoolCast);
 
 		if (_cpools.front()) {
@@ -301,7 +301,7 @@ bool VIEW_IE::contains(const Entity entity) const noexcept {
 
 	bool contained = Traits::hasNotNull(entity) && std::ranges::all_of(_cpools, contains);
 	if constexpr (excludes.size() != 0) {
-		contained = contained && std::none_of(_cpoolsExcl, contains);
+		contained = contained && std::ranges::none_of(_cpoolsExcl, contains);
 	}
 
 	return contained;

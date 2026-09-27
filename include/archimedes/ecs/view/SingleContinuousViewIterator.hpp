@@ -1,4 +1,4 @@
-#include "SingleContinuousViewIterator.h"
+﻿#include "SingleContinuousViewIterator.h"
 //
 #include "GeneralView.h"
 
@@ -12,10 +12,11 @@ namespace arch::ecs {
 TEMPLATE_I
 ITER_I::ViewIterator(const View<Typelist<Include>, Typelist<>>& view, bool end) noexcept {
 	if (view._minCpoolIdx != (u32)-1) {
+		auto& cpool = *view._cpools[0];
 		if (end) {
-			_denseI = std::to_address(view._cpools[0]->_dense.end());
+			_denseI = std::to_address(cpool._dense.begin() + cpool.count());
 		} else {
-			_denseI = std::to_address(view._cpools[0]->_dense.begin());
+			_denseI = std::to_address(cpool._dense.begin());
 		}
 	}
 }
