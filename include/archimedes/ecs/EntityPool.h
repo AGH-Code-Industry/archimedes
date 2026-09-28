@@ -12,7 +12,6 @@ namespace arch::ecs {
 
 /// @brief Pool for creating and killing entities
 /// @details Uses sparse set data structure
-/// @tparam Entity - entity type
 class EntityPool: public _details::SparseSet {
 	using Base = _details::SparseSet;
 
@@ -28,13 +27,13 @@ public:
 	using VersionT = typename Traits::VersionT;
 
 	/// @brief Iterator type
-	using Iterator = typename Base::DenseContainer::iterator;
+	using Iterator = std::vector<Entity>::iterator;
 	/// @brief Const iterator type
-	using ConstIterator = typename Base::DenseContainer::const_iterator;
+	using ConstIterator = std::vector<Entity>::const_iterator;
 	/// @brief Reverse iterator type
-	using ReverseIterator = typename Base::DenseContainer::reverse_iterator;
+	using ReverseIterator = std::vector<Entity>::reverse_iterator;
 	/// @brief Const reverse iterator type
-	using ConstReverseIterator = typename Base::DenseContainer::const_reverse_iterator;
+	using ConstReverseIterator = std::vector<Entity>::const_reverse_iterator;
 
 	/// @brief Null entity
 	static inline constexpr EntityT null = Traits::Ent::null;
@@ -89,9 +88,6 @@ public:
 	/// @return Iterator to found entity, end() otherwise
 	ConstIterator find(IdT id) const noexcept;
 
-	/// @brief Returns amount of entities alive
-	size_t size() const noexcept;
-
 	/// @brief Returns iterator to the first entity
 	inline Iterator begin() noexcept;
 	/// @brief Returns readonly iterator to the first entity
@@ -116,13 +112,6 @@ public:
 	inline ConstReverseIterator rend() const noexcept;
 	/// @brief Returns readonly reverse iterator to the past-the-last entity in reversed order
 	inline ConstReverseIterator crend() const noexcept;
-
-private:
-
-	// for manual checks
-	std::tuple<typename Base::SparseContainer*, typename Base::DenseContainer*> _debug() noexcept;
-
-	size_t _size = 0;
 };
 
 } // namespace arch::ecs

@@ -33,28 +33,28 @@ TEMPLATE_C void ITER_C::swap(ITER_C& other) noexcept {
 }
 
 TEMPLATE_C
-bool ITER_C::_valid() const noexcept {
-	return _i < _dense->size() && !ETraits::Version::hasNull((*_dense)[_i]);
-}
-
-TEMPLATE_C
-ITER_C& ITER_C::operator++() noexcept {
-	if constexpr (Traits::inPlace) { // need to search for next valid
-		do {
-			if constexpr (!Traits::flag) {
-				_offset = (_offset + 1) % Traits::pageSize;
-				if (!_offset) {
-					++_componentPage;
-				}
-			}
-		} while (++_i < _dense->size() && ETraits::Version::hasNull((*_dense)[_i]));
-	} else {
-		++_i;
+ITER_C& ITER_C::operator++() noexcept requires(Traits::inPlace)
+{
+	do {
 		if constexpr (!Traits::flag) {
 			_offset = (_offset + 1) % Traits::pageSize;
 			if (!_offset) {
 				++_componentPage;
 			}
+		}
+	} while (++_i < _dense->size() && ETraits::Version::hasNull((*_dense)[_i]));
+
+	return *this;
+}
+
+TEMPLATE_C
+ITER_C& ITER_C::operator++() noexcept requires(!Traits::inPlace)
+{
+	++_i;
+	if constexpr (!Traits::flag) {
+		_offset = (_offset + 1) % Traits::pageSize;
+		if (!_offset) {
+			++_componentPage;
 		}
 	}
 
@@ -69,33 +69,38 @@ ITER_C ITER_C::operator++(int) noexcept {
 }
 
 TEMPLATE_C
-ITER_C& ITER_C::operator--() noexcept {
-	if constexpr (Traits::inPlace) { // need to search for next valid
-		if (_i != 0 && _i != (size_t)-1) {
-			do {
-				if constexpr (!Traits::flag) {
-					if (!_offset) {
-						--_componentPage;
-						_offset = Traits::pageSize - 1;
-					} else {
-						--_offset;
-					}
+ITER_C& ITER_C::operator--() noexcept requires(Traits::inPlace)
+{
+	if (_i != 0 && _i != (size_t)-1) {
+		do {
+			if constexpr (!Traits::flag) {
+				if (!_offset) {
+					--_componentPage;
+					_offset = Traits::pageSize - 1;
+				} else {
+					--_offset;
 				}
-			} while (--_i != 0 && ETraits::Version::hasNull((*_dense)[_i]));
-		} else {
-			_i = (size_t)-1;
-		}
-	} else {
-		if constexpr (!Traits::flag) {
-			if (!_offset) {
-				--_componentPage;
-				_offset = Traits::pageSize - 1;
-			} else {
-				--_offset;
 			}
-		}
-		--_i;
+		} while (--_i != 0 && ETraits::Version::hasNull((*_dense)[_i]));
+	} else {
+		_i = (size_t)-1;
 	}
+
+	return *this;
+}
+
+TEMPLATE_C
+ITER_C& ITER_C::operator--() noexcept requires(!Traits::inPlace)
+{
+	if constexpr (!Traits::flag) {
+		if (!_offset) {
+			--_componentPage;
+			_offset = Traits::pageSize - 1;
+		} else {
+			--_offset;
+		}
+	}
+	--_i;
 
 	return *this;
 }
@@ -122,6 +127,63 @@ TEMPLATE_C ITER_C::Pointer ITER_C::operator->() const noexcept {
 }
 
 TEMPLATE_C
+ITER_C::Reference ITER_C::operator[](std::ptrdiff_t n) const noexcept requires(!Traits::inPlace)
+{
+	return *(*this + n);
+}
+
+TEMPLATE_C
+ITER_C& ITER_C::operator+=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace)
+{
+	_i += n;
+	if constexpr (!Traits::flag) {
+		auto newOffset = (std::ptrdiff_t)_offset + n;
+		_componentPage += newOffset / Traits::pageSize;
+		_offset = newOffset % Traits::pageSize;
+	}
+
+	return *this;
+}
+
+TEMPLATE_C
+ITER_C ITER_C::operator+(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace)
+{
+	auto temp = *this;
+	temp += n;
+	return temp;
+}
+
+TEMPLATE_C
+ITER_C& ITER_C::operator-=(std::ptrdiff_t n) noexcept requires(!Traits::inPlace)
+{
+	_i -= n;
+	if constexpr (!Traits::flag) {
+		auto newOffset = (std::ptrdiff_t)_offset - n;
+		if (newOffset < 0) {
+			auto stepBack = (-newOffset + (Traits::pageSize - 1)) / Traits::pageSize;
+			_componentPage -= stepBack;
+			newOffset += stepBack * Traits::pageSize;
+		}
+		_componentPage += newOffset / Traits::pageSize;
+		_offset = newOffset % Traits::pageSize;
+	}
+}
+
+TEMPLATE_C
+ITER_C ITER_C::operator-(std::ptrdiff_t n) const noexcept requires(!Traits::inPlace)
+{
+	auto temp = *this;
+	temp -= n;
+	return temp;
+}
+
+TEMPLATE_C
+std::ptrdiff_t ITER_C::operator-(const ComponentPoolIterator& other) const noexcept requires(!Traits::inPlace)
+{
+	return (std::ptrdiff_t)_i - (std::ptrdiff_t)other._i;
+}
+
+TEMPLATE_C
 bool ITER_C::operator==(const ITER_C& other) const noexcept {
 	return _i == other._i;
 }
@@ -129,6 +191,11 @@ bool ITER_C::operator==(const ITER_C& other) const noexcept {
 TEMPLATE_C
 std::strong_ordering ITER_C::operator<=>(const ITER_C& other) const noexcept {
 	return _i <=> other._i;
+}
+
+TEMPLATE_C
+requires(!_details::ComponentTraits<C>::inPlace) ITER_C operator+(std::ptrdiff_t n, const ITER_C& i) noexcept {
+	return i + n;
 }
 
 } // namespace arch::ecs::_details
