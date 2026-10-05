@@ -15,10 +15,11 @@ enum class Type {
 };
 
 /// @brief Enum representing compiler
+/// @brief Additionally tells between operating systems
 enum class Compiler {
-	/// @brief GCC compiler
+	/// @brief GCC compiler, using Linux
 	gcc,
-	/// @brief MSVC compiler
+	/// @brief MSVC compiler, using Windows
 	msvc,
 	/// @brief Current compiler
 	current = @ARCHIMEDES_COMPILER@

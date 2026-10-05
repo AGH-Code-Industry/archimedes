@@ -33,8 +33,9 @@ private:
 	bool _hasStacktrace = false;
 
 	static std::string _stacktraceFmt;
-	// parses function name from stacktrace_entry
+	// parses function name
 	static std::string parseStacktraceEntry(const std::stacktrace_entry& entry);
+	static std::string parseSourceLocation(const arch::utils::SimpleSourceLocation& location);
 };
 
 template<std::derived_from<arch::Exception> T>

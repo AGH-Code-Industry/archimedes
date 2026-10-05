@@ -2,7 +2,7 @@
 
 namespace arch::net {
 
-NetException::NetException(const std::string& message, const std::stacktrace& stacktrace):
-	Exception("Network", message, stacktrace) {}
+NetException::NetException(const std::string& message, const utils::SimpleSourceLocation& loc):
+	Exception("Network", message, loc) {}
 
 } // namespace arch::net

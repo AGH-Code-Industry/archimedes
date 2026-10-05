@@ -9,7 +9,7 @@ namespace _details {
 
 std::shared_ptr<spdlog::logger> LoggerSingleton::_logger{};
 
-void LoggerSingleton::init(const std::string& name, bool file) {
+void LoggerSingleton::init(const LoggerConfig& config) {
 	if (_logger) {
 		log::warn("Logger was already initialized");
 		return;
@@ -18,7 +18,7 @@ void LoggerSingleton::init(const std::string& name, bool file) {
 	std::vector<spdlog::sink_ptr> sinks;
 
 	std::string pattern = "[%T] [%l]";
-	if constexpr (buildinfo::Type::current != buildinfo::Type::Release) {
+	if (buildinfo::Type::current != buildinfo::Type::Release || config.releaseShowSource) {
 		pattern += " [%@]";
 	}
 	pattern += ": %v";
@@ -28,24 +28,28 @@ void LoggerSingleton::init(const std::string& name, bool file) {
 	consoleSink->set_pattern("%^" + pattern + "%$");
 	sinks.push_back(std::move(consoleSink));
 
-	if (file) { // init file sink
-		auto logpath = std::format("Logs/{}-{}.log", name, (long long)std::time(nullptr));
+	if (config.file) { // init file sink
+		auto logpath = std::format("Logs/{}-{}.log", config.name, (long long)std::time(nullptr));
 		auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logpath, true);
 		fileSink->set_pattern(pattern);
 		sinks.push_back(std::move(fileSink));
 	}
 
-	_logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
+	_logger = std::make_shared<spdlog::logger>(config.name, sinks.begin(), sinks.end());
 	spdlog::register_logger(_logger);
 
-	_logger->set_level((spdlog::level::level_enum)Level::info);
-	_logger->flush_on((spdlog::level::level_enum)Level::debug);
+	_logger->set_level((spdlog::level::level_enum)config.level);
+	_logger->flush_on((spdlog::level::level_enum)config.level);
 }
 
 } // namespace _details
 
 void setLevel(Level level) {
 	_details::LoggerSingleton::_logger->set_level((spdlog::level::level_enum)level);
+}
+
+void init(const LoggerConfig& config) {
+	_details::LoggerSingleton::init(config);
 }
 
 _details::UniversalLogger logger{};

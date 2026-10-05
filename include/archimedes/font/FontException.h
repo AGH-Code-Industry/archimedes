@@ -9,8 +9,11 @@ class FontException: public ::arch::Exception {
 public:
 	/// @brief Message constructor
 	/// @param msg - message of exception
-	/// @param stacktrace Stacktrace of the exception.
-	FontException(const std::string& msg, const std::stacktrace& stacktrace = std::stacktrace::current()) noexcept;
+	/// @param loc location of the exception.
+	FontException(
+		const std::string& msg,
+		const utils::SimpleSourceLocation& stacktrace = utils::SimpleSourceLocation::current()
+	) noexcept;
 };
 
 } // namespace arch::font
