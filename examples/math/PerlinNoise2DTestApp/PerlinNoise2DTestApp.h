@@ -16,41 +16,6 @@
 
 using namespace arch;
 
-float4 hsvToRgb(float h, float s, float v) {
-	float c = v * s;
-	float x = c * (1.f - std::fabs(std::fmod(h / 60.f, 2.f) - 1.f));
-	float m = v - c;
-
-	float r = 0, g = 0, b = 0;
-
-	if (h < 60) {
-		r = c;
-		g = x;
-		b = 0;
-	} else if (h < 120) {
-		r = x;
-		g = c;
-		b = 0;
-	} else if (h < 180) {
-		r = 0;
-		g = c;
-		b = x;
-	} else if (h < 240) {
-		r = 0;
-		g = x;
-		b = c;
-	} else if (h < 300) {
-		r = x;
-		g = 0;
-		b = c;
-	} else {
-		r = c;
-		g = 0;
-		b = x;
-	}
-
-	return { r + m, g + m, b + m, 1.f };
-}
 
 std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
 	std::vector<float4> perlinMap;
@@ -59,7 +24,7 @@ std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32
 		for (u32 j = 0; j < height; j++) {
 			f32 hueFactor = (PerlinNoise2D::generate(i, j) + 1.0f) / 2.0f;
 			f32 hue = glm::mix(0.0f, 240.0f, hueFactor);
-			perlinMap.push_back(hsvToRgb(hue, saturation, value));
+			perlinMap.push_back(math::hsvToRgb(hue, saturation, value));
 		}
 	}
 	return perlinMap;
