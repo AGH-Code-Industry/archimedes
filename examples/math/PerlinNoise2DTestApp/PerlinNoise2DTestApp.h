@@ -67,8 +67,60 @@ std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32
 
 
 class PerlinNoise2DTestApp: public Application {
+
+	const u32 textureWidth = 256, textureHeight = 256;
+	const f32 saturation = 1.0f;
+	const f32 value = 0.8f;
+	
+	const f32 mapWidth = 600;
+	const f32 mapHeight = 600;
+
+	scene::Entity mapEntity;
+	Ref<asset::mesh::Mesh> mesh;
+	Ref<Scene> scene;
+	Ref<gfx::Renderer> renderer;
+
+	void generateMap(){
+
+		if(mapEntity.valid()){
+			scene->removeEntity(mapEntity);
+		}
+
+		PerlinNoise2D::build(128, -0.5f, 0.5f);
+
+		auto colors = generatePerlinMap(textureWidth, textureHeight, saturation, value);
+		auto colorsI = colors.begin();
+
+		mapEntity = scene->newEntity();
+
+		auto buffer = scene->domain().global<Camera>().buffer();
+		auto pipeline = renderer->getPipelineManager()->create(
+			{
+				.vertexShaderPath = "shaders/vertex_default.glsl",
+				.fragmentShaderPath = "shaders/fragment_default.glsl",
+				.textures = { gfx::Renderer::current()
+									->getTextureManager()
+									->createTexture2D(textureWidth, textureHeight, &*colorsI++) },
+
+				// Use the view-projection matrix from camera
+				// Ordering may differ depending on the used shader
+				.buffers = { buffer },
+			}
+		);
+
+		mapEntity.addComponent(
+			scene::components::TransformComponent{
+				.position = { -mapWidth / 2, mapHeight / 2, 0 },
+				.rotation = { 0, 0, 0, 1 },
+				.scale = { mapWidth, mapHeight, 1 }
+			}
+		);
+		mapEntity.addComponent(scene::components::MeshComponent{ .mesh = mesh, .pipeline = pipeline });
+	}
+
+
 	void init() override {
-		Ref<Scene> scene = createRef<Scene>();
+		scene = createRef<Scene>();
 
 		scene::SceneManager::get()->changeScene(scene);
 
@@ -89,60 +141,26 @@ class PerlinNoise2DTestApp: public Application {
 			{ { -1.f, 1.f, 0.f }, {0, 1} },
 		};
 
-		Ref<gfx::Renderer> renderer = gfx::Renderer::getCurrent();
-		Ref<asset::mesh::Mesh> mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
+		renderer = gfx::Renderer::getCurrent();
+		mesh = asset::mesh::Mesh::create<Vertex>(vertices, indices);
 
 		// Create camera
-		auto&& camera = scene->domain().global<Camera>();
+		scene->domain().global<Camera>();
 
-		u32 textureWidth = 256;
-		u32 textureHeight = 256;
-
-		f32 saturation = 1.0f;
-		f32 value = 0.8f;
-
-		PerlinNoise2D::build(128, -0.5f, 0.5f);
+		// Initialize Perlin Noise params
 		PerlinNoise2D::minResult = -1.0f;
 		PerlinNoise2D::maxResult = 1.0f;
 		PerlinNoise2D::baseAmplitude = 1.0f;
 		PerlinNoise2D::baseFrequency = 0.01f;
-		auto colors = generatePerlinMap(textureWidth, textureHeight, saturation, value);
-		auto colorsI = colors.begin();
 
-		auto rect = scene->newEntity();
-
-		auto pipeline = renderer->getPipelineManager()->create(
-			{
-				.vertexShaderPath = "shaders/vertex_default.glsl",
-				.fragmentShaderPath = "shaders/fragment_default.glsl",
-				.textures = { gfx::Renderer::current()
-									->getTextureManager()
-									->createTexture2D(textureWidth, textureHeight, &*colorsI++) },
-
-				// Use the view-projection matrix from camera
-				// Ordering may differ depending on the used shader
-				.buffers = { camera.buffer() },
-			}
-		);
-
-		f32 mapWidth = 600;
-		f32 mapHeight = 600;
-
-		rect.addComponent(
-			scene::components::TransformComponent{
-				.position = { -mapWidth / 2, mapHeight / 2, 0 },
-				.rotation = { 0, 0, 0, 1 },
-				.scale = { mapWidth, mapHeight, 1 }
-			}
-		);
-		rect.addComponent(scene::components::MeshComponent{ .mesh = mesh, .pipeline = pipeline });
+		generateMap();
 
 	}
 
 	void update() {
-		auto&& scene = *scene::SceneManager::get()->currentScene();
-		auto&& camera = scene.domain().global<Camera>();
-		auto&& window = *gfx::Renderer::current()->getWindow();
+		if(input::Keyboard::space.down()){
+			generateMap();
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
