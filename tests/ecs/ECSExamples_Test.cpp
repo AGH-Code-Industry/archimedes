@@ -120,9 +120,7 @@ struct WorseEnemyFlag {};
 
 // better way is to explicitly mark this component as a flag
 
-struct EnemyFlag {
-	static constexpr bool flagComponent = true;
-};
+struct EnemyFlag: ecs::FlagComponent {};
 
 } // namespace
 
@@ -185,9 +183,7 @@ TEST(ECS, Example_ComponentFlag) {
 
 namespace {
 
-struct Ship {
-	static constexpr bool inPlaceComponent = true;
-
+struct Ship: ecs::InPlaceComponent {
 	float health;
 	float bulletDamage;
 };
@@ -234,7 +230,7 @@ struct arch::ecs::ComponentSpecs<Ship> {
 TEST(ECS, Example_ComponentInPlaceCustomPageSize) {
 	ecs::Domain domain;
 
-	std::array<ecs::Entity, 32 * 3> entities;
+	std::array<ecs::Entity, 32 * 3> entities{};
 	for (size_t i = 0; i != 32 * 3; ++i) {
 		entities[i] = domain.newEntity();
 
@@ -316,7 +312,9 @@ TEST(ECS, Example_ViewsSimple) {
 	// if only you could find all entites with Pos and Vel
 	// actually, you can using views
 
-	{ auto viewPosVal = domain.view<Pos, Vel>(); }
+	{
+		auto viewPosVal = domain.view<Pos, Vel>();
+	}
 
 	// hold on, what if you accidentaly also update Vel?
 	// add 'const' to Vel to make it readonly, any change to Vel will now be an error
@@ -329,14 +327,14 @@ TEST(ECS, Example_ViewsSimple) {
 	for (ecs::Entity entity : viewPosVel) {
 		{
 			// get tuple with references
-			auto posVelTuple = viewPosVel.get(entity);
+			auto posVelTuple = viewPosVel.comps(entity);
 			// access tuple
 			auto& pos = std::get<0>(posVelTuple);
 			auto& vel = std::get<1>(posVelTuple);
 		}
 
 		// the above can be abbreviated with:
-		auto&& [pos, vel] = viewPosVel.get(entity);
+		auto&& [pos, vel] = viewPosVel.comps(entity);
 
 		pos.x += vel.x;
 		pos.y += vel.y;
@@ -344,8 +342,8 @@ TEST(ECS, Example_ViewsSimple) {
 		break; // exit for
 	}
 
-	// option 2. use view.all()
-	for (auto&& [entity, pos, vel] : viewPosVel.all()) {
+	// option 2. use view.entityComps()
+	for (auto&& [entity, pos, vel] : viewPosVel.entityComps()) {
 		pos.x += vel.x;
 		pos.y += vel.y;
 

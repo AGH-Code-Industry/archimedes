@@ -14,9 +14,7 @@
 using namespace arch;
 
 class InputTestApp: public Application {
-	struct LineFlag {
-		static constexpr bool flagComponent = true;
-	};
+	struct LineFlag: ecs::FlagComponent {};
 
 	struct TextInfo {
 		float3 topLeft{};
@@ -139,7 +137,7 @@ class InputTestApp: public Application {
 											->currentScene()
 											->domain()
 											.view<scene::components::TransformComponent, text::TextComponent>()
-											.components()) {
+											.comps()) {
 			auto scale = amplitude * (cos(cosArg) + 1) / 2.0;
 			transform.scale = { scale, scale, 0.f };
 		}

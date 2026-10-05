@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "CommonComponentPool.h"
+#include "ComponentPoolEntityIterator.h"
 #include "ComponentPoolIterator.h"
 #include "ComponentTraits.h"
 #include <archimedes/utils/MoveFlag.h>
@@ -16,7 +17,6 @@ namespace arch::ecs {
 /// @brief Pool for creating and destroying components
 /// @details Uses sparse set data structure
 /// @tparam C - component type
-/// @tparam Entity - entity type
 template<class C>
 class ComponentPool: public _details::CommonComponentPool {
 	using Base = _details::CommonComponentPool;
@@ -53,8 +53,24 @@ public:
 	/// @brief Const reverse iterator of component pool
 	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
-	/// @brief Destructor, deletes components.
+	/// @brief Default constructor
+	ComponentPool() noexcept = default;
+	/// @brief Copy constructor
+	ComponentPool(const ComponentPool& other) noexcept;
+	/// @brief Move constructor
+	ComponentPool(ComponentPool&&) noexcept;
+
+	/// @brief Copy-assignment operator
+	ComponentPool& operator=(const ComponentPool& other) noexcept;
+	/// @brief Move-assignment operator
+	ComponentPool& operator=(ComponentPool&&) noexcept;
+
+	/// @brief Destructor, deletes components
 	~ComponentPool() noexcept;
+
+	/// @brief Comparision operator
+	/// @details Equality means that entity-component sets of both pools must be the same
+	bool operator==(const ComponentPool& other) const noexcept;
 
 	/// @brief Adds component to given entity
 	/// @param entity - entity to add component to
@@ -118,18 +134,21 @@ public:
 	/// @brief Returns reverse iterator to past-the-last (const entity, const component) contained in a reverse order
 	ConstReverseIterator crend() const noexcept;
 
+	/// @brief Returns view with entities of this component pool
+	auto entities() const noexcept;
+	/// @brief Returns view with entities and components of this component pool
+	auto entitiesComps() const noexcept;
+
 private:
 
 	friend arch::ecs::_details::ComponentPoolIterator<C>;
-	template<class, class>
-	friend class View;
-	template<class, class>
-	friend class ViewIterator;
 
 	//// returns entity of given id from sparse, assuring it's page exists
 	// Entity& _sparseAssure(const IdT id) noexcept;
 	//  returns new entity from dense, along with it's index
 	std::tuple<Entity&, size_t> _denseNew() noexcept;
+	// assures existence of given page ptr
+	void _componentPageAssure(const size_t n) noexcept;
 	// returns pointer (likely invalid) to component of given id, can be used for placement-new or Traits::constructAt()
 	C* _componentAssure(const IdT id) noexcept;
 
@@ -140,16 +159,6 @@ private:
 
 	std::vector<C*> _components; // paged
 	size_t _listHead = 0;
-
-	// for manual checks
-	std::tuple<
-		typename Base::SparseContainer*,
-		typename Base::DenseContainer*,
-		decltype(_components)*,
-		decltype(_listHead)*>
-	_debug() noexcept {
-		return { &this->_sparse, &this->_dense, &_components, &_listHead };
-	}
 };
 
 /// @brief Struct mimicing ComponentPool of any component type
@@ -160,9 +169,13 @@ struct alignas(ComponentPool<void*>) ComponentPoolStorage {
 	// void* is an arbitrary type
 	/// @brief Type of an arbitrary ComponentPool
 	using PoolT = ComponentPool<void*>;
+
 	/// @brief std::array with size and alignment of ComponentPool
 	/// @brief char is an exception to Strict Aliasing Rule
 	alignas(PoolT) std::array<char, sizeof(PoolT)> storage{};
+
+	/// @brief Reference to storage, casted to CommonComponentPool. Makes storage somewhat debuggable.
+	_details::CommonComponentPool& _cpool = *(_details::CommonComponentPool*)&storage;
 };
 
 } // namespace arch::ecs
