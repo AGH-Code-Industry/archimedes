@@ -52,14 +52,14 @@ float4 hsvToRgb(float h, float s, float v) {
 	return { r + m, g + m, b + m, 1.f };
 }
 
-std::vector<float4> generatePerlinMap(u32 width, u32 height) {
+std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
 	std::vector<float4> perlinMap;
 	perlinMap.reserve(width * height);
 	for (u32 i = 0; i < width; i++){
 		for (u32 j = 0; j < height; j++) {
 			f32 hueFactor = (PerlinNoise2D::generate(i, j) + 1.0f) / 2.0f;
 			f32 hue = glm::mix(0.0f, 240.0f, hueFactor);
-			perlinMap.push_back(hsvToRgb(hue, 1.0f, 0.8f));
+			perlinMap.push_back(hsvToRgb(hue, saturation, value));
 		}
 	}
 	return perlinMap;
@@ -95,15 +95,18 @@ class PerlinNoise2DTestApp: public Application {
 		// Create camera
 		auto&& camera = scene->domain().global<Camera>();
 
-		// rainbow grid
-		constexpr auto gridWidth = 1000;
-		constexpr auto gridHeight = 1000;
+		u32 textureWidth = 256;
+		u32 textureHeight = 256;
 
-		PerlinNoise2D::build(256, -0.5f, 0.5f);
+		f32 saturation = 1.0f;
+		f32 value = 0.8f;
+
+		PerlinNoise2D::build(128, -0.5f, 0.5f);
 		PerlinNoise2D::minResult = -1.0f;
 		PerlinNoise2D::maxResult = 1.0f;
 		PerlinNoise2D::baseAmplitude = 1.0f;
-		auto colors = generatePerlinMap(gridWidth, gridHeight);
+		PerlinNoise2D::baseFrequency = 0.01f;
+		auto colors = generatePerlinMap(textureWidth, textureHeight, saturation, value);
 		auto colorsI = colors.begin();
 
 		auto rect = scene->newEntity();
@@ -114,18 +117,22 @@ class PerlinNoise2DTestApp: public Application {
 				.fragmentShaderPath = "shaders/fragment_default.glsl",
 				.textures = { gfx::Renderer::current()
 									->getTextureManager()
-									->createTexture2D(1000, 1000, &*colorsI++) },
+									->createTexture2D(textureWidth, textureHeight, &*colorsI++) },
 
 				// Use the view-projection matrix from camera
 				// Ordering may differ depending on the used shader
 				.buffers = { camera.buffer() },
 			}
 		);
+
+		f32 mapWidth = 600;
+		f32 mapHeight = 600;
+
 		rect.addComponent(
 			scene::components::TransformComponent{
-				.position = { 0, 0, 0 },
+				.position = { -mapWidth / 2, mapHeight / 2, 0 },
 				.rotation = { 0, 0, 0, 1 },
-				.scale = { 100, 100, 1 }
+				.scale = { mapWidth, mapHeight, 1 }
 			}
 		);
 		rect.addComponent(scene::components::MeshComponent{ .mesh = mesh, .pipeline = pipeline });
@@ -138,47 +145,6 @@ class PerlinNoise2DTestApp: public Application {
 		auto&& window = *gfx::Renderer::current()->getWindow();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-
-		// Camera movement through world space
-		if (input::Keyboard::arrowUp.down()) {
-			camera.move({ 0, 2 });
-		}
-		if (input::Keyboard::arrowDown.down()) {
-			camera.move({ 0, -2 });
-		}
-		if (input::Keyboard::arrowLeft.down()) {
-			camera.move({ -2, 0 });
-		}
-		if (input::Keyboard::arrowRight.down()) {
-			camera.move({ 2, 0 });
-		}
-
-		// Camera zooming
-		auto scroll = input::Mouse::scroll.y();
-		if (scroll < 0) { // scroll up
-			camera.zoomOut(1.1);
-		} else if (scroll > 0) { // scroll down
-			camera.zoomIn(1.1);
-		}
-
-		// Camera rotation
-		if (input::Mouse::left.down()) {
-			camera.rotate(glm::radians(1.f));
-		}
-		if (input::Mouse::right.down()) {
-			camera.rotate(glm::radians(-1.f));
-		}
-
-		if (input::Mouse::dpos() != double2()) {
-			// Printing out mouse position in world space
-			// The top-left corner of the red block is at (0, 0), each block is 100 in size
-			log::debug("{::.2f}", camera.screenToWorldPos(input::Mouse::pos()));
-		}
-
-		// Camera works with fullscreen
-		if (input::Keyboard::F11.pressed()) {
-			window.toggleFullscreen();
-		}
 	}
 
 };
