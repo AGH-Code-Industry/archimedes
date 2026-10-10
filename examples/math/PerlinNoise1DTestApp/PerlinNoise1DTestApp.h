@@ -123,8 +123,8 @@ class PerlinNoise1DTestApp: public Application {
 		// Initialize Perlin Noise params
 		PerlinNoise1D::minResult = -1.0f;
 		PerlinNoise1D::maxResult = 1.0f;
-		PerlinNoise1D::baseAmplitude = 1.0f;
-		PerlinNoise1D::baseFrequency = 0.1f;
+		PerlinNoise1D::baseAmplitude = 0.8f;
+		PerlinNoise1D::baseFrequency = 0.03f;
 
 		generateMap(mapChunks);
 

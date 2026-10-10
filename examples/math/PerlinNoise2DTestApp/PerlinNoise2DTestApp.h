@@ -75,8 +75,8 @@ class PerlinNoise2DTestApp: public Application {
 
 		mapEntity.addComponent(
 			scene::components::TransformComponent{
-				.position = { -mapWidth / 2, mapHeight / 2, 0 },
-				.rotation = { 0, 0, 0, 1 },
+				.position = { mapWidth / 2, -mapHeight / 2, 0 },
+				.rotation = quaternion(0.0f),
 				.scale = { mapWidth, mapHeight, 1 }
 			}
 		);
