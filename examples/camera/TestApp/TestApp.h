@@ -27,50 +27,13 @@
 using namespace arch;
 
 // Helper for making rainbow blocks
-float4 hsvToRgb(float h, float s, float v) {
-	float c = v * s;
-	float x = c * (1.f - std::fabs(std::fmod(h / 60.f, 2.f) - 1.f));
-	float m = v - c;
-
-	float r = 0, g = 0, b = 0;
-
-	if (h < 60) {
-		r = c;
-		g = x;
-		b = 0;
-	} else if (h < 120) {
-		r = x;
-		g = c;
-		b = 0;
-	} else if (h < 180) {
-		r = 0;
-		g = c;
-		b = x;
-	} else if (h < 240) {
-		r = 0;
-		g = x;
-		b = c;
-	} else if (h < 300) {
-		r = x;
-		g = 0;
-		b = c;
-	} else {
-		r = c;
-		g = 0;
-		b = x;
-	}
-
-	return { r + m, g + m, b + m, 1.f };
-}
-
-// Helper for making rainbow blocks
 std::vector<float4> rainbowColors(u32 N) {
 	std::vector<float4> result;
 	result.reserve(N);
 
 	for (u32 i = 0; i != N; ++i) {
 		float hue = 360.f * i / N;
-		result.push_back(hsvToRgb(hue, 1.f, 1.f));
+		result.push_back(math::hsvToRgb(hue, 1.f, 1.f));
 	}
 
 	return result;
