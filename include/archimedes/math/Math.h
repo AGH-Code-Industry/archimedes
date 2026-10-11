@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/mat2x2.hpp>
@@ -8,8 +9,6 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-
-#include <cmath>
 
 namespace arch::math {
 
@@ -59,8 +58,8 @@ using Quat = glm::qua<f32>;
 
 /// @brief Polynomial fade function used by Perlin Noise in interpolation
 /// @param t The polynomial's argument
-inline f32 fade(f32 t){
-    return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+inline f32 fade(f32 t) {
+	return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
 
 /// @brief Returns a quaternion from a rotation angle.
@@ -78,23 +77,23 @@ inline float4 hsvToRgb(f32 hue, f32 saturation, f32 value) {
 	f32 secondaryColorComponent = chroma * (1.f - std::fabs(std::fmod(hue / 60.f, 2.f) - 1.f));
 	f32 brightnessOffset = value - chroma;
 
-    float3 rgb;
+	float3 rgb;
 
 	if (hue < 60) {
-        rgb = {chroma, secondaryColorComponent, 0.0f};
+		rgb = { chroma, secondaryColorComponent, 0.0f };
 	} else if (hue < 120) {
-        rgb = {secondaryColorComponent, chroma, 0.0f};
+		rgb = { secondaryColorComponent, chroma, 0.0f };
 	} else if (hue < 180) {
-        rgb = {0.0f, chroma, secondaryColorComponent};
+		rgb = { 0.0f, chroma, secondaryColorComponent };
 	} else if (hue < 240) {
-        rgb = {0.0f, secondaryColorComponent, chroma};
+		rgb = { 0.0f, secondaryColorComponent, chroma };
 	} else if (hue < 300) {
-        rgb = {secondaryColorComponent, 0.0f, chroma};
+		rgb = { secondaryColorComponent, 0.0f, chroma };
 	} else {
-        rgb = {chroma, 0.0f, secondaryColorComponent};
+		rgb = { chroma, 0.0f, secondaryColorComponent };
 	}
 
-    return float4(rgb + brightnessOffset, 1.0f);
+	return float4(rgb + brightnessOffset, 1.0f);
 }
 
 } // namespace arch::math

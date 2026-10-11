@@ -6,13 +6,13 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
 #include <archimedes/Engine.h>
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
-#include <archimedes/BuildInfo.h>
 
 using namespace arch;
 
@@ -24,22 +24,18 @@ using namespace arch;
 std::vector<f32> generatePerlinHeights(u32 width, f32 maxHeight) {
 	std::vector<f32> heights;
 	heights.reserve(width);
-	for (u32 i = 0; i < width; i++){
+	for (u32 i = 0; i < width; i++) {
 		f32 height = (PerlinNoise1D::generate(i) + 1.0f) / 2.0f * maxHeight;
 		heights.push_back(height);
 	}
 	return heights;
 }
 
-
 class PerlinNoise1DTestApp: public Application {
-
-
-	const f32 mapWidth = 1280;
+	const f32 mapWidth = 1'280;
 	const f32 mapHeight = 600;
 
 	const f32 mapChunks = 400;
-
 
 	std::vector<scene::Entity> mapEntities;
 	Ref<asset::mesh::Mesh> mesh;
@@ -47,15 +43,13 @@ class PerlinNoise1DTestApp: public Application {
 	Ref<gfx::Renderer> renderer;
 	Ref<gfx::texture::Texture> texture;
 
-	void generateMap(f32 chunks){
-
-		if(!mapEntities.empty()){
-			for(auto entity: mapEntities){
+	void generateMap(f32 chunks) {
+		if (!mapEntities.empty()) {
+			for (auto entity : mapEntities) {
 				scene->removeEntity(entity);
 			}
 			mapEntities.clear();
 		}
-		
 
 		PerlinNoise1D::build(128, -0.5f, 0.5f);
 
@@ -73,21 +67,19 @@ class PerlinNoise1DTestApp: public Application {
 			}
 		);
 
-
 		f32 chunkWidth = mapWidth / chunks;
-		for(i32 i = 0; i < chunks; i++){
+		for (i32 i = 0; i < chunks; i++) {
 			f32 x = -mapWidth / 2 + chunkWidth * (f32)i;
 			auto entity = scene->newEntity();
 			entity.addComponent(
 				scene::components::TransformComponent{
-					.position = { x, -mapHeight / 2.0, 0 },
+					.position = {		   x, -mapHeight / 2.0, 0 },
 					.rotation = quaternion(0.0f),
-					.scale = { chunkWidth, heights[i], 1 }
-				}
+					.scale = { chunkWidth,		 heights[i], 1 }
+			  }
 			);
 			entity.addComponent(scene::components::MeshComponent{ .mesh = mesh, .pipeline = pipeline });
 			mapEntities.push_back(entity);
-
 		}
 	}
 
@@ -107,10 +99,10 @@ class PerlinNoise1DTestApp: public Application {
 		};
 
 		std::vector<Vertex> vertices{
-			{  { 0.f, 0.f, 0.f }, {1, 0} },
-			{ { -1.f, 0.f, 0.f }, {0, 0} },
-			{  { 0.f, 1.f, 0.f }, {1, 1} },
-			{ { -1.f, 1.f, 0.f }, {0, 1} },
+			{  { 0.f, 0.f, 0.f }, { 1, 0 } },
+			{ { -1.f, 0.f, 0.f }, { 0, 0 } },
+			{  { 0.f, 1.f, 0.f }, { 1, 1 } },
+			{ { -1.f, 1.f, 0.f }, { 0, 1 } },
 		};
 
 		Color pixels[1] = {
@@ -131,15 +123,13 @@ class PerlinNoise1DTestApp: public Application {
 		PerlinNoise1D::baseFrequency = 0.03f;
 
 		generateMap(mapChunks);
-
 	}
 
 	void update() {
-		if(input::Keyboard::space.down()){
+		if (input::Keyboard::space.down()) {
 			generateMap(mapChunks);
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
-
 };

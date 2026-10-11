@@ -6,13 +6,13 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
 #include <archimedes/Engine.h>
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
-#include <archimedes/BuildInfo.h>
 
 using namespace arch;
 
@@ -25,7 +25,7 @@ using namespace arch;
 std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
 	std::vector<float4> perlinMap;
 	perlinMap.reserve(width * height);
-	for (u32 i = 0; i < width; i++){
+	for (u32 i = 0; i < width; i++) {
 		for (u32 j = 0; j < height; j++) {
 			f32 hueFactor = (PerlinNoise2D::generate(i, j) + 1.0f) / 2.0f;
 			f32 hue = glm::mix(0.0f, 240.0f, hueFactor);
@@ -35,13 +35,11 @@ std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32
 	return perlinMap;
 }
 
-
 class PerlinNoise2DTestApp: public Application {
-
 	const u32 textureWidth = 256, textureHeight = 256;
 	const f32 saturation = 1.0f;
 	const f32 value = 0.8f;
-	
+
 	const f32 mapWidth = 600;
 	const f32 mapHeight = 600;
 
@@ -50,9 +48,8 @@ class PerlinNoise2DTestApp: public Application {
 	Ref<Scene> scene;
 	Ref<gfx::Renderer> renderer;
 
-	void generateMap(){
-
-		if(mapEntity.valid()){
+	void generateMap() {
+		if (mapEntity.valid()) {
 			scene->removeEntity(mapEntity);
 		}
 
@@ -69,8 +66,8 @@ class PerlinNoise2DTestApp: public Application {
 				.vertexShaderPath = "shaders/vertex_default.glsl",
 				.fragmentShaderPath = "shaders/fragment_default.glsl",
 				.textures = { gfx::Renderer::current()
-									->getTextureManager()
-									->createTexture2D(textureWidth, textureHeight, &*colorsI++) },
+								  ->getTextureManager()
+								  ->createTexture2D(textureWidth, textureHeight, &*colorsI++) },
 
 				// Use the view-projection matrix from camera
 				// Ordering may differ depending on the used shader
@@ -82,12 +79,11 @@ class PerlinNoise2DTestApp: public Application {
 			scene::components::TransformComponent{
 				.position = { mapWidth / 2, -mapHeight / 2, 0 },
 				.rotation = quaternion(0.0f),
-				.scale = { mapWidth, mapHeight, 1 }
-			}
+				.scale = {	   mapWidth,	  mapHeight, 1 }
+		   }
 		);
 		mapEntity.addComponent(scene::components::MeshComponent{ .mesh = mesh, .pipeline = pipeline });
 	}
-
 
 	void init() override {
 		scene = createRef<Scene>();
@@ -105,10 +101,10 @@ class PerlinNoise2DTestApp: public Application {
 		};
 
 		std::vector<Vertex> vertices{
-			{  { 0.f, 0.f, 0.f }, {1, 0} },
-			{ { -1.f, 0.f, 0.f }, {0, 0} },
-			{  { 0.f, 1.f, 0.f }, {1, 1} },
-			{ { -1.f, 1.f, 0.f }, {0, 1} },
+			{  { 0.f, 0.f, 0.f }, { 1, 0 } },
+			{ { -1.f, 0.f, 0.f }, { 0, 0 } },
+			{  { 0.f, 1.f, 0.f }, { 1, 1 } },
+			{ { -1.f, 1.f, 0.f }, { 0, 1 } },
 		};
 
 		renderer = gfx::Renderer::getCurrent();
@@ -124,15 +120,13 @@ class PerlinNoise2DTestApp: public Application {
 		PerlinNoise2D::baseFrequency = 0.01f;
 
 		generateMap();
-
 	}
 
 	void update() {
-		if(input::Keyboard::space.down()){
+		if (input::Keyboard::space.down()) {
 			generateMap();
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
-
 };
