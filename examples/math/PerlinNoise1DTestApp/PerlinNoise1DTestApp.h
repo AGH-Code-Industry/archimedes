@@ -16,6 +16,10 @@
 
 using namespace arch;
 
+// This example is used to test Perlin Noise 1D generator.
+// After you run it, you will see a procedurally generated pink plot.
+// You can press space to rebuild it with new seed.
+// Also don't be afraid to toy with the generator's parameters in the code to look how it affects the plot.
 
 std::vector<f32> generatePerlinHeights(u32 width, f32 maxHeight) {
 	std::vector<f32> heights;

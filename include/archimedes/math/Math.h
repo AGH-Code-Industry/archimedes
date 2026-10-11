@@ -57,6 +57,8 @@ using Color = glm::vec4;
 
 using Quat = glm::qua<f32>;
 
+/// @brief Polynomial fade function used by Perlin Noise in interpolation
+/// @param t The polynomial's argument
 inline f32 fade(f32 t){
     return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
@@ -67,6 +69,10 @@ inline Quat quaternion(f32 angle) {
 	return glm::angleAxis(angle, float3(0.0f, 0.0f, 1.0f));
 }
 
+/// @brief Converts colors from HSV scale to RGB
+/// @param hue Color's hue
+/// @param saturation Color's saturation
+/// @param value  Color's value
 inline float4 hsvToRgb(f32 hue, f32 saturation, f32 value) {
 	f32 chroma = value * saturation;
 	f32 secondaryColorComponent = chroma * (1.f - std::fabs(std::fmod(hue / 60.f, 2.f) - 1.f));

@@ -16,6 +16,11 @@
 
 using namespace arch;
 
+// This example is used to test Perlin Noise 2D generator.
+// After you run it, you will see a procedurally generated 2D hipsometric map
+// (red means very high terrain, blue means very low)
+// You can press space to rebuild it with new seed.
+// Also don't be afraid to toy with the generator's parameters in the code to look how it affects the map.
 
 std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
 	std::vector<float4> perlinMap;
