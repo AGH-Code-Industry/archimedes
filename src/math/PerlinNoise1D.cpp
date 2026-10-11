@@ -17,6 +17,9 @@ void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset){
 }
 
 void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset, i32 seed) {
+    if (minOffset > maxOffset) {
+		throw MathException("Perlin Noise 1D: minOffset must be less than or equal to maxOffset");
+	}
     build(nodesSize, seed);
     _generateOffsets(minOffset, maxOffset);
 }
@@ -32,11 +35,12 @@ void PerlinNoise1D::build(u32 nodesSize, i32 seed){
     _nodesSize = nodesSize;
     _seed = seed;
     _rng.seed(seed);
+    _offsets.clear();
+    _gradients.clear();
     _generateGradients();
 }
 
 void PerlinNoise1D::_generateGradients(){
-    _gradients.clear();
     _gradients.reserve(_nodesSize);
     for (i32 i=0; i<_nodesSize; i++){
         _gradients.push_back(_gradientsDistribution(_rng));
@@ -44,11 +48,7 @@ void PerlinNoise1D::_generateGradients(){
 }
 
 void PerlinNoise1D::_generateOffsets(f32 minOffset, f32 maxOffset) {
-    if (minOffset > maxOffset) {
-		throw MathException("Perlin Noise 1D: minOffset must be less than or equal to maxOffset");
-	}
 	auto distribution = std::uniform_real_distribution<f32>(minOffset, maxOffset);
-    _offsets.clear();
     _offsets.reserve(_nodesSize);
     for (i32 i=0; i<_nodesSize; i++){
         _offsets.push_back(distribution(_rng));
