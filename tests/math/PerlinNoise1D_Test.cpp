@@ -68,3 +68,13 @@ TEST(MathTest, PerlinNoise1DNoOffsetsTest) {
         assertValueInRange(generated, x);
     }
 }
+
+TEST(MathTest, PerlinNoise1DClearsOffsetsOnRebuildTest) {
+    constexpr math::i32 seed = 12345;
+
+    math::PerlinNoise1D::build(10, 1.0f, 1.0f, seed);
+    ASSERT_NE(math::PerlinNoise1D::generate(0.0f), 0.0f);
+
+    math::PerlinNoise1D::build(10, seed);
+    EXPECT_FLOAT_EQ(math::PerlinNoise1D::generate(0.0f), 0.0f);
+}

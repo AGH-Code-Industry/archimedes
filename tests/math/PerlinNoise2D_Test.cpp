@@ -79,3 +79,13 @@ TEST(MathTest, PerlinNoise2DNoOffsetsTest) {
         }
     }
 }
+
+TEST(MathTest, PerlinNoise2DClearsOffsetsOnRebuildTest) {
+    constexpr math::i32 seed = 12345;
+
+    math::PerlinNoise2D::build(10, 1.0f, 1.0f, seed);
+    ASSERT_NE(math::PerlinNoise2D::generate(0.0f, 0.0f), 0.0f);
+
+    math::PerlinNoise2D::build(10, seed);
+    EXPECT_FLOAT_EQ(math::PerlinNoise2D::generate(0.0f, 0.0f), 0.0f);
+}
