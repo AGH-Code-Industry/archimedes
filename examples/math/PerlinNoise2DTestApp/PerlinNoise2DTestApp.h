@@ -13,6 +13,7 @@
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
+#include <archimedes/Algorithms.h>
 
 using namespace arch;
 

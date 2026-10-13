@@ -3,9 +3,9 @@
 #include <random>
 #include <vector>
 
-#include <archimedes/math/Math.h>
+#include <archimedes/Math.h>
 
-namespace arch::math {
+namespace arch::algorithms {
 
 /// @brief Perlin Noise generator for 1D input
 /// The output function is continuous, yet looks somewhat randomised

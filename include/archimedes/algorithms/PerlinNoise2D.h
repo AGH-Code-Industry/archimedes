@@ -3,9 +3,9 @@
 #include <random>
 #include <vector>
 
-#include <archimedes/math/Math.h>
+#include <archimedes/Math.h>
 
-namespace arch::math {
+namespace arch::algorithms {
 
 /// @brief Helper structure used to calculate gradients for 2D Perlin Noise
 struct GridCell {
@@ -25,7 +25,7 @@ class PerlinNoise2D {
 	inline static u32 _gridSize;
 	inline static i32 _seed;
 
-	inline static const std::array<float2, 4> _constantVectors = {
+	inline static constexpr std::array<float2, 4> _constantVectors = {
 		float2(1.0, 1.0),
 		float2(-1.0, 1.0),
 		float2(-1.0, -1.0),

@@ -3,13 +3,15 @@
 #include <iostream>
 #include <random>
 
-#include <archimedes/math/MathException.h>
-#include <archimedes/math/PerlinNoise1D.h>
+#include <archimedes/algorithms/AlgorithmException.h>
+#include <archimedes/algorithms/PerlinNoise1D.h>
 
-namespace arch::math {
+namespace arch::algorithms {
 
 i32 PerlinNoise1D::_generateSeed() {
-	return std::chrono::system_clock::now().time_since_epoch().count();
+	std::random_device device;
+    std::uniform_int_distribution<i32> distribution;
+    return distribution(device);
 }
 
 void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset) {
@@ -18,7 +20,7 @@ void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset) {
 
 void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset, i32 seed) {
 	if (minOffset > maxOffset) {
-		throw MathException("Perlin Noise 1D: minOffset must be less than or equal to maxOffset");
+		throw AlgorithmException("Perlin Noise 1D: minOffset must be less than or equal to maxOffset");
 	}
 	build(nodesSize, seed);
 	_generateOffsets(minOffset, maxOffset);
@@ -30,7 +32,7 @@ void PerlinNoise1D::build(u32 nodesSize) {
 
 void PerlinNoise1D::build(u32 nodesSize, i32 seed) {
 	if (nodesSize == 0) {
-		throw MathException("Perlin Noise 1D: nodesSize must be greater than 0");
+		throw AlgorithmException("Perlin Noise 1D: nodesSize must be greater than 0");
 	}
 	_nodesSize = nodesSize;
 	_seed = seed;
@@ -70,7 +72,7 @@ f32 PerlinNoise1D::_generateOctave(f32 x) {
 
 f32 PerlinNoise1D::generate(f32 x) {
 	if (_gradients.empty()) {
-		throw MathException("Perlin Noise 1D: build() must be called before generate()");
+		throw AlgorithmException("Perlin Noise 1D: build() must be called before generate()");
 	}
 	f32 result = 0.0f;
 	f32 currentFrequency = baseFrequency;
