@@ -1,6 +1,8 @@
-#pragma once
+﻿#pragma once
 
+#include <concepts>
 #include <exception>
+#include <variant>
 
 #include <archimedes/Logger.h>
 #include <archimedes/utils/OptRef.h>
@@ -22,18 +24,6 @@ public:
 		std::string_view message,
 		const utils::SimpleSourceLocation& location = utils::SimpleSourceLocation::current()
 	);
-
-	/// @brief Copy constructor
-	Exception(const Exception& other);
-	/// @brief Move constructor
-	Exception(Exception&& other) noexcept;
-	/// @brief Copy-assignment operator
-	Exception& operator=(const Exception& other);
-	/// @brief Move-assignment operator
-	Exception& operator=(Exception&& other) noexcept;
-
-	/// @brief Destrutor
-	~Exception() noexcept;
 
 	/// @brief Inherited from std::exception
 	/// @return message()
@@ -59,19 +49,14 @@ public:
 	/// @brief Adds stacktrace to this exception and returns it
 	/// @details Be aware, that building stacktrace is an expensive operation
 	template<class Self>
-	auto&& withStacktrace(this Self&& self, const std::stacktrace stacktrace = std::stacktrace::current());
+	auto&& withStacktrace(this Self&& self, std::stacktrace stacktrace = std::stacktrace::current());
 
 protected:
 	std::string _title;
 	std::string _message;
 
 private:
-	union {
-		utils::SimpleSourceLocation _location;
-		std::stacktrace _stacktrace;
-	};
-
-	bool _hasStacktrace;
+	std::variant<utils::SimpleSourceLocation, std::stacktrace> _locationOrStacktrace;
 };
 
 } // namespace arch
