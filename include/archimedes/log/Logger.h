@@ -1,5 +1,6 @@
 #pragma once
 
+#include <archimedes/utils/SourceAwareFormatString.h>
 #include <spdlog/spdlog.h>
 
 namespace arch {
@@ -30,15 +31,30 @@ enum class Level {
 /// @brief Sets global logger level
 extern void setLevel(Level level);
 
+/// @brief Logger config
+struct LoggerConfig {
+	/// @brief Logger name
+	std::string name = "Archimedes";
+	/// @brief Logger level
+	log::Level level = Level::trace;
+	/// @brief Whether to log to a file
+	bool file = true;
+	/// @brief Whether to show source location in release
+	bool releaseShowSource = false;
+};
+
+extern void init(const LoggerConfig& config);
+
 namespace _details {
 
 /// @brief Logger implementation
 /// @param level - log level
+/// @param loc - source_location to print
 /// @param stacktraceSkip - stacktrace entries to skip, including logImpl itself
 /// @param fmt - format string
 /// @param args... - arguments to format
 template<typename... Args>
-void logImpl(Level level, const u32 stacktraceSkip, std::format_string<Args...> fmt, Args&&... args);
+void logImpl(Level level, const utils::SimpleSourceLocation loc, std::format_string<Args...> fmt, Args&&... args);
 
 /// @brief Type of log::logger
 struct UniversalLogger {
@@ -47,7 +63,7 @@ struct UniversalLogger {
 	/// @param fmt - format string
 	/// @param args... - arguments to format
 	template<class... Args>
-	static void operator()(Level level, std::format_string<Args...> fmt, Args&&... args);
+	static void operator()(Level level, utils::SourceAwareFormatString<Args...> fmt, Args&&... args);
 };
 
 /// @brief Type of leveled loggers
@@ -58,7 +74,7 @@ struct LeveledLogger {
 	/// @param fmt - format string
 	/// @param args... - arguments to format
 	template<class... Args>
-	static void operator()(std::format_string<Args...> fmt, Args&&... args);
+	static void operator()(utils::SourceAwareFormatString<Args...> fmt, Args&&... args);
 
 	/// @brief Conversion operator, enables use of log::<level> as enum values, instead of log::Level::<level>
 	consteval operator Level() const noexcept;
@@ -69,12 +85,11 @@ public:
 	/// @brief Initializes global logger
 	/// @param name - logger name
 	/// @param file - whether to log to a file
-	static void init(const std::string& name, bool file);
+	static void init(const LoggerConfig& config);
 
 private:
 	template<class... Args>
-	friend void logImpl(Level, const u32, spdlog::format_string_t<Args...>, Args&&...);
-	friend class ::arch::Engine;
+	friend void logImpl(Level, const utils::SimpleSourceLocation, std::format_string<Args...>, Args&&...);
 	friend void ::arch::log::setLevel(Level);
 
 	static std::shared_ptr<spdlog::logger> _logger;
