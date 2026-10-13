@@ -13,9 +13,12 @@ class InvalidEnumException final: public Exception {
 public:
 	/// Constructor.
 	/// @param message Message of the exception.
-	/// @param stacktrace Stacktrace of the exception.
+	/// @param loc location of the exception.
 	///
-	InvalidEnumException(const std::string& message, const std::stacktrace& stacktrace = std::stacktrace::current());
+	InvalidEnumException(
+		const std::string& message,
+		const utils::SimpleSourceLocation& loc = utils::SimpleSourceLocation::current()
+	);
 };
 
 } // namespace arch

@@ -2,7 +2,7 @@
 
 namespace arch::gfx::vulkan::exceptions {
 
-VulkanException::VulkanException(const std::string& message, const std::stacktrace& stacktrace):
-	Exception("Vulkan", message, stacktrace) {}
+VulkanException::VulkanException(const std::string& message, const utils::SimpleSourceLocation& loc):
+	Exception("Vulkan", message, loc) {}
 
 } // namespace arch::gfx::vulkan::exceptions

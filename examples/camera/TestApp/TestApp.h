@@ -23,6 +23,7 @@
 // - Arrow keys: accordingly move camera in world space
 // - Left mouse button: rotate camera counterclockwise
 // - Right mouse button: rotate camera clockwise
+// - F11: toggle/untoggle full screen
 
 using namespace arch;
 
