@@ -6,6 +6,7 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/Algorithms.h>
 #include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
@@ -13,7 +14,6 @@
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
-#include <archimedes/Algorithms.h>
 
 using namespace arch;
 
@@ -22,19 +22,6 @@ using namespace arch;
 // (red means very high terrain, blue means very low)
 // You can press space to rebuild it with new seed.
 // Also don't be afraid to toy with the generator's parameters in the code to look how it affects the map.
-
-std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
-	std::vector<float4> perlinMap;
-	perlinMap.reserve(width * height);
-	for (u32 i = 0; i < width; i++) {
-		for (u32 j = 0; j < height; j++) {
-			f32 hueFactor = (PerlinNoise2D::generate(i, j) + 1.0f) / 2.0f;
-			f32 hue = glm::mix(0.0f, 240.0f, hueFactor);
-			perlinMap.push_back(math::hsvToRgb(hue, saturation, value));
-		}
-	}
-	return perlinMap;
-}
 
 class PerlinNoise2DTestApp: public Application {
 	const u32 textureWidth = 256, textureHeight = 256;
@@ -48,13 +35,27 @@ class PerlinNoise2DTestApp: public Application {
 	Ref<asset::mesh::Mesh> mesh;
 	Ref<Scene> scene;
 	Ref<gfx::Renderer> renderer;
+	PerlinNoise2D noise;
+
+	std::vector<float4> generatePerlinMap(u32 width, u32 height, f32 saturation, f32 value) {
+		std::vector<float4> perlinMap;
+		perlinMap.reserve(width * height);
+		for (u32 i = 0; i < width; i++) {
+			for (u32 j = 0; j < height; j++) {
+				f32 hueFactor = (noise.generate(i, j) + 1.0f) / 2.0f;
+				f32 hue = glm::mix(0.0f, 240.0f, hueFactor);
+				perlinMap.push_back(math::hsvToRgb(hue, saturation, value));
+			}
+		}
+		return perlinMap;
+	}
 
 	void generateMap() {
 		if (mapEntity.valid()) {
 			scene->removeEntity(mapEntity);
 		}
 
-		PerlinNoise2D::build(128, -0.5f, 0.5f);
+		noise.build(128, -0.5f, 0.5f);
 
 		auto colors = generatePerlinMap(textureWidth, textureHeight, saturation, value);
 		auto colorsI = colors.begin();
@@ -114,11 +115,8 @@ class PerlinNoise2DTestApp: public Application {
 		// Create camera
 		scene->domain().global<Camera>();
 
-		// Initialize Perlin Noise params
-		PerlinNoise2D::minResult = -1.0f;
-		PerlinNoise2D::maxResult = 1.0f;
-		PerlinNoise2D::baseAmplitude = 1.0f;
-		PerlinNoise2D::baseFrequency = 0.01f;
+		// Set Perlin Noise params
+		noise.setMinResult(-1.0f).setMaxResult(1.0f).setBaseAmplitude(1.0f).setBaseFrequency(0.01f);
 
 		generateMap();
 	}

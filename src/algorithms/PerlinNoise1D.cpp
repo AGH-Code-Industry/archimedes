@@ -10,8 +10,8 @@ namespace arch::algorithms {
 
 i32 PerlinNoise1D::_generateSeed() {
 	std::random_device device;
-    std::uniform_int_distribution<i32> distribution;
-    return distribution(device);
+	std::uniform_int_distribution<i32> distribution;
+	return distribution(device);
 }
 
 void PerlinNoise1D::build(u32 nodesSize, f32 minOffset, f32 maxOffset) {
@@ -57,7 +57,7 @@ void PerlinNoise1D::_generateOffsets(f32 minOffset, f32 maxOffset) {
 	}
 }
 
-f32 PerlinNoise1D::_generateOctave(f32 x) {
+f32 PerlinNoise1D::_generateOctave(f32 x) const {
 	f32 xFloor = floor(x);
 	u32 leftNode = glm::mod(xFloor, (f32)_nodesSize);
 	f32 distance = x - xFloor;
@@ -70,22 +70,66 @@ f32 PerlinNoise1D::_generateOctave(f32 x) {
 	return glm::mix(leftContribution, rightContribution, percentage);
 }
 
-f32 PerlinNoise1D::generate(f32 x) {
+f32 PerlinNoise1D::generate(f32 x) const {
 	if (_gradients.empty()) {
 		throw AlgorithmException("Perlin Noise 1D: build() must be called before generate()");
 	}
 	f32 result = 0.0f;
-	f32 currentFrequency = baseFrequency;
-	f32 currentAmplitude = baseAmplitude;
-	for (u32 octave = 0; octave < octaves; octave++) {
+	f32 currentFrequency = _config.baseFrequency;
+	f32 currentAmplitude = _config.baseAmplitude;
+	for (u32 octave = 0; octave < _config.octaves; octave++) {
 		result += currentAmplitude * _generateOctave(x * currentFrequency);
-		currentAmplitude *= amplitudeFactor;
-		currentFrequency *= frequencyFactor;
+		currentAmplitude *= _config.amplitudeFactor;
+		currentFrequency *= _config.frequencyFactor;
 	}
-	return std::clamp(result, minResult, maxResult);
+	return std::clamp(result, _config.minResult, _config.maxResult);
 }
 
-i32 PerlinNoise1D::getSeed() {
+i32 PerlinNoise1D::getSeed() const {
 	return _seed;
 }
-} // namespace arch::math
+
+f32 PerlinNoise1D::getMinResult() const {
+	return _config.minResult;
+}
+
+f32 PerlinNoise1D::getMaxResult() const {
+	return _config.maxResult;
+}
+
+PerlinNoise1D& PerlinNoise1D::setOctaves(u32 octaves) {
+	_config.octaves = octaves;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setBaseAmplitude(f32 baseAmplitude) {
+	_config.baseAmplitude = baseAmplitude;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setBaseFrequency(f32 baseFrequency) {
+	_config.baseFrequency = baseFrequency;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setAmplitudeFactor(f32 amplitudeFactor) {
+	_config.amplitudeFactor = amplitudeFactor;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setFrequencyFactor(f32 frequencyFactor) {
+	_config.frequencyFactor = frequencyFactor;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setMinResult(f32 minResult) {
+	_config.minResult = minResult;
+	return *this;
+}
+
+PerlinNoise1D& PerlinNoise1D::setMaxResult(f32 maxResult) {
+	_config.maxResult = maxResult;
+	return *this;
+}
+
+} // namespace arch::algorithms

@@ -6,6 +6,7 @@
 #include <numbers>
 #include <random>
 
+#include <archimedes/Algorithms.h>
 #include <archimedes/BuildInfo.h>
 #include <archimedes/Camera.h>
 #include <archimedes/Ecs.h>
@@ -13,7 +14,6 @@
 #include <archimedes/Input.h>
 #include <archimedes/Scene.h>
 #include <archimedes/Text.h>
-#include <archimedes/Algorithms.h>
 
 using namespace arch;
 
@@ -21,16 +21,6 @@ using namespace arch;
 // After you run it, you will see a procedurally generated pink plot.
 // You can press space to rebuild it with new seed.
 // Also don't be afraid to toy with the generator's parameters in the code to look how it affects the plot.
-
-std::vector<f32> generatePerlinHeights(u32 width, f32 maxHeight) {
-	std::vector<f32> heights;
-	heights.reserve(width);
-	for (u32 i = 0; i < width; i++) {
-		f32 height = (PerlinNoise1D::generate(i) + 1.0f) / 2.0f * maxHeight;
-		heights.push_back(height);
-	}
-	return heights;
-}
 
 class PerlinNoise1DTestApp: public Application {
 	const f32 mapWidth = 1'280;
@@ -43,6 +33,17 @@ class PerlinNoise1DTestApp: public Application {
 	Ref<Scene> scene;
 	Ref<gfx::Renderer> renderer;
 	Ref<gfx::texture::Texture> texture;
+	PerlinNoise1D noise;
+
+	std::vector<f32> generatePerlinHeights(u32 width, f32 maxHeight) {
+		std::vector<f32> heights;
+		heights.reserve(width);
+		for (u32 i = 0; i < width; i++) {
+			f32 height = (noise.generate(i) + 1.0f) / 2.0f * maxHeight;
+			heights.push_back(height);
+		}
+		return heights;
+	}
 
 	void generateMap(f32 chunks) {
 		if (!mapEntities.empty()) {
@@ -52,7 +53,7 @@ class PerlinNoise1DTestApp: public Application {
 			mapEntities.clear();
 		}
 
-		PerlinNoise1D::build(128, -0.5f, 0.5f);
+		noise.build(128, -0.5f, 0.5f);
 
 		auto heights = generatePerlinHeights(chunks, mapHeight);
 
@@ -117,11 +118,8 @@ class PerlinNoise1DTestApp: public Application {
 		// Create camera
 		scene->domain().global<Camera>();
 
-		// Initialize Perlin Noise params
-		PerlinNoise1D::minResult = -1.0f;
-		PerlinNoise1D::maxResult = 1.0f;
-		PerlinNoise1D::baseAmplitude = 0.8f;
-		PerlinNoise1D::baseFrequency = 0.03f;
+		// Set Perlin Noise params
+		noise.setMinResult(-1.0f).setMaxResult(1.0f).setBaseAmplitude(0.8f).setBaseFrequency(0.03f);
 
 		generateMap(mapChunks);
 	}

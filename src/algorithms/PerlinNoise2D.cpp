@@ -9,9 +9,9 @@
 namespace arch::algorithms {
 
 i32 PerlinNoise2D::_generateSeed() {
-    std::random_device device;
-    std::uniform_int_distribution<i32> distribution;
-    return distribution(device);
+	std::random_device device;
+	std::uniform_int_distribution<i32> distribution;
+	return distribution(device);
 }
 
 void PerlinNoise2D::build(u32 gridSize, f32 minOffset, f32 maxOffset) {
@@ -61,12 +61,12 @@ void PerlinNoise2D::_generateOffsets(f32 minOffset, f32 maxOffset) {
 	}
 }
 
-u32 PerlinNoise2D::_getHash(u32 x, u32 y) {
+u32 PerlinNoise2D::_getHash(u32 x, u32 y) const {
 	u32 index = (_permutation[x] + y) % _gridSize;
 	return _permutation[index];
 }
 
-GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) {
+GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) const {
 	f32 xFloor = floor(x);
 	f32 yFloor = floor(y);
 
@@ -78,7 +78,7 @@ GridCell PerlinNoise2D::_getGridCell(f32 x, f32 y) {
 	return { gridX, gridY, x - xFloor, y - yFloor };
 }
 
-f32 PerlinNoise2D::_getCornerContribution(const GridCell& cell, u32 offsetX, u32 offsetY) {
+f32 PerlinNoise2D::_getCornerContribution(const GridCell& cell, u32 offsetX, u32 offsetY) const {
 	u32 cornerX = (cell.gridX + offsetX) % _gridSize;
 	u32 cornerY = (cell.gridY + offsetY) % _gridSize;
 	u32 hash = _getHash(cornerX, cornerY);
@@ -98,7 +98,7 @@ f32 PerlinNoise2D::_interpolateCell(
 	f32 topRight,
 	f32 localX,
 	f32 localY
-) {
+) const {
 	f32 percentageX = fade(localX);
 	f32 percentageY = fade(localY);
 
@@ -108,7 +108,7 @@ f32 PerlinNoise2D::_interpolateCell(
 	return glm::mix(left, right, percentageX);
 }
 
-f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
+f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) const {
 	GridCell cell = _getGridCell(x, y);
 
 	f32 bottomLeft = _getCornerContribution(cell, 0, 0);
@@ -119,22 +119,65 @@ f32 PerlinNoise2D::_generateOctave(f32 x, f32 y) {
 	return _interpolateCell(bottomLeft, bottomRight, topLeft, topRight, cell.localX, cell.localY);
 }
 
-f32 PerlinNoise2D::generate(f32 x, f32 y) {
+f32 PerlinNoise2D::generate(f32 x, f32 y) const {
 	if (_permutation.empty()) {
 		throw AlgorithmException("Perlin Noise 2D: build() must be called before generate()");
 	}
 	f32 result = 0.0f;
-	f32 currentFrequency = baseFrequency;
-	f32 currentAmplitude = baseAmplitude;
-	for (u32 octave = 0; octave < octaves; octave++) {
+	f32 currentFrequency = _config.baseFrequency;
+	f32 currentAmplitude = _config.baseAmplitude;
+	for (u32 octave = 0; octave < _config.octaves; octave++) {
 		result += currentAmplitude * _generateOctave(x * currentFrequency, y * currentFrequency);
-		currentAmplitude *= amplitudeFactor;
-		currentFrequency *= frequencyFactor;
+		currentAmplitude *= _config.amplitudeFactor;
+		currentFrequency *= _config.frequencyFactor;
 	}
-	return std::clamp(result, minResult, maxResult);
+	return std::clamp(result, _config.minResult, _config.maxResult);
 }
 
-i32 PerlinNoise2D::getSeed() {
+i32 PerlinNoise2D::getSeed() const {
 	return _seed;
 }
-} // namespace arch::math
+
+f32 PerlinNoise2D::getMinResult() const {
+	return _config.minResult;
+}
+
+f32 PerlinNoise2D::getMaxResult() const {
+	return _config.maxResult;
+}
+
+PerlinNoise2D& PerlinNoise2D::setOctaves(u32 octaves) {
+	_config.octaves = octaves;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setBaseAmplitude(f32 baseAmplitude) {
+	_config.baseAmplitude = baseAmplitude;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setBaseFrequency(f32 baseFrequency) {
+	_config.baseFrequency = baseFrequency;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setAmplitudeFactor(f32 amplitudeFactor) {
+	_config.amplitudeFactor = amplitudeFactor;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setFrequencyFactor(f32 frequencyFactor) {
+	_config.frequencyFactor = frequencyFactor;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setMinResult(f32 minResult) {
+	_config.minResult = minResult;
+	return *this;
+}
+
+PerlinNoise2D& PerlinNoise2D::setMaxResult(f32 maxResult) {
+	_config.maxResult = maxResult;
+	return *this;
+}
+} // namespace arch::algorithms
