@@ -6,7 +6,7 @@
 #include <archimedes/Math.h>
 #include <archimedes/algorithms/PerlinNoiseConfig.h>
 
-namespace arch::algorithms {
+namespace arch::algo {
 
 /// @brief Helper structure used to calculate gradients for 2D Perlin Noise
 struct GridCell {
@@ -77,4 +77,4 @@ public:
 	f32 getMinResult() const;
 	f32 getMaxResult() const;
 };
-} // namespace arch::algorithms
+} // namespace arch::algo

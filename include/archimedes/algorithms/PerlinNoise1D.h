@@ -6,7 +6,7 @@
 #include <archimedes/Math.h>
 #include <archimedes/algorithms/PerlinNoiseConfig.h>
 
-namespace arch::algorithms {
+namespace arch::algo {
 
 /// @brief Perlin Noise generator for 1D input
 /// The output function is continuous, yet looks somewhat randomised
@@ -54,12 +54,9 @@ public:
 
 	/// @brief Gets the current seed, which can reproduce the noise when used with the same settings
 	i32 getSeed() const;
-	;
 
 	/// Boundary getters
 	f32 getMinResult() const;
-	;
 	f32 getMaxResult() const;
-	;
 };
-} // namespace arch::algorithms
+} // namespace arch::algo

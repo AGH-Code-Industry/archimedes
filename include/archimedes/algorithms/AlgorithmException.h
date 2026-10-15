@@ -3,7 +3,7 @@
 
 #include <archimedes/Exception.h>
 
-namespace arch::algorithms {
+namespace arch::algo {
 /// @brief Exception thrown when an error occurs in the algorithms system.
 /// @see Exception
 ///

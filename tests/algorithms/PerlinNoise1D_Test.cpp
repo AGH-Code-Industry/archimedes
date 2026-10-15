@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 namespace math = arch::math;
-namespace algorithms = arch::algorithms;
+namespace algorithms = arch::algo;
 
 static void assertValueInRange(const algorithms::PerlinNoise1D& noise, math::f32 generated, math::f32 x) {
 	SCOPED_TRACE(

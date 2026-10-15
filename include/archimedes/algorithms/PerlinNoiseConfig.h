@@ -1,7 +1,7 @@
 #pragma once
 #include <archimedes/Math.h>
 
-namespace arch::algorithms {
+namespace arch::algo {
 
 /// @brief Params used by Perlin Noise generators
 struct PerlinNoiseConfig {
@@ -26,4 +26,4 @@ struct PerlinNoiseConfig {
 	/// @brief Upper bound applied to the generated value
 	f32 maxResult = std::numeric_limits<f32>::max();
 };
-} // namespace arch::algorithms
+} // namespace arch::algo

@@ -7,6 +7,6 @@
 
 namespace arch {
 
-using namespace arch::algorithms;
+using namespace arch::algo;
 
 } // namespace arch

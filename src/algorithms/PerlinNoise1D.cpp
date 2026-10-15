@@ -6,7 +6,7 @@
 #include <archimedes/algorithms/AlgorithmException.h>
 #include <archimedes/algorithms/PerlinNoise1D.h>
 
-namespace arch::algorithms {
+namespace arch::algo {
 
 i32 PerlinNoise1D::_generateSeed() {
 	std::random_device device;
@@ -132,4 +132,4 @@ PerlinNoise1D& PerlinNoise1D::setMaxResult(f32 maxResult) {
 	return *this;
 }
 
-} // namespace arch::algorithms
+} // namespace arch::algo
