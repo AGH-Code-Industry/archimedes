@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/mat2x2.hpp>
@@ -54,11 +55,5 @@ using Mat4x4 = glm::mat4;
 using Color = glm::vec4;
 
 using Quat = glm::qua<f32>;
-
-/// @brief Returns a quaternion from a rotation angle.
-/// @param angle The angle in radians.
-inline Quat quaternion(f32 angle) {
-	return glm::angleAxis(angle, float3(0.0f, 0.0f, 1.0f));
-}
 
 } // namespace arch::math

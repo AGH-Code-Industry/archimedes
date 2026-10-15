@@ -1,4 +1,5 @@
 #include <archimedes/BuildInfo.h>
+#include <archimedes/Logger.h>
 #include <archimedes/exception/ExceptionFormatter.h>
 #include <archimedes/utils/ParseStacktrace.h>
 

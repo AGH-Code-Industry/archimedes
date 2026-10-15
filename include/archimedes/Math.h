@@ -2,6 +2,7 @@
 
 #include <archimedes/math/Math.h>
 #include <archimedes/math/MathFormatter.h>
+#include <archimedes/math/Helpers.h>
 #include <math.h>
 
 namespace arch {

@@ -25,6 +25,9 @@ CMakeSettings.json
 cmake-build-*
 cmake/conanfile.hash
 *cache*
+conanbuild*
+conanrun*
+deactivate*
 .run/
 out/
 *.pdb
