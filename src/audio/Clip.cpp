@@ -3,7 +3,7 @@
 #include <AL/al.h>
 #include <archimedes/audio/AudioException.h>
 #include <archimedes/audio/Clip.h>
-#include <sndfile.h>
+#include <archimedes/audio/AudioFile.h>
 
 namespace arch::audio {
 
@@ -51,28 +51,14 @@ bool Clip::fillBuffer(std::vector<short>& buffer, std::size_t& cursor, bool isLo
 }
 
 void Clip::load() {
-	SF_INFO soundInfo;
-	SNDFILE* soundFile; // TODO: can be wrapped to own class
-	ALint samples;
 	if (_isLoaded) {
 		throw AudioException("Can't load Clip: " + _filePath + " - it's already loaded");
 	}
-	soundInfo.format = 0;
-	soundFile = sf_open(_filePath.c_str(), SFM_READ, &soundInfo);
-	if (soundFile == nullptr) {
-		std::string errorMessage = std::string(sf_strerror(soundFile));
-		throw AudioException(_filePath + " - " + errorMessage);
-	}
-	samples = soundInfo.channels * soundInfo.frames;
-	_soundData.reserve(samples);
-	for (int i = 0; i < samples; i++) {
-		_soundData.push_back(0);
-	}
-	sf_read_short(soundFile, _soundData.data(), samples);
-	sf_close(soundFile);
-	_channelsNumber = soundInfo.channels;
-	_dataSize = samples * sizeof(short);
-	_sampleRate = soundInfo.samplerate;
+	AudioFile file(_filePath);
+	file.load(_soundData);
+	_channelsNumber = file.getChannels();
+	_dataSize = file.getDataSize();
+	_sampleRate = file.getSampleRate();
 	_isLoaded = true;
 }
 
