@@ -82,7 +82,8 @@ CollisionGraph CollisionSystem::_getCollidedEntities() const {
 			}
 			if (isSecondScanned) {
 				collisions.addCollision(entity1, entity2, collision.value());
-			} else {
+			}
+			if (isFirstScanned) {
 				collisions.addCollision(entity2, entity1, collision.value());
 			}
 		}
