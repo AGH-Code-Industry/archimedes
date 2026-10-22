@@ -314,6 +314,29 @@ TEST_F(CollisionTest, Mask_OneWayMatch) {
 	ASSERT_FALSE(_system->getCollisions(e2).contains(e1));
 }
 
+TEST_F(CollisionTest, Mask_TwoWayMatch) {
+	phy::Circle circle{
+		{ 0.0f, 0.0f },
+		1.0f
+	};
+
+	auto e1 = createCircle({ 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+	auto e2 = createCircle({ 0.5f, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, circle);
+
+	auto& c1 = _domain->getComponent<phy::ColliderComponent>(e1);
+	auto& c2 = _domain->getComponent<phy::ColliderComponent>(e2);
+
+	c1.isScannedMask = std::bitset<32>(1 << 0);
+	c1.scansMask = std::bitset<32>(1 << 1);
+
+	c2.isScannedMask = std::bitset<32>(1 << 1);
+	c2.scansMask = std::bitset<32>(1 << 0);
+
+	_system->update();
+	ASSERT_TRUE(_system->getCollisions(e1).contains(e2));
+	ASSERT_TRUE(_system->getCollisions(e2).contains(e1));
+}
+
 TEST_F(CollisionTest, Mask_MultipleLayers) {
 	phy::Circle circle{
 		{ 0.0f, 0.0f },
