@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <fstream>
 #include <unordered_set>
 #include <vector>
@@ -15,6 +16,8 @@
 #if ARCHIMEDES_WINDOWS
 #include <windows.h>
 #elif ARCHIMEDES_LINUX
+#include <pwd.h>
+#include <unistd.h>
 #endif
 
 namespace fs = std::filesystem;
@@ -25,7 +28,6 @@ std::unique_ptr<FontDB> FontDB::_singleton;
 
 void FontDB::_addFont(std::string path) noexcept {
 	if constexpr (ARCHIMEDES_WINDOWS) {
-		// some fonts dont have full path in registry
 		if (!fs::path(path).has_parent_path()) {
 			path = "C:/Windows/Fonts/" + path;
 		}
@@ -37,7 +39,6 @@ void FontDB::_addFont(std::string path) noexcept {
 
 	auto ft = reinterpret_cast<FT_Library>(_pimpl);
 
-	// font file can have multiple styles inside
 	do {
 		face = {};
 		if (FT_New_Face(ft, path.c_str(), i, &face) == 0) {
@@ -45,9 +46,13 @@ void FontDB::_addFont(std::string path) noexcept {
 				faceCount = face->num_faces;
 			}
 
+			if (!face->family_name || !face->style_name) {
+				FT_Done_Face(face);
+				continue;
+			}
+
 			auto foundFont = _fonts.find(face->family_name);
 
-			// set name
 			if (foundFont == _fonts.end()) {
 				auto&& [it, ignore] = _fonts.insert({ face->family_name, {} });
 
@@ -59,7 +64,6 @@ void FontDB::_addFont(std::string path) noexcept {
 
 			auto&& font = foundFont->second;
 
-			// add style
 			auto&& [it, ignored] = font._styles.insert({ face->style_name, {} });
 			auto&& fontFace = it->second;
 			fontFace._familyName = font._familyName;
@@ -92,7 +96,6 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 			if (result == ERROR_NO_MORE_ITEMS) {
 				break;
 			} else if (result == ERROR_SUCCESS && type == REG_SZ) {
-				// we have path to font file
 				_addFont((char*)valueData);
 			}
 		}
@@ -100,26 +103,51 @@ void FontDB::_findAndAddFontsWindows() noexcept {
 }
 #elif ARCHIMEDES_LINUX
 void FontDB::_findAndAddFontsLinux() noexcept {
-	const auto fontDirs = std::initializer_list<fs::path>{ "/usr/share/fonts",
-														   "/usr/local/share/fonts",
-														   "/opt/share/fonts",
-														   "~/.fonts",
-														   "~/.local/share/fonts",
-														   "~/.config/fontconfig/fonts",
-														   "~/.wine/drive_c/windows/Fonts" };
+	std::vector<fs::path> fontDirs = {
+		"/usr/share/fonts",
+		"/usr/local/share/fonts",
+		"/opt/share/fonts"
+	};
 
-	const std::unordered_set<std::string_view> extensions{ ".ttf", ".otf", ".woff", ".woff2", ".pfa", ".pfb", ".cff",
-														   ".pcf", ".bdf", ".bdf",	".pfr",	  ".fnt", ".fon" };
+	const char* homeDir = std::getenv("HOME");
+	if (!homeDir) {
+		struct passwd* pwd = getpwuid(getuid());
+		if (pwd) {
+			homeDir = pwd->pw_dir;
+		}
+	}
+
+	if (homeDir) {
+		fs::path home(homeDir);
+		fontDirs.push_back(home / ".fonts");
+		fontDirs.push_back(home / ".local/share/fonts");
+		fontDirs.push_back(home / ".config/fontconfig/fonts");
+		fontDirs.push_back(home / ".wine/drive_c/windows/Fonts");
+	}
+
+	const std::unordered_set<std::string_view> extensions{
+		".ttf", ".otf", ".woff", ".woff2", ".pfa", ".pfb",
+		".cff", ".pcf", ".bdf", ".pfr", ".fnt", ".fon"
+	};
 
 	std::error_code ignored;
 	for (auto&& dir : fontDirs) {
 		if (fs::is_directory(dir, ignored)) {
-			for (auto&& entry :
-				 fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied, ignored)) {
+			auto options = fs::directory_options::skip_permission_denied | fs::directory_options::follow_directory_symlink;
+			for (auto&& entry : fs::recursive_directory_iterator(dir, options, ignored)) {
+				if (ignored) {
+					ignored.clear();
+					continue;
+				}
+
+				if (!entry.is_regular_file(ignored)) {
+					continue;
+				}
+
 				std::string path = entry.path().string();
 				std::string extension = entry.path().extension().string();
-				// linux and its quirks strike again
 				std::ranges::for_each(extension, [](char& c) { c = std::tolower(c); });
+
 				if (extensions.contains(extension)) {
 					_addFont(std::move(path));
 				}
@@ -155,7 +183,17 @@ FontDB& FontDB::get() noexcept {
 }
 
 bool FontDB::exists(std::string_view name) const noexcept {
-	return _fonts.contains(name);
+	if (_fonts.contains(name)) {
+		return true;
+	}
+
+#if ARCHIMEDES_LINUX
+	if (name == "Arial") {
+		return _fonts.contains("Liberation Sans") || _fonts.contains("Noto Sans") || _fonts.contains("DejaVu Sans");
+	}
+#endif
+
+	return false;
 }
 
 OptRef<Font> FontDB::get(std::string_view name) noexcept {
@@ -163,6 +201,18 @@ OptRef<Font> FontDB::get(std::string_view name) noexcept {
 	if (found != _fonts.end()) {
 		return found->second;
 	}
+
+#if ARCHIMEDES_LINUX
+	if (name == "Arial") {
+		for (std::string_view fallback : { "Liberation Sans", "Noto Sans", "DejaVu Sans" }) {
+			auto fallbackFound = _fonts.find(fallback);
+			if (fallbackFound != _fonts.end()) {
+				return fallbackFound->second;
+			}
+		}
+	}
+#endif
+
 	return std::nullopt;
 }
 

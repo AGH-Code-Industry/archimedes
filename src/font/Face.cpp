@@ -158,29 +158,42 @@ void Face::_generate() noexcept {
 
 	fs::create_directory("msdf_cache");
 
-	std::string command;
-
 	std::string fileName;
 	fileName.append(_familyName).append("__").append(styleName());
 	std::ranges::replace(fileName, ' ', '_');
 
 	std::string null = ARCHIMEDES_WINDOWS ? "nul" : "/dev/null";
 
-	// redirect output to null
-	command = std::format(
-		"\"\"{0}\" -type msdf -font \"{1}\" -format png -imageout {2}.png -json {2}.json -size {4} "
-		"-pxrange "
-		"4 -yorigin top -chars \"[0x0, 0x100000]\" > {3} 2> {3}\"",
-		MSDFAtlasGen::get().path(),
-		_fontPath,
-		fileName,
-		null,
-		MSDFAtlasGen::glyphResolution
-	);
+	std::string command;
+	if constexpr (ARCHIMEDES_WINDOWS) {
+		command = std::format(
+			"\"\"{0}\" -type msdf -font \"{1}\" -format png -imageout {2}.png -json {2}.json -size {4} "
+			"-pxrange 4 -yorigin top -chars \"[0x0, 0x100000]\" > {3} 2> {3}\"",
+			MSDFAtlasGen::get().path(),
+			_fontPath,
+			fileName,
+			null,
+			MSDFAtlasGen::glyphResolution
+		);
+	} else {
+		command = std::format(
+			"'{0}' -type msdf -font '{1}' -format png -imageout '{2}.png' -json '{2}.json' -size {4} "
+			"-pxrange 4 -yorigin top -chars '[0x0, 0x100000]' > {3} 2> {3}",
+			MSDFAtlasGen::get().path(),
+			_fontPath,
+			fileName,
+			null,
+			MSDFAtlasGen::glyphResolution
+		);
+	}
+
 	std::system(command.c_str());
 
+	std::error_code ec;
 	for (auto&& ext : { ".png", ".json" }) {
-		fs::rename(fileName + ext, "msdf_cache/" + fileName + ext);
+		if (fs::exists(fileName + ext, ec)) {
+			fs::rename(fileName + ext, "msdf_cache/" + fileName + ext, ec);
+		}
 	}
 }
 
