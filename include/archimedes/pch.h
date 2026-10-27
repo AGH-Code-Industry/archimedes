@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <array>
@@ -34,4 +34,3 @@
 #include <archimedes/input/Keyboard.h>
 #include <archimedes/input/Mouse.h>
 #include <stb_image.h>
-#include <unicodelib.h>

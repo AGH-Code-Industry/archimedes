@@ -1,5 +1,6 @@
+﻿#include <archimedes/text/ConvertTo.h>
+#include <archimedes/text/LineBreakBetween.h>
 #include <archimedes/text/TextBuilder.h>
-#include <unicodelib.h>
 
 namespace arch::text {
 
@@ -27,68 +28,96 @@ TextBuilder& TextBuilder::lineWidthEm(float em) {
 	return *this;
 }
 
-// Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-// dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-// commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-// pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-// laborum.
+WordVertexData TextBuilder::_processText() const {
+	WordVertexData result;
+	auto&& [wordData, vertices, indices, topLeft, bottomRight] = result;
 
-std::vector<WordData> TextBuilder::_processText() const {
-	return _processTextGreedy();
-}
-
-std::vector<WordData> TextBuilder::_processTextGreedy() const {
-	std::vector<WordData> result;
 	if (_text.empty()) {
 		return result;
 	}
-
 	const auto len = _text.length();
-	// i <= len is planned
-	auto prev = 0uz;
-	for (auto i = 1uz; i <= len; ++i) {
-		if (unicode::is_word_boundary(_text.data(), len, i)) {
+	vertices.reserve(4 * len);
+	indices.reserve(6 * len);
+	// std::vector<unicode::GeneralCategory> cats;
+	// cats.reserve(_text.length());
+
+	float3 pos = {};
+	u32 indicesIdx = 0;
+
+	auto wordBegin = 0uz;
+	float wordSize = 0;
+
+	for (auto i = 0uz; i != len; ++i) {
+		auto kerning = i == 0 ? 0.f : _face->kerning(_text[i - 1], _text[i]);
+
+		auto&& glyphData = _face->glyphData(_text[i]).getOr(_face->placeholder());
+		pos.x += kerning;
+
+		if (!glyphData.advanceOnly()) {
+			auto tempPos = pos + float3(glyphData.planeBounds.left, glyphData.planeBounds.top, 0);
+
+			float positionsX[] = { 0.f, -glyphData.width / _face->resolution() };
+			float positionsY[] = { 0.f, glyphData.height / _face->resolution() };
+			float uvsX[] = { glyphData.uv.first.x, glyphData.uv.second.x };
+			float uvsY[] = { glyphData.uv.first.y, glyphData.uv.second.y };
+
+			for (auto&& [ys, xs] :
+				 std::views::cartesian_product(std::views::zip(positionsY, uvsY), std::views::zip(positionsX, uvsX))) {
+				auto&& [posX, uvX] = xs;
+				auto&& [posY, uvY] = ys;
+
+				auto&& v = vertices.emplace_back(
+					float3(positionsX[i & 0b01], positionsY[i & 0b10], 0) - tempPos,
+					float2(uvsX[i & 0b01], uvsY[i & 0b10])
+				);
+			}
+
+			const auto indicesDelta = 4 * indicesIdx;
+			for (auto&& i : { 2u, 0u, 1u, 3u, 2u, 1u }) {
+				indices.push_back(i + indicesDelta);
+			}
+			++indicesIdx;
 		}
+
+		pos.x += glyphData.advance;
+		// cats.push_back(unicode::general_category(_text[i]));
+
+		/*if (i > 0) {
+			const auto a = _text[i - 1];
+			const auto b = _text[i];
+			const auto aCat = cats[i - 1];
+			const auto bCat = cats[i];
+
+			auto lineBreak = lineBreakBetween(a, b, aCat, bCat);
+			if (lineBreak != LineBreakClass::prohibited) {
+				auto&& currentWordData = wordData.emplace_back();
+				currentWordData.length = pos.x - currentWordData.position.x;
+
+				auto word = convertTo<char>(std::u32string_view(_text).substr(wordBegin, i - wordBegin));
+				std::println("{:?}", word);
+				wordBegin = i;
+			}
+		}*/
+
+		// _text[i + 1] is invalid
+		// but is_word_boundary checks for it
+		/*if (unicode::is_word_boundary(_text.data(), len, i + 1)) {
+			auto&& currentWordData = wordData.back();
+			currentWordData.length = pos.x - currentWordData.position.x;
+			std::println("{:?}", convertTo<char>(std::u32string_view(_text).substr(wordBegin, i + 1 - wordBegin)));
+			wordBegin = i + 1;
+		}*/
+	}
+
+	if (wordBegin != _text.length()) {
+		auto&& currentWordData = wordData.emplace_back();
+		currentWordData.length = pos.x - currentWordData.position.x;
+
+		auto word = convertTo<char>(std::u32string_view(_text).substr(wordBegin));
+		std::println("{:?}", word);
 	}
 
 	return result;
-}
-
-std::vector<u64> segmentateText(std::u32string_view text, float avgWordLength) {
-	std::vector<u64> result;
-	if (text.empty()) {
-		return result;
-	}
-
-	const auto len = text.length();
-	if (avgWordLength != 0) {
-		result.reserve(size_t(len / avgWordLength));
-	}
-	result.push_back(0);
-
-	auto prev = 0uz;
-	for (auto i = 1uz; i < len; ++i) {
-		if (unicode::is_word_boundary(text.data(), len, i)) {
-			result.push_back(i);
-			prev = i;
-		}
-	}
-
-	return result;
-}
-
-std::vector<WordData> LineBreak::greedy(
-	std::u32string_view text,
-	std::span<u64> words,
-	font::Face& face,
-	float lineWidthEm
-) {
-	std::vector<WordData> result;
-	result.reserve(words.size());
-
-	float currentLength = 0;
-	for (auto&& [begin, end] : words | std::views::pairwise) {
-	}
 }
 
 } // namespace arch::text
