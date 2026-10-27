@@ -25,4 +25,9 @@ std::basic_string<CharOut> convertTo(const std::basic_string<CharIn>& string) no
 	return convertTo<CharOut, CharIn>(std::basic_string_view(string));
 }
 
+template<class CharOut, class CharIn>
+std::basic_string<CharOut> convertTo(const CharIn* string) noexcept {
+	return convertTo<CharOut, CharIn>(std::basic_string_view(string));
+}
+
 } // namespace arch::text

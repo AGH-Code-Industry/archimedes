@@ -1,5 +1,4 @@
 ﻿#include <archimedes/text/ConvertTo.h>
-#include <archimedes/text/LineBreakBetween.h>
 #include <archimedes/text/TextBuilder.h>
 
 namespace arch::text {
