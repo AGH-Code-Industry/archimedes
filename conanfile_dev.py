@@ -32,6 +32,7 @@ class ArchimedesConan(ConanFile):
 		self.requires('libsndfile/1.2.2')
 
 		self.requires('freetype/2.13.2')
+		self.requires('libunistring/1.5')
 
 		# Vulkan SDK
 		self.requires('volk/1.3.268.0')
@@ -41,8 +42,6 @@ class ArchimedesConan(ConanFile):
 
 		# SPIRV (Shader compiler)
 		self.requires('shaderc/2025.3')
-
-		self.requires("cpp-unicodelib/17.0.0")
 
 		# msdf-atlas-gen
 		subprocess.run(['conan', 'install', '--requires=msdf-atlas-gen/1.3', '--build=missing'])
