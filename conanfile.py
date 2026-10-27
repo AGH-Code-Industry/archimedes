@@ -64,6 +64,7 @@ class ArchimedesConan(ConanFile):
 
 		# Font atlas generator
 		self.requires('freetype/2.13.2')
+		self.requires('libiconv/1.19', force=True)
 		self.requires('libunistring/1.5')
 
 		# Vulkan SDK
