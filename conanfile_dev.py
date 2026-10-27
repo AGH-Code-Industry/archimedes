@@ -33,6 +33,9 @@ class ArchimedesConan(ConanFile):
 
 		self.requires('freetype/2.13.2')
 
+		# Parallel standard-library algorithms
+		self.requires('onetbb/2022.2.0')
+
 		# Vulkan SDK
 		self.requires('volk/1.3.268.0')
 		self.requires('vulkan-headers/1.4.313.0', override=True)
