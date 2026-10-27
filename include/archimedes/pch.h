@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <array>
@@ -37,4 +37,3 @@
 #include <archimedes/utils/Typelist.h>
 #include <gtest/gtest.h>
 #include <stb_image.h>
-#include <unicodelib.h>
