@@ -9,13 +9,6 @@
 
 using namespace arch;
 
-class EndException: public arch::Exception {
-public:
-	EndException(std::string_view message, const std::stacktrace& stacktrace = std::stacktrace::current()):
-		Exception("Nothing", message, stacktrace) {
-	}
-};
-
 void TestApp::init() {
 	// text::TextBuilder builder;
 
@@ -86,7 +79,7 @@ void TestApp::init() {
 
 	// clang-format on
 
-	throw EndException("nothing", {});
+	throw 0;
 }
 
 void TestApp::update() {
