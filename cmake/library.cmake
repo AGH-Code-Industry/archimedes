@@ -30,6 +30,7 @@ target_link_libraries(archimedes PUBLIC
 	nvrhi_vk # idk why, but nvrhi_vk needs to be before nvrhi
 	${ARCHIMEDES_LIBRARIES}
 	GTest::gmock
+	TBB::tbb
 )
 
 # Enable IPO
