@@ -80,12 +80,12 @@ public:
 	/// @brief Returns a Clip with a given sound file.
 	/// @param path Path to the sound file.
 	/// @throws AudioException if the Clip is not found.
-	Clip& getClip(const std::string& path);
+	const Clip* getClip(const std::string& path) const;
 
 	/// @brief Finds a group containing a Clip with the given sound file.
 	/// @param path Path to the sound file.
 	/// @throws AudioException if the Clip doesn't belong to any group (so it doesn't exist).
-	int findClipGroup(const std::string& path);
+	int findClipGroup(const std::string& path) const;
 
 	/// @brief Moves a Clip to a group.
 	/// Creates the destination group if it doesn't exist.
