@@ -21,6 +21,7 @@ SoundDevice::SoundDevice() {
 SoundDevice::~SoundDevice() {
 	ALCdevice* alcDevice = reinterpret_cast<ALCdevice*>(device);
 	alcCall(alcMakeContextCurrent, alcDevice, nullptr);
+	alcCall(alcDestroyContext, alcDevice, alcContext);
 	alcCall(alcCloseDevice, alcDevice, alcDevice);
 	log::info("Audio system: closed device");
 }

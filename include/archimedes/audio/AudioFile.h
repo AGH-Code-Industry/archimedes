@@ -23,7 +23,6 @@ public:
     ~AudioFile();
 
     i32 getChannels() const;
-    i32 getDataSize() const;
     i32 getSampleRate() const;
 
     void load(std::vector<i16>& buffer) const;

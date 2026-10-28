@@ -4,61 +4,31 @@
 #include <archimedes/audio/AudioException.h>
 #include <archimedes/audio/Clip.h>
 #include <archimedes/audio/AudioFile.h>
+#include <archimedes/audio/Calls.hpp>
 
 namespace arch::audio {
 
-ClipFormat Clip::getFormat() const {
+ALenum Clip::_getFormat() const {
 	if (_channelsNumber == 1) {
-		return mono;
+		return AL_FORMAT_MONO16;
 	}
 	if (_channelsNumber == 2) {
-		return stereo;
+		return AL_FORMAT_STEREO16;
 	}
 	throw AudioException("Clip can't get format for file: " + _filePath);
 }
 
-std::size_t Clip::getBufferElements() const {
-	return _sampleItems * _channelsNumber;
-}
-
-bool Clip::fillBuffer(std::vector<short>& buffer, std::size_t& cursor, bool isLooped) const {
-	const std::size_t bufferElements = getBufferElements();
-	std::size_t sizeToCopy = bufferElements;
-
-	if (!_isLoaded) {
-		throw AudioException("Clip can't get data from file: " + _filePath + " - it's not loaded");
-	}
-
-	if (cursor + bufferElements > _soundData.size()) {
-		sizeToCopy = _soundData.size() - cursor;
-	}
-
-	std::memcpy(buffer.data(), &_soundData.data()[cursor], sizeToCopy * sizeof(short));
-	cursor += sizeToCopy;
-
-	if (sizeToCopy < bufferElements) {
-		const std::size_t lastChunkSize = bufferElements - sizeToCopy;
-		if (isLooped) {
-			cursor = 0;
-			std::memcpy(&buffer.data()[sizeToCopy], &_soundData.data()[cursor], lastChunkSize * sizeof(short));
-			cursor = lastChunkSize;
-		} else {
-			std::memset(&buffer.data()[sizeToCopy], 0, lastChunkSize * sizeof(short));
-		}
-		return true;
-	}
-	return false;
-}
 
 void Clip::load() {
 	if (_isLoaded) {
 		throw AudioException("Can't load Clip: " + _filePath + " - it's already loaded");
 	}
+	std::vector<i16> soundData;
 	AudioFile file(_filePath);
-	file.load(_soundData);
+	file.load(soundData);
 	_channelsNumber = file.getChannels();
-	_dataSize = file.getDataSize();
 	_sampleRate = file.getSampleRate();
+	alCall(alBufferData, _alBuffer, _getFormat(), soundData.data(), soundData.size(), _sampleRate);
 	_isLoaded = true;
 }
 
@@ -74,6 +44,7 @@ Clip::~Clip() {
 		unload();
 		_isLoaded = false;
 	}
+	alCall(alDeleteBuffers, 1, &_alBuffer);
 }
 
 int Clip::getSampleRate() const {
@@ -82,6 +53,10 @@ int Clip::getSampleRate() const {
 
 bool Clip::getIsLoaded() const {
 	return _isLoaded;
+}
+
+Clip::Clip(std::string_view path) : _filePath(path) {
+	alCall(alGenBuffers, 1, &_alBuffer);
 }
 
 } // namespace arch::audio

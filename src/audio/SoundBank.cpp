@@ -77,12 +77,12 @@ void SoundBank::unloadAllLoadedGroups() {
 	log::info("Audio system: unloaded all loaded sound bank groups");
 }
 
-Clip& SoundBank::getClip(const std::string& sound) {
+const Clip* SoundBank::getClip(const std::string& sound) const {
 	auto foundEntry = _clips.find(sound);
 	if (foundEntry == _clips.end()) {
 		throw AudioException("Clip with path " + sound + " not found");
 	}
-	return foundEntry->second;
+	return &foundEntry->second;
 }
 
 void SoundBank::addClip(const std::string& sound, int group) {
@@ -199,7 +199,7 @@ void SoundBank::_removeFromGroup(const std::string& sound, int group) {
 	}
 }
 
-int SoundBank::findClipGroup(const std::string& sound) {
+int SoundBank::findClipGroup(const std::string& sound) const {
 	for (auto&& [group, members] : _groups) {
 		auto entryFound = members.find(sound);
 		if (entryFound != members.end()) {

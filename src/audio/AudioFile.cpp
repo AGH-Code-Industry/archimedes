@@ -20,10 +20,6 @@ namespace arch::audio {
         return _info.channels;
     }
 
-    i32 AudioFile::getDataSize() const{
-        return _samples * sizeof(i16);
-    }
-
     i32 AudioFile::getSampleRate() const{
         return _info.samplerate;
     }
