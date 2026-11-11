@@ -8,7 +8,6 @@
 #include <archimedes/Font.h>
 #include <archimedes/Math.h>
 #include <archimedes/scene/components/MeshComponent.h>
-#include <archimedes/utils/DefaultValue.h>
 
 namespace arch::text {
 
