@@ -32,6 +32,8 @@ class ArchimedesConan(ConanFile):
 		self.requires('libsndfile/1.2.2')
 
 		self.requires('freetype/2.13.2')
+		self.requires('libiconv/1.19', force=True)
+		self.requires('libunistring/1.5')
 
 		# Vulkan SDK
 		self.requires('volk/1.3.268.0')
